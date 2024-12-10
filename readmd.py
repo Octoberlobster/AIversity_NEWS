@@ -6,16 +6,18 @@ genai.configure(api_key=api_key)
 model = genai.GenerativeModel('gemini-pro')
 
 # 指定要讀取的檔案名稱
-input_file = "analysis_result.md"
+input_file = "my_news.md"
 
-# 讀取檔案內容
-try:
-    with open(input_file, "r", encoding="utf-8") as file:
-        markdown_content = file.read()
-    print("檔案內容如下：")
-    print(markdown_content)
-except FileNotFoundError:
-    print(f"找不到檔案：{input_file}")
 
-response = model.generate_content(markdown_content+"根據以上的因果分析，生成一篇新聞報導")
-print(response.text)
+with open(input_file, "r", encoding="utf-8") as file:
+    markdown_content = file.read()
+
+response = model.generate_content("今天你是一位大學教授擅長的領域是政治學，請你對以下的文章進行分析，並發表自己的對於這篇文章的想法"+markdown_content)
+
+with open("output1.md", "w", encoding="utf-8") as file:
+    file.write(response.text)
+
+response=model.generate_content("你現在是一位資深的新聞名嘴，請你對以下的文章進行分析，並發表自己的對於這篇文章的想法"+markdown_content)
+
+with open("output2.md", "w", encoding="utf-8") as file:
+    file.write(response.text)
