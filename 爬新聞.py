@@ -1,7 +1,7 @@
 import requests
 
 # 設定 News API Key 和基礎 URL
-API_KEY = "自己的API自己生"
+API_KEY = "自己加"
 BASE_URL = "https://newsapi.org/v2/everything"
 
 def search_news(query, language="zh", page_size=100):
