@@ -3,7 +3,8 @@ import re
 
 def clean_data_to_list(input_file):
     """
-    從 CSV 檔案讀取數據，清理特殊符號，移除包含空白欄位的資料行，並以列表形式返回。
+    從 CSV 檔案讀取數據，僅保留 Title、Content 和 Url 欄位，
+    清理特殊符號，移除包含空白欄位的資料行，並以列表形式返回。
 
     Args:
         input_file: 原始 CSV 檔案的路徑。
@@ -28,24 +29,29 @@ def clean_data_to_list(input_file):
     try:
         # 讀取 CSV 檔案並轉換為列表
         with open(input_file, 'r', encoding='utf-8') as file:
-            reader = csv.reader(file)
-            headers = next(reader)  # 讀取標題列
-            data_list = [row for row in reader]  # 轉換為列表格式
+            reader = csv.DictReader(file)
+            if not {'Title', 'Content', 'Url'}.issubset(reader.fieldnames):
+                raise ValueError("CSV 文件中缺少 'Title'、'Content' 或 'Url' 欄位")
 
-        # 清理數據
-        cleaned_list = []
-        for row in data_list:
-            # 清理每行的欄位資料
-            cleaned_row = [remove_special_chars(cell) for cell in row]
+            # 清理數據並僅保留所需欄位
+            cleaned_list = []
+            for row in reader:
+                cleaned_row = {
+                    'Title': remove_special_chars(row['Title']),
+                    'Content': remove_special_chars(row['Content']),
+                    'Url': remove_special_chars(row['Url']),
+                }
 
-            # 若任何欄位為空（即 None），則跳過該行
-            if None in cleaned_row:
-                continue
+                # 若任何欄位為空（即 None），則跳過該行
+                if None in cleaned_row.values():
+                    continue
 
-            cleaned_list.append(cleaned_row)
+                cleaned_list.append([cleaned_row['Title'], cleaned_row['Content'], cleaned_row['Url']])
 
+        # 添加標題行
+        headers = ['Title', 'Content', 'Url']
         print("清理完成，資料已轉換為清理後的列表格式")
-        return [headers] + cleaned_list  # 返回包含標題的清理後數據
+        return [headers] + cleaned_list
     except Exception as e:
         print(f"發生錯誤: {e}")
         return None
