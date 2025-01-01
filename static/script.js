@@ -31,6 +31,34 @@ document.getElementById('search-button').addEventListener('click', () => {
     });
 });
 
+function generateReport(content) {
+    fetch('/read', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ clean_news: content })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // 將分析報告顯示在頁面上
+            const analysisContainer = document.getElementById('analysis-container');
+            analysisContainer.innerHTML = `
+                <h2>因果分析報告</h2>
+                <p>${data.analysis.replace(/\n/g, "<br>")}</p> <!-- 支持分段換行 -->
+            `;
+        } else {
+            alert('生成分析報告失敗: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('生成分析報告時出錯:', error);
+        alert('無法生成分析報告，請稍後再試。');
+    });
+}
+
+
 function displayNews(newsList) {
     const container = document.getElementById('news-container');
     container.innerHTML = ''; // 清空舊的結果

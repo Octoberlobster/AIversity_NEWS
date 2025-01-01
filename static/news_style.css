@@ -32,3 +32,16 @@ p {
 .back-button:hover {
     background-color: #0056b3;
 }
+
+#content p {
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 30px;
+    text-indent: 2em; /* 首行縮排 */
+}
+
+#content h2 {
+    font-size: 18px;
+    margin-top: 20px;
+    color: #007bff;
+}

@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import csv
+import clean
 
 def crawl_news(query):
 
@@ -49,6 +51,7 @@ def crawl_news(query):
                         # 根據新聞網站的 HTML 結構提取內文
                         paragraphs = soup.find_all('p')
                         content = []
+                        content.append("")
                         for p in paragraphs:
                             text = p.get_text(strip=True)
                             # 停止提取內容的條件
@@ -77,13 +80,14 @@ def crawl_news(query):
     else:
         print(f"請求失敗，狀態碼: {response.status_code}")
 
+
     # 將數據轉換為 Pandas DataFrame
     df = pd.DataFrame(news_data)
-
+    
     # # 顯示表格
-    # print(df)
-
+    #print(df)
+    
     # # 如果需要，將表格存成 CSV
     df.to_csv("news_data.csv", index=False, encoding="utf-8-sig")
-
-    return news_data
+    
+    return clean.clean_data(df)
