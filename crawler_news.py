@@ -7,8 +7,8 @@ import clean
 def crawl_news(query):
 
     # Google Custom Search API 設定
-    API_KEY = "AIzaSyATeTpiILU2Adnyv_mhb7sRrqa3vnWqZSU"  # 替換為你的 API 金鑰
-    CX = "10da07d666ab249c6"            # 替換為你的搜尋引擎 ID
+    API_KEY = ""  # 替換為你的 API 金鑰
+    CX = ""            # 替換為你的搜尋引擎 ID
     #QUERY = "柯文哲"       # 搜尋關鍵字
 
     # 設定請求 URL
