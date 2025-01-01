@@ -2,7 +2,7 @@ import google.generativeai as genai
 
 def analysis_news(clean_news):
     
-    api_key = "AIzaSyDa15_BOyDyZCLHokixmBTC9htEP0sL1Yw"
+    api_key = "你的API" 
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-pro')
 
