@@ -2,7 +2,7 @@ import google.generativeai as genai
 
 def analysis_news(clean_news):
     
-    api_key = "你的API" 
+    api_key = "" 
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-pro')
 
@@ -14,7 +14,7 @@ def analysis_news(clean_news):
     {clean_news}
     
     根據這則新聞，請生成一篇因果分析報告，並以以下格式呈現：
-    1. 每個因果關係以清晰的標題開頭。
+    1. 請使用 5W1H 的方式呈現後，給與一段簡單的摘要。
     2. 使用分段的方式，每段不超過 3-4 行。
     3. 語氣應簡潔且吸引讀者注意力。
     

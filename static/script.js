@@ -1,13 +1,15 @@
-document.getElementById('search-button').addEventListener('click', () => {
+let newsData = [];
+
+function handleSearch() {
     const keyword = document.getElementById('keyword').value.trim();
     if (!keyword) {
         alert('請輸入關鍵字');
         return;
     }
 
-     // 顯示加載動畫
-     const loadingSpinner = document.getElementById('loading-spinner');
-     loadingSpinner.style.display = 'block';
+    // 顯示加載動畫
+    const loadingSpinner = document.getElementById('loading-spinner');
+    loadingSpinner.style.display = 'block';
 
     fetch('/search', {
         method: 'POST',
@@ -29,7 +31,51 @@ document.getElementById('search-button').addEventListener('click', () => {
     .catch(error => {
         console.error('Error:', error);
     });
+}
+
+document.getElementById('search-button').addEventListener('click', handleSearch);
+document.getElementById('keyword').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        handleSearch();
+    }
 });
+
+document.getElementById('summary-button').addEventListener('click', () => {
+    if(newsData.length === 0 ) {
+        alert('請先搜索新聞');
+        return;
+    }
+
+    //把newsData轉成列表
+    const news_list = newsData.map(news => ({
+        content: news.Content || '',
+        title: news.Title || ''
+    }));
+
+    console.log("news_list:", JSON.stringify(news_list));
+
+    fetch('/summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({news_list })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const summaryContainer = document.getElementById('summary-container');
+            const summaryBox = document.getElementById('summary-box');
+
+            // 插入摘要內容
+            summaryBox.innerHTML = data.summary;
+
+            // 顯示摘要框
+            summaryContainer.style.display = 'block';
+        } else {
+            alert('生成摘要失敗');
+        }
+    });
+});
+
 
 function generateReport(content) {
     fetch('/read', {
@@ -60,8 +106,12 @@ function generateReport(content) {
 
 
 function displayNews(newsList) {
+    newsData = newsList; // 保存新聞資料
     const container = document.getElementById('news-container');
     container.innerHTML = ''; // 清空舊的結果
+
+    const summaryContainer = document.getElementById('summary-container');
+    summaryContainer.style.display = 'none'; // 隱藏摘要框
 
     if (!newsList || newsList.length === 0) {
         container.innerHTML = '<p>沒有找到相關新聞</p>';
@@ -82,9 +132,16 @@ function displayNews(newsList) {
         }
 
         // 「閱讀全文」按鈕
+        /*const newsLink = document.createElement('a');
+        newsLink.textContent = '閱讀全文';
+        newsLink.target = '_blank';
+        newsLink.href = '/news';*/
+
         const newsLink = document.createElement('button');
         newsLink.textContent = '閱讀全文';
+
         newsLink.addEventListener('click', () => {
+            event.preventDefault(); // 阻止默認行為
             fetch('/news', {
                 method: 'POST',
                 headers: {
@@ -94,6 +151,10 @@ function displayNews(newsList) {
             })
             .then(response => response.text())
             .then(html => {
+                /*const newWindow = window.open();
+                newWindow.document.open();
+                newWindow.document.write(html); // 將 HTML 寫入新分頁
+                newWindow.document.close();*/
                 document.open();
                 document.write(html);
                 document.close();
@@ -108,6 +169,13 @@ function displayNews(newsList) {
 
         container.appendChild(newsItem);
     });
+    const summaryButton = document.getElementById('summary-button');
+    if (newsList && newsList.length > 0) {
+        summaryButton.style.display = 'block';
+        summaryButton.disabled = false; // 啟用按鈕
+    } else {
+        summaryButton.style.display = 'none';
+    }
 }
 
 

@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import crawler_news  # 引入你的爬蟲腳本
 import analysis_news  # 引入你的因果分析腳本
+import summary_news  # 引入你的摘要腳本
 
 app = Flask(__name__)
 
@@ -35,6 +36,19 @@ def read():
         return jsonify({"status": "success", "analysis": analysis})
     except Exception as e:
         print(f"生成因果分析時出錯: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+@app.route('/summary', methods=['POST'])
+def summary():
+    try:
+        news_list = request.json.get('news_list')  # 從請求中獲取新聞內容
+        if not news_list:
+            return jsonify({"status": "error", "message": "缺少新聞內容"}), 400
+        summary_result = summary_news.generate_summary(news_list)  # 調用摘要函數
+        print(summary_result)
+        return jsonify({"status": "success", "summary": summary_result})
+    except Exception as e:
+        print(f"生成摘要時出錯: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
