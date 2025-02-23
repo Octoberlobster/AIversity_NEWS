@@ -1,0 +1,857 @@
+.vector-icon {
+  	position: absolute;
+  	top: 0px;
+  	left: calc(50% - 720px);
+  	width: 1440px;
+  	height: 134px;
+}
+.haeder-child {
+  	position: absolute;
+  	top: 43px;
+  	left: calc(50% - 353px);
+  	border-radius: 40px;
+  	width: 706px;
+  	height: 48px;
+}
+.menu-icon {
+  	position: absolute;
+  	top: 54px;
+  	left: calc(50% + 568px);
+  	width: 30px;
+  	height: 30px;
+  	overflow: hidden;
+}
+.settings-icon {
+  	position: absolute;
+  	top: 54px;
+  	left: calc(50% + 453px);
+  	width: 30px;
+  	height: 30px;
+  	overflow: hidden;
+}
+.alert-circle-icon {
+  	position: absolute;
+  	top: 52px;
+  	left: calc(50% + 391px);
+  	width: 30px;
+  	height: 30px;
+  	overflow: hidden;
+}
+.log-in-icon {
+  	position: absolute;
+  	top: 54px;
+  	left: calc(50% + 618px);
+  	width: 30px;
+  	height: 30px;
+  	overflow: hidden;
+}
+.div {
+  	position: absolute;
+  	top: 57px;
+  	left: calc(50% - 291px);
+  	display: inline-block;
+  	width: 204px;
+  	height: 23px;
+}
+.search-icon {
+  	position: absolute;
+  	top: 55px;
+  	left: calc(50% - 335px);
+  	width: 24px;
+  	height: 24px;
+  	overflow: hidden;
+}
+.intelexis {
+  	position: absolute;
+  	top: 38px;
+  	left: 20px;
+  	font-size: 48px;
+  	font-family: 'Padyakke Expanded One';
+  	color: #fff;
+  	display: inline-block;
+  	width: 300px;
+  	height: 58px;
+}
+.haeder {
+  	width: 1440px;
+  	position: relative;
+  	height: 134px;
+  	z-index: 8;
+  	font-size: 20px;
+  	color: #272525;
+}
+.chevron-right-icon {
+  	width: 24px;
+  	position: absolute;
+  	margin: 0 !important;
+  	top: 2595px;
+  	left: 264px;
+  	height: 24px;
+  	overflow: hidden;
+  	flex-shrink: 0;
+  	z-index: 7;
+}
+.child {
+  	position: absolute;
+  	top: 0px;
+  	left: 0px;
+  	border-radius: 39px;
+  	background-color: #686767;
+  	width: 355px;
+  	height: 437px;
+}
+.span {
+  	font-size: 12px;
+  	font-weight: 600;
+  	font-family: Inter;
+}
+.p {
+  	margin: 0;
+}
+.jojo2 {
+  	text-decoration: underline;
+}
+.span1 {
+  	line-height: 28px;
+}
+.jojo-container {
+  	position: absolute;
+  	top: 91px;
+  	left: 20px;
+  	display: inline-block;
+  	width: 219px;
+  	height: 73px;
+}
+.a {
+  	color: inherit;
+}
+.div2 {
+  	position: absolute;
+  	top: 214px;
+  	left: 20px;
+  	display: inline-block;
+  	width: 219px;
+  	height: 73px;
+}
+.div3 {
+  	position: absolute;
+  	top: 337px;
+  	left: 20px;
+  	display: inline-block;
+  	width: 219px;
+  	height: 73px;
+}
+.p31467805-icon {
+  	position: absolute;
+  	top: 92px;
+  	left: 264px;
+  	border-radius: 15px;
+  	width: 60px;
+  	height: 60px;
+  	object-fit: cover;
+}
+.images-icon {
+  	position: absolute;
+  	top: 215px;
+  	left: 264px;
+  	border-radius: 15px;
+  	width: 60px;
+  	height: 60px;
+  	object-fit: cover;
+}
+.icon {
+  	position: absolute;
+  	top: 338px;
+  	left: 264px;
+  	border-radius: 15px;
+  	width: 60px;
+  	height: 60px;
+  	object-fit: cover;
+}
+.chevron-right-icon1 {
+  	position: absolute;
+  	top: 32px;
+  	left: 153px;
+  	width: 24px;
+  	height: 24px;
+  	overflow: hidden;
+}
+.item {
+  	position: absolute;
+  	top: 69px;
+  	left: 20px;
+  	max-height: 100%;
+  	width: 304px;
+}
+.inner {
+  	position: absolute;
+  	top: 192px;
+  	left: 20px;
+  	max-height: 100%;
+  	width: 304px;
+}
+.child1 {
+  	position: absolute;
+  	top: 315px;
+  	left: 20px;
+  	max-height: 100%;
+  	width: 304px;
+}
+.div4 {
+  	position: absolute;
+  	top: 25px;
+  	left: 20px;
+  	font-size: 32px;
+  	display: inline-block;
+  	width: 194px;
+  	height: 44px;
+}
+.div1 {
+  	width: 355px;
+  	position: absolute;
+  	margin: 0 !important;
+  	top: 265px;
+  	left: 964px;
+  	height: 437px;
+  	z-index: 6;
+}
+.rectangle-div {
+  	position: absolute;
+  	top: 0px;
+  	left: 0px;
+  	border-radius: 39px;
+  	background-color: #686767;
+  	width: 355px;
+  	height: 451px;
+}
+.yahoo1 {
+  	font-weight: 600;
+  	font-family: Inter;
+}
+.yahoo-iphone-container {
+  	position: absolute;
+  	top: 90px;
+  	left: 20px;
+  	display: inline-block;
+  	width: 219px;
+  	height: 73px;
+}
+.hdd-container {
+  	position: absolute;
+  	top: 213px;
+  	left: 20px;
+  	display: inline-block;
+  	width: 219px;
+  	height: 73px;
+}
+.airvision-m1-container {
+  	position: absolute;
+  	top: 336px;
+  	left: 20px;
+  	display: inline-block;
+  	width: 233px;
+  	height: 73px;
+}
+.f4a77512f40b91c0a2ab79f9d2c5f5-icon {
+  	position: absolute;
+  	top: 91px;
+  	left: 264px;
+  	border-radius: 15px;
+  	width: 60px;
+  	height: 60px;
+  	object-fit: cover;
+}
+.segate-exos-m-800x602-icon {
+  	position: absolute;
+  	top: 214px;
+  	left: 264px;
+  	border-radius: 15px;
+  	width: 60px;
+  	height: 60px;
+  	object-fit: cover;
+}
+.f3f627b4bc23d374d31d42bd431t2k-icon {
+  	position: absolute;
+  	top: 337px;
+  	left: 264px;
+  	border-radius: 15px;
+  	width: 60px;
+  	height: 60px;
+  	object-fit: cover;
+}
+.child2 {
+  	position: absolute;
+  	top: 68px;
+  	left: 20px;
+  	max-height: 100%;
+  	width: 304px;
+}
+.child3 {
+  	position: absolute;
+  	top: 191px;
+  	left: 20px;
+  	max-height: 100%;
+  	width: 304px;
+}
+.child4 {
+  	position: absolute;
+  	top: 314px;
+  	left: 20px;
+  	max-height: 100%;
+  	width: 304px;
+}
+.div6 {
+  	position: absolute;
+  	top: 24px;
+  	left: 20px;
+  	font-size: 32px;
+  	display: inline-block;
+  	width: 194px;
+  	height: 44px;
+}
+.div5 {
+  	width: 355px;
+  	position: absolute;
+  	margin: 0 !important;
+  	top: 736px;
+  	left: 964px;
+  	height: 451px;
+  	z-index: 5;
+}
+.child5 {
+  	position: absolute;
+  	top: 0px;
+  	left: 0px;
+  	border-radius: 39px;
+  	background-color: #686767;
+  	width: 832px;
+  	height: 1427px;
+}
+.line-today-taiwan1 {
+  	font-weight: 600;
+}
+.p14 {
+  	margin: 0;
+  	font-size: 15px;
+}
+.line-today-taiwan-container {
+  	position: absolute;
+  	top: 137px;
+  	left: 375px;
+  	display: inline-block;
+  	width: 437px;
+  	height: 73px;
+}
+.yahoo-container {
+  	position: absolute;
+  	top: 486px;
+  	left: 370px;
+  	display: inline-block;
+  	width: 440px;
+  	height: 73px;
+}
+.div8 {
+  	position: absolute;
+  	top: 244px;
+  	left: 375px;
+  	display: inline-block;
+  	width: 484px;
+  	height: 73px;
+}
+.div9 {
+  	position: absolute;
+  	top: 590px;
+  	left: 370px;
+  	display: inline-block;
+  	width: 440px;
+  	height: 73px;
+}
+.div10 {
+  	position: absolute;
+  	top: 329px;
+  	left: 370px;
+  	display: inline-block;
+  	width: 484px;
+  	height: 73px;
+}
+.ettoday-container {
+  	position: absolute;
+  	top: 697px;
+  	left: 370px;
+  	display: inline-block;
+  	width: 439px;
+  	height: 73px;
+}
+.div11 {
+  	position: absolute;
+  	top: 341px;
+  	left: 20px;
+  	font-size: 24px;
+  	text-decoration: underline;
+  	font-weight: 500;
+  	color: #000;
+  	display: inline-block;
+  	width: 335px;
+  	cursor: pointer;
+}
+.div12 {
+  	position: absolute;
+  	top: 704px;
+  	left: 20px;
+  	font-size: 24px;
+  	text-decoration: underline;
+  	font-weight: 500;
+  	color: #000;
+  	display: inline-block;
+  	width: 335px;
+}
+.p28 {
+  	margin: 0;
+  	font-weight: 600;
+}
+.p29 {
+  	margin: 0;
+  	font-size: 36px;
+  	text-decoration: underline;
+  	font-weight: 500;
+}
+.div13 {
+  	position: absolute;
+  	top: 839px;
+  	left: 20px;
+  	display: inline-block;
+  	width: 584px;
+  	font-size: 24px;
+}
+.p30 {
+  	margin: 0;
+  	font-size: 36px;
+  	font-weight: 500;
+}
+.ettoday-1434-container {
+  	position: absolute;
+  	top: 1159px;
+  	left: 20px;
+  	text-decoration: underline;
+  	display: inline-block;
+  	width: 584px;
+  	font-size: 24px;
+}
+.x800-wmky-777314406071-2025021-icon {
+  	position: absolute;
+  	top: 471px;
+  	left: 20px;
+  	border-radius: 39px;
+  	width: 335px;
+  	height: 208px;
+  	object-fit: cover;
+}
+.p31010586-icon {
+  	position: absolute;
+  	top: 830px;
+  	left: 604px;
+  	border-radius: 39px;
+  	width: 208px;
+  	height: 208px;
+  	object-fit: cover;
+}
+.d8031083-icon {
+  	position: absolute;
+  	top: 1151px;
+  	left: 604px;
+  	border-radius: 39px;
+  	width: 208px;
+  	height: 208px;
+  	object-fit: cover;
+}
+.chevron-right-icon2 {
+  	position: absolute;
+  	top: 35px;
+  	left: 153px;
+  	width: 24px;
+  	height: 24px;
+  	overflow: hidden;
+}
+.child6 {
+  	position: absolute;
+  	top: 69px;
+  	left: 20px;
+  	width: 792px;
+  	height: 3px;
+  	object-fit: contain;
+}
+.child7 {
+  	position: absolute;
+  	top: 437px;
+  	left: 15px;
+  	max-height: 100%;
+  	width: 797px;
+}
+.child8 {
+  	position: absolute;
+  	top: 801px;
+  	left: 20px;
+  	width: 792px;
+  	height: 2px;
+  	object-fit: contain;
+}
+.child9 {
+  	position: absolute;
+  	top: 1116px;
+  	left: 20px;
+  	width: 792px;
+  	height: 5px;
+  	object-fit: contain;
+}
+.div14 {
+  	position: absolute;
+  	top: 28px;
+  	left: 20px;
+  	font-size: 32px;
+  	display: inline-block;
+  	width: 194px;
+  	height: 44px;
+  	cursor: pointer;
+}
+.rectangle-icon {
+  	position: absolute;
+  	top: 399px;
+  	left: 689px;
+  	border-radius: 13.5px;
+  	width: 92px;
+  	height: 27px;
+}
+.child10 {
+  	position: absolute;
+  	top: 771px;
+  	left: 685px;
+  	border-radius: 13.5px;
+  	background-color: #d9d9d9;
+  	width: 92px;
+  	height: 27px;
+}
+.book-open-icon {
+  	position: absolute;
+  	top: 408px;
+  	left: 695px;
+  	width: 17px;
+  	height: 14px;
+  	overflow: hidden;
+}
+.book-open-icon1 {
+  	position: absolute;
+  	top: 781px;
+  	left: 690px;
+  	width: 17px;
+  	height: 14px;
+  	overflow: hidden;
+}
+.book-open-icon2 {
+  	position: absolute;
+  	top: 1062px;
+  	left: 782px;
+  	width: 30px;
+  	height: 24.7px;
+  	overflow: hidden;
+}
+.book-open-icon3 {
+  	position: absolute;
+  	top: 1382px;
+  	left: 782px;
+  	width: 30px;
+  	height: 24.7px;
+  	overflow: hidden;
+}
+.div15 {
+  	position: absolute;
+  	top: 402px;
+  	left: 716px;
+  	font-size: 15px;
+  	line-height: 28px;
+  	color: #000;
+  	display: inline-block;
+  	width: 65px;
+  	height: 25px;
+}
+.div16 {
+  	position: absolute;
+  	top: 773px;
+  	left: 712px;
+  	font-size: 15px;
+  	line-height: 28px;
+  	color: #000;
+  	display: inline-block;
+  	width: 65px;
+  	height: 25px;
+}
+.p31464662-icon {
+  	position: absolute;
+  	top: 106px;
+  	left: 20px;
+  	border-radius: 39px;
+  	width: 335px;
+  	height: 208px;
+  	object-fit: cover;
+}
+.image-1 {
+  	position: absolute;
+  	top: 110px;
+  	left: 316px;
+  	width: 285px;
+  	height: 208px;
+}
+.div7 {
+  	width: 859px;
+  	position: absolute;
+  	margin: 0 !important;
+  	top: 265px;
+  	left: 101px;
+  	height: 1427px;
+  	z-index: 4;
+  	font-size: 20px;
+}
+.p32 {
+  	margin: 0;
+  	font-size: 20px;
+  	line-height: 32px;
+}
+.div17 {
+  	width: 284px;
+  	position: absolute;
+  	margin: 0 !important;
+  	top: 178px;
+  	left: 101px;
+  	color: #272525;
+  	display: inline-block;
+  	height: 88px;
+  	flex-shrink: 0;
+  	z-index: 3;
+  	font-size: 36px;
+}
+.child11 {
+  	position: absolute;
+  	top: 99px;
+  	left: 0px;
+  	border-radius: 39px;
+  	background-color: #686767;
+  	width: 1218px;
+  	height: 684px;
+}
+.book-open-icon4 {
+  	position: absolute;
+  	top: 392px;
+  	left: 1136px;
+  	width: 30px;
+  	height: 24.7px;
+  	overflow: hidden;
+}
+.book-open-icon5 {
+  	position: absolute;
+  	top: 705.05px;
+  	left: 1136px;
+  	width: 30px;
+  	height: 24.7px;
+  	overflow: hidden;
+}
+.lorem-ipsum-dolor {
+  	margin: 0;
+  	font-size: 24px;
+  	text-decoration: underline;
+  	font-weight: 500;
+}
+.lorem-ipsum-dolor-container {
+  	position: absolute;
+  	top: 185px;
+  	left: 51px;
+  	display: inline-block;
+  	width: 584px;
+}
+.lorem-ipsum-dolor-container1 {
+  	position: absolute;
+  	top: 498.05px;
+  	left: 51px;
+  	display: inline-block;
+  	width: 584px;
+}
+.child12 {
+  	position: absolute;
+  	top: 161px;
+  	left: 959px;
+  	border-radius: 39px;
+  	background-color: #d9d9d9;
+  	width: 208px;
+  	height: 208px;
+}
+.child13 {
+  	position: absolute;
+  	top: 474.05px;
+  	left: 959px;
+  	border-radius: 39px;
+  	background-color: #d9d9d9;
+  	width: 208px;
+  	height: 208px;
+}
+.chevron-right-icon3 {
+  	position: absolute;
+  	top: 10px;
+  	left: 163px;
+  	width: 24px;
+  	height: 24px;
+  	overflow: hidden;
+}
+.child14 {
+  	position: absolute;
+  	top: 141.95px;
+  	left: 51px;
+  	width: 1116px;
+  	height: 5px;
+  	object-fit: contain;
+}
+.child15 {
+  	position: absolute;
+  	top: 455px;
+  	left: 51px;
+  	width: 1116px;
+  	height: 5px;
+  	object-fit: contain;
+}
+.div19 {
+  	position: absolute;
+  	top: 0px;
+  	left: 0px;
+  	font-size: 36px;
+  	display: inline-block;
+  	width: 284px;
+  	height: 44px;
+}
+.div18 {
+  	width: 1218px;
+  	position: absolute;
+  	margin: 0 !important;
+  	top: 1747px;
+  	left: 101px;
+  	height: 783px;
+  	z-index: 2;
+  	font-size: 32px;
+}
+.chevron-down-icon {
+  	width: 24px;
+  	position: absolute;
+  	margin: 0 !important;
+  	top: 45px;
+  	left: 1031px;
+  	height: 24px;
+  	overflow: hidden;
+  	flex-shrink: 0;
+  	z-index: 1;
+}
+.child17 {
+  	position: absolute;
+  	top: 92px;
+  	left: 264px;
+  	border-radius: 15px;
+  	background-color: #d9d9d9;
+  	width: 60px;
+  	height: 60px;
+}
+.child18 {
+  	position: absolute;
+  	top: 215px;
+  	left: 264px;
+  	border-radius: 15px;
+  	background-color: #d9d9d9;
+  	width: 60px;
+  	height: 60px;
+}
+.child19 {
+  	position: absolute;
+  	top: 338px;
+  	left: 264px;
+  	border-radius: 15px;
+  	background-color: #d9d9d9;
+  	width: 60px;
+  	height: 60px;
+}
+.chevron-right-icon4 {
+  	position: absolute;
+  	top: 32px;
+  	left: 102px;
+  	width: 24px;
+  	height: 24px;
+  	overflow: hidden;
+}
+.div22 {
+  	position: absolute;
+  	top: 99px;
+  	left: 0px;
+  	width: 355px;
+  	height: 437px;
+}
+.div24 {
+  	position: absolute;
+  	top: 591px;
+  	left: 0px;
+  	width: 355px;
+  	height: 437px;
+}
+.div26 {
+  	position: absolute;
+  	top: 99px;
+  	left: 426px;
+  	width: 355px;
+  	height: 437px;
+}
+.div28 {
+  	position: absolute;
+  	top: 591px;
+  	left: 426px;
+  	width: 355px;
+  	height: 437px;
+}
+.chevron-right-icon8 {
+  	position: absolute;
+  	top: 32px;
+  	left: 118px;
+  	width: 24px;
+  	height: 24px;
+  	overflow: hidden;
+}
+.div30 {
+  	position: absolute;
+  	top: 99px;
+  	left: 863px;
+  	width: 355px;
+  	height: 437px;
+}
+.div32 {
+  	position: absolute;
+  	top: 591px;
+  	left: 863px;
+  	width: 355px;
+  	height: 437px;
+}
+.div20 {
+  	width: 1218px;
+  	position: absolute;
+  	margin: 0 !important;
+  	top: 2585px;
+  	left: 101px;
+  	height: 1028px;
+  	z-index: 0;
+}
+.desktop-1 {
+  	width: 100%;
+  	position: relative;
+  	background-color: #a19f9f;
+  	height: 3826px;
+  	overflow: hidden;
+  	display: flex;
+  	flex-direction: column;
+  	align-items: flex-start;
+  	justify-content: flex-start;
+  	text-align: left;
+  	font-size: 14px;
+  	color: #fff;
+  	font-family: Inter;
+}
+
