@@ -4,12 +4,12 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 
 # === 1. 設定本機檔案路徑 ===
-input_file_path = "台灣新聞_2025_02_24_00.json"
-output_file_path = "台灣新聞_cleaned.json"
+input_file_path = "json\\2025_02_24_00\\科技新聞_2025_02_24_00.json"
+output_file_path = "科技新聞_cleaned.json"
 
 # === 2. 設定/取得 Gemini API 金鑰 ===
 # 方法一：從環境變數取得（建議在 OS 或 CI/CD 設置環境變數 GEMINI_API_KEY）
-api_key = "YOUR_GEMINI_API_KEY"
+api_key = "AIzaSyA1d3u5KDVg1PlYrixwMS8vlMnKrGbA-pQ"
 
 # 方法二：直接在程式中手動設定 （範例）
 # api_key = "YOUR_GEMINI_API_KEY"
@@ -34,7 +34,7 @@ for article in data:
 
     # (2) 使用 Gemini API 去除雜訊
     prompt = f"""
-    請去除以下文章中的雜訊，例如多餘的標題、時間戳記、來源資訊等，並保留主要的新聞內容：
+    請去除以下文章中的雜訊，例如多餘的標題、時間戳記、來源資訊等，並保留所有新聞內容：
 
     {cleaned_text}
     """

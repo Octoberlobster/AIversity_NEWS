@@ -1,67 +1,55 @@
+import os
 import json
 from bs4 import BeautifulSoup
-from google.colab import drive
-
-# 🚀 掛載 Google Drive
-drive.mount('/content/drive')
-
-# 🗂 設定你的檔案路徑（請確認放在 Google Drive 對應的資料夾）
-input_file_path = "/content/drive/MyDrive/台灣新聞_2025_02_24_00.json"
-output_file_path = "/content/drive/MyDrive/台灣新聞_cleaned.json"
-
-# 📂 讀取 JSON 檔案
-with open(input_file_path, "r", encoding="utf-8") as f:
-    data = json.load(f)
-
-# 🔍 處理每篇新聞內容，去除 HTML
-for article in data:
-    soup = BeautifulSoup(article["Content"], "html.parser")
-    article["Content"] = soup.get_text(separator="\n", strip=True)  # 轉換為純文字
-
-# 💾 儲存乾淨的 JSON 檔案到 Google Drive
-with open(output_file_path, "w", encoding="utf-8") as f:
-    json.dump(data, f, ensure_ascii=False, indent=4)
-
-print(f"✅ 處理完成！純文字新聞已儲存至 {output_file_path}")
-
-
-import json
-from bs4 import BeautifulSoup
-from google.colab import drive, userdata
 import google.generativeai as genai
 
-#  掛載 Google Drive
+# === 1. 設定資料夾路徑 ===
+input_folder = "input_news"  # 存放新聞 JSON 檔案的資料夾
+output_folder = "output_news"  # 儲存處理後 JSON 檔案的資料夾
 
-#  設定你的檔案路徑（請確認放在 Google Drive 對應的資料夾）
-input_file_path = "/content/drive/MyDrive/台灣新聞_cleaned.json"
-output_file_path = "/content/drive/MyDrive/台灣新聞_cleaned_test.json"
+# 確保輸出資料夾存在
+os.makedirs(output_folder, exist_ok=True)
 
-#  從 Google Colab userdata 取得 Gemini API 金鑰
-api_key = userdata.get('GEMINI_API_KEY')  #使用你設定的密鑰名稱
+# === 2. 設定 Gemini API 金鑰 ===
+api_key = "AIzaSyA1d3u5KDVg1PlYrixwMS8vlMnKrGbA-pQ"
+if not api_key:
+    raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
+
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel('gemini-pro')
 
-#  讀取 JSON 檔案
-with open(input_file_path, "r", encoding="utf-8") as f:
-    data = json.load(f)
+# === 3. 遞迴處理資料夾內的所有 JSON 檔案 ===
+for root, _, files in os.walk(input_folder):
+    for filename in files:
+        if filename.endswith(".json"):  # 確保處理的是 JSON 檔案
+            input_file_path = os.path.join(root, filename)
+            relative_path = os.path.relpath(root, input_folder)  # 計算相對路徑
+            output_dir = os.path.join(output_folder, relative_path)  # 對應的輸出資料夾
+            os.makedirs(output_dir, exist_ok=True)  # 確保輸出資料夾存在
+            output_file_path = os.path.join(output_dir, filename)
 
-#  處理每篇新聞內容，去除 HTML 和雜訊
-for article in data:
-    # 去除 HTML
-    soup = BeautifulSoup(article["Content"], "html.parser")
-    cleaned_text = soup.get_text(separator="\n", strip=True)
+            # 讀取 JSON 檔案
+            with open(input_file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
 
-    # 使用 Gemini API 去除雜訊
-    prompt = f"""
-    請去除以下文章中的雜訊，例如多餘的標題、時間戳記、來源資訊等，並保留主要的新聞內容：
+            # 處理每篇新聞內容
+            for article in data:
+                soup = BeautifulSoup(article.get("Content", ""), "html.parser")
+                cleaned_text = soup.get_text(separator="\n", strip=True)
 
-    {cleaned_text}
-    """
-    response = model.generate_content(prompt)
-    article["Content"] = response.text  # 更新文章內容
+                # 使用 Gemini API 去除雜訊
+                prompt = f"""
+                請去除以下文章中的雜訊，例如多餘的標題、時間戳記、來源資訊等，並保留主要的新聞內容：
 
-#  儲存乾淨的 JSON 檔案到 Google Drive
-with open(output_file_path, "w", encoding="utf-8") as f:
-    json.dump(data, f, ensure_ascii=False, indent=4)
+                {cleaned_text}
+                """
+                response = model.generate_content(prompt)
+                article["Content"] = response.text  # 更新文章內容
 
-print(f"✅ 處理完成！純文字新聞已儲存至 {output_file_path}")
+            # 輸出處理後的 JSON 檔案
+            with open(output_file_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+
+            print(f"✅ 處理完成！{filename} 已儲存至 {output_dir}")
+
+print("🎉 所有新聞處理完成！")
