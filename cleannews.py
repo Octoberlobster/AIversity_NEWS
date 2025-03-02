@@ -4,14 +4,14 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 
 # === 1. 設定資料夾路徑 ===
-input_folder = "input_news"  # 存放新聞 JSON 檔案的資料夾
-output_folder = "output_news"  # 儲存處理後 JSON 檔案的資料夾
+input_folder = "json\2025_02_24_00\台灣新聞_2025_02_24_00.json"  # 存放新聞 JSON 檔案的資料夾
+output_folder = "台灣新聞_2025_02_24_00_cleanned.json"  # 儲存處理後 JSON 檔案的資料夾
 
 # 確保輸出資料夾存在
 os.makedirs(output_folder, exist_ok=True)
 
 # === 2. 設定 Gemini API 金鑰 ===
-api_key = "AIzaSyA1d3u5KDVg1PlYrixwMS8vlMnKrGbA-pQ"
+api_key = "AIzaSyB27FPpyasDrxrP1RKejXgQ2l6d9RSAXw4"
 if not api_key:
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
 
@@ -39,7 +39,7 @@ for root, _, files in os.walk(input_folder):
 
                 # 使用 Gemini API 去除雜訊
                 prompt = f"""
-                請去除以下文章中的雜訊，例如多餘的標題、時間戳記、來源資訊等，並保留主要的新聞內容：
+                請去除以下文章中的雜訊，例如多餘的標題、時間戳記、來源資訊等，並盡可能保留的新聞內容：
 
                 {cleaned_text}
                 """
