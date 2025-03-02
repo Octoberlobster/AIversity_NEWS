@@ -9,7 +9,7 @@ output_file_path = "科技新聞_cleaned.json"
 
 # === 2. 設定/取得 Gemini API 金鑰 ===
 # 方法一：從環境變數取得（建議在 OS 或 CI/CD 設置環境變數 GEMINI_API_KEY）
-api_key = "AIzaSyA1d3u5KDVg1PlYrixwMS8vlMnKrGbA-pQ"
+api_key = "API"
 
 # 方法二：直接在程式中手動設定 （範例）
 # api_key = "YOUR_GEMINI_API_KEY"
