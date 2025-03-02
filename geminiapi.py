@@ -23,6 +23,6 @@ with open(output_file, "w", encoding="utf-8") as file:
 
 print(f"結果已儲存至 {output_file}")
 
-response2 = model.generate_content(markdown_content+"根據以上的新聞，生成一篇因果分析報告，以5w1h方式呈現，幫我以json檔的格式回覆謝謝。")
+response2 = model.generate_content(markdown_content+"根據以上的新聞，生成一篇因果分析報告，以5w1h方式呈現，幫我以json檔的格式回覆謝謝，用繁體中文。")
 with open("因果分析.json", "w", encoding="utf-8") as file:
     file.write(response2.text)
