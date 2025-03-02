@@ -1,3 +1,4 @@
+# 從 googleapi 爬取新聞
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -10,7 +11,7 @@ import grpc
 grpc.Channel._Rendezvous = None  # 強制關閉 gRPC 連線
 
 # 設定 API 金鑰
-api_key = os.environ["GEMINI_API_KEY"] = ""
+api_key = os.environ["GEMINI_API_KEY"] = "AIzaSyDvR1D_tPfP4Jv-YSdM2wckCKoVKSoJBHs"
 if not api_key:
     raise ValueError("請設定 GEMINI_API_KEY 環境變數")
 
@@ -21,7 +22,7 @@ model = genai.GenerativeModel('gemini-2.0-flash')
 def extract_publish_date(text):
     taiwan_time = time.localtime()  # 取得本地時間
     formatted_time = time.strftime("%Y/%m/%d", taiwan_time)
-    
+
     try:
         content = text[:5000]  # 限制輸入長度
         response = model.generate_content(
@@ -33,8 +34,8 @@ def extract_publish_date(text):
 
 
 def crawl_news(query):
-    API_KEY = ""  # Google API 金鑰
-    CX = ""  # Google 搜尋引擎 ID
+    API_KEY = "AIzaSyD5ltL0jcAscdiXMj91qiHjJedFn-r_kJk"  # Google API 金鑰
+    CX = "77b6699da8b7f477c"  # Google 搜尋引擎 ID
 
     url = "https://www.googleapis.com/customsearch/v1"
     news_data = []
@@ -58,7 +59,7 @@ def crawl_news(query):
         response = requests.get(url, params=params)
         if response.status_code == 200:
             data = response.json()
-            
+
             if "items" in data:
                 for item in data["items"]:
                     print(f"標題: {item['title']}")
@@ -79,7 +80,9 @@ def crawl_news(query):
                         news_response.encoding = "utf-8"
 
                         if news_response.status_code == 200:
-                            content_str = news_response.text  # 儲存原始 HTML 內容
+                            soup = BeautifulSoup(news_response.text, "html.parser")
+                            body_content = str(soup.body)  # 提取 <body> 內的所有 HTML 內容
+                            content_str = body_content  # 儲存原始 HTML 內容
                         else:
                             print("無法訪問新聞內文。")
                     except Exception as e:
@@ -108,9 +111,9 @@ def crawl_news(query):
     print(f"新聞已儲存至: {json_path}")
     return news_data
 
-
 # 測試
-news_categories = ["台灣新聞", "國際新聞", "政治新聞", "娛樂新聞", "體育新聞", "商業新聞", "科技新聞", "醫療保健新聞", "科學新聞", "教育新聞", "生活品味新聞"]
+news_categories = ["台灣新聞", "國際新聞", "政治新聞", "娛樂新聞", "體育新聞", "商業新聞", "科技新聞", "醫療保健新聞",
+                   "科學新聞", "教育新聞", "生活品味新聞"]
 
 for category in news_categories:
     crawl_news(category)
