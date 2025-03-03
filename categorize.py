@@ -3,12 +3,12 @@ import json
 from time import sleep
 import os
 
-api_key = os.getenv("API_KEY_Gemini2")
+api_key = os.getenv("API_KEY_Gemini")
 genai.configure(api_key=api_key)
 
 model = genai.GenerativeModel('gemini-1.5-pro-002')
 
-with open('combined.json', encoding='utf-8') as f:
+with open('Combined.json', encoding='utf-8') as f:
     data=f.read()
 print("Data:", data)
 

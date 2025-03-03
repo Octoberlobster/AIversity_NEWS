@@ -2,7 +2,7 @@ import json
 import os
 import glob
 
-folder = "summary"
+folder = "Summary"
 # 取得所有 JSON 檔案的檔名（假設都在當前目錄）
 json_files = glob.glob(os.path.join(folder, "*.json"))
 

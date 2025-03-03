@@ -4,7 +4,7 @@ from time import sleep
 import glob
 import os
 
-api_key = os.getenv("API_KEY_Gemini2")
+api_key = os.getenv("API_KEY_Gemini")
 genai.configure(api_key=api_key)
 
 model = genai.GenerativeModel('gemini-1.5-pro-002')
