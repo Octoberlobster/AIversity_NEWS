@@ -1,47 +1,29 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f9f9f9;
+.tags {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
 }
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-h1 {
-    font-size: 24px;
-    color: #333;
-}
-p {
-    font-size: 16px;
-    color: #555;
-    line-height: 1.6;
-}
-.back-button {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
+.tags button {
+    margin: 0 5px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
     background-color: #007bff;
     color: white;
-    text-decoration: none;
-    border-radius: 4px;
+    cursor: pointer;
 }
-.back-button:hover {
-    background-color: #0056b3;
+.ticker {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f0f8ff;
 }
-
-#content p {
-    font-size: 16px;
-    line-height: 1.8;
-    margin-bottom: 30px;
-    text-indent: 2em; /* 首行縮排 */
-}
-
-#content h2 {
-    font-size: 18px;
+.news-section {
     margin-top: 20px;
-    color: #007bff;
+}
+.news-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 8px;
 }

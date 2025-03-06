@@ -7,9 +7,7 @@ function handleSearch() {
         return;
     }
 
-    // 顯示加載動畫
-    const loadingSpinner = document.getElementById('loading-spinner');
-    loadingSpinner.style.display = 'block';
+    alert('正在搜索新聞，請稍後...');
 
     fetch('/search', {
         method: 'POST',
@@ -20,7 +18,6 @@ function handleSearch() {
     })
     .then(response => response.json())
     .then(data => {
-        loadingSpinner.style.display = 'none';
         if (data.status === 'success') {
             console.log(data.news);
             displayNews(data.news); // 顯示後端返回的新聞資料
@@ -33,7 +30,6 @@ function handleSearch() {
     });
 }
 
-document.getElementById('search-button').addEventListener('click', handleSearch);
 document.getElementById('keyword').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         handleSearch();
