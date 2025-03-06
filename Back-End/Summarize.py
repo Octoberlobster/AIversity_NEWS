@@ -4,10 +4,10 @@ from time import sleep
 import os
 import Combined
 
-api_key = os.getenv("")
+api_key = ""
 genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel('gemini-1.5-pro-002')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 def summarize(clean_data):
     

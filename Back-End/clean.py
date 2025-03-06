@@ -4,11 +4,10 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 import Summarize
 
+
+
 # === 2. 設定 Gemini API 金鑰 ===
 api_key = ""
-
-if not api_key or api_key == "YOUR_GEMINI_API_KEY":
-    raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
 
 # 設定 Gemini API
 genai.configure(api_key=api_key)

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import NewsRole from './NewsRole';
 
 function NewsDetail({ newsData }) {
   // 先嘗試從 localStorage 中取得資料
@@ -23,8 +24,8 @@ function NewsDetail({ newsData }) {
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>{selectedNews.Title}</h2>
-      <p style={styles.date}>{selectedNews.Date}</p>
       <p style={styles.content}>{selectedNews.Content}</p>
+      <NewsRole/>
       <Link style={styles.backLink} to="/">← 返回新聞列表</Link>
     </div>
   );
