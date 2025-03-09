@@ -7,7 +7,7 @@ import Summarize
 
 
 # === 2. 設定 Gemini API 金鑰 ===
-api_key = ""
+api_key = "AIzaSyDS7p3yax_9XOnLXl-7PMbxrjDaPVkd2ok"
 
 # 設定 Gemini API
 genai.configure(api_key=api_key)
@@ -17,9 +17,9 @@ def CleanNews(news_data):
     cleaned_news = []
     count = 1
     for article in news_data:
-        if "content" in article:
+        if "Content" in article:
             # (1) 去除 HTML
-            soup = BeautifulSoup(article["content"], "html.parser")
+            soup = BeautifulSoup(article["Content"], "html.parser")
             cleaned_text = soup.get_text(separator="\n", strip=True)
 
             # (2) 使用 Gemini API 去除雜訊
@@ -29,7 +29,7 @@ def CleanNews(news_data):
             {cleaned_text}
             """
             response = model.generate_content(prompt)
-            article["content"] = response.text.strip()  # 更新文章內容
+            article["Content"] = response.text.strip()  # 更新文章內容
             print("第", count, "篇文章已清理！")
             cleaned_news.append(article)
             count += 1

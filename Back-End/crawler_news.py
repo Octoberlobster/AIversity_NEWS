@@ -1,96 +1,109 @@
-# 從 新聞平台 直接爬取新聞
-# 中央社: https://www.cna.com.tw/list/aall.aspx
-# 篩選條件: 1 小時內的新聞
+import feedparser
+import time
+import datetime
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 import json
-import os
-import time
-import google.generativeai as genai
-import grpc
+from urllib.parse import urlparse, parse_qs
 import clean
-from datetime import datetime, timedelta
-
-grpc.Channel._Rendezvous = None  # 強制關閉 gRPC 連線
 
 def crawl_news():
-    platform_urls = ["https://www.cna.com.tw/list/aall.aspx", # 中央社
-            # "https://www.googleapis.com/customsearch/v2",
-            # "https://www.googleapis.com/customsearch/v3"
-            ]
-    news_data = []
 
-    # 取得當前時間（yyyy_mm_dd_hh）作為資料夾名稱
-    timestamp = time.strftime("%Y_%m_%d_%H", time.localtime())
-    save_dir = os.path.join("json", timestamp)
-    os.makedirs(save_dir, exist_ok=True)  # 建立資料夾（如果不存在）
-
-    # 取得當前時間並計算一小時內的範圍
-    current_time = datetime.now()
-    one_hour_ago = current_time - timedelta(hours=1)
-
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Mobile Safari/537.36"
+    # 設定 RSS 來源
+    sources = {
+        "UDN": "https://udn.com/news/rssfeed/",
+        "NewTalk": "https://newtalk.tw/rss/all/",
+        "LTN": "https://news.ltn.com.tw/rss/all.xml",
+        "CNA": "https://feeds.feedburner.com/rsscna/politics",
+        "CNA": "https://feeds.feedburner.com/rsscna/intworld",
+        "CNA": "https://feeds.feedburner.com/rsscna/mainland",
+        "CNA": "https://feeds.feedburner.com/rsscna/finance",
+        "CNA": "https://feeds.feedburner.com/rsscna/technology",
+        "CNA": "https://feeds.feedburner.com/rsscna/lifehealth",
+        "CNA": "https://feeds.feedburner.com/rsscna/social",
+        "CNA": "https://feeds.feedburner.com/rsscna/local",
+        "CNA": "https://feeds.feedburner.com/rsscna/culture",
+        "CNA": "https://feeds.feedburner.com/rsscna/sport",
+        "CNA": "https://feeds.feedburner.com/rsscna/stars",
+        "TTV": "https://www.ttv.com.tw/rss/RSSHandler.ashx?d=news",
     }
 
-    for platform_url in platform_urls:
-        response = requests.get(platform_url, headers=headers)  
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, "html.parser")
-            soup = soup.find("ul", id="jsMainList")            
-            li_tag = soup.find_all("li")
-            for item in li_tag:
-                news = {}
-                # print(item)
+    news_data = []
+    current_time = datetime.datetime.utcnow() + datetime.timedelta(hours=8)  # 轉換為台灣時間
+    one_hour_ago = current_time - datetime.timedelta(hours=1)
 
-                # 取得標題與連結
-                a_tag = item.find("a")
+    for source, url in sources.items():
+        feed = feedparser.parse(url)
+        
+        for entry in feed.entries:  
+            # 解析時間
+            t = entry.published_parsed
+            dt = datetime.datetime(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
+            dt += datetime.timedelta(hours=8)  # 調整時區
+            
+            if dt < one_hour_ago:  # 只保留一小時內的新聞
+                continue
+            
+            news = {
+                "Source": source,
+                "Title": entry.title,
+                "URL": entry.link,
+                "Date": dt.strftime("%Y/%m/%d %H:%M"),
+            }
+            
+            # 嘗試抓取圖片
+            image_url = None
+            if "enclosures" in entry and entry.enclosures:
+                image_url = entry.enclosures[0].href
+            elif "media_content" in entry:
+                image_url = entry.media_content[0]["url"]
+            elif "description" in entry:
+                soup = BeautifulSoup(entry.description, "html.parser")
+                img_tag = soup.find("img")
+                if img_tag:
+                    parsed_url = urlparse(img_tag["src"])
+                    query_params = parse_qs(parsed_url.query)
+                    image_url = query_params.get("u", [""])[0]
+            news["Image"] = image_url or ""
+            
+            # 取得新聞內文
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Mobile Safari/537.36"
+            }
+            content = requests.get(entry.link, headers=headers)
+            content.encoding = "utf-8"
+            if content.status_code == 200:
+                soup = BeautifulSoup(content.text, "html.parser")
+                body_content = str(soup.body)
+                news["Content"] = body_content
 
-                # 取得日期並過濾一小時內的新聞
-                date_tag = item.find("div", class_="date")
-                if date_tag:
-                    news_time_str = date_tag.text.strip()
-                    news_time = datetime.strptime(news_time_str, "%Y/%m/%d %H:%M")
-                            
-                # print(a_tag)
-                if a_tag and "news" in a_tag["href"] and news_time >= one_hour_ago and "netzero" not in a_tag["href"]:
-                    news["date"] = news_time_str
-                    news["url"] = "https://www.cna.com.tw" + a_tag["href"]
-                    news["source"] = "中央社"
-                else:
-                    continue
+                if not image_url:
+                    img_url = None
+                    try:
+                        if source == "CNA":
+                            img_tag = soup.find_all("div", class_="fullPic")
+                        elif source == "TTV":
+                            img_tag = soup.find_all("div", class_="article-body")
+                        elif source == "LTN":
+                            img_tag = soup.find_all("div", class_="photo boxTitle")
+                        else:
+                            img_tag = []
 
-                # 取得圖片
-                try:
-                    img_tag = item.find("img")
-                    news["image_url"] = img_tag["src"] if img_tag else "無圖片"
-                except:
-                    news["image_url"] = "無圖片"
+                        for img in img_tag:
+                            img_url = img.find("img")["src"]
+                            break
+                    except:
+                        img_url = ""
 
-                # 取得標題文字
-                span_tag = item.find("span")
-                news["title"] = span_tag.text.strip() if span_tag else "無標題"
-                
-                news_content = requests.get(news["url"], headers=headers)
-                news_content.encoding = "utf-8"
-                if news_content.status_code == 200:
-                    soup = BeautifulSoup(news_content.text, "html.parser")
-                    body_content = str(soup.body)  # 提取 <body> 內的所有 HTML 內容
-                    news["content"] = body_content  # 儲存原始 HTML 內容
-                else:
-                    print("無法訪問新聞內文。")
-                    news["content"] = "無法訪問新聞內文。"
+                    news["Image"] = img_url
+            # print(news)
+            news_data.append(news)
 
-                news_data.append(news)
-                print(news)
-        else:
-            print(f"請求失敗，狀態碼: {response.status_code}")
-    
     # 儲存數據
-    json_path = os.path.join(save_dir, "news1.json")
+    timestamp = time.strftime("%Y_%m_%d_%H_%M", time.localtime())
+    json_path = f"json/{timestamp}.json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(news_data, f, ensure_ascii=False, indent=4)
 
-    print(f"新聞資料已儲存至 {json_path}")
+    print(f"新聞資料已儲存至 {json_path}，共 {len(news_data)} 則新聞")
     return clean.CleanNews(news_data)

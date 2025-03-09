@@ -1,9 +1,15 @@
-```json
 {
-  "Summary": "為抵禦加拿大Alimentation Couche-Tard (ACT) 的併購企圖，7-Eleven日本母公司Seven & i Holdings 宣布多項防禦措施，包括斥資2兆日圓進行庫藏股收購，以及將美國子公司7-Eleven, Inc. (SEI) 進行首次公開募股(IPO)。此外，Seven & i Holdings 還任命了首位外籍社長Stephen Hayes Dacus，並將部分非核心業務出售給貝恩資本。儘管Seven & i強調所有選項仍在考慮中，但這些行動被視為提高公司估值，以避免被收購。ACT此前曾提出近470億美元的收購要約，但已被拒絕。",
-  "Key": ["Seven & i Holdings", "7-Eleven", "Alimentation Couche-Tard (ACT)", "併購", "庫藏股", "IPO", "Stephen Hayes Dacus", "貝恩資本"],
-  "Date": "2025-03-06",
-  "URL": "https://www.cna.com.tw/news/aopl/202503060324.aspx",
-  "Index": 25
+    "Summary": "桃園領航猿在東亞超級聯賽冠軍賽中以些微差距敗給廣島蜻蜓。比賽過程中，領航猿球員白曜誠眉骨受傷濺血，盧峻翔也多次被擊倒。白曜誠在簡單包紮後重返球場，拿下11分4籃板。儘管最終輸球，白曜誠和教練卡米諾斯都肯定球隊表現，並表示會持續努力、從失敗中學習。",
+    "Key": [
+        "桃園領航猿",
+        "廣島蜻蜓",
+        "東亞超級聯賽",
+        "冠軍賽",
+        "白曜誠",
+        "盧峻翔",
+        "卡米諾斯"
+    ],
+    "Date": "2025-03-09",
+    "URL": "https://sports.ltn.com.tw/news/breakingnews/4974684",
+    "Index": 25
 }
-```

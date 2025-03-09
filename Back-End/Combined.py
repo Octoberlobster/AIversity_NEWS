@@ -12,8 +12,6 @@ def combined(summary_list):
     combined_data = []
 
     for i in range(len(summary_list)):
-        summary_list[i] = summary_list[i].replace('```json', '').replace('```', '').strip()
-        summary_list[i] = json.loads(summary_list[i])
         combined_data.append(summary_list[i])
 
 
