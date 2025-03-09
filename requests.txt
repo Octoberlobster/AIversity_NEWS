@@ -3,3 +3,6 @@ pip install bs4
 pip install pandas
 pip install google.generativeai
 pip install grpc
+pip install feedparser
+pip install urllib
+pip install schedule
