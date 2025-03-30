@@ -24,7 +24,7 @@ model = genai.GenerativeModel('gemini-1.5-pro-002')
 for filename in os.listdir(input_folder):
     if filename.endswith(".txt"):
         input_file_path = os.path.join(input_folder, filename)
-        output_file_path = os.path.join(output_folder, f"cleaned_{filename}")
+        output_file_path = os.path.join(output_folder, f"progress_{filename}")
 
         # 讀txt檔案
         with open(input_file_path, "r", encoding="utf-8") as f:
@@ -41,17 +41,25 @@ for filename in os.listdir(input_folder):
 
         # 組合 Prompt
         res = model.generate_content( """
-        請根據以下多則新聞摘要，整理出每個事件的每日進展情況。請先根據事件主題將新聞分群，再依照日期整理事件的發展過程。
+        請仔細閱讀以下多篇新聞內容，並完成以下任務：
 
-        請用以下 JSON 格式回覆：
+        1. 依日期整理每日進展：
+        - 這些新聞都關於同一件主要事件，請根據每篇新聞所提供的資訊，按照新聞報導的日期（或事件發生日期）先後順序，逐日整理該事件的重要發展與關鍵資訊。
+        - 若同一天內有多篇相關報導，請合併整理在同日的進展摘要中。
+        - 如找不到明確日期，請使用報導發布日期或以 "不明" 標註。
+
+        2. 摘要與脈絡分析：
+        - 完成每日進展後，請為整個事件做簡要的總結與脈絡說明，包含整體演變、關鍵轉折點。
+
+        3. 請使用以下 JSON 格式回覆（請嚴格遵守，不要附加多餘文字）：
         {
-        "事件名稱1（請你幫忙取名）": {
+        "事件名稱（請你幫忙取名）": {
             "進展": [
             {
                 "日期": "YYYY-MM-DD",
                 "摘要": "當天發生了什麼事情的簡要描述",
                 "關鍵字": ["keyword1", "keyword2"],
-                "相關新聞索引": [1, 2], 
+                "相關新聞索引": [1, 2],
                 "來源網址": ["url1", "url2"]
             },
             {
@@ -61,13 +69,14 @@ for filename in os.listdir(input_folder):
                 "相關新聞索引": [3],
                 "來源網址": ["url3"]
             }
-            ]
-        },
-        "事件名稱2": {
-            "進展": [ ... ]
+            ],
+            "總結與分析": "請在此撰寫對整個事件的簡要回顧與可能後續影響"
         }
         }
-
+                                     
+        注意：
+        - \`相關新聞索引\` 請以本 Prompt 後所提供之新聞清單的編號為準。
+        - 在引用新聞細節時，簡要概述即可，避免過度重複報導原文。
         以下是新聞資料：
         
         """ + combined_data)
