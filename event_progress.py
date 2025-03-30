@@ -11,7 +11,7 @@ output_folder = "json/processed"
 # 確保輸出資料夾存在
 os.makedirs(output_folder, exist_ok=True)
 
-api_key = "AIzaSyDwNOkobaknphQQx8NqSVZ6bDSvW_pizlg"
+api_key = "AIzaSyAcS3oO-4niAZKUlULc03dQzbmSTQjkFH8"
 
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
@@ -22,25 +22,26 @@ model = genai.GenerativeModel('gemini-1.5-pro-002')
 
 # === 2. 處理資料夾內所有檔案 ===
 for filename in os.listdir(input_folder):
-    if filename.endswith(".txt"):
+    if filename.endswith(".json"):
         input_file_path = os.path.join(input_folder, filename)
-        output_file_path = os.path.join(output_folder, f"progress_{filename}")
+        # output_file_path = os.path.join(output_folder, f"progress_{filename}")
 
-        # 讀txt檔案
+        # 讀json檔案
         with open(input_file_path, "r", encoding="utf-8") as f:
-            raw_text = f.read()
+            data = json.load(f)
+        # print(data)
         
-        # 根據分隔線切割成多篇新聞
-        articles = [a.strip() for a in raw_text.split('--------------------------------------------------') if a.strip()]
-        
-        # 組合成資料給 Gemini
-        combined_data = ""
-        for idx, article in enumerate(articles, start=1):
-            combined_data += f"[{idx}]\n{article}\n\n"
-        print(combined_data [:500])
+        articles = {}
+        for article in data:
+            date = article["date"]
+            if date not in articles:
+                articles[date] = []
+            articles[date].append(article)
 
-        # 組合 Prompt
-        res = model.generate_content( """
+articles = sorted(articles.items(), key=lambda x: x[0])
+# print(articles[0])
+for article in articles:
+    res = model.generate_content( """
         請仔細閱讀以下多篇新聞內容，並完成以下任務：
 
         1. 依日期整理每日進展：
@@ -75,13 +76,18 @@ for filename in os.listdir(input_folder):
         }
                                      
         注意：
-        - \`相關新聞索引\` 請以本 Prompt 後所提供之新聞清單的編號為準。
+        - 相關新聞索引，請以本 Prompt 後所提供之新聞清單的編號為準。
         - 在引用新聞細節時，簡要概述即可，避免過度重複報導原文。
         以下是新聞資料：
         
-        """ + combined_data)
-
-        with open(output_file_path, "w", encoding="utf-8") as f:
-            f.write(res.text)
-        print(f"{filename} 已處理完畢，儲存至 {output_file_path}")
+        """ + str(article))
+    
+    # 根據日期給輸出檔名
+    date = article[0]
+    date = date.replace("/", "-")
+    print(date)
+    output_file_path = os.path.join(output_folder, f"{date}.json")
+    with open(output_file_path, "w", encoding="utf-8") as f:
+        f.write(res.text)
+    print(f"{filename} 已處理完畢，儲存至 {output_file_path}")
 print("所有檔案處理完成！")    

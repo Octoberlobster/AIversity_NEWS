@@ -1,0 +1,40 @@
+```json
+[
+  {
+    "topic": "烏俄戰爭三週年與川普政府的和平談判",
+    "news_sources": ["TVBS", "中天", "ETtoday", "客新聞HakkaNews", "紐約時報中文網", "自由時報電子報", "青年日報", "GOODTV+ 好消息電視台", "新頭殼Newtalk", "TTN台灣旅遊新聞", "聯合報"]
+  },
+  {
+    "topic": "烏俄戰爭對身障人士的影響",
+    "news_sources": ["cdn-news"]
+  },
+  {
+    "topic": "烏俄戰爭中的科技應用與產業影響",
+    "news_sources": ["報導者", "風傳媒", "RFI"]
+  },
+    {
+    "topic": "烏俄戰爭相關的台海局勢分析",
+    "news_sources": ["菜市場政治學", "Voicettank"]
+  },
+  {
+    "topic": "美烏礦產協議的爭議",
+    "news_sources": ["ABMedia", "Yahoo奇摩新聞"]
+  },
+  {
+    "topic": "英國對俄羅斯的新制裁",
+    "news_sources": ["SWI swissinfo.ch"]
+  },
+    {
+    "topic": "台股受烏俄戰爭停火消息影響大漲",
+    "news_sources": ["Yahoo奇摩股市"]
+  },
+  {
+    "topic": "美國對俄羅斯的新制裁與關稅",
+    "news_sources": ["Yahoo奇摩新聞"]
+  },
+    {
+        "topic": "烏俄戰爭與國際和平談判的最新進展",
+        "news_sources": ["美國之音", "BBC中文網"]
+    }
+]
+```
