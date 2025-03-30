@@ -2,7 +2,7 @@ import google.generativeai as genai
 
 def analysis_news(clean_news):
     
-    genai.configure(api_key="AIzaSyBgscE7zZuye8-lT1v3gwIuTezoRIYWvVs")
+    genai.configure(api_key="")
     model = genai.GenerativeModel('gemini-pro')
 
     #response = model.generate_content(input_news+"根據以上的眾多新聞中，生成一篇新聞報導，以供主播報導。")

@@ -7,7 +7,7 @@ import Summarize
 
 
 # === 2. 設定 Gemini API 金鑰 ===
-api_key = "AIzaSyDS7p3yax_9XOnLXl-7PMbxrjDaPVkd2ok"
+api_key = ""
 
 # 設定 Gemini API
 genai.configure(api_key=api_key)
