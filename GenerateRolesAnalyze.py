@@ -5,7 +5,7 @@ import glob
 import os
 
 api_key = os.getenv("API_KEY_Gemini2")
-genai.configure(api_key=api_key)
+#genai.configure(api_key=api_key)
 
 model = genai.GenerativeModel('gemini-1.5-pro-002')
 

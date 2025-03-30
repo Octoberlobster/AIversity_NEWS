@@ -1,15 +1,18 @@
 import json
 import os
+import re
 import glob
 
 folder = "Summary"
 # 取得所有 JSON 檔案的檔名（假設都在當前目錄）
 json_files = glob.glob(os.path.join(folder, "*.json"))
+sorted_files = sorted(json_files, key=lambda x: int(re.search(r'\d+', x).group()))
+print("所有 JSON 檔案：", sorted_files)
 
 combined_data = []
 
 # 讀取每個 JSON 檔案並將資料加入 combined_data
-for filename in json_files:
+for filename in sorted_files:
     with open(filename, "r", encoding="utf-8") as f:
         content = f.read()
     content = content.replace('```json', '').replace('```', '').strip()

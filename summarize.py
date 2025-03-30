@@ -9,7 +9,7 @@ genai.configure(api_key=api_key)
 model = genai.GenerativeModel('gemini-1.5-pro-002')
 
 #read json
-with open('台灣新聞_cleaned.json', encoding='utf-8') as f:
+with open('Cleaned/cleaned_2025_03_09_23.json', encoding='utf-8') as f:
     data = json.load(f)
 
 titles = [item['Title'] for item in data]
