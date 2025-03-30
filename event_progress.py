@@ -3,6 +3,7 @@ import json
 from bs4 import BeautifulSoup
 import google.generativeai as genai
 from time import sleep
+# 總結15字，日期，(連結保留)
 
 # === 1. 設定資料夾路徑 ===
 input_folder = "json/test"
@@ -11,7 +12,7 @@ output_folder = "json/processed"
 # 確保輸出資料夾存在
 os.makedirs(output_folder, exist_ok=True)
 
-api_key = "AIzaSyAcS3oO-4niAZKUlULc03dQzbmSTQjkFH8"
+api_key = "YOUR_GEMINI_API_KEY"
 
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
@@ -45,39 +46,22 @@ for article in articles:
         請仔細閱讀以下多篇新聞內容，並完成以下任務：
 
         1. 依日期整理每日進展：
-        - 這些新聞都關於同一件主要事件，請根據每篇新聞所提供的資訊，按照新聞報導的日期（或事件發生日期）先後順序，逐日整理該事件的重要發展與關鍵資訊。
-        - 若同一天內有多篇相關報導，請合併整理在同日的進展摘要中。
+        - 這些都是同一天的新聞報導且都關於同一件主要事件，請根據每篇新聞所提供的資訊，整理該事件當天的重要發展與關鍵資訊。
         - 如找不到明確日期，請使用報導發布日期或以 "不明" 標註。
 
         2. 摘要與脈絡分析：
-        - 完成每日進展後，請為整個事件做簡要的總結與脈絡說明，包含整體演變、關鍵轉折點。
+        - Summary最多15個字，請簡潔明瞭。
+        - 完成每日進展後，請為整個事件做簡要的總結與脈絡說明，例如整體演變、關鍵轉折點，最多15個字。
 
         3. 請使用以下 JSON 格式回覆（請嚴格遵守，不要附加多餘文字）：
         {
-        "事件名稱（請你幫忙取名）": {
-            "進展": [
-            {
-                "日期": "YYYY-MM-DD",
-                "摘要": "當天發生了什麼事情的簡要描述",
-                "關鍵字": ["keyword1", "keyword2"],
-                "相關新聞索引": [1, 2],
-                "來源網址": ["url1", "url2"]
-            },
-            {
-                "日期": "YYYY-MM-DD",
-                "摘要": "...",
-                "關鍵字": ["..."],
-                "相關新聞索引": [3],
-                "來源網址": ["url3"]
-            }
-            ],
-            "總結與分析": "請在此撰寫對整個事件的簡要回顧與可能後續影響"
-        }
+        "Date": "YYYY-MM-DD",
+        "Summary": "當天發生了什麼事情的簡要描述",
+        "URL": ["url1", "url2"]
         }
                                      
         注意：
-        - 相關新聞索引，請以本 Prompt 後所提供之新聞清單的編號為準。
-        - 在引用新聞細節時，簡要概述即可，避免過度重複報導原文。
+        - Summary最多15個字，請簡潔明瞭。
         以下是新聞資料：
         
         """ + str(article))
@@ -86,8 +70,9 @@ for article in articles:
     date = article[0]
     date = date.replace("/", "-")
     print(date)
-    output_file_path = os.path.join(output_folder, f"{date}.json")
+    output_file_path = os.path.join(output_folder, f"progress_{date}.json")
+    clean_text = res.text.replace("```json", "").replace("```", "").strip()
     with open(output_file_path, "w", encoding="utf-8") as f:
-        f.write(res.text)
+        f.write(clean_text)
     print(f"{filename} 已處理完畢，儲存至 {output_file_path}")
 print("所有檔案處理完成！")    
