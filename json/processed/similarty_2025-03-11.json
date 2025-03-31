@@ -1,10 +1,14 @@
 [
-    {
-        "Topic": "烏克蘭增購無人機強化戰力",
-        "News_sources": ["uanalyze.com.tw"]
-    },
-    {
-        "Topic": "美加速對台軍售，聚焦不對稱作戰",
-        "News_sources": ["www.rfi.fr"]
-    }
+  {
+    "Topic": "烏克蘭增購FPV無人機，發展國防工業",
+    "News_sources": [
+      "uanalyze.com.tw"
+    ]
+  },
+  {
+    "Topic": "美加速對台軍售，烏戰後聚焦台灣",
+    "News_sources": [
+      "rfi.fr"
+    ]
+  }
 ]

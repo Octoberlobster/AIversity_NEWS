@@ -48,7 +48,7 @@ for date, daily_articles in articles:
         content = a.get("Content", "")
         url = a.get("URL", "")
         urls.append(url)
-        news_content += f"標題：{title}\n內容：{content}\n連結：{url}\n---\n"
+        news_content += f"標題：{title}\n內容：{content}\n連結：{url}\n日期:{date}\n---\n"
     # print(news_content)
 
     prompt = f"""

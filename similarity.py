@@ -50,8 +50,8 @@ for date, daily_articles in articles:
         content_raw = a.get("Content", "")
         content = BeautifulSoup(content_raw, "html.parser").get_text().strip()
 
-        news_content += f"標題：{title}\n內容：{content}\n連結：{url}\n---\n"
-    # print(news_content)
+        news_content += f"標題：{title}\n內容：{content}\n連結：{url}\n日期:{date}\n---\n"
+    print(news_content)
 
     prompt = f"""
     你是一位新聞分析專家，請仔細閱讀以下多篇新聞內容，並完成以下任務：

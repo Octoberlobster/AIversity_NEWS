@@ -1,10 +1,6 @@
 [
-    {
-        "Topic": "美科技公司在烏俄戰爭中扮演關鍵角色",
-        "News_sources": ["voicettank.org"]
-    },
-    {
-        "Topic": "台灣戰略地位及經濟價值高於烏克蘭",
-        "News_sources": ["rfa.org"]
-    }
+  {
+    "Topic": "美科技巨頭在烏俄戰爭中角色及對台灣的影響",
+    "News_sources": ["Voice Tank"]
+  }
 ]

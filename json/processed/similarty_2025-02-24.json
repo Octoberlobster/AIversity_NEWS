@@ -1,6 +1,10 @@
 [
     {
-        "Topic": "俄烏戰爭三週年，烏克蘭面臨嚴峻挑戰",
-        "News_sources": ["Hello World"]
+        "Topic": "川普與俄羅斯談判烏克蘭戰爭",
+        "News_sources": ["客新聞HakkaNews", "Hello World"]
+    },
+    {
+        "Topic": "烏俄戰爭三週年傷亡慘重",
+        "News_sources": ["烏俄戰爭三周年》關懷戰火下易被遺忘的人，我們能為身障朋友做 ..."]
     }
 ]
