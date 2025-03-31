@@ -1,117 +1,106 @@
-import React, { useState } from 'react';
-import './main.css';
-import TimelineAnalysis from './TimelineAnalysis';
+import React, { useState, useEffect } from 'react'; // 引入React核心庫和鉤子函數
+import './main.css';  // 引入主要CSS樣式
+import TimelineAnalysis from './TimelineAnalysis';  // 引入時間軸分析組件
+import ChatRoom from './ChatRoom';  // 引入聊天室組件
+import newsData from './News.json'; // 引入新聞數據JSON文件
+import rolesData from './Roles.json'; // 引入角色數據JSON文件
+import roleAnalyzes from './NewsAnalyze.json';  // 引入角色分析數據JSON文件
 
 function App() {
-  const [selectedRole, setSelectedRole] = useState('');
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-  const roles = ['澤倫斯基', '川普', '拜登', '普丁', '習近平'];
+  
+  const [selectedRole, setSelectedRole] = useState(''); // 狀態管理：當前選擇的角色
+  const [chatHistories, setChatHistories] = useState({}); // 狀態管理：所有角色的聊天歷史記錄
+  const roles = rolesData.Roles.map(role => role.Role); // 從角色數據中提取所有角色名稱
 
+  // 副作用：應用啟動時清除localStorage中的聊天歷史
+  useEffect(() => {
+    localStorage.removeItem('all_chat_histories');
+    console.log('已清除聊天歷史記錄');
+  }, []); // 空依賴數組確保只在首次渲染時執行一次
+
+  // 副作用：應用初始化時嘗試從localStorage加載聊天歷史
+  useEffect(() => {
+    const savedHistories = localStorage.getItem('all_chat_histories');
+    if (savedHistories) {
+      // 如果找到保存的聊天歷史，則解析JSON並更新狀態
+      setChatHistories(JSON.parse(savedHistories));
+    }
+  }, []); // 空依賴數組確保只在首次渲染時執行一次
+
+  // 副作用：當聊天歷史更新時，將其保存到localStorage
+  useEffect(() => {
+    if (Object.keys(chatHistories).length > 0) {
+      // 只有當有聊天歷史時才保存
+      localStorage.setItem('all_chat_histories', JSON.stringify(chatHistories));
+    }
+  }, [chatHistories]); // 依賴於chatHistories，當它變化時執行
+
+  // 處理角色選擇變更的函數
   const handleRoleChange = (e) => {
     setSelectedRole(e.target.value);
-    // 當選擇角色時，添加一條系統消息
-    if (e.target.value) {
-      setMessages([
-        { sender: 'system', text: `您已選擇與 ${e.target.value} 對話` }
-      ]);
-    }
   };
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (newMessage.trim() && selectedRole) {
-      // 使用者發送消息
-      const updatedMessages = [...messages, { sender: '使用者', text: newMessage }];
-      setMessages(updatedMessages);
-      setNewMessage('');
-      
-      // 模擬角色回覆
-      setTimeout(() => {
-        const roleResponse = generateRoleResponse(selectedRole, newMessage);
-        setMessages(prevMessages => [...prevMessages, { sender: selectedRole, text: roleResponse }]);
-      }, 1000);
-    }
+  // 更新特定角色聊天歷史的函數
+  const updateChatHistory = (role, messages) => {
+    setChatHistories(prev => ({
+      ...prev, // 保留其他角色的聊天歷史
+      [role]: messages // 更新指定角色的聊天歷史
+    }));
   };
 
-  // 簡單的角色回覆生成函數
-  const generateRoleResponse = (role, userMessage) => {
-    const responses = {
-      '澤倫斯基': ['烏克蘭需要更多支援來對抗侵略。', '我們會堅持到底，保衛我們的國家。', '宵夜吃阿丹'],
-      '川普': ['這是一個很棒的問題，非常棒。', '我會讓美國再次偉大！', '沒有人比我更了解這個問題。'],
-      '拜登': ['我們需要團結一致來面對挑戰。', '美國將繼續支持我們的盟友。', '這是我們這一代人的重要時刻。'],
-      '普丁': ['俄羅斯有自己的國家利益需要保護。', '西方需要尊重我們的安全關切。', '這是一個複雜的地緣政治問題。'],
-      '習近平': ['中國堅持和平發展道路。', '我們需要構建人類命運共同體。', '合作共贏是解決問題的唯一途徑。']
-    };
-    
-    const randomIndex = Math.floor(Math.random() * responses[role].length);
-    return responses[role][randomIndex];
+  // 獲取選定角色的分析文本
+  const getSelectedRoleAnalyze = () => {
+    // 如果有選定角色且該角色在分析數據中存在，則返回其分析文本
+    return selectedRole ? roleAnalyzes[selectedRole]?.Analyze : null;
   };
 
   return (
     <div className="container">
-      <div className="header-bar"></div>
-      
+      <div className="header-bar"></div>         {/* 頁面頂部的藍色條 */}
       <div className="content">
-        <div className="left-panel">
-          <h2 className="panel-title">澤倫斯基大戰川普 烏俄到底打多久</h2>
-          <p className="panel-content">
-            大日若硬取回資膨用您訕肖，必，饋問的原價弟真牧的到了以了近喜且再黃開，
-            價容併取蝟要在蕭寶神轉...一出...女找您乞盼年別消夫、或。賠做明猜。想，
-            的大場球活屏登社性金。人，華有有，磕成不必告叫大氣讓也到老。任定是有有
-            壁頭式，中博。子其別的陵英處，人是宇試價如城客，別相會很沒晤講的不已記
-            松板相不羊三事容星藍者北了。據，忠國端自忽人從到，您並人耿...？喉較道？
-            桌量式於的主就吾一盧功坐。用嗎拾，銀打今讓相他用王元訊小這林強有。答
-            謝：不最親盧業三運，愛叩切身姬看雨才想要貼驗沈琪相哪法情不有惠心
-            來、的是欣地渴錢是、號吋權報飲區花位名被大乙鋒叩白涼遠有雅一書的心情該
-            情我等的、反的有與內呢蘭杜...貿鏡人生平守少脊，大情，握秒報校信師進離用
-            政不。派，再找吧在進催條，網同限路。最有的學了計攔囉知笑的的到你，給過
-            能
-          </p>
+        <div className="left-panel">        {/* 左側面板：顯示新聞內容 */}
+          <h2 className="panel-title">{newsData.Title}</h2>          {/* 新聞標題 */}
+          <p className="panel-date">發布日期：{newsData.Date}</p>          {/* 新聞發布日期 */}
+          <div className="panel-content">          {/* 新聞內容，按段落分割並渲染 */}
+            {newsData.Content.split('\n\n').map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
         </div>
         
-        <div className="right-panel">
-          <h3 className="right-panel-title">多觀點新聞分析討論室</h3>
-          <div className="divider"></div>
-          <div className="dropdown-container">
+
+        <div className="right-panel">        {/* 右側面板：角色選擇和聊天室 */}
+          <h3 className="right-panel-title">多觀點新聞分析討論室</h3>          {/* 面板標題 */}
+          <div className="divider"></div>          {/* 分隔線 */}
+          <div className="dropdown-container">          {/* 角色選擇下拉選單 */}
             <select 
               className="role-dropdown"
               value={selectedRole}
               onChange={handleRoleChange}
             >
               <option value="" disabled>選擇角色</option>
+              {/* 動態生成角色選項 */}
               {roles.map((role, index) => (
                 <option key={index} value={role}>{role}</option>
               ))}
             </select>
           </div>
           
+          {/* 只有當選擇了角色時才顯示聊天室 */}
           {selectedRole && (
-            <div className="chat-container">
-              <div className="chat-messages">
-                {messages.map((msg, index) => (
-                  <div key={index} className={`message ${
-                    msg.sender === 'system' ? 'system-message' : 
-                    msg.sender === '使用者' ? 'user-message' : 'role-message'
-                  }`}>
-                    {msg.sender !== 'system' && <strong>{msg.sender}:</strong>} {msg.text}
-                  </div>
-                ))}
-              </div>
-              <form className="chat-input-form" onSubmit={handleSendMessage}>
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="輸入您的問題或觀點..."
-                  className="chat-input"
-                />
-                <button type="submit" className="send-button">發送</button>
-              </form>
-            </div>
+            <>
+              {/* 聊天室組件 */}
+              <ChatRoom 
+                selectedRole={selectedRole} // 傳遞選定的角色
+                messages={chatHistories[selectedRole] || []} // 傳遞該角色的聊天歷史，如果沒有則傳空數組
+                updateMessages={(newMessages) => updateChatHistory(selectedRole, newMessages)} // 傳遞更新聊天歷史的函數
+                roleAnalyze={getSelectedRoleAnalyze()} // 傳遞角色分析文本
+              />
+            </>
           )}
         </div>
       </div>
+      {/* 時間軸分析組件 */}
       <TimelineAnalysis />
     </div>
   );

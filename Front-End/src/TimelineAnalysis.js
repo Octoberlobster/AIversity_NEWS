@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { TimelineComponent, ItemsDirective, ItemDirective } from '@syncfusion/ej2-react-layouts';
 import './TimelineAnalysis.css';
 
 const TimelineAnalysis = () => {
