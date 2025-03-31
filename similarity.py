@@ -13,7 +13,7 @@ output_folder = "json/processed"
 # 確保輸出資料夾存在
 os.makedirs(output_folder, exist_ok=True)
 
-api_key = "AIzaSyAcS3oO-4niAZKUlULc03dQzbmSTQjkFH8"
+api_key = "YOUR_GEMINI_API_KEY"
 
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
@@ -52,7 +52,7 @@ for date, daily_articles in articles:
 
         news_content += f"標題：{title}\n內容：{content}\n連結：{url}\n---\n"
     # print(news_content)
-    
+
     prompt = f"""
     你是一位新聞分析專家，請仔細閱讀以下多篇新聞內容，並完成以下任務：
     
