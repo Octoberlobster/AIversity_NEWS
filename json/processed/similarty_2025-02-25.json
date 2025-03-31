@@ -1,6 +1,10 @@
 [
-  {
-    "topic": "俄烏戰爭三週年",
-    "news_sources": ["紐約時報中文網", "TNL"]
-  }
+    {
+        "Topic": "烏俄戰爭三週年，教會影響力提升",
+        "News_sources": ["goodtv"]
+    },
+    {
+        "Topic": "川普回歸，普丁見烏克蘭新契機",
+        "News_sources": ["nytimes"]
+    }
 ]

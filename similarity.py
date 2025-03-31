@@ -13,7 +13,7 @@ output_folder = "json/processed"
 # 確保輸出資料夾存在
 os.makedirs(output_folder, exist_ok=True)
 
-api_key = "YOUR_GEMINI_API_KEY"
+api_key = "AIzaSyAcS3oO-4niAZKUlULc03dQzbmSTQjkFH8"
 
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
@@ -42,33 +42,46 @@ for filename in os.listdir(input_folder):
         articles = sorted(articles.items(), key=lambda x: x[0])
         # print(articles)
         
-for article in articles:
-    res = model.generate_content("""
-    你是一位新聞分析專家，請根據以下新聞資料進行分析。這些新聞都來自同一天，請依照不同新聞台的報導內容，找出主題相似的新聞台，並為這些相近主題寫一句簡短摘要。
+for date, daily_articles in articles:
+    news_content = ""
+    for a in daily_articles:
+        title = a.get("Title", "")
+        url = a.get("URL", "")
+        content_raw = a.get("Content", "")
+        content = BeautifulSoup(content_raw, "html.parser").get_text().strip()
+
+        news_content += f"標題：{title}\n內容：{content}\n連結：{url}\n---\n"
+    # print(news_content)
+    
+    prompt = f"""
+    你是一位新聞分析專家，請仔細閱讀以下多篇新聞內容，並完成以下任務：
+    
+    1. 這些新聞都來自同一天，請依照不同新聞台的報導內容，找出報導內容相似的新聞台
+    2. 為這些相近報導內容給予一個簡短的摘要（最多15字），並列出這些新聞台的名稱
+    3. 請將這些新聞台的名稱與摘要整理成 JSON 格式，並確保格式正確。
 
     請依照以下 JSON 格式回答：
     [
-    {
-        "topic": "以色列與哈瑪斯衝突升級",
-        "news_sources": ["TVBS", "中天", "ETtoday"]
-    },
-    {
-        "topic": "台股今日大漲",
-        "news_sources": ["聯合報", "工商時報"]
-    }
+        {{
+            "Topic": "內容相近新聞之摘要（最多15字）",
+            "News_sources": ["新聞台1", "新聞台2", "新聞台3"],
+        }},
+        ...
     ]
+    注意：
+    - 內容都使用繁體中文。
 
-    輸入資料如下：
-    """ + str(article)
-    )
+    以下是新聞資料：
+    {news_content}
+    """
 
-    # 根據日期給輸出檔名
-    date = article[0]
-    date = date.replace("/", "-")
-    print(date)
-    output_file_path = os.path.join(output_folder, f"similarty_{date}.json")
+    res = model.generate_content(prompt)
+
+    # 根據日期給輸出檔名    
+    date_filename = date.replace("/", "-")
+    output_file_path = os.path.join(output_folder, f"similarty_{date_filename}.json")
     clean_text = res.text.replace("```json", "").replace("```", "").strip()
     with open(output_file_path, "w", encoding="utf-8") as f:
         f.write(clean_text)
-    print(f"{filename} 已處理完畢，儲存至 {output_file_path}")
+    print(f"{date} 已處理完畢，儲存至 {output_file_path}")
 print("所有檔案處理完成！")    
