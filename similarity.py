@@ -71,7 +71,7 @@ for date, daily_articles in articles:
     ]
     注意：
     - 內容都使用繁體中文。
-
+    - 日期請用我 JSON 範例格式裡面的日期，不要用新聞內容裡面的日期
     以下是新聞資料：
     {news_content}
     """

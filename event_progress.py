@@ -72,6 +72,7 @@ for date, daily_articles in articles:
         注意：
         - Summary最多15個字，請簡潔明瞭。
         - 內容都使用繁體中文。
+        - 日期請用我 JSON 範例裡給你的日期，不要用新聞內容裡面出現的日期
         以下是新聞資料：
         {news_content}
         """
