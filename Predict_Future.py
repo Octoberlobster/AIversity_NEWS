@@ -13,7 +13,7 @@ folder_path = "TimeLine"
 model = genai.GenerativeModel('gemini-1.5-pro-002')
 
 chat_session = model.start_chat(history=[])
-first_message = "接下來我會給你一連串的新聞內容，這些內容都已經依照發生順序給分類好了，請你記得這些內容，在最後提到\"預測未來\"時請你幫我根據先前的內容以三種面向來預測近日可能發生的未來(用十五到二十個字之間對每個面向總結即可)，" \
+first_message = "接下來我會給你一連串的新聞內容，這些內容都已經依照發生順序給分類好了，請你記得這些內容，在最後提到\"預測未來\"時請你幫我根據先前的內容以三種面向來預測近日可能發生的未來(用十五到二十個字之間對每個面向總結除此之外生成關於這篇預測的標題即可)，" \
                 "如果你有接收到我的指示，請一律回答\"是的\"，謝謝！"
 ans=chat_session.send_message(first_message)
 print(ans.text)
