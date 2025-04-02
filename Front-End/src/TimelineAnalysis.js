@@ -11,11 +11,15 @@ const TimelineAnalysis = () => {
     const progressContext = require.context('./processed/progress', false, /\.json$/);
     const events = progressContext.keys().map((key, index) => {
       const eventData = progressContext(key);
+      
+      // 預設為 event，如果檔案名稱包含 "predict" 則設成 predict
+      const type = key.includes("predict") ? "predict" : "event";
+
       return {
         id: index + 1,
         date: eventData.Date,
         summary: eventData.Summary,
-        type: "event",
+        type: type,
         urls: eventData.URL
       };
     });

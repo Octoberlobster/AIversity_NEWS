@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)  # 啟用CORS以允許前端訪問
 
 # 設定 API 金鑰
-api_key = "AIzaSyDS7p3yax_9XOnLXl-7PMbxrjDaPVkd2ok"
+api_key = ""
 genai.configure(api_key=api_key)
 
 # 讀取新聞內容
