@@ -1,0 +1,32 @@
+[
+    {
+        "Part": "1",
+        "DateRange": "2022/03/03 ~ 2025/02/23",
+        "Topic": "烏俄戰爭影響汽車產業及油價",
+        "News_sources": []
+    },
+    {
+        "Part": "2",
+        "DateRange": "2022/03/03 ~ 2025/02/23",
+        "Topic": "美國考慮禁止進口俄羅斯能源",
+        "News_sources": []
+    },
+    {
+        "Part": "3",
+        "DateRange": "2022/03/03 ~ 2025/02/23",
+        "Topic": "烏俄停火協議與重建概念股",
+        "News_sources": ["Yahoo奇摩股市"]
+    },
+    {
+        "Part": "4",
+        "DateRange": "2022/03/03 ~ 2025/02/23",
+        "Topic": "烏俄戰爭三週年科技影響及台灣危機",
+        "News_sources": ["Voice Tank"]
+    },
+    {
+        "Part": "5",
+        "DateRange": "2022/03/03 ~ 2025/02/23",
+        "Topic": "英國將宣布對俄羅斯新制裁",
+        "News_sources": ["SWI swissinfo.ch", "TVBS新聞網"]
+    }
+]

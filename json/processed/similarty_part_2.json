@@ -1,0 +1,31 @@
+[
+    {
+        "Part": "2",
+        "DateRange": "2025/02/24 ~ 2025/03/04",
+        "Topic": "俄烏戰爭三週年，美俄展開停戰協商",
+        "News_sources": [
+            "客新聞HakkaNews",
+            "紐約時報中文網",
+            "自由時報電子報",
+            "青年日報",
+            "abmedia.io",
+             "The Reporter"
+        ]
+    },
+    {
+        "Part": "2",
+        "DateRange": "2025/02/24 ~ 2025/03/04",
+        "Topic": "烏俄戰爭三週年，身障人士困境",
+        "News_sources": [
+            "cdn-news.org"
+        ]
+    },
+    {
+        "Part": "2",
+        "DateRange": "2025/02/24 ~ 2025/03/04",
+        "Topic": "俄烏戰爭三週年，各國金援與經濟損失",
+        "News_sources": [
+            "LINE TODAY"
+        ]
+    }
+]

@@ -38,51 +38,70 @@ for filename in os.listdir(input_folder):
                 articles[date] = []
             articles[date].append(article)
 
+# === 3. 將資料按日期排序並分成5段 ===
 articles = sorted(articles.items(), key=lambda x: x[0])
+total = len(articles)
+chunk_size = total // 5 + (1 if total % 5 else 0)  # 確保可被5段涵蓋
 
-for date, daily_articles in articles:
+for i in range(5):
+    chunk = articles[i * chunk_size:(i + 1) * chunk_size]
+    if not chunk:
+        continue  # 跳過空段落
+
     news_content = ""
     urls = []
-    for a in daily_articles:
-        title = a.get("Title", "")
-        content = a.get("Content", "")
-        url = a.get("URL", "")
-        urls.append(url)
-        news_content += f"標題：{title}\n內容：{content}\n連結：{url}\n日期:{date}\n---\n"
-    # print(news_content)
+
+    for date, daily_articles in chunk:
+        for a in daily_articles:
+            title = a.get("Title", "")
+            content = a.get("Content", "")
+            url = a.get("URL", "")
+            urls.append(url)
+            news_content += f"標題：{title}\n內容：{content}\n連結：{url}\n日期:{date}\n---\n"
 
     prompt = f"""
-        請仔細閱讀以下多篇新聞內容，並完成以下任務：
+    請閱讀以下多篇新聞，並完成以下任務：
 
-        1. 依日期整理每日進展：
-        - 這些都是同一天的新聞報導且都關於同一件主要事件，請根據每篇新聞所提供的資訊，整理該事件當天的重要發展與關鍵資訊。
-        - 如找不到明確日期，請使用報導發布日期或以 "不明" 標註。
+    1. 統整此時段新聞進展：
+    - 這些新聞依時間排序，請分析此段時間的整體事件發展、趨勢與關鍵轉折。
+    - 請根據新聞內容整理主要事件的演變與變化。
+    
+    2. 摘要與脈絡分析：
+    - Summary 最多 15 個字，簡潔描述此時段的關鍵進展。
+    - 請補充此段期間的事件脈絡、原因與結果關係。
 
-        2. 摘要與脈絡分析：
-        - Summary最多15個字，請簡潔明瞭。
-        - 完成每日進展後，請為整個事件做簡要的總結與脈絡說明，例如整體演變、關鍵轉折點，最多15個字。
-
-        3. 請使用以下 JSON 格式回覆（請嚴格遵守，不要附加多餘文字）：
-        {{
-        "Date": "{date}",
-        "Summary": "當天發生了什麼事情的簡要描述",
+    3. 回覆格式為 JSON（請嚴格遵守）：
+    {{
+        "Part": "{i + 1}",
+        "DateRange": "{chunk[0][0]} ~ {chunk[-1][0]}",
+        "Summary": "請填入簡要摘要（15字內）",
         "URL": {json.dumps(urls, ensure_ascii=False)}
-        }}
-                                     
-        注意：
-        - Summary最多15個字，請簡潔明瞭。
-        - 內容都使用繁體中文。
-        - 日期請用我 JSON 範例裡給你的日期，不要用新聞內容裡面出現的日期
-        以下是新聞資料：
-        {news_content}
-        """
-    res = model.generate_content(prompt)
+    }}
 
-    # 根據日期給輸出檔名
-    output_file_path = os.path.join(output_folder, f"progress_{date.replace('/', '-')}.json")
+    注意事項：
+    - 嚴格遵守 JSON 格式，並確保格式正確。
+    - 不要有 JSON 以外的文字或說明。
+    - Summary 最多15個字，請簡潔明瞭。
+    - 所有內容使用繁體中文。
+    以下是新聞資料：
+    {news_content}
+    """
+
+    res = model.generate_content(prompt)
     clean_text = res.text.replace("```json", "").replace("```", "").strip()
-    clean_text = res.text.replace("```json", "").replace("```", "").strip()
+    
+    output_file_path = os.path.join(output_folder, f"progress_part_{i + 1}.json")
     with open(output_file_path, "w", encoding="utf-8") as f:
         f.write(clean_text)
-    print(f"{filename} 已處理完畢，儲存至 {output_file_path}")
+
+    print(f"第 {i + 1} 區段 已處理完畢，儲存至 {output_file_path}")
+
+
+    # # 根據日期給輸出檔名
+    # output_file_path = os.path.join(output_folder, f"progress_{date.replace('/', '-')}.json")
+    # clean_text = res.text.replace("```json", "").replace("```", "").strip()
+    # clean_text = res.text.replace("```json", "").replace("```", "").strip()
+    # with open(output_file_path, "w", encoding="utf-8") as f:
+    #     f.write(clean_text)
+    # print(f"{filename} 已處理完畢，儲存至 {output_file_path}")
 print("所有檔案處理完成！")    
