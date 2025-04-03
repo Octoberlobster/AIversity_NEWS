@@ -1,0 +1,60 @@
+[
+  {
+    "Part": 1,
+    "DateRange": "2025/02/24 ~ 2025/03/01",
+    "Topic": "烏俄戰爭三週年回顧",
+    "News_sources": [
+      "客新聞HakkaNews",
+      "紐約時報中文網",
+      "TNL圖表",
+      "Hello World",
+      "青年日報",
+      "自由時報電子報",
+      "Reddit"
+    ]
+  },
+  {
+    "Part": 2,
+    "DateRange": "2025/03/04 ~ 2025/03/07",
+    "Topic": "美烏會談破裂，川普促和",
+    "News_sources": [
+      "abmedia.io",
+      "Vocus",
+      "Yahoo奇摩股市",
+      "voacantonese.com",
+      "Yahoo香港新聞",
+      "風傳媒"
+    ]
+  },
+  {
+    "Part": 3,
+    "DateRange": "2025/03/11 ~ 2025/03/16",
+    "Topic": "美方停火提議，俄羅斯態度",
+    "News_sources": [
+      "uanalyze.com.tw",
+      "RFI",
+      "TVBS新聞網",
+      "新頭殼",
+      "ttv.com.tw"
+    ]
+  },
+  {
+    "Part": 4,
+    "DateRange": "2025/03/17 ~ 2025/03/19",
+    "Topic": "美俄領袖通話，協議部分停火",
+    "News_sources": [
+      "Ettoday",
+      "聯合新聞網"
+    ]
+  },
+  {
+    "Part": 5,
+    "DateRange": "2025/03/26 ~ 2025/03/28",
+    "Topic": "俄烏黑海停火協議，前景不明",
+    "News_sources": [
+      "BBC中文",
+      "公視新聞網",
+      "GOODTV+"
+    ]
+  }
+]

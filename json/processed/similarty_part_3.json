@@ -1,44 +1,27 @@
 [
     {
-        "Part": "3",
-        "DateRange": "2025/03/05 ~ 2025/03/11",
-        "Topic": "特朗普促俄烏談判，澤倫斯基表態願和談",
-        "News_sources": [
-            "美國之音",
-            "Yahoo奇摩新聞"
-        ]
+        "DateRange": "2025/03/1 ~ 2025/03/14",
+        "Topic": "烏俄戰爭歷史與核武裁撤",
+        "News_sources": ["Reddit"]
     },
     {
-        "Part": "3",
-        "DateRange": "2025/03/05 ~ 2025/03/11",
-        "Topic": "特朗普考慮對俄新制裁，促俄烏和談",
-        "News_sources": [
-            "Yahoo奇摩新聞",
-            "風傳媒"
-        ]
+        "DateRange": "2025/03/1 ~ 2025/03/14",
+        "Topic": "烏俄戰爭無人機技術對抗",
+        "News_sources": ["UA Analyze"]
     },
     {
-        "Part": "3",
-        "DateRange": "2025/03/05 ~ 2025/03/11",
-        "Topic": "烏俄戰爭歷史與烏克蘭抉擇",
-        "News_sources": [
-            "Reddit"
-        ]
+        "DateRange": "2025/03/1 ~ 2025/03/14",
+        "Topic": "美國加速對台軍售因應中國",
+        "News_sources": ["RFI"]
     },
     {
-        "Part": "3",
-        "DateRange": "2025/03/05 ~ 2025/03/11",
-        "Topic": "烏俄戰爭無人機技術競賽升級",
-        "News_sources": [
-            "UA Analyze"
-        ]
+        "DateRange": "2025/03/1 ~ 2025/03/14",
+        "Topic": "烏俄戰爭三週年與當地教會",
+        "News_sources": ["GOODTV+"]
     },
     {
-        "Part": "3",
-        "DateRange": "2025/03/05 ~ 2025/03/11",
-        "Topic": "美國加速對台軍售，關注台灣防禦",
-        "News_sources": [
-            "RFI"
-        ]
+        "DateRange": "2025/03/1 ~ 2025/03/14",
+        "Topic": "烏俄戰爭停火協議與股市影響",
+        "News_sources": ["Yahoo奇摩股市"]
     }
 ]

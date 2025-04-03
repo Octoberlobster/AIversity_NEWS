@@ -1,14 +1,17 @@
 [
     {
-        "Part": "1",
-        "DateRange": "2025/03/12 ~ 2025/03/17",
-        "Topic": "烏俄戰爭三週年，當地教會影響力大",
-        "News_sources": ["GOODTV+ 好消息電視台"]
+        "DateRange": "2025/03/15 ~ 2025/03/19",
+        "Topic": "川普特使與普亭會面，盼促成烏俄停火",
+        "News_sources": ["台視新聞", "新頭殼", "聯合新聞網"]
     },
     {
-        "Part": "2",
-        "DateRange": "2025/03/12 ~ 2025/03/17",
-        "Topic": "川普特使與普亭會面，盼促成烏俄停火",
-        "News_sources": ["台視新聞 TTV NEWS", "新頭殼 Newtalk", "ETtoday新聞雲"]
+        "DateRange": "2025/03/15 ~ 2025/03/19",
+        "Topic": "川普與普亭通話，達成部分停火協議",
+        "News_sources": ["聯合新聞網"]
+    },
+    {
+        "DateRange": "2025/03/15 ~ 2025/03/19",
+        "Topic": "AIT處長談及台海和平與烏俄戰爭",
+        "News_sources": ["ETtoday新聞雲"]
     }
 ]

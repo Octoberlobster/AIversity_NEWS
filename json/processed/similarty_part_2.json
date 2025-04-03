@@ -1,31 +1,22 @@
 [
     {
-        "Part": "2",
-        "DateRange": "2025/02/24 ~ 2025/03/04",
-        "Topic": "俄烏戰爭三週年，美俄展開停戰協商",
-        "News_sources": [
-            "客新聞HakkaNews",
-            "紐約時報中文網",
-            "自由時報電子報",
-            "青年日報",
-            "abmedia.io",
-             "The Reporter"
-        ]
+        "DateRange": "2025/02/26 ~ 2025/03/07",
+        "Topic": "美法領袖會談促烏俄停火",
+        "News_sources": ["自由時報電子報", "青年日報"]
     },
     {
-        "Part": "2",
-        "DateRange": "2025/02/24 ~ 2025/03/04",
-        "Topic": "烏俄戰爭三週年，身障人士困境",
-        "News_sources": [
-            "cdn-news.org"
-        ]
+        "DateRange": "2025/02/26 ~ 2025/03/07",
+        "Topic": "烏俄戰爭影響汽車產業及油價",
+        "News_sources": ["vocus"]
     },
     {
-        "Part": "2",
-        "DateRange": "2025/02/24 ~ 2025/03/04",
-        "Topic": "俄烏戰爭三週年，各國金援與經濟損失",
-        "News_sources": [
-            "LINE TODAY"
-        ]
+        "DateRange": "2025/02/26 ~ 2025/03/07",
+        "Topic": "美烏會談破裂，澤倫斯基態度轉彎",
+        "News_sources": ["abmedia.io", "美國之音", "Yahoo奇摩新聞"]
+    },
+    {
+        "DateRange": "2025/02/26 ~ 2025/03/07",
+        "Topic": "川普考慮對俄新制裁，美烏將再談判",
+        "News_sources": ["Yahoo奇摩新聞", "風傳媒"]
     }
 ]

@@ -70,7 +70,6 @@ for i in range(5):
     請依照以下 JSON 格式回答：
     [
         {{
-            "Part": "{i + 1}",
             "DateRange": "{date_range}",
             "Topic": "內容相近新聞之摘要（最多15字）",
             "News_sources": ["新聞台1", "新聞台2", "新聞台3"]

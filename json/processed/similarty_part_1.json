@@ -1,32 +1,37 @@
 [
     {
-        "Part": "1",
-        "DateRange": "2022/03/03 ~ 2025/02/23",
-        "Topic": "烏俄戰爭影響汽車產業及油價",
-        "News_sources": []
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：科技公司參戰及其影響",
+        "News_sources": ["voicettank.org"]
     },
     {
-        "Part": "2",
-        "DateRange": "2022/03/03 ~ 2025/02/23",
-        "Topic": "美國考慮禁止進口俄羅斯能源",
-        "News_sources": []
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "英國將宣布最大規模對俄制裁",
+        "News_sources": ["swissinfo.ch", "news.tvbs.com.tw"]
     },
     {
-        "Part": "3",
-        "DateRange": "2022/03/03 ~ 2025/02/23",
-        "Topic": "烏俄停火協議與重建概念股",
-        "News_sources": ["Yahoo奇摩股市"]
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：各國反應與局勢分析",
+        "News_sources": ["hakkanews.tw"]
     },
     {
-        "Part": "4",
-        "DateRange": "2022/03/03 ~ 2025/02/23",
-        "Topic": "烏俄戰爭三週年科技影響及台灣危機",
-        "News_sources": ["Voice Tank"]
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：身障人士困境與援助",
+        "News_sources": ["cdn-news.org"]
     },
     {
-        "Part": "5",
-        "DateRange": "2022/03/03 ~ 2025/02/23",
-        "Topic": "英國將宣布對俄羅斯新制裁",
-        "News_sources": ["SWI swissinfo.ch", "TVBS新聞網"]
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：川普外交與烏克蘭挑戰",
+        "News_sources": ["www.twreporter.org"]
+    },
+    {
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "川普為普丁開啟新世界秩序的可能性",
+        "News_sources": ["cn.nytimes.com"]
+    },
+    {
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：各國金援和經濟損失",
+        "News_sources": ["today.line.me"]
     }
 ]
