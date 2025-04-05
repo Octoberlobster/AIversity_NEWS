@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 from time import sleep
 # 先把新聞時間整理好，把同一天的新聞整理在一起，然後用同一天的新聞去比對相似度，
-# 
 
 # === 1. 設定資料夾路徑 ===
 input_folder = "json/test"
@@ -94,4 +93,4 @@ for i in range(5):
         f.write(clean_text)
     print(f"第 {i + 1} 區段相似新聞分析完成，儲存至 {output_file_path}")
 
-print("所有檔案處理完成！")    
+print("所有檔案處理完成！")
