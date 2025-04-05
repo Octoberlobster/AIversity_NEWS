@@ -92,7 +92,7 @@ function App() {
         </div>
         
         <div className="right-panel">
-          <h3 className="right-panel-title">多觀點新聞分析討論室</h3>
+          <h3 className="right-panel-title">角色聊天室</h3>
           <div className="divider"></div>
           <div className="dropdown-container">
             <select 

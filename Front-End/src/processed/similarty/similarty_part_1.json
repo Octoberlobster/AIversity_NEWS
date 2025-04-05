@@ -1,0 +1,37 @@
+[
+    {
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：科技公司參戰及台灣的危機",
+        "News_sources": ["voicettank.org"]
+    },
+    {
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：英國將擴大對俄制裁",
+        "News_sources": ["swissinfo.ch", "news.tvbs.com.tw"]
+    },
+    {
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：國際局勢與各國反應",
+        "News_sources": ["hakkanews.tw"]
+    },
+    {
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：身障人士的困境與援助",
+        "News_sources": ["cdn-news.org"]
+    },
+    {
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：川普政府的影響與烏克蘭的挑戰",
+        "News_sources": ["www.twreporter.org"]
+    },
+    {
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：川普新政為普丁帶來機會",
+        "News_sources": ["cn.nytimes.com"]
+    },
+    {
+        "DateRange": "2025/02/20 ~ 2025/02/25",
+        "Topic": "烏俄戰爭三周年：各國金援和經濟損失",
+        "News_sources": ["today.line.me"]
+    }
+]

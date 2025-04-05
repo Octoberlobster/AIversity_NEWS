@@ -109,6 +109,7 @@
     border: 1px solid #ddd;
     display: flex;
     flex-direction: column;
+    white-space: pre-line;
   }
   
   .message {
@@ -116,6 +117,7 @@
     padding: 8px 12px;
     border-radius: 8px;
     max-width: 80%;
+    white-space: pre-line;
   }
   
   .system-message {
@@ -125,18 +127,21 @@
     text-align: center;
     margin: 10px auto;
     width: 90%;
+    white-space: pre-line;
   }
   
   .user-message {
     background-color: #e1f5fe;
     align-self: flex-end;
     border-radius: 8px 8px 0 8px;
+    white-space: pre-line;
   }
   
   .role-message {
     background-color: #e8f5e9;
     align-self: flex-start;
     border-radius: 8px 8px 8px 0;
+    white-space: pre-line;
   }
   
   .chat-input-form {

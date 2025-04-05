@@ -3,109 +3,159 @@ import './TimelineAnalysis.css';
 
 const TimelineAnalysis = () => {
   const [expandedItems, setExpandedItems] = useState({});
-  const [timelineEvents, setTimelineEvents] = useState([]);
-  const [newsDetails, setNewsDetails] = useState({});
+  const [timelineData, setTimelineData] = useState([]);
+  const [newsTopics, setNewsTopics] = useState({});
+  
+  // 定義不同新聞台的顏色
+  const mediaColors = {
+    'cnn.com': '#CC0000',
+    'foxnews.com': '#003366',
+    'bbc.com': '#BB1919',
+    'reuters.com': '#FF8000',
+    'apnews.com': '#0078D4',
+    'default': '#777777'
+  };
 
   useEffect(() => {
-    // 使用webpack的require.context動態導入所有進度JSON檔案
-    const progressContext = require.context('./processed/progress', false, /\.json$/);
-    const events = progressContext.keys().map((key, index) => {
-      const eventData = progressContext(key);
+    // 動態加載所有時間軸JSON檔案
+    const context = require.context('./processed/progress', false, /\.json$/);
+    
+    // 在 useEffect 中加載 progress 資料時進行轉換
+    const loadedData = context.keys().map(key => {
+      const item = context(key);
+      // 轉換 URL 陣列為 Sources 陣列
+      const sources = item.URL ? item.URL.map(url => ({
+        Source: new URL(url).hostname.replace('www.', ''),
+        URL: url
+      })) : [];
       
-      // 預設為 event，如果檔案名稱包含 "predict" 則設成 predict
-      const type = key.includes("predict") ? "predict" : "event";
-
       return {
-        id: index + 1,
-        date: eventData.Date,
-        summary: eventData.Summary,
-        type: type,
-        urls: eventData.URL
+        ...item,
+        Sources: sources,
+        id: key.replace(/^\.\/|\.json$/g, ''),
+        startDate: new Date(item.DateRange.split(' ~ ')[0])
       };
     });
-
-    // 按日期排序事件
-    events.sort((a, b) => new Date(a.date) - new Date(b.date));
-    setTimelineEvents(events);
-
-    // 導入新聞詳情JSON檔案
+    
+    // 按日期排序
+    loadedData.sort((a, b) => a.startDate - b.startDate);
+    setTimelineData(loadedData);
+    
+    // 加載媒體焦點數據
     try {
-      const similarityContext = require.context('./processed/similarty', false, /\.json$/);
-      const newsData = {};
+      const topicsContext = require.context('./processed/similarty', false, /\.json$/);
+      const topicsData = {};
       
-      similarityContext.keys().forEach(key => {
-        const data = similarityContext(key);
+      topicsContext.keys().forEach(key => {
+        const data = topicsContext(key);
+        // 將數據按日期範圍分組
         data.forEach(item => {
-          if (!newsData[item.Date]) {
-            newsData[item.Date] = [];
+          if (!topicsData[item.DateRange]) {
+            topicsData[item.DateRange] = [];
           }
-          newsData[item.Date].push(item);
+          topicsData[item.DateRange].push(item);
         });
       });
       
-      setNewsDetails(newsData);
+      setNewsTopics(topicsData);
     } catch (error) {
-      console.error("Error loading news details:", error);
+      console.error("Error loading news topics:", error);
     }
   }, []);
 
   const toggleItem = (id) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
+    setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
   };
-
-  const renderTimelineItem = (item) => {
-    // 檢查是否有對應日期的新聞詳情
-    const detail = newsDetails[item.date];
-
-    return (
-      <div className="timeline-item" key={item.id}>
-        <div 
-          className={`timeline-node ${item.type === 'event' ? 'event-node' : 'prediction-node'}`} 
-          onClick={() => toggleItem(item.id)}
-        ></div>
-        <div className="timeline-content">
-          <div className="timeline-date">{item.date}</div>
-          <div className="timeline-title">{item.summary}</div>
-          
-          {expandedItems[item.id] && detail && (
-            <div className="timeline-details">
-              {detail.map((newsItem, index) => (
-                <div key={index} className="news-detail-item">
-                  <h4>{newsItem.Topic}</h4>
-                  <div className="news-source-label">新聞來源：</div>
-                  <div className="news-sources">
-                    {newsItem.News_sources.map((source, idx) => (
-                      <span key={idx} className="news-source-tag">{source}</span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
+  
+  // 獲取新聞來源的顏色
+  const getSourceColor = (source) => {
+    return mediaColors[source] || mediaColors.default;
   };
 
   return (
     <div className="timeline-container">
-      <h2>烏俄戰爭時序分析</h2>
-      <div className="timeline-legend">
-        <div className="legend-item">
-          <div className="legend-node event-node"></div>
-          <span>實際事件</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-node prediction-node"></div>
-          <span>AI預測</span>
-        </div>
-      </div>
+      <h2 className="timeline-main-title">新聞時序 & 趨勢分析</h2>
       
-      <div className="vertical-timeline">
-        {timelineEvents.map(item => renderTimelineItem(item))}
+      <div className="timeline">
+        <div className="timeline-line"></div>
+        
+        {timelineData.map((item, index) => (
+          <div className={`timeline-item ${expandedItems[item.id] ? 'expanded' : ''}`} key={item.id}>
+            <div className="timeline-date-box">
+              <div className="timeline-date">{item.DateRange}</div>
+            </div>
+            
+            <div 
+              className={`timeline-node ${index % 3 === 0 ? 'node-blue' : index % 3 === 1 ? 'node-green' : 'node-red'}`}
+              onClick={() => toggleItem(item.id)}
+            ></div>
+            
+            <div className="timeline-content">
+              <h3 className="timeline-title">{item.Title}</h3>
+              <p className="timeline-summary">{item.Summary}</p>
+              
+              {expandedItems[item.id] && (
+                <div className="timeline-details">
+                  {newsTopics[item.DateRange] && newsTopics[item.DateRange].length > 0 ? (
+                    <div className="media-topics">
+                      <h4 className="topics-title">媒體焦點分析</h4>
+                      
+                      {newsTopics[item.DateRange].map((topic, topicIndex) => (
+                        <div className="topic-item" key={topicIndex}>
+                          <div className="topic-content">{topic.Topic}</div>
+                          
+                          {topic.News_sources && topic.News_sources.length > 0 && (
+                            <div className="topic-sources">
+                              {topic.News_sources.map((source, sourceIndex) => (
+                                <span 
+                                  className="media-source-tag" 
+                                  key={sourceIndex}
+                                  style={{
+                                    backgroundColor: `${getSourceColor(source)}20`,
+                                    color: getSourceColor(source),
+                                    borderLeft: `3px solid ${getSourceColor(source)}`
+                                  }}
+                                >
+                                  {source}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="no-topics">此時間段無媒體焦點分析</div>
+                  )}
+                  
+                  {item.Sources && item.Sources.length > 0 && (
+                    <div className="original-sources">
+                      <h4 className="sources-title">原始新聞來源</h4>
+                      <div className="news-sources">
+                        {item.Sources.map((source, sourceIndex) => (
+                          <a 
+                            href={source.URL} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="news-source-tag"
+                            key={sourceIndex}
+                            style={{
+                              backgroundColor: `${getSourceColor(source.Source)}15`,
+                              color: getSourceColor(source.Source),
+                              borderLeft: `3px solid ${getSourceColor(source.Source)}`
+                            }}
+                          >
+                            {source.Source}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ function ChatRoom({ selectedRole, messages: initialMessages, updateMessages, rol
     // 如果沒有初始消息（首次選擇角色）
     if (initialMessages.length === 0) {
       // 創建角色的初始問候和分析文本
-      const initialGreeting = `你好，我是${selectedRole}。對於烏俄戰爭，我的分析是：${roleAnalyze}`;
+      const initialGreeting = `你好，我是${selectedRole}。\n對於烏俄戰爭，我的分析是：\n${roleAnalyze}`;
       // 設置初始消息：系統提示和角色問候
       const initialMsgs = [
         { sender: 'system', text: `您已選擇與${selectedRole}對話` },
