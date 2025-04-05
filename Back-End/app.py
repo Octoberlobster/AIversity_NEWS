@@ -52,7 +52,7 @@ def chat():
         {role_viewpoints[role]}
         
         請以簡短的幾句話來進行對話式的回答，保持在{role}的角色中，並根據上述立場和觀點來回應。
-        回答要簡潔有力，每次回應不超過3-4句話。
+        回答時根據用戶輸入的語言回應，並且要簡潔有力，每次回應不超過3-4句話。
         """
         
         model = genai.GenerativeModel('gemini-1.5-pro-002', system_instruction=system_instruction)

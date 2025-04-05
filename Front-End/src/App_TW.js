@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './main.css';
-import TimelineAnalysis from './TimelineAnalysis';
-import ChatRoom from './ChatRoom';
-import newsData from './News.json';
-import rolesData from './Roles.json';
-import roleAnalyzes from './NewsAnalyze.json';
+import TimelineAnalysis from './TimelineAnalysis_TW';
+import ChatRoom from './ChatRoom_TW';
+import newsData from './News_TW.json';
+import rolesData from './Roles_TW.json';
+import roleAnalyzes from './NewsAnalyze_TW.json';
 import translateIcon from './Translate.png'
 
-function App() {
+function App_TW() {
   const [selectedRole, setSelectedRole] = useState('');
   const [chatHistories, setChatHistories] = useState({});
-  const [language, setLanguage] = useState('zh');
+  const [language, setLanguage] = useState('tw');
   const roles = rolesData.Roles.map(role => role.Role);
   const navigate = useNavigate();
 
@@ -51,12 +51,10 @@ function App() {
   const handleLanguageChange = (e) => {
     const selectedLanguage = e.target.value;
     setLanguage(selectedLanguage);
-    
-    if (selectedLanguage === 'tw') {
-      navigate('/tw');
-    } else if (selectedLanguage === 'zh') {
+    if (selectedLanguage === 'zh') {
       navigate('/');
     }
+    // 其他語言的路由可以在這裡添加
   };
 
   return (
@@ -112,7 +110,7 @@ function App() {
           </div>
           
           {selectedRole && (
-            <ChatRoom 
+            <ChatRoom
               selectedRole={selectedRole}
               messages={chatHistories[selectedRole] || []}
               updateMessages={(newMessages) => updateChatHistory(selectedRole, newMessages)}
@@ -126,4 +124,4 @@ function App() {
   );
 }
 
-export default App;
+export default App_TW;
