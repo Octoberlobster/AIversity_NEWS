@@ -12,7 +12,6 @@
 - 將新聞依時間脈絡進行整合與更新。
 
 本專案強調「多來源報導」、「深層分析」與「互動體驗」，可應用於資料分析、教育輔助等場景。
-
 ---
 
 ## 環境需求
@@ -72,6 +71,3 @@ npm start
 <img src="https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image3.png" height="50%" width="50%">
 🤝 貢獻方式
 歡迎提出 Issue 或發送 Pull Request！若有想法或合作需求，也歡迎私訊聯繫我們。
-
-📜 授權條款
-本專案採用 MIT License 授權。
