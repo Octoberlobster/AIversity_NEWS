@@ -15,11 +15,12 @@ api_key = ""
 os.makedirs(output_folder, exist_ok=True)
 
 genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-1.5-pro-002')
+model = genai.GenerativeModel('gemini-1.5-pro-latest')
 
 chat_session = model.start_chat(history=[])
 first_message = "接下來我會給你一連串的新聞內容，這些內容都已經依照發生順序給分類好了，也會給你按照時序排好的新聞事件進展，請你記得這些內容，在最後提到\"預測未來\"時請你根據先前的所有新聞與事件進展內容，從三個面向預測未來事件是否會持續發展或停滯(用十五到二十個字之間對每個面向總結除此之外生成關於這篇預測的標題即可)，" \
                 "但如果你的預測是會停滯在最後一個事件階段請回答\"事件發展停滯目前階段\""\
+                "標題請自己想一個適合的"\
                 "如果你有接收到我的指示，請一律回答\"是的\"，謝謝！"
 ans=chat_session.send_message(first_message)
 print(ans.text)
