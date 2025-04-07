@@ -1,0 +1,7 @@
+google-generativeai
+beautifulsoup4
+deep-translator
+feedparser
+requests
+Flask
+Flask-Cors
