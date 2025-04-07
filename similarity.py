@@ -12,7 +12,7 @@ output_folder = "json/processed"
 # 確保輸出資料夾存在
 os.makedirs(output_folder, exist_ok=True)
 
-api_key = "YOUR_GEMINI_API_KEY"
+api_key = "AIzaSyBPIEu1pz4ykfRnCBcMNXfWdXdCzDwTuDI"
 
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
@@ -88,7 +88,7 @@ for i in range(5):
     res = model.generate_content(prompt)
     clean_text = res.text.replace("```json", "").replace("```", "").strip()
 
-    output_file_path = os.path.join(output_folder, f"similarty_part_{i + 1}.json")
+    output_file_path = os.path.join(output_folder, f"translate_similarty_part_{i + 1}.json")
     with open(output_file_path, "w", encoding="utf-8") as f:
         f.write(clean_text)
     print(f"第 {i + 1} 區段相似新聞分析完成，儲存至 {output_file_path}")
