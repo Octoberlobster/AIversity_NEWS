@@ -63,7 +63,7 @@ function App() {
     <div className="container">
       <div className="header-bar">
         <div className="platform-name">
-          <span className="platform-logo">I</span>ntelexis
+          <span></span>
         </div>
         <div className="language-selector">
           <img src={translateIcon} alt="Translate" className="translate-icon" />

@@ -13,7 +13,8 @@ const TimelineAnalysis = () => {
     'bbc.com': '#BB1919',
     'reuters.com': '#FF8000',
     'apnews.com': '#0078D4',
-    'default': '#777777'
+    'default': '#777777',
+    'rg.ru': '#123972'
   };
 
   useEffect(() => {

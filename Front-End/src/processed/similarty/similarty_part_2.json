@@ -1,22 +1,27 @@
 [
     {
-        "DateRange": "2025/02/26 ~ 2025/03/05",
-        "Topic": "川普馬克宏會談烏俄戰爭",
+        "DateRange": "2025/02/26 ~ 2025/03/04",
+        "Topic": "美法領袖會談促烏俄停火",
         "News_sources": ["自由時報電子報", "青年日報"]
     },
     {
-        "DateRange": "2025/02/26 ~ 2025/03/05",
-        "Topic": "烏俄戰爭歷史與美國政策",
-        "News_sources": ["r/Taiwanese"]
+        "DateRange": "2025/02/26 ~ 2025/03/04",
+        "Topic": "俄軍戰況及外籍傭兵動態",
+        "News_sources": ["俄羅斯報"]
     },
     {
-        "DateRange": "2025/02/26 ~ 2025/03/05",
-        "Topic": "烏俄戰爭對汽車產業影響",
+        "DateRange": "2025/02/26 ~ 2025/03/04",
+        "Topic": "烏俄戰爭歷史背景與影響",
+        "News_sources": ["Reddit"]
+    },
+    {
+        "DateRange": "2025/02/26 ~ 2025/03/04",
+        "Topic": "烏俄戰爭對汽車產業的影響",
         "News_sources": ["Vocus"]
     },
     {
-        "DateRange": "2025/02/26 ~ 2025/03/05",
-        "Topic": "美烏會談破裂，澤倫斯基低頭",
-        "News_sources": ["abmedia.io", "美國之音粵語網", "Yahoo奇摩新聞"]
+        "DateRange": "2025/02/26 ~ 2025/03/04",
+        "Topic": "美烏會談破裂，美促烏俄和談",
+        "News_sources": ["abmedia.io"]
     }
 ]

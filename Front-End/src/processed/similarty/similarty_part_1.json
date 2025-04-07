@@ -1,37 +1,42 @@
 [
     {
-        "DateRange": "2025/02/20 ~ 2025/02/25",
-        "Topic": "烏俄戰爭三周年：科技公司參戰及台灣的危機",
-        "News_sources": ["voicettank.org"]
+      "DateRange": "2025/02/20 ~ 2025/02/25",
+      "Topic": "烏俄戰爭三週年，科技巨頭影響戰局",
+      "News_sources": ["voicettank.org"]
     },
     {
-        "DateRange": "2025/02/20 ~ 2025/02/25",
-        "Topic": "烏俄戰爭三周年：英國將擴大對俄制裁",
-        "News_sources": ["swissinfo.ch", "news.tvbs.com.tw"]
+      "DateRange": "2025/02/20 ~ 2025/02/25",
+      "Topic": "川普澤倫斯基言論引發爭議",
+      "News_sources": ["rg.ru", "rg.ru", "rg.ru", "rg.ru"]
     },
     {
-        "DateRange": "2025/02/20 ~ 2025/02/25",
-        "Topic": "烏俄戰爭三周年：國際局勢與各國反應",
-        "News_sources": ["hakkanews.tw"]
+      "DateRange": "2025/02/20 ~ 2025/02/25",
+      "Topic": "英國將宣布最大規模對俄制裁",
+      "News_sources": ["swissinfo.ch", "news.tvbs.com.tw"]
     },
     {
-        "DateRange": "2025/02/20 ~ 2025/02/25",
-        "Topic": "烏俄戰爭三周年：身障人士的困境與援助",
-        "News_sources": ["cdn-news.org"]
+      "DateRange": "2025/02/20 ~ 2025/02/25",
+      "Topic": "俄烏戰爭三週年局勢分析",
+      "News_sources": ["hakkanews.tw"]
     },
     {
-        "DateRange": "2025/02/20 ~ 2025/02/25",
-        "Topic": "烏俄戰爭三周年：川普政府的影響與烏克蘭的挑戰",
-        "News_sources": ["www.twreporter.org"]
+      "DateRange": "2025/02/20 ~ 2025/02/25",
+      "Topic": "烏俄戰爭三週年，身障人士困境",
+      "News_sources": ["cdn-news.org"]
     },
     {
-        "DateRange": "2025/02/20 ~ 2025/02/25",
-        "Topic": "烏俄戰爭三周年：川普新政為普丁帶來機會",
-        "News_sources": ["cn.nytimes.com"]
+      "DateRange": "2025/02/20 ~ 2025/02/25",
+      "Topic": "烏俄戰爭三週年，烏克蘭的國際處境",
+      "News_sources": ["www.twreporter.org"]
     },
     {
-        "DateRange": "2025/02/20 ~ 2025/02/25",
-        "Topic": "烏俄戰爭三周年：各國金援和經濟損失",
-        "News_sources": ["today.line.me"]
+      "DateRange": "2025/02/20 ~ 2025/02/25",
+      "Topic": "川普為普丁開啟新世界",
+      "News_sources": ["cn.nytimes.com"]
+    },
+    {
+      "DateRange": "2025/02/20 ~ 2025/02/25",
+      "Topic": "俄烏戰爭三週年，各國金援與經濟損失",
+      "News_sources": ["today.line.me"]
     }
 ]

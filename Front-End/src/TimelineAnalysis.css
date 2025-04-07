@@ -157,7 +157,10 @@
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px dashed #ddd;
+  max-height: 500px; /* 設置合適的高度限制 */
+  overflow-y: auto; /* 添加垂直滾動條 */
 }
+
 
 /* 媒體焦點樣式 */
 .media-topics {
