@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 google-generativeai
 beautifulsoup4
 deep-translator
@@ -5,3 +6,12 @@ feedparser
 requests
 Flask
 Flask-Cors
+=======
+google-generativeai
+beautifulsoup4
+deep-translator
+feedparser
+requests
+Flask
+Flask-Cors
+>>>>>>> 7b529f8755b38b777a9eca08c03bf4845b9afc2e
