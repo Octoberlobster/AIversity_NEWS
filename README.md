@@ -20,52 +20,47 @@
 - **React**  版本：19.1.0 或以上
 ---
 
-## 專案結構
-```
-project_directory/
-├── Back-End/                       # 後端
-│   ├── GenerateNews_EachEvent/     # 測試用的輸入檔案資料夾
-│   ├── Roles/                      # 儲存生成之角色資料
-│   ├── RolesAnalyze/               # 儲存角色分析圖與資料
-│   ├── __pycache__/                # Python 編譯暫存檔
-│   ├── static/                     # 前端靜態資源（JS/CSS）
-│   ├── templates/                  # HTML 模板（Jinja2）
-│   ├── app.py                      # Flask 啟動主程式（整合所有模組）
-│   ├── Categorize.py               # 新聞分類模組
-│   ├── ChatRoom.py                 # 智慧對話處理（生成摘要、觀點）
-│   ├── Combined.py                 # 多新聞台整合模組
-│   ├── DivideEvent.py              # 將新聞切分為事件段落
-│   ├── GenerateNews.py             # 新聞生成與重構模組
-│   ├── GenerateRoles.py            # 角色抽取模組
-│   ├── GenerateRolesAnalyze.py     # 角色立場與情緒分析模組
-│   ├── Summarize.py                # 多段新聞摘要生成（整合 Gemini）
-│   ├── clean.py                    # 預處理腳本（去除雜訊）
-│   ├── crawler_news.py             # 新聞爬蟲（多來源）
-│   ├── event_progress.py           # 事件進展分析
-│   ├── event_progress_LLM.py       # 使用 LLM 判斷事件進展階段
-│   ├── google_translator.py        # Google 翻譯 API 模組
-│   ├── predict.py                  # 分類預測模組（如立場、分類）
-│   ├── similarity.py               # 向量語意相似度計算
-│   ├── similarityLLM.py            # 使用 LLM 計算觀點語意差異
-│   └── summary_news.py             # 整理後的新聞摘要生成
-├── Front-End/                      # 前端
-│   ├── public/                     
-│   ├── src/                        # 前端主要頁面
-│   ├── .gcloudignore
-│   ├── .gitignore
-│   ├── app.yaml
-│   ├── package-lock.json
-│   └── package.json
-├── 醜醜的新聞架構第一版.pdf     
-└── README.md                       # 本說明文件
-```
-
----
-
 ## 安裝與執行
 
-### 安裝依賴
-本專案不需要額外的外部依賴，確認系統已安裝 Python 3.8 或以上版本即可。
+### 1. Clone 專案<br>
+首先，將專案從 GitHub 或其他代管平台上 Clone 到本地機器。
+### 2. 安裝 Python 依賴<br>
+使用 pip 安裝專案所需的 Python 依賴。
+```
+python3 -m venv venv
+source venv/bin/activate  # 在 Linux/macOS
+venv\Scripts\activate  # 在 Windows
+
+# 安裝依賴
+pip install -r requirements.txt
+```
+### 3. 安裝 React 依賴<br>
+前端部分使用 React，請先安裝 Node.js 和 npm（如果尚未安裝，請先安裝 Node.js 來獲得 npm）。
+```
+cd frontend
+npm install
+```
+### 4. 配置環境變數<br>
+根據需要，配置專案的環境變數。例如，API 金鑰、數據庫連線等。這些變數通常可以寫入 .env 檔案。
+```
+API_KEY=your_api_key_here
+DATABASE_URL=your_database_url_here
+```
+### 5. 執行後端服務<br>
+啟動後端服務，使其開始處理資料爬取、分類和摘要生成。
+```
+cd backend
+python app.py
+```
+後端服務會啟動並開始監聽指定的端口（通常是 localhost:5000，具體視專案配置而定）。
+<br>
+### 6. 執行前端應用  
+啟動前端 React 應用，讓使用者能夠與平台互動。
+```
+cd frontend
+npm start
+```
+這樣，React 應用將會啟動並可以通過瀏覽器訪問（通常是 localhost:3000）。
 
 📷 預覽畫面
 
@@ -74,7 +69,3 @@ project_directory/
 
 📜 授權條款
 本專案採用 MIT License 授權。
-
-🙌 特別感謝
-- 高雄大學資訊工程系-吳俊興教授指導
-- Gemini 技術支援
