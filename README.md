@@ -65,11 +65,11 @@ npm start
 📷 預覽畫面
 ### 新聞系統介面與多角色聊天室展示
 ![image](https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image.png)
-![image](https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image1.png)
+<img src="https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image1.png" height="60%" width="60%">
 ### 新聞時序分析與 AI 未來分析
-![image](https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image2.png)
-![image](https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image3.png)
 
+<img src="https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image2.png" height="50%" width="50%">
+<img src="https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image3.png" height="50%" width="50%">
 🤝 貢獻方式
 歡迎提出 Issue 或發送 Pull Request！若有想法或合作需求，也歡迎私訊聯繫我們。
 
