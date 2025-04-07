@@ -66,7 +66,7 @@ npm start
 ### 新聞系統介面與多角色聊天室展示
 ![image](https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image.png)
 <img src="https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image1.png" height="60%" width="60%">
-### 新聞時序分析與 AI 未來分析
+### 新聞時序分析與 AI 趨勢分析
 
 <img src="https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image2.png" height="50%" width="50%">
 <img src="https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image3.png" height="50%" width="50%">
