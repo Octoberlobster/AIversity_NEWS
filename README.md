@@ -1,7 +1,8 @@
 # README
 
 ## 專案概述
-本專案旨在開發一個致力於打造一個具前瞻性且能夠打破地域與語言限制的新聞整合平台。我們的平台包含以下主要功能：
+本專案旨在開發一個致力於打造一個具前瞻性且能夠打破地域與語言限制的新聞整合平台。我們的專案目標是協助使用者從龐大、雜亂的新聞中提煉出清晰、有邏輯的資訊，並透過聊天室方式與事件人物進行深度互動。
+我們的平台包含以下主要功能：
 - 多新聞台資料爬取與整合
 - 自動分類新聞事件
 - 利用 LLM（Gemini）進行摘要與角色提取
@@ -21,7 +22,7 @@
 ## 專案結構
 ```
 project_directory/
-├── Back-End/                       # 主程式資料夾
+├── Back-End/                       # 後端
 │   ├── GenerateNews_EachEvent/     # 測試用的輸入檔案資料夾
 │   ├── Roles/                      # 儲存生成之角色資料
 │   ├── RolesAnalyze/               # 儲存角色分析圖與資料
@@ -46,16 +47,16 @@ project_directory/
 │   ├── similarity.py               # 向量語意相似度計算
 │   ├── similarityLLM.py            # 使用 LLM 計算觀點語意差異
 │   └── summary_news.py             # 整理後的新聞摘要生成
-├── Front-End/                  # 輸出檔案資料夾
-│   ├── public/               # 測試用輸出檔案
-│   ├── src/
+├── Front-End/                      # 前端
+│   ├── public/                     
+│   ├── src/                        # 前端主要頁面
 │   ├── .gcloudignore
 │   ├── .gitignore
 │   ├── app.yaml
 │   ├── package-lock.json
 │   └── package.json
-├── 醜醜的新聞架構第一版.pdf      # Python 專案配置檔案
-└── README.md                   # 本說明文件
+├── 醜醜的新聞架構第一版.pdf     
+└── README.md                       # 本說明文件
 ```
 
 ---
