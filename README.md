@@ -63,6 +63,12 @@ npm start
 這樣，React 應用將會啟動並可以通過瀏覽器訪問（通常是 localhost:3000）。
 
 📷 預覽畫面
+### 新聞系統介面與多角色聊天室展示
+![image](https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image.png)
+![image](https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image1.png)
+### 新聞時序分析與 AI 未來分析
+![image](https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image2.png)
+![image](https://github.com/Octoberlobster/Intelexis/blob/HA's7-Branch/image3.png)
 
 🤝 貢獻方式
 歡迎提出 Issue 或發送 Pull Request！若有想法或合作需求，也歡迎私訊聯繫我們。
