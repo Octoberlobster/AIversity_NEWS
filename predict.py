@@ -10,8 +10,7 @@ folder_path = "json/TimeLine" # 預測用的
 input_folder = "json/progress" # 我的
 output_folder = "json/processed"
 
-api_key = "YOUR_GEMINI_API_KEY"
-
+api_key = ""
 # 確保輸出資料夾存在
 os.makedirs(output_folder, exist_ok=True)
 

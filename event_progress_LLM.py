@@ -7,8 +7,8 @@ import google.generativeai as genai
 input_folder = "json/test"
 output_folder = "json/LLM"
 os.makedirs(output_folder, exist_ok=True)
-
-api_key = "AIzaSyAcS3oO-4niAZKUlULc03dQzbmSTQjkFH8"
+ㄅ
+api_key = "YOUR_GEMINI_API_KEY"
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
 

@@ -12,7 +12,7 @@ output_folder = "json/processed"
 # 確保輸出資料夾存在
 os.makedirs(output_folder, exist_ok=True)
 
-api_key = "AIzaSyBPIEu1pz4ykfRnCBcMNXfWdXdCzDwTuDI"
+api_key = "YOUR_GEMINI_API_KEY"
 
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
