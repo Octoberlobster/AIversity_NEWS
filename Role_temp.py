@@ -18,7 +18,7 @@ for filename in json_files:
         data = f.read()
     print("Data:", data)
 
-    Roles = model.generate_content(data+"請根據以上新聞內容，請你以以下角色的身分，幫我生成他們的對這事件的立場與看法，並以文字描述。"
+    Roles = model.generate_content(data+"請根據以上新聞內容，請你以以下角色的身分，幫我生成他們對這事件的立場與看法，並以文字描述。"
                                     "1. 美國政府"
                                     "2. 烏克蘭政府"
                                     "3. 俄羅斯政府"
