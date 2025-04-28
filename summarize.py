@@ -6,7 +6,7 @@ import os
 api_key = os.getenv("API_KEY_Gemini")
 genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel('gemini-1.5-pro-002')
+model = genai.GenerativeModel('gemini-1.5-pro-002',tools="google_search_retrieval")
 
 #read json
 with open('Cleaned/cleaned_2025_03_09_23.json', encoding='utf-8') as f:
