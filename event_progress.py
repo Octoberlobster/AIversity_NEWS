@@ -8,9 +8,9 @@ import uuid
 import datetime
 from collections import defaultdict
 
-SUPABASE_URL         = ""
-SUPABASE_SERVICE_KEY = ""
-GEMINI_API_KEY       = "" 
+SUPABASE_URL         = "我記得刪了"
+SUPABASE_SERVICE_KEY = "我記得刪了"
+GEMINI_API_KEY       = "我記得刪了"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-pro-002')
@@ -126,7 +126,6 @@ def analyse_event(eid: int, news_rows: list[dict]) -> tuple[list[dict], list[dic
         items.append(
             {
                 "timeline_items_id": item_id,
-                "event_id": eid,                         # 建議表上設 FK
                 "date_range": j["DateRange"],
                 "start_date": j["DateRange"].split("~")[0].strip(),
                 "summary": j["Summary"],
@@ -151,6 +150,6 @@ for eid, news in events_news.items():
     print(items_rows)
     print(sources_rows)
     # 批次插入
-    # supabase.table("timeline_items").insert(items_rows).execute()
-    # supabase.table("timeline_sources").insert(sources_rows).execute()
+    supabase.table("timeline_items").insert(items_rows).execute()
+    supabase.table("timeline_sources").insert(sources_rows).execute()
     print(f"完成插入items {len(items_rows)}、sources {len(sources_rows)}")
