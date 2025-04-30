@@ -104,12 +104,11 @@ const TimelineAnalysis = () => {
                       {newsTopics[item.DateRange].map((topic, topicIndex) => (
                         <div className="topic-item" key={topicIndex}>
                           <div className="topic-content">{topic.Topic}</div>
-                          
                           {topic.News_sources && topic.News_sources.length > 0 && (
                             <div className="topic-sources">
-                              {topic.News_sources.map((source, sourceIndex) => (
-                                <span 
-                                  className="media-source-tag" 
+                              {[...new Set(topic.News_sources)].map((source, sourceIndex) => (
+                                <span
+                                  className="media-source-tag"
                                   key={sourceIndex}
                                   style={{
                                     backgroundColor: `${getSourceColor(source)}20`,

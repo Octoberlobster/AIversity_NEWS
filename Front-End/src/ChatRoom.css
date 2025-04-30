@@ -119,6 +119,21 @@
     max-width: 80%;
     white-space: pre-line;
   }
+
+  /* -------- ScenarioChatRoom scrolling -------- */
+.messages {
+  /* 先把 ChatRoom 的 flex:1 高度沿用 */
+  flex: 1;
+  overflow-y: auto;          /* 允許垂直捲動 */
+  padding-right: 4px;        /* 捲軸不壓住文字 */
+}
+
+/* 美化捲軸（可選） */
+.messages::-webkit-scrollbar { width: 6px; }
+.messages::-webkit-scrollbar-thumb {
+  background: #c0c0c0; border-radius: 4px;
+}
+
   
   .system-message {
     background-color: #f0f0f0;
@@ -170,3 +185,10 @@
   .send-button:hover {
     background-color: #6BC0C0;
   }
+
+  /* 情境標頭 */
+.scenario-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 12px;background:#f5f5f5;border-radius:10px;margin-bottom:8px;
+}
+.scenario-header h3{font-size:1rem;margin:0;}
