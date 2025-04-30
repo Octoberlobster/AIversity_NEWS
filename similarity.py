@@ -3,16 +3,15 @@ import json
 from bs4 import BeautifulSoup
 import google.generativeai as genai
 from time import sleep
-# 先把新聞時間整理好，把同一天的新聞整理在一起，然後用同一天的新聞去比對相似度，
+from supabase import create_client, Client
+import uuid
+import datetime
 
-# === 1. 設定資料夾路徑 ===
-input_folder = "json/test"
-output_folder = "json/processed"
-
-# 確保輸出資料夾存在
-os.makedirs(output_folder, exist_ok=True)
-
-api_key = "AIzaSyBPIEu1pz4ykfRnCBcMNXfWdXdCzDwTuDI"
+url = "supabase.co那個東東"
+key = "supabase的key"
+supabase: Client = create_client(url, key)
+response = supabase.table('timeline_items').select("*").execute()
+api_key = ""
 
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
@@ -21,23 +20,15 @@ if not api_key or api_key == "YOUR_GEMINI_API_KEY":
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel('gemini-1.5-pro-002')
 
-# === 2. 處理資料夾內所有檔案 ===
-for filename in os.listdir(input_folder):
-    if filename.endswith(".json"):
-        input_file_path = os.path.join(input_folder, filename)
-        output_file_path = os.path.join(output_folder, f"similarty_{filename}")
+articles = {}
+for row in response.data:
+    date = row["date"]
+    # date留下來的格式是2023-10-01取前10個字元
+    date = date[:10]
+    if date not in articles:
+        articles[date] = []
+    articles[date].append({})
 
-        # 讀json檔案
-        with open(input_file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        # print(data)
-        
-        articles = {}
-        for article in data:
-            date = article["date"]
-            if date not in articles:
-                articles[date] = []
-            articles[date].append(article)
 # === 3. 整理新聞，按日期排序後分為五段 ===
 articles = sorted(articles.items(), key=lambda x: x[0])
 total = len(articles)
@@ -53,9 +44,9 @@ for i in range(5):
 
     for date, daily_articles in chunk:
         for a in daily_articles:
-            title = a.get("Title", "")
-            url = a.get("URL", "")
-            content_raw = a.get("Content", "")
+            title = a.get("title", "")
+            url = a.get("url", "")
+            content_raw = a.get("content", "")
             content = BeautifulSoup(content_raw, "html.parser").get_text().strip()
             news_content += f"標題：{title}\n內容：{content}\n連結：{url}\n日期:{date}\n---\n"
 
@@ -87,10 +78,12 @@ for i in range(5):
 
     res = model.generate_content(prompt)
     clean_text = res.text.replace("```json", "").replace("```", "").strip()
+    print(f"第 {i + 1} 區段的回覆：\n{clean_text}\n")
 
-    output_file_path = os.path.join(output_folder, f"translate_similarty_part_{i + 1}.json")
-    with open(output_file_path, "w", encoding="utf-8") as f:
-        f.write(clean_text)
-    print(f"第 {i + 1} 區段相似新聞分析完成，儲存至 {output_file_path}")
-
-print("所有檔案處理完成！")
+    # 把結果轉回 dict
+    try:
+        result = json.loads(clean_text)
+    except json.JSONDecodeError as e:
+        print(f"錯誤", e)
+        continue
+    
