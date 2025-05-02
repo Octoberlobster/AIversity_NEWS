@@ -16,7 +16,7 @@ import grpc
 grpc.Channel._Rendezvous = None  # 強制關閉 gRPC 連線
 
 # 設定 API 金鑰
-# api_key = os.environ["GEMINI_API_KEY"] = "AIzaSyDwNOkobaknphQQx8NqSVZ6bDSvW_pizlg"
+# api_key = os.environ["GEMINI_API_KEY"] = ""
 # if not api_key:
 #     raise ValueError("請設定 GEMINI_API_KEY 環境變數")
 

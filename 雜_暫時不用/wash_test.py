@@ -12,7 +12,7 @@ output_folder = "json/processed"
 os.makedirs(output_folder, exist_ok=True)
 
 # === 2. 設定 Gemini API 金鑰 ===
-api_key = "AIzaSyCcVKJqB791PuS2M30crlX-7PnE7aa5j5A"
+api_key = ""
 
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")

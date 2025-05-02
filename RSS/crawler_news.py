@@ -48,10 +48,10 @@ def crawl_news():
                 continue
             
             news = {
-                "Source": source,
-                "Title": entry.title,
-                "URL": entry.link,
-                "Date": dt.strftime("%Y/%m/%d %H:%M"),
+                "source": source,
+                "title": entry.title,
+                "url": entry.link,
+                "date": dt.strftime("%Y/%m/%d %H:%M"),
             }
             
             # 嘗試抓取圖片
@@ -67,7 +67,7 @@ def crawl_news():
                     parsed_url = urlparse(img_tag["src"])
                     query_params = parse_qs(parsed_url.query)
                     image_url = query_params.get("u", [""])[0]
-            news["Image"] = image_url or ""
+            news["image"] = image_url or ""
             
             # 取得新聞內文
             headers = {
@@ -78,7 +78,7 @@ def crawl_news():
             if content.status_code == 200:
                 soup = BeautifulSoup(content.text, "html.parser")
                 body_content = str(soup.body)
-                news["Content"] = body_content
+                news["content"] = body_content
 
                 if not image_url:
                     img_url = None
@@ -98,7 +98,7 @@ def crawl_news():
                     except:
                         img_url = ""
 
-                    news["Image"] = img_url
+                    news["image"] = img_url
             print(news)
             news_data.append(news)
 
