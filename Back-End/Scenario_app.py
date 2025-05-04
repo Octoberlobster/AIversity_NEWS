@@ -23,7 +23,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 # ---------- 基本設定 ---------------------------------------------------------
-API_KEY = "AIzaSyBlEmBuz6y9ZhJ9S6mm2c1v5xWkmfaKtIc"
+API_KEY = "YOUR_API_KEY_HERE"
 genai.configure(api_key=API_KEY)
 
 app = Flask(__name__)
@@ -44,6 +44,10 @@ def scenario_chat():
     body     = request.get_json(force=True)
     scenario = body.get("scenario", "").strip()
     roles    = body.get("roles", [])
+    
+    print("body:", body)
+    print("scenario:", scenario)
+    print("roles:", roles)
 
     # 檢查參數：至少要有 3 個角色
     if not scenario or len(roles) < 3:
@@ -84,37 +88,39 @@ def get_characters_info(scenario: str, roles: list[str]) -> dict:
         system_instruction="先利用搜尋工具後取得相關角色資訊，然後再進行回答"
     )
 
+    roles_content = "、".join(roles)
+    print("角色：", roles_content)
+    schema_lines = [
+        '  {',
+        '    "name": "<角色名稱>",',
+        '    "description": "<立場與觀點>",',
+        '    "position": "<角色認為…>",',
+        '    "style": "<語氣風格>"',
+        '  }'
+    ]
+    schema = "{\n  \"characters\": [\n" + ",\n".join(schema_lines) + "\n  ]\n}"
+    print("schema:", schema)
+
     prompt = (
-        "請你幫這三個角色分別為美國政府、烏克蘭政府與俄羅斯政府，在這篇新聞中"+NEWS_CONTENT+"，針對如下情境"+scenario\
-        +"請你依照各角色的立場、背景利益、價值觀與語氣風格，詳細描述其觀點與態度。此外，請讓三方角色能夠展現出各自典型的行事風格與說話方式，並能進行理性但充滿立場張力的對話。"\
+        f"""
+        "請你幫以下角色{roles_content}，根據新聞全文:"+{NEWS_CONTENT}+"，針對如下情境:"+{scenario}\
+        +"請你依照{roles_content}各角色的立場、背景利益、價值觀與語氣風格，詳細描述其觀點與態度。此外，請讓角色能夠展現出各自典型的行事風格與說話方式，並能進行理性但充滿立場張力的對話。"\
         "請你使用以下 JSON 格式回覆，每位角色需包含完整資訊，便於後續角色扮演或模擬對話使用：請你以JSON格式回覆，格式如下\n"\
+        f"{schema}\n"\
+        "請以繁體中文回答，並且不要有任何的額外說明或是註解。\n"
         """
-        {
-            "characters": [
-                {
-                "name": "美國政府",
-                "description": "美國政府的立場與觀點",
-                "position": "美國政府認為...",
-                "style": "語氣風格"
-                },
-                {
-                "name": "烏克蘭政府",
-                "description": "烏克蘭政府的立場與觀點",
-                "position": "烏克蘭政府認為...",
-                "style": "語氣風格"
-                },
-                {
-                "name": "俄羅斯政府",
-                "description": "俄羅斯政府的立場與觀點",
-                "position": "俄羅斯政府認為...",
-                "style": "語氣風格"
-                }
-            ]
-        }"""
     )
 
     resp = search_model.generate_content(prompt, tools="google_search_retrieval")
     data = json.loads(strip_triple_backticks(resp.text))
+    
+    for c in data["characters"]:
+        print(f"角色：{c['name']}")
+        print(f"立場：{c['description']}")
+        print(f"語氣：{c['style']}")
+        print(f"觀點：{c['position']}")
+        print("-" * 40)
+    
     # 轉成 dict，方便後續查詢
     return {c["name"]: c for c in data["characters"]}
 
@@ -132,7 +138,8 @@ def build_role_prompts(char_info: dict, roles: list[str]) -> dict:
             f"你現在扮演的角色為{r}，與會成員有{other(r)}。\n"
             f"遵循以下背景與立場：{info['description']}。\n"
             f"你認為：{info['position']}。\n"
-            f"請以{info['style']}語氣，用一句對話式回答。"
+            f"請以{info['style']}語氣，用一句對話式回答。\n"
+            f"請以繁體中文回答。\n"
         )
     return prompts
 
@@ -142,16 +149,13 @@ def build_models(role_prompts: dict, char_info: dict):
       • 主持人 chat_session
       • 角色名 ➜ chat_session 的 dict
     """
-    Am_description = char_info["美國政府"]["description"]
-    Uk_description = char_info["烏克蘭政府"]["description"]
-    Ru_description = char_info["俄羅斯政府"]["description"]
+    role_desc = "\n".join(f"{r}:{char_info[r]['description']}" for r in role_prompts)
 
     moderator_system = (
-        "你是一位多方會談的主持人，你的目的是在這三位角色中分別為美國政府、烏克蘭政府與俄羅斯政府選擇一位當下最適合回答的人"\
-                                "並且由你的回答來引導他們進行良好的溝通，在最後如果你覺得各方的對話應該告一段落了則請你以「結束」這兩個字當作回覆，以下是關於三位角色的立場與看法提供給你參考，"\
-                                "美國政府:"+Am_description+\
-                                "烏克蘭政府:"+Uk_description+\
-                                "俄羅斯政府:"+Ru_description+"請你以繁體中文回答並要求與會者也如此"
+        "你是一位多方會談的主持人，你的目的是在以下角色中選擇一位當下最適合回答的人"\
+                                "並且由你的回答來引導他們進行良好的溝通，在最後如果你覺得各方的對話應該告一段落了則請你以「結束」這兩個字當作回覆，以下是關於角色的立場與看法提供給你參考，"\
+                                f"請你依照以下角色的立場與看法來進行會談：\n{role_desc}\n"\
+                                "請你以繁體中文回答。\n"\
     )
 
     # 主持人
@@ -177,9 +181,11 @@ def drive_dialogue(moderator, role_chats, scenario: str):
     • 回給主持人
     • 若 speaker == 結束 → break
     """
-    messages = []
     
+    messages = []
     messages.append({"role": "SYSTEM", "text": "開始"})
+    
+    speaker_opts = "/".join(role_chats.keys()) + "/結束"
     
     count = 0
     while True:
@@ -188,9 +194,10 @@ def drive_dialogue(moderator, role_chats, scenario: str):
             role_prompt = moderator.send_message("這是這次多人會談的討論主題"+scenario+"請你決定誰最適合回答，並且引導他們進行良好的溝通"\
                                                             "請你以JSON格式回覆，格式如下\n"\
                                                             "{"\
-                                                            "\"speaker\": \"美國政府/烏克蘭政府/俄羅斯政府/結束\""\
+                                                            "\"speaker\": \"" + speaker_opts + "\""\
                                                             "\"prompt\": \"引導角色發言並讓整體會談流暢發展\""\
                                                             "}"
+                                                            "請你以繁體中文回答。\n"
                                                             )
             count += 1
             continue
@@ -225,11 +232,11 @@ def drive_dialogue(moderator, role_chats, scenario: str):
             f"這是來自{speaker}的發言" + reply + "請你決定誰最適合回答，並且引導他們進行良好的溝通"\
             "請你以JSON格式回覆，格式如下\n"\
             "{"\
-            "\"speaker\": \"美國政府/烏克蘭政府/俄羅斯政府/結束\""\
+            "\"speaker\": \"" + speaker_opts + "\","\
             "\"prompt\": \"引導角色發言並讓整體會談流暢發展\""\
             "}"
+            "請你以繁體中文回答。\n"
         )
-        sleep(5)
         
 
     return messages

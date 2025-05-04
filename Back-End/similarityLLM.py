@@ -2,7 +2,7 @@ import os
 import json
 from bs4 import BeautifulSoup
 import google.generativeai as genai
-AIzaSyBlEmBuz6y9ZhJ9S6mm2c1v5xWkmfaKtIc
+
 input_folder = "json/test"
 output_folder = "json/LLM"
 os.makedirs(output_folder, exist_ok=True)

@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)  # 啟用CORS以允許前端訪問
 
 # 設定 API 金鑰
-api_key = "AIzaSyBlEmBuz6y9ZhJ9S6mm2c1v5xWkmfaKtIc"
+api_key = ""
 genai.configure(api_key=api_key)
 
 # 讀取新聞內容
@@ -26,6 +26,7 @@ role_viewpoints = {role_info["Role"]: role_info["Viewpoint"] for role_info in ro
 # 聊天會話存儲
 chat_sessions = {}
 
+#要改成用search的
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.json
