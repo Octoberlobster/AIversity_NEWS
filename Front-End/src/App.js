@@ -1,188 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { createClient} from '@supabase/supabase-js';
-import './main.css';
-import TimelineAnalysis from './TimelineAnalysis';
-import ChatRoom from './ChatRoom';
-import ScenarioSetup from './ScenarioSetup';
-import ScenarioChatRoom from './ScenarioChatRoom';
-import newsData from './News.json';
-import rolesData from './Roles.json';
-import roleAnalyzes from './NewsAnalyze.json';
-import translateIcon from './Translate.png'
+import React, { useState, useEffect } from 'react'; // 引入React核心庫和必要的Hook函數
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';  // 引入React Router相關組件，用於路由導航和頁面切換
+import { supabase, SupabaseProvider, useSupabase } from './supabase';
+import './css/EventList.css';// 引入事件列表頁面的樣式表
+import Header from './Header'; // 引入頁面頭部組件
 
+/**
+ * App組件 - 應用程序的主要入口點
+ * 負責管理全局狀態和路由
+ */
 function App() {
-  const [selectedRole, setSelectedRole] = useState(''); // 預設選擇第一個角色
-  const [chatHistories, setChatHistories] = useState({});
-  const [language, setLanguage] = useState('zh');
-  const [mode, setMode] = useState('interactive');      // 'interactive' | 'scenario'
-  const [scenarioCfg, setScenarioCfg] = useState(null); // {scenario, roles}
+  // 定義狀態變量
+  const [events, setEvents] = useState([]); // 存儲從資料庫獲取的事件列表
+  const [loading, setLoading] = useState(true); // 控制加載狀態
   
-  const roles = rolesData.Roles.map(role => role.Role);
-  const navigate = useNavigate();
-
-  // --- 2. 初始化 Supabase client
-  /*
-  const supabaseUrl   = process.env.REACT_APP_SUPABASE_URL;
-  const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-  console.log('supabaseUrl=', supabaseUrl);
-  console.log('supabaseAnonKey=', supabaseAnonKey);
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-  */
-
-  useEffect(() => {
-    const savedHistories = localStorage.getItem('all_chat_histories');
-    if (savedHistories) {
-      setChatHistories(JSON.parse(savedHistories));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (
-      selectedRole &&
-      chatHistories[selectedRole] === undefined
-    ) {
-      const analysis =
-        roleAnalyzes[selectedRole]?.Analyze || '（暫無分析文字）';
+  // 初始化 Supabase 客戶端，用於與後端資料庫通信
+  const supabaseClient = useSupabase();
   
-      updateChatHistory(selectedRole, [
-        { sender: 'SYSTEM', text: `你正在與【${selectedRole}】對話。` },
-        { sender: selectedRole, text: analysis }
-      ]);
-    }
-  }, [selectedRole, chatHistories]);   // chatHistories 也要放依賴，才抓得到最新狀態
-
-  const updateChatHistory = (role, messages) => {
-    setChatHistories(prev => ({
-      ...prev,
-      [role]: messages
-    }));
-  };
-
+  /**
+   * 使用useEffect hook在組件掛載時獲取事件列表
+   * 從Supabase資料庫獲取數據並更新狀態
+   */
   useEffect(() => {
-    if (Object.keys(chatHistories).length > 0) {
-      localStorage.setItem(
-        'all_chat_histories',
-        JSON.stringify(chatHistories)
-      );
-    }
-  }, [chatHistories]);
-
-  const getSelectedRoleAnalyze = () => {
-    return selectedRole ? roleAnalyzes[selectedRole]?.Analyze : null;
-  };
-
-  const handleLanguageChange = (e) => {
-    const selectedLanguage = e.target.value;
-    setLanguage(selectedLanguage);
+    const fetchEvents = async () => {
+      try {
+        // 從資料庫的event表中獲取事件列表
+        const { data, error } = await supabase
+          .from('event')
+          .select('event_id, event_title') // 只選擇需要的字段
+          .order('event_id', { ascending: false }); // 按ID降序排列，最新事件排在前面
+          
+        if (error) throw error; // 如果有錯誤則拋出
+        // 格式化數據並更新狀態
+        setEvents(data.map(event => ({ id: event.event_id, title: event.event_title })) || []);
+        console.log("資料庫抓到資料了");
+      } catch (error) {
+        // 記錄錯誤但不中斷應用程序
+        console.error('Error fetching events:', error);
+      } finally {
+        // 無論成功或失敗，都將加載狀態設為false
+        setLoading(false);
+      }
+    };
     
-    if (selectedLanguage === 'tw') {
-      navigate('/tw');
-    } else if (selectedLanguage === 'zh') {
-      navigate('/');
-    }
-  };
+    // 調用函數獲取事件
+    fetchEvents();
+  }, [supabaseClient]); // 空依賴數組表示此effect只在組件首次渲染時執行
+
 
   return (
-    <div className="container">
-      <div className="header-bar">
-        <div className="platform-name">
-          <span></span>
-        </div>
-        <div className="language-selector">
-          <img src={translateIcon} alt="Translate" className="translate-icon" />
-          <select 
-            value={language}
-            onChange={handleLanguageChange}
-            className="language-dropdown"
-          >
-            <option value="zh">中文</option>
-            <option value="tw">台語</option>
-            <option value="en">English</option>
-            <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
-            <option value="vi">Tiếng Việt</option>
-            <option value="th">ภาษาไทย</option>
-            <option value="es">Español</option>
-          </select>
+    <SupabaseProvider>
+      <div className="container">
+        <Header />
+        {/* 主內容區域 */}
+        <div className="content">
+          <EventListPage events={events} loading={loading} />
         </div>
       </div>
+    </SupabaseProvider>
+  );
+}
 
-      <div className="content">
-        <div className="left-panel">
-          <h2 className="panel-title">{newsData.Title}</h2>
-          <p className="panel-date">發布日期：{newsData.Date}</p>
-          <div className="panel-content">
-            {newsData.Content.split('\n\n').map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
-          </div>
-        </div>
-        
-        <div className="right-panel">
-          <h3 className="right-panel-title">角色聊天室</h3>
-          <div className="divider"></div>
-          <div className="dropdown-container">
-          <select
-            value={mode}
-            onChange={e => {
-              setMode(e.target.value);
-              setScenarioCfg(null);      // 切模式就重置
-            }}
+/**
+ * 事件列表頁面組件
+ * 負責顯示所有可用的新聞事件專題
+ * 
+ * @param {Array} events - 事件數據陣列
+ * @param {boolean} loading - 加載狀態
+ */
+function EventListPage({ events, loading }) {
+  return (
+    <div className="event-list-container">
+      {/* 頁面標題 */}
+      <h1 className="event-list-title">新聞事件專題</h1>
+      
+      {/* 條件渲染：加載中顯示加載指示器，否則顯示事件網格 */}
+      {loading ? (
+        <div className="loading-indicator">載入中...</div>
+      ) : (
+        <div className="event-grid">
+          {/* 遍歷渲染事件卡片 */}
+          {events.map(event => (
+            <Link 
+              key={event.id} // React列表元素的唯一標識
+              to={`/event/${event.id}`} // 導航到事件詳情頁的路由
+              className="event-card"
             >
-              <option value="interactive">互動模式</option>
-              <option value="scenario">情境模擬模式</option>
-            </select>
-            {mode === 'interactive' && (
-              <div className="dropdown-container">
-                <select
-                  value={selectedRole}
-                  onChange={e => setSelectedRole(e.target.value)}
-                >
-                  <option value="" disabled>選擇角色</option>
-                  {roles.map((role, index) => (
-                    <option key={index} value={role}>{role}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>    
-          {mode === 'interactive' ? (
-            /* ------- 互動模式 ------- */
-            selectedRole ? (
-              /* 已選角色 → 顯示聊天室 */
-              <ChatRoom
-                selectedRole={selectedRole}
-                messages={chatHistories[selectedRole] || []}
-                updateMessages={updateChatHistory}
-                roleAnalyze={getSelectedRoleAnalyze()}
-              />
-            ) : (
-              /* 尚未選角色 → 顯示提示文字 */
-              <p style={{ textAlign: 'center', marginTop: '1rem', color: '#666' }}>
-                請先從上方下拉選擇一位角色…
-              </p>
-            )
-          ) : (
-            /* ------- 情境模擬模式 ------- */
-            scenarioCfg ? (
-              <ScenarioChatRoom
-                scenario={scenarioCfg.scenario}
-                roles={scenarioCfg.roles}
-                onReset={() => setScenarioCfg(null)}
-              />
-            ) : (
-              <ScenarioSetup
-                allRoles={roles}
-                onStart={cfg => setScenarioCfg(cfg)}
-              />
-            )
-          )}
+              <h2 className="event-title">{event.title}</h2>
+            </Link>
+          ))}
         </div>
-      </div>
-      <TimelineAnalysis />
+      )}
     </div>
   );
 }
 
+// 導出App組件作為默認導出
 export default App;

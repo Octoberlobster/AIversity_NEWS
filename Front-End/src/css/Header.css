@@ -1,42 +1,5 @@
-.container {
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .header-bar {
-    height: 70px;
-    background-color: #7DD1D1;
-    width: 100%;
-  }
-  
-  .content {
-    display: flex;
-    padding: 20px;
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  .left-panel {
-    flex: 2;
-    background-color: #E0E0E0;
-    border-radius: 15px;
-    padding: 20px;
-  }
-  
-  .panel-title {
-    font-size: 24px;
-    margin-bottom: 20px;
-    font-weight: bold;
-  }
-  
-  .panel-content {
-    font-size: 16px;
-    line-height: 1.6;
-  }
 
-  .header-bar {
+.header-bar {
     height: 70px;
     background-color: #7DD1D1;
     width: 100%;
@@ -132,7 +95,3 @@
   .language-selector:hover .language-dropdown {
     animation: fadeIn 0.3s ease forwards;
   }
-  
-  
-  
-  

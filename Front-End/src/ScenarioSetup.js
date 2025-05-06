@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './ScenarioSetup.css';
+import './css/ScenarioSetup.css';
 
 export default function ScenarioSetup({ allRoles, onStart }) {
   const [scenario, setScenario] = useState('');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './TimelineAnalysis.css';
+import './css/TimelineAnalysis.css';
 
 const TimelineAnalysis = () => {
   const [expandedItems, setExpandedItems] = useState({});

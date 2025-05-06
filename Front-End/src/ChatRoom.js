@@ -1,7 +1,7 @@
 // 引入React核心庫和必要的鉤子函數
 import React, { useState, useEffect, useRef } from 'react';
 // 引入聊天室樣式
-import './ChatRoom.css';
+import './css/ChatRoom.css';
 
 /**
  * 聊天室組件

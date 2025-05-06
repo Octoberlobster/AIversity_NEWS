@@ -1,6 +1,6 @@
 // src/ScenarioChatRoom.js
 import React, { useEffect, useRef, useState } from 'react';
-import './ChatRoom.css'; // 沿用原聊天室樣式
+import './css/ChatRoom.css'; // 沿用原聊天室樣式
 
 export default function ScenarioChatRoom({ scenario, roles, onReset }) {
   const [msgs, setMsgs] = useState([]);
