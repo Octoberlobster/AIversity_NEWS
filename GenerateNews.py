@@ -1,47 +1,70 @@
 import google.generativeai as genai
 import json
 from time import sleep
-import glob
 import os
+from supabase import create_client, Client
+from collections import defaultdict
+import uuid
 
-api_key = os.getenv("API_KEY_Gemini")
+api_key = os.getenv("API_KEY_Gemini_PAY")
 genai.configure(api_key=api_key)
+api_key_supabase = os.getenv("API_KEY_Supabase")
+supabase_url = os.getenv("Supabase_URL")
+supabase: Client = create_client(supabase_url, api_key_supabase)
 
 model = genai.GenerativeModel('gemini-1.5-pro-002')
 
-folder = "Events"
-# 取得所有 JSON 檔案的檔名（假設都在當前目錄）
-json_files = glob.glob(os.path.join(folder, "*.json"))
-index = 1
-for filename in json_files:
-    with open(filename, "r", encoding="utf-8") as f:
-        data = f.read()
-    print("Data:", data)
+response = (
+    supabase.from_("event_original_map")
+    .select("event_id,cleaned_news(title,url,content,date)")
+    .execute()
+)
+data = response.data
+# 將資料轉換為字典格式
+grouped = defaultdict(list)
+
+for item in data:
+    event_id = item["event_id"]
+    grouped[event_id].append(item["cleaned_news"])
+
+grouped_dict = dict(grouped)
+generated_id=0
+
+for event_id, data in grouped_dict.items():
+    generated_id+=1
+    News_body = json.dumps(data, ensure_ascii=False, indent=4)
     News=model.generate_content("請根據以下彙整的新聞內容，生成一篇新的新聞報導，並提供標題與統整內容。請確保內容具有新聞性，並清楚呈現事件的背景、發展與影響。"
                                 "輸出格式（請以 JSON 格式回傳）："
                                 "{"
-                                "'Title': '請生成一個符合新聞風格的標題',"
-                                "'Content': '請綜合以下新聞內容，撰寫一篇具邏輯性、流暢且完整的新聞報導',"
-                                "'References': '請列出引用的原始新聞索引（以逗號分隔，例如：1,2,3,4）',"
-                                "'Category': '不需要填，留白即可',"
-                                "'Date': '請填寫新聞生成的日期（格式：YYYY-MM-DD）',"
-                                f"'Index': {index}"
+                                "\"title\": \"請生成一個符合新聞風格的標題\","
+                                "\"content\": \"請綜合以下新聞內容，撰寫一篇具邏輯性、流暢且完整的新聞報導\","
+                                "\"date\": \"請填寫新聞生成的日期（格式：YYYY-MM-DD）\","
+                                f"\"event_id\": \"{event_id}\""
                                 "}"
-                                +"需要彙整的新聞內容："
-                                +data
-                                +"請確保新生成的新聞報導符合以下要求："
+                                f"需要彙整的新聞內容：\n{News_body}"
+                                "請確保新生成的新聞報導符合以下要求："
                                 "維持新聞的公正與專業性"
                                 "使用清晰且具邏輯性的語句"
                                 "確保內容與事實相符，不加入虛構或未經證實的資訊"
                                 )
-    print("News:", News.text)
-    file_path = os.path.join("GenerateNews_EachEvent", f"News{index}.json")
-    with open(file_path, "w", encoding="utf-8") as file:
-        file.write(News.text)
-    print(f"結果已儲存至 News{index}.json")
-    index += 1
-    sleep(60)
-print("所有新聞報導已生成完畢")
+    News = News.text
+    News = News.replace('```json', '').replace('```', '').strip()
+    News = json.loads(News)
+    with open (f"News_{generated_id}.json", "w", encoding="utf-8") as file:
+        json.dump(News, file, ensure_ascii=False, indent=4)
+    m_uuid = uuid.uuid4()
+    response = (
+        supabase.table("generated_news")
+        .insert({"generated_id": str(m_uuid),
+                 "title": News["title"],
+                 "content": News["content"],
+                 "date": News["date"],
+                 "event_id": News["event_id"]})
+        .execute()
+    )
+    sleep(1)
+    
+   
 
 
 
