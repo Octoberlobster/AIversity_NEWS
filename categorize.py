@@ -44,8 +44,8 @@ for i in range(len(data)):
     summaries.append(summary)
     print(i)
     sleep(0.5)
-with open ("Summaries.json", "w", encoding="utf-8") as file:
-    json.dump(summaries, file, ensure_ascii=False, indent=4)
+# with open ("Summaries.json", "w", encoding="utf-8") as file:
+#     json.dump(summaries, file, ensure_ascii=False, indent=4)
 summaries_str = json.dumps(summaries, ensure_ascii=False, indent=4)
 
 Categorize = model.generate_content("請根據下列多則新聞摘要，將它們分群以識別屬於同一事件的新聞。分群時，請考慮以下依據："
@@ -75,8 +75,8 @@ Categorize = model.generate_content("請根據下列多則新聞摘要，將它�
 Categorize = Categorize.text
 Categorize = Categorize.replace('```json', '').replace('```', '').strip()
 Categorize = json.loads(Categorize)
-with open ("Categorize.json", "w", encoding="utf-8") as file:
-    json.dump(Categorize, file, ensure_ascii=False, indent=4)
+# with open ("Categorize.json", "w", encoding="utf-8") as file:
+#     json.dump(Categorize, file, ensure_ascii=False, indent=4)
 for event_title,info in Categorize.items():
     m_uuid = uuid.uuid4()
     source_index = info["index"]
