@@ -6,7 +6,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from time import sleep
 import os
 from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.preprocessing import LabelEncoder
 
 api_key = os.getenv("API_KEY_Gemini_PAY")
 genai.configure(api_key=api_key)
@@ -41,43 +42,91 @@ for i in range(len(event_map_data)):
 
 news_response = (
     supabase.table("cleaned_news")
-    .select("sourcecle_id,title, content")
-    .gte("date","2025-05-05T22:19:59")
+    .select("sourcecle_id,content", "sourcecle_media")
+    .neq("sourcecle_media","UDN")
+    .neq("sourcecle_media","TTV")
+    #.gte("date","2026-05-05T22:19:59")
     .execute()
 )
 all_news = news_response.data
+news_dict = {}
+for i in range(len(all_news)):
+    news_dict[all_news[i]["sourcecle_id"]] = all_news[i]["content"]
 
 grouped_ids = set()
 for ids in groups_id.values():
     grouped_ids.update(ids)
 
+# id2event = {}
+# for event_id, ids in groups_id.items():
+#     for sid in ids:
+#         id2event[sid] = event_id
+
 labeled_data = [n for n in all_news if n["sourcecle_id"] in groups_id]
 unlabeled_data = [n for n in all_news if n["sourcecle_id"] not in groups_id]
+vectorizer = TfidfVectorizer()
 cleaned_data = []
-     
+# train_data = []
+# train_labels = []
+
+# for news in labeled_data:
+#     content = news["content"]
+#     clean_text = " ".join(preprocess_text(content))
+#     train_data.append(clean_text)
+#     train_labels.append(id2event[news["sourcecle_id"]])
+# tfidf_matrix = vectorizer.fit_transform(train_data)
+        
     
 
 for i in range(len(unlabeled_data)):
-    title = unlabeled_data[i]["title"]
     content = unlabeled_data[i]["content"]
-    text = title + content
-    words = preprocess_text(text)
+    words = preprocess_text(content)
     cleaned_data.append(" ".join(words))
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(cleaned_data)
+    
 
-tfidf_matrix = StandardScaler().fit_transform(tfidf_matrix.toarray())
-dbscan = DBSCAN(eps=0.85, min_samples=2, metric="cosine")
+tfidf_matrix = vectorizer.fit_transform(cleaned_data)
+dbscan = DBSCAN(eps=0.8, min_samples=5, metric='cosine')
 labels = dbscan.fit_predict(tfidf_matrix)
 for i in range(len(labels)):
     with open("clustered_data.txt", "a", encoding="utf-8") as f:
-        f.write("@"+str(labels[i]))
-        f.write("\n")
-        f.write(unlabeled_data[i]["title"])
+        f.write("@"+str(labels[i])+"@")
         f.write("\n")
         f.write(unlabeled_data[i]["content"])
         f.write("\n")
+        f.write(unlabeled_data[i]["sourcecle_media"])
         f.write("\n")
+new_event_id = {}
+for i in range(len(labels)):
+    if labels[i] == -1:
+        continue
+    if labels[i] not in new_event_id:
+        new_event_id[labels[i]] = []
+    new_event_id[labels[i]].append(unlabeled_data[i]["sourcecle_id"])
+
+event_title = []
+for i in new_event_id :
+    index = 0
+    all_articles = []
+    for j in new_event_id[i]:
+        index += 1
+        all_articles.append(str(index)+".\n")
+        all_articles.append(news_dict[j])
+        all_articles.append("\n")
+    all_articles_str = "".join(all_articles)
+    print(all_articles)
+    response = model.generate_content("請根據下列多篇類似的新聞文本生成一個最適合他們的事件名稱，" \
+                                      "請你以 JSON 格式回傳，格式如下：" \
+                                      "{"
+                                        "\"title\": \"事件名稱\","
+                                      "}"
+                                        "以下是新聞文本："+all_articles_str
+                                    )
+    response = response.text
+    response = response.replace('```json', '').replace('```', '').strip()
+    response = json.loads(response)
+    event_title.append(response["title"])
+print(event_title)
+
         
 
     

@@ -1,40 +1,64 @@
 import google.generativeai as genai
+from supabase import create_client, Client
 import json
-from time import sleep
-import glob
 import os
-import asyncio
+from collections import defaultdict
 
-# 設定 API 金鑰
 api_key = os.getenv("API_KEY_Gemini_PAY")
 genai.configure(api_key=api_key)
-folder_path = "TimeLine"
+
+api_key_supabase = os.getenv("API_KEY_Supabase")
+supabase_url = os.getenv("SUPABASE_URL")
+supabase: Client = create_client(supabase_url, api_key_supabase)
 
 model = genai.GenerativeModel('gemini-1.5-pro-002')
 
 chat_session = model.start_chat(history=[])
 first_message = "接下來我會給你一連串的新聞內容，這些內容都已經依照發生順序給分類好了，請你記得這些內容，在最後提到\"預測未來\"時請你幫我根據先前的內容以三種面向來預測近日可能發生的未來(用十五到二十個字之間對每個面向總結除此之外生成關於這篇預測的標題即可)，" \
+                "請你以在預測時以JSON格式回答格式如下:"\
+                "{"\
+                "\"title\": \"請生成一個符合預測的標題\","\
+                "\"content\": [\"1.\"\"2.\"\"3.\"],"\
+                "}"\
                 "如果你有接收到我的指示，請一律回答\"是的\"，謝謝！"
-ans=chat_session.send_message(first_message)
-print(ans.text)
-sleep(10)
-# 取得所有 JSON 檔案的檔名（假設都在當前目錄）
-json_files = glob.glob(os.path.join(folder_path, "*.json"))#目前沒問題但如果檔名有11或12的月份會有問題
-for f in json_files:
-    with open(f, "r", encoding="utf-8") as file:
-        content = file.read()
-        content = json.loads(content)
-        for key in content.keys():  # 取得 JSON 的頂層 key（可能變動）
-            if "進展" in content[key]:  # 確保這個 key 內有 "進展"
-                summaries = [item["摘要"] for item in content[key]["進展"]]
-        ans=chat_session.send_message(summaries)
-        print(ans.text)
-        sleep(2)
-Predict=chat_session.send_message("預測未來")
-with open("Predict.txt", "w", encoding="utf-8") as file:
-    file.write(Predict.text)
-print(Predict.text)
+chat_session.send_message(first_message)
 
+response = (
+    supabase.table("generated_news")
+    .select("generated_id, event_id")
+    .execute()
+)
+response = response.data
+for i in range(len(response)):
+    original_news =(
+        supabase.table("event_original_map")
+        .select("event_id,cleaned_news(content,date)")
+        .eq("event_id", response[i]["event_id"])
+        .order("cleaned_news(date)", desc=True)
+        .execute()
+    )
+    original_news = original_news.data
+    print(original_news)
+    grouped = defaultdict(list)
 
+    for item in original_news:
+        event_id = item["event_id"]
+        grouped[event_id].append(item["cleaned_news"]["content"])
 
-
+    grouped_dict = dict(grouped)
+    for event_id, data in grouped_dict.items():
+        News_body = json.dumps(data, ensure_ascii=False, indent=4)
+        chat_session.send_message(News_body)
+    Predict=chat_session.send_message("預測未來")
+    Predict = Predict.text
+    Predict = Predict.replace('```json', '').replace('```', '').strip()
+    Predict = json.loads(Predict)
+    update_response = (
+        supabase.table("generated_news")
+        .update({"predict_title": Predict["title"],
+                 "predict_content": str(Predict["content"])})
+        .eq("generated_id", response[i]["generated_id"])
+        .execute()
+    )
+        
+   

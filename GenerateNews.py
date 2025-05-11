@@ -28,10 +28,8 @@ for item in data:
     grouped[event_id].append(item["cleaned_news"])
 
 grouped_dict = dict(grouped)
-generated_id=0
 
 for event_id, data in grouped_dict.items():
-    generated_id+=1
     News_body = json.dumps(data, ensure_ascii=False, indent=4)
     News=model.generate_content("請根據以下彙整的新聞內容，生成一篇新的新聞報導，並提供標題與統整內容。請確保內容具有新聞性，並清楚呈現事件的背景、發展與影響。"
                                 "輸出格式（請以 JSON 格式回傳）："
@@ -50,8 +48,7 @@ for event_id, data in grouped_dict.items():
     News = News.text
     News = News.replace('```json', '').replace('```', '').strip()
     News = json.loads(News)
-    with open (f"News_{generated_id}.json", "w", encoding="utf-8") as file:
-        json.dump(News, file, ensure_ascii=False, indent=4)
+    
     m_uuid = uuid.uuid4()
     response = (
         supabase.table("generated_news")
