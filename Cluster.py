@@ -88,14 +88,14 @@ for i in range(len(unlabeled_data)):
 tfidf_matrix = vectorizer.fit_transform(cleaned_data)
 dbscan = DBSCAN(eps=0.8, min_samples=5, metric='cosine')
 labels = dbscan.fit_predict(tfidf_matrix)
-for i in range(len(labels)):
-    with open("clustered_data.txt", "a", encoding="utf-8") as f:
-        f.write("@"+str(labels[i])+"@")
-        f.write("\n")
-        f.write(unlabeled_data[i]["content"])
-        f.write("\n")
-        f.write(unlabeled_data[i]["sourcecle_media"])
-        f.write("\n")
+# for i in range(len(labels)):
+#     with open("clustered_data.txt", "a", encoding="utf-8") as f:
+#         f.write("@"+str(labels[i])+"@")
+#         f.write("\n")
+#         f.write(unlabeled_data[i]["content"])
+#         f.write("\n")
+#         f.write(unlabeled_data[i]["sourcecle_media"])
+#         f.write("\n")
 new_event_id = {}
 for i in range(len(labels)):
     if labels[i] == -1:
@@ -130,6 +130,12 @@ for i in new_event_id :
         .insert({"event_id":str(m_uuid),"event_title": response["title"]})
         .execute()
     )
+    for j in new_event_id[i]:
+        event_map_insert = (
+            supabase.table("event_original_map")
+            .insert({"event_id":str(m_uuid),"sourcecle_id":j})
+            .execute()
+        )
         
 
     
