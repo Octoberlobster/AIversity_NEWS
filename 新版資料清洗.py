@@ -2,6 +2,12 @@ import os
 import json
 from bs4 import BeautifulSoup
 import google.generativeai as genai
+<<<<<<< Updated upstream
+=======
+import google.auth
+credentials, project = google.auth.default()
+
+>>>>>>> Stashed changes
 
 # === 1. 設定資料夾路徑 ===
 input_folder = "Graduation-Project/json/2025_02_24_00"
@@ -11,14 +17,22 @@ output_folder = "Graduation-Project/json/processed"
 os.makedirs(output_folder, exist_ok=True)
 
 # === 2. 設定 Gemini API 金鑰 ===
+<<<<<<< Updated upstream
 api_key = "API_KEY"
+=======
+api_key = ""
+>>>>>>> Stashed changes
 
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
 
 # 設定 Gemini API
 genai.configure(api_key=api_key)
+<<<<<<< Updated upstream
 model = genai.GenerativeModel('gemini-1.5-pro-002')
+=======
+model = genai.GenerativeModel('gemini-1.5-flash')
+>>>>>>> Stashed changes
 
 # === 3. 處理資料夾內所有 JSON 檔案 ===
 for filename in os.listdir(input_folder):
