@@ -54,8 +54,8 @@ for i in range(len(response)):
     Predict = Predict.replace('```json', '').replace('```', '').strip()
     Predict = json.loads(Predict)
     total_content = ""
-    for i in range(len(Predict["content"])):
-        total_content += Predict["content"][i]
+    for j in range(len(Predict["content"])):
+        total_content += Predict["content"][j]
         total_content += "\n"
     Predict["content"] = total_content
     update_response = (

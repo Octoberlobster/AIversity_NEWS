@@ -95,8 +95,8 @@ for i in range(len(data_news)):
         role_analyze = role_num[1]["Analyze"]
         m_uuid = uuid.uuid4()
         total_analyze = ""
-        for i in range(len(role_analyze)):
-            total_analyze += role_analyze[i]
+        for j in range(len(role_analyze)):
+            total_analyze += role_analyze[j]
             total_analyze += "\n"
         role_analyze = total_analyze
 
