@@ -48,15 +48,13 @@ function App() {
 
 
   return (
-    <SupabaseProvider>
-      <div className="container">
-        <Header />
-        {/* 主內容區域 */}
-        <div className="content">
-          <EventListPage events={events} loading={loading} />
-        </div>
+    <div className="container">
+      <Header />
+      {/* 主內容區域 */}
+      <div className="content">
+        <EventListPage events={events} loading={loading} />
       </div>
-    </SupabaseProvider>
+    </div>
   );
 }
 
@@ -80,8 +78,7 @@ function EventListPage({ events, loading }) {
         <div className="event-grid">
           {/* 遍歷渲染事件卡片 */}
           {events.map(event => (
-            <Link 
-              key={event.id} // React列表元素的唯一標識
+            <Link key={event.id} // React列表元素的唯一標識 
               to={`/event/${event.id}`} // 導航到事件詳情頁的路由
               className="event-card"
             >

@@ -398,3 +398,15 @@
     font-size: 22px;
   }
 }
+
+.timeline-prediction .timeline-date-box {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.prediction-content {
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+

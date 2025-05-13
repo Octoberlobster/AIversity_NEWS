@@ -8,6 +8,7 @@ function Header({ language, setLanguage }) {
       <div className="platform-name">
         <span></span>
       </div>
+      {/* 語言選擇器 
       <div className="language-selector">
         <img src={translateIcon} alt="Translate" className="translate-icon" />
         <select value={language} className="language-dropdown">
@@ -21,6 +22,7 @@ function Header({ language, setLanguage }) {
           <option value="es">Español</option>
         </select>
       </div>
+      */}
     </div>
   );
 }
