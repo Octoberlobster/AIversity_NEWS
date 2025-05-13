@@ -8,9 +8,9 @@ import uuid
 import datetime
 from collections import defaultdict
 
-SUPABASE_URL         = "我記得刪了"
-SUPABASE_SERVICE_KEY = "我記得刪了"
-GEMINI_API_KEY       = "我記得刪了"
+SUPABASE_URL         = ""
+SUPABASE_SERVICE_KEY = ""
+GEMINI_API_KEY       = ""
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-pro-002')
@@ -27,10 +27,10 @@ rows = response.data  # List[Dict]
 print(json.dumps(rows[0], indent=2))
 # print(rows[1])
 
-# 依 event_id 分組並依日期排序
-events_news: dict[int, list[dict]] = defaultdict(list)
+# event_id分組排序
+events_news: dict[uuid.UUID, list[dict]] = defaultdict(list)
 for r in rows:
-    eid = int(r["event_id"])
+    eid = r["event_id"]
     news_items = r.get("cleaned_news")
     if isinstance(news_items, dict):
         news_items = [news_items]
@@ -44,16 +44,12 @@ for r in rows:
 
 for eid in events_news:
     events_news[eid].sort(key=lambda x: x["date"])
-# for eid in list(events_news.keys())[:3]:  # 只看前三個事件
+# for eid in list(events_news.keys())[:3]:
 #     print(f"\nEvent ID: {eid}")
 #     for news in events_news[eid]:
 #         print(news)
 
 def analyse_event(eid: int, news_rows: list[dict]) -> tuple[list[dict], list[dict]]:
-    """
-    回傳兩個 list：
-      timeline_items_rows, timeline_sources_rows
-    """
     total = len(news_rows)
     if total == 0:
         return [], []
@@ -105,7 +101,6 @@ def analyse_event(eid: int, news_rows: list[dict]) -> tuple[list[dict], list[dic
                 {news_block}
                 """.strip()
 
-        # 呼叫 Gemini
         for retry in range(3):
             try:
                 res = model.generate_content(prompt)
@@ -118,20 +113,21 @@ def analyse_event(eid: int, news_rows: list[dict]) -> tuple[list[dict], list[dic
                 break
             except Exception as e:
                 if retry == 2:
-                    print(f"[Event {eid}] 區段 {idx+1} 解析失敗：{e}")
+                    print(f"{eid}{e}")
                     return [], []
-                sleep(1)  # 簡單重試
-        # 建立 timeline_items
+                sleep(1)
+        # timeline_items
         item_id = str(uuid.uuid4())
         items.append(
             {
                 "timeline_items_id": item_id,
+                "event_id": eid, #感覺要
                 "date_range": j["DateRange"],
                 "start_date": j["DateRange"].split("~")[0].strip(),
                 "summary": j["Summary"],
             }
         )
-        # 多筆 timeline_sources
+        # timeline_sources
         for s, u in zip(j["Source"], j["URL"]):
             sources.append(
                 {
@@ -149,7 +145,6 @@ for eid, news in events_news.items():
     items_rows, sources_rows = analyse_event(eid, news)
     print(items_rows)
     print(sources_rows)
-    # 批次插入
     supabase.table("timeline_items").insert(items_rows).execute()
     supabase.table("timeline_sources").insert(sources_rows).execute()
     print(f"完成插入items {len(items_rows)}、sources {len(sources_rows)}")
