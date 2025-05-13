@@ -94,6 +94,12 @@ for i in range(len(data_news)):
         role_name = role_num[1]["Role_Name"]
         role_analyze = role_num[1]["Analyze"]
         m_uuid = uuid.uuid4()
+        total_analyze = ""
+        for i in range(len(role_analyze)):
+            total_analyze += role_analyze[i]
+            total_analyze += "\n"
+        role_analyze = total_analyze
+
         response = (
             supabase.table("role_causal_analysis")
             .insert(
@@ -101,7 +107,7 @@ for i in range(len(data_news)):
                     "role_id": str(m_uuid),
                     "generated_id": str(data_id[i]),
                     "role": role_name,
-                    "analysis": str(role_analyze)
+                    "analysis": role_analyze
                 }
             )
             .execute()

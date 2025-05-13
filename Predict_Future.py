@@ -34,7 +34,7 @@ for i in range(len(response)):
         supabase.table("event_original_map")
         .select("event_id,cleaned_news(content,date)")
         .eq("event_id", response[i]["event_id"])
-        .order("cleaned_news(date)", desc=True)
+        .order("cleaned_news(date)", desc=False)
         .execute()
     )
     original_news = original_news.data
@@ -53,10 +53,15 @@ for i in range(len(response)):
     Predict = Predict.text
     Predict = Predict.replace('```json', '').replace('```', '').strip()
     Predict = json.loads(Predict)
+    total_content = ""
+    for i in range(len(Predict["content"])):
+        total_content += Predict["content"][i]
+        total_content += "\n"
+    Predict["content"] = total_content
     update_response = (
         supabase.table("generated_news")
         .update({"predict_title": Predict["title"],
-                 "predict_content": str(Predict["content"])})
+                 "predict_content": Predict["content"]})
         .eq("generated_id", response[i]["generated_id"])
         .execute()
     )

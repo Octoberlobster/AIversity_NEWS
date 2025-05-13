@@ -8,6 +8,7 @@ import os
 from sklearn.cluster import DBSCAN
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
+import uuid
 
 api_key = os.getenv("API_KEY_Gemini_PAY")
 genai.configure(api_key=api_key)
@@ -103,7 +104,6 @@ for i in range(len(labels)):
         new_event_id[labels[i]] = []
     new_event_id[labels[i]].append(unlabeled_data[i]["sourcecle_id"])
 
-event_title = []
 for i in new_event_id :
     index = 0
     all_articles = []
@@ -124,9 +124,12 @@ for i in new_event_id :
     response = response.text
     response = response.replace('```json', '').replace('```', '').strip()
     response = json.loads(response)
-    event_title.append(response["title"])
-print(event_title)
-
+    m_uuid = uuid.uuid4()
+    event_insert = (
+        supabase.table("event")
+        .insert({"event_id":str(m_uuid),"event_title": response["title"]})
+        .execute()
+    )
         
 
     
