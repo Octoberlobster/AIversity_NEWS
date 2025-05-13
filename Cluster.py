@@ -44,8 +44,8 @@ for i in range(len(event_map_data)):
 news_response = (
     supabase.table("cleaned_news")
     .select("sourcecle_id,content", "sourcecle_media")
-    .neq("sourcecle_media","UDN")
-    .neq("sourcecle_media","TTV")
+    # .neq("sourcecle_media","UDN")
+    # .neq("sourcecle_media","TTV")
     #.gte("date","2026-05-05T22:19:59")
     .execute()
 )
