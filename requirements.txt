@@ -6,3 +6,5 @@ grpc
 feedparser
 urllib
 schedule
+jieba
+sklearn
