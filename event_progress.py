@@ -26,7 +26,6 @@ response = (
 rows = response.data  # List[Dict]
 print(json.dumps(rows[0], indent=2))
 # print(rows[1])
-#
 
 # event_id分組排序
 events_news: dict[uuid.UUID, list[dict]] = defaultdict(list)

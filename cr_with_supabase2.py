@@ -2,24 +2,21 @@
 import feedparser
 import time
 import datetime
-import feedparser
-import time
-import datetime
 import requests
 from bs4 import BeautifulSoup
 import json
 from urllib.parse import urlparse, parse_qs
-import schedule
+# import schedule
 import json
 from supabase import create_client, Client
 import uuid
+import os
 
 # === Supabase 設定 ===
 # 初始化 Supabase 連線
-url = ""
-key = ""
-supabase: Client = create_client(url, key)
-
+SUPABASE_URL         = os.getenv("API_KEY_URL")
+SUPABASE_SERVICE_KEY = os.getenv("API_KEY_supa")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 # === 欄位對應 ===
 key_map = {
     "title": "title",

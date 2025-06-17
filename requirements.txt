@@ -1,10 +1,8 @@
 requests
-bs4
+beautifulsoup4
 pandas
 google.generativeai
-grpc
 feedparser
-urllib
 schedule
 jieba
-sklearn
+supabase

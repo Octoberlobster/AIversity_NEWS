@@ -15,7 +15,7 @@ import grpc
 grpc.Channel._Rendezvous = None  # 強制關閉 gRPC 連線
 
 # 設定 API 金鑰
-api_key = os.environ["GEMINI_API_KEY"] = "AIzaSyCO8TkMAGyAlj57xMmS4ODV33nkcBhNbCc"
+api_key = os.environ["GEMINI_API_KEY"] = ""
 if not api_key:
     raise ValueError("請設定 GEMINI_API_KEY 環境變數")
 
@@ -24,8 +24,8 @@ model = genai.GenerativeModel('gemini-2.0-flash')
 
 def crawl_news(query):
     # Google Custom Search API 設定
-    API_KEY = "AIzaSyATeTpiILU2Adnyv_mhb7sRrqa3vnWqZSU"  # 替換為你的 API 金鑰
-    CX = "77b6699da8b7f477c"  # 替換為你的搜尋引擎 ID
+    API_KEY = ""  # 替換為你的 API 金鑰
+    CX = ""  # 替換為你的搜尋引擎 ID
     # QUERY = [台灣 國際 政治 娛樂新聞 體育新聞 商業新聞 科技新聞 醫療保健新聞 科學新聞 教育新聞 生活品味新聞]       # 搜尋關鍵字
 
     # 設定請求 URL
@@ -34,15 +34,15 @@ def crawl_news(query):
     # 提取新聞標題、URL 和內容
     news_data = []
     
-    for start in range(1, 100, 10):  # 每次取 10 筆，最多 100 筆
+    for start in range(1, 10, 10):  # 每次取 10 筆，最多 100 筆
         # 設定請求參數
         params = {
             "key": API_KEY,
             "cx": CX,
             # "q": "war in Ukraine",
-            "q": "烏俄 or 俄烏 after:2025-01-20 before:2025-05-05",
+            "q": "war in Ukraine after:2024-02-01 before:2024-04-10",
             "sort": "date",  # 按發布時間排序
-            "dateRestrict": "y1",  # 限制 1 小時內的新聞
+            "dateRestrict": "m4",  # 限制 1 小時內的新聞
             "nums": 100,  # 取得 20 筆新聞
             "start": start  # 從第 1 筆開始 
         }
@@ -82,17 +82,11 @@ def crawl_news(query):
                         if news_response.status_code == 200:
                             html_source = news_response.text  # 取得網頁原始碼
                             content_str = html_source
-                            
-                            # 提取發布時間
-                            try:
-                                soup = BeautifulSoup(html_source, "html.parser")
-                                # meta = soup.find("meta", attrs={"property": "article:published_time"})
-                                meta = soup.find("meta", attrs={"name": "pubdate"})
-                                published_date = meta["content"]
+                            # try:
                             #     published_date = extract_publish_date(content_str)
-                            except Exception as e:
-                                published_date = "無法提取發布時間"
-                            print(f"發布日期: {published_date}")    
+                            # except Exception as e:
+                            #     published_date = "無法提取發布時間"
+                            # print(f"發布日期: {published_date}")    
                             print(f"內容: {content_str}")
                         else:
                             print("無法訪問新聞內文。")
@@ -105,8 +99,8 @@ def crawl_news(query):
                         "url": item['link'],
                         "content": content_str,
                         "date": published_date or "",  # 如果沒有發布日期，則設為空字串
-                        # "sourceorg_id": index,             # 從 1 開始
-                        "sourceorg_media": "chinatimes",  # 來源媒體名稱
+                        "sourceorg_id": index,             # 從 1 開始
+                        "sourceorg_media": "tass"
                     })
                     index += 1
                     print("-" * 50)
@@ -126,7 +120,7 @@ def crawl_news(query):
 
     taiwan_time = time.localtime()  # 取得本地時間（依據系統時區）
     formatted_time = time.strftime("%Y_%m_%d", taiwan_time)
-    with open("./json/{}_{}_Chinatimes.json".format(i, formatted_time), "w", encoding="utf-8") as f:
+    with open("./json/{}_{}_ukrinform.json".format(i, formatted_time), "w", encoding="utf-8") as f:
         f.write(json_data)
 
     return df

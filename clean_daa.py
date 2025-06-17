@@ -15,11 +15,10 @@ os.makedirs(output_folder, exist_ok=True)
 os.makedirs(move_folder, exist_ok=True)  # ✅ 確保移動資料夾存在
 
 # === 2. 設定 Gemini API 金鑰 ===
-api_key = ""
+# 設定 Gemini API
+api_key = os.getenv("API_KEY_Ge")
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
-
-# 設定 Gemini API
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel('gemini-1.5-pro-002')
 
