@@ -6,3 +6,8 @@ feedparser
 schedule
 jieba
 supabase
+schedule
+scikit-learn
+numpy
+feedparser
+googletrans

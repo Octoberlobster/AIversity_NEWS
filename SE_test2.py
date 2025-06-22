@@ -12,8 +12,8 @@ SUPABASE_SERVICE_KEY = os.getenv("API_KEY_supa")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 # === 1. 設定資料夾路徑 ===
-output_folder = "json/processed"
-move_folder = "json/Cle"
+output_folder = "json"
+move_folder = "json"
 
 # 確保輸出資料夾存在
 os.makedirs(output_folder, exist_ok=True)

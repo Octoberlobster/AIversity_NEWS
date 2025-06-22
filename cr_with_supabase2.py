@@ -180,7 +180,7 @@ def crawl_news():
 
 crawl_news()
 # 設定排程
-# schedule.every(9).seconds.do(crawl_news)  # 每  秒執行一次
+# schedule.every(59).seconds.do(crawl_news)  # 每  秒執行一次
 
 # while True:
 #     schedule.run_pending()  # 執行排程內的任務
