@@ -1,97 +1,148 @@
 
 .header-bar {
-    height: 70px;
-    background-color: #7DD1D1;
-    width: 100%;
-    display: flex;
-    justify-content: space-between; /* 修改為space-between以便左右對齊 */
-    align-items: center;
-    padding: 0 20px;
-  }
-  
-  .platform-name {
-    font-family: 'Montserrat', sans-serif; /* 使用現代感強的字體 */
-    font-size: 28px;
-    font-weight: 700;
-    color: white;
-    letter-spacing: 1px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-  }
-  
-  .platform-logo {
-    display: inline-block;
-    background-color: white;
-    color: #7DD1D1;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 36px;
-    margin-right: 5px;
-    font-weight: 800;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  
-  .language-selector {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-right: 100px;
-  }
-  
-  .translate-icon {
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  }
-  
-  .translate-icon:hover {
-    transform: scale(1.1);
-  }
-  
-  .language-dropdown {
-    appearance: none;
-    background-color: transparent;
-    border: none;
-    color: #000000; /* 改為黑色文字，增加對比度 */
-    font-weight: 700; /* 加粗字體 */
-    font-size: 16px; /* 增加字體大小 */
-    padding: 8px 12px;
-    padding-right: 25px;
-    margin-left: 8px;
-    cursor: pointer;
-    border-radius: 20px;
-    background-color: rgba(255, 255, 255, 0.8); /* 改為半透明白色背景，增加對比 */
-    transition: all 0.3s ease;
-    background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 5px center;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7); /* 添加文字陰影增加可讀性 */
-    letter-spacing: 0.5px; /* 增加字母間距 */
-  }
-  
-  .language-dropdown:hover {
-    background-color: rgba(255, 255, 255, 0.9); /* 懸停時背景更不透明 */
-  }
-  
-  .language-dropdown:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3); /* 更改聚焦時的陰影顏色 */
-  }
-  
-  .language-dropdown option {
-    background-color: white;
-    color: black; /* 選項文字改為黑色 */
-    font-weight: 600; /* 選項文字加粗 */
-    font-size: 16px; /* 保持一致的字體大小 */
-  }
-  
-  
-  .language-selector:hover .language-dropdown {
-    animation: fadeIn 0.3s ease forwards;
-  }
+  height: 70px;
+  background-color: #7DD1D1;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.platform-name {
+  font-family: 'Montserrat', sans-serif; /* 使用現代感強的字體 */
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+}
+
+.platform-logo {
+  display: inline-block;
+  background-color: white;
+  color: #7DD1D1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 36px;
+  margin-right: 5px;
+  font-weight: 800;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.search-bar-container {
+  display: flex;
+  justify-content: center;
+  flex-grow: 1; /* 允許此容器填滿中間的剩餘空間 */
+  padding: 0 20px; /* 與左右元件保持間距 */
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  max-width: 500px; /* 限制搜尋列最大寬度 */
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 40px 10px 20px;
+  border-radius: 25px;
+  border: 1px solid transparent;
+  font-size: 16px;
+  background-color: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #7DD1D1;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(125, 209, 209, 0.4);
+}
+
+.search-button {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #555;
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.search-button:hover {
+  color: #7DD1D1;
+}
+
+.language-selector {
+position: relative;
+display: flex;
+align-items: center;
+flex-shrink: 0; /* 防止被壓縮 */
+}
+
+.translate-icon {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.translate-icon:hover {
+  transform: scale(1.1);
+}
+
+.language-dropdown {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  color: #000000; /* 改為黑色文字，增加對比度 */
+  font-weight: 700; /* 加粗字體 */
+  font-size: 16px; /* 增加字體大小 */
+  padding: 8px 12px;
+  padding-right: 25px;
+  margin-left: 8px;
+  cursor: pointer;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.8); /* 改為半透明白色背景，增加對比 */
+  transition: all 0.3s ease;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 5px center;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7); /* 添加文字陰影增加可讀性 */
+  letter-spacing: 0.5px; /* 增加字母間距 */
+}
+
+.language-dropdown:hover {
+  background-color: rgba(255, 255, 255, 0.9); /* 懸停時背景更不透明 */
+}
+
+.language-dropdown:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3); /* 更改聚焦時的陰影顏色 */
+}
+
+.language-dropdown option {
+  background-color: white;
+  color: black; /* 選項文字改為黑色 */
+  font-weight: 600; /* 選項文字加粗 */
+  font-size: 16px; /* 保持一致的字體大小 */
+}
+
+
+.language-selector:hover .language-dropdown {
+  animation: fadeIn 0.3s ease forwards;
+}

@@ -123,41 +123,48 @@ def scenario_chat_stream(body: dict):
             "請你以繁體中文回答。\n"
         )
 
-
-
-
-# ---------------------------------------------------------------------------
-# ↓↓↓ 以下函式各自負責一段邏輯，全部都有中文註解 ↓↓↓
-# ---------------------------------------------------------------------------
+def build_schema_with_names(roles: list[str]) -> str:
+    """產生固定角色名的 JSON 雛形"""
+    parts = []
+    for r in roles:
+        parts.append(
+            f'''  {{
+                "name": "{r}",
+                "description": "<立場與觀點>",
+                "position": "<角色認為…>",
+                "style": "<語氣風格>"
+            }}'''
+        )
+    return "{\n  \"characters\": [\n" + ",\n".join(parts) + "\n  ]\n}"
 
 def get_characters_info(scenario: str, roles: list[str], news: str) -> dict:
+    SYSTEM_RULE = (
+        "### 規則（務必遵守，違者重來）\n"
+        "1. 角色名稱只能使用清單中出現的字串，嚴禁新增、翻譯或改寫。\n"
+        "2. 請直接填入雛形 JSON，不要刪除或移動任何欄位。\n"
+        "3. 禁止在 JSON 之外輸出任何文字、註解、Markdown。\n"
+        "4. 若無法遵守規則，請回傳 `ERROR_NAME_MISMATCH`。\n"
+        "5. 先利用搜尋工具後取得相關角色資訊，然後再進行回答"
+    )
+
     search_model = genai.GenerativeModel(
         'gemini-1.5-pro-002',
-        system_instruction="先利用搜尋工具後取得相關角色資訊，然後再進行回答"
+        system_instruction=SYSTEM_RULE
     )
 
     roles_content = "、".join(roles)
     print("角色：", roles_content)
-    schema_lines = [
-        '  {',
-        '    "name": "<角色名稱>",',
-        '    "description": "<立場與觀點>",',
-        '    "position": "<角色認為…>",',
-        '    "style": "<語氣風格>"',
-        '  }'
-    ]
-    schema = "{\n  \"characters\": [\n" + ",\n".join(schema_lines) + "\n  ]\n}"
+    schema = build_schema_with_names(roles)
     print("schema:", schema)
 
     prompt = (
-        f"""
-        "請你幫以下角色{roles_content}，根據新聞全文:"+{news}+"，針對如下情境:"+{scenario}\
-        +"請你依照{roles_content}各角色的立場、背景利益、價值觀與語氣風格，詳細描述其觀點與態度。此外，請讓角色能夠展現出各自典型的行事風格與說話方式，並能進行理性但充滿立場張力的對話。"\
-        "請你生成立場時，名稱必須與角色名稱一致，不得創造新角色或是隨意改變角色名稱。"\
-        "請你使用以下 JSON 格式回覆，每位角色需包含完整資訊，便於後續角色扮演或模擬對話使用：請你以JSON格式回覆，格式如下\n"\
-        f"{schema}\n"\
-        "請以繁體中文回答，並且不要有任何的額外說明或是註解。\n"
-        """
+        f"以下是情境：{scenario}\n"
+        f"新聞全文（可作參考，不可改名）：{news}\n\n"
+        "請根據情境及新聞內容，填寫每位角色的立場與語氣，"
+        f"角色名稱只能選用：{roles_content}\n\n"
+        "### 請以『完全相同的 JSON 雛形』回覆：\n"
+        f"{schema}\n\n"
+        "（禁止輸出 JSON 之外的任何文字，禁止修改 name 欄位）"
     )
 
     resp = search_model.generate_content(prompt, tools=["google_search_retrieval"])
@@ -184,11 +191,14 @@ def build_role_prompts(char_info: dict, roles: list[str]) -> dict:
     for r in roles:
         info = char_info[r]
         prompts[r] = (
-            f"你現在扮演的角色為{r}，與會成員有{other(r)}。\n"
-            f"遵循以下背景與立場：{info['description']}。\n"
-            f"你認為：{info['position']}。\n"
-            f"請以{info['style']}語氣，用一句對話式回答。\n"
-            f"請以繁體中文回答。\n"
+            f"你是 {r}，與會成員有 {other(r)}。\n"
+            f"立場：{info['description']}\n"
+            f"語氣：{info['style']}\n\n"
+            "【發言規範】\n"
+            "1. 每次最多 2 句、總長不超過 100 字。\n"
+            "2. 可使用口語、破折號、語氣詞，像真實對話。\n"
+            "3. 切忌長篇大論；必要時分段多輪講。\n"
+            "4. 回覆直接輸出對話，不要任何說明。\n"
         )
     return prompts
 
@@ -201,10 +211,24 @@ def build_models(role_prompts: dict, char_info: dict):
     role_desc = "\n".join(f"{r}:{char_info[r]['description']}" for r in role_prompts)
 
     moderator_system = (
-        "你是一位多方會談的主持人，你的目的是在以下角色中選擇一位當下最適合回答的人"\
-                                "並且由你的回答來引導他們進行良好的溝通，在最後如果你覺得各方的對話應該告一段落了則請你以「結束」這兩個字當作回覆，以下是關於角色的立場與看法提供給你參考，"\
-                                f"請你依照以下角色的立場與看法來進行會談：\n{role_desc}\n"\
-                                "請你以繁體中文回答。\n"\
+        # ───────── 角色與任務 ─────────
+        "你是一位多方會談的主持人。你的工作流程：\n"
+        "  1. 在下面角色中，挑選「最適合下一個發言」的人。\n"
+        "  2. 提供該角色一段 ≤100 字的口語提示，引導對話自然深入。\n"
+        "  3. 生成唯一 JSON 物件作回覆。\n\n"
+
+        # ───────── 規則 ─────────
+        "【主持規範】\n"
+        "  ‣ 前 6 輪禁止結束。\n"
+        "  ‣ 至少讓每位角色各發言 2 次。\n"
+        "  ‣ 如未滿足條件而你想結束，請改為選擇下一位適合發言的角色。\n"
+        "  ‣ 真正結束時，僅輸出：{\"speaker\":\"結束\",\"prompt\":\"\"}\n"
+        "  ‣ 絕不可更改、翻譯或創造角色名稱。\n"
+        "  ‣ 除 JSON 之外，不得輸出任何額外字元、註解、Markdown。\n\n"
+
+        # ───────── 角色立場與看法 ─────────
+        "以下為所有角色的立場與看法，僅供參考，嚴禁修改角色名稱：\n"
+        f"{role_desc}\n\n"
     )
 
     # 主持人
@@ -223,69 +247,103 @@ def build_models(role_prompts: dict, char_info: dict):
     }
     return mod_chat, role_chats
 
+# ---------- JSON 容錯解析 ----------
+def safe_json_extract(text: str) -> dict:
+    """
+    從 LLM 回覆中抽出最像 JSON 的部分並解析。
+    • 去掉 ```json ... ``` 區塊
+    • 單引號 → 雙引號
+    • 若解析失敗則拋出例外
+    """
+    # 刪掉 Markdown code fence
+    cleaned = re.sub(r"```json|```", "", text).strip()
+
+    # 嘗試直接解析
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        # 將單引號改成雙引號再試一次
+        fixed = cleaned.replace("'", '"')
+        return json.loads(fixed)
+
+# ---------- 參數設定 ----------
+MIN_TURNS = 6          # 最少輪數
+MAX_TURNS = 40         # 最多輪數
+CLOSE_BUFFER = 2        # 剩下幾輪觸發收尾預告
+MAX_REPLY_CHARS = 60   # 角色單句最長字數
 def drive_dialogue(moderator, role_chats, scenario: str):
-    """
-    • 主持人 ➜ speaker / prompt
-    • 指定角色回一句
-    • 回給主持人
-    • 若 speaker == 結束 → break
-    """
-    
-    messages = []
-    messages.append({"role": "SYSTEM", "text": "開始"})
-    
-    speaker_opts = "/".join(role_chats.keys()) + "/結束"
-    
-    count = 0
-    while True:
-        if count == 0:
-            # 開場：請主持人指定第一位
-            role_prompt = moderator.send_message("這是這次多人會談的討論主題"+scenario+"請你決定誰最適合回答，並且引導他們進行良好的溝通"\
-                                                            "請你以JSON格式回覆，格式如下\n"\
-                                                            "{"\
-                                                            "\"speaker\": \"" + speaker_opts + "\""\
-                                                            "\"prompt\": \"引導角色發言並讓整體會談流暢發展\""\
-                                                            "}"
-                                                            "請你以繁體中文回答。\n"
-                                                            )
-            count += 1
+    messages = [{"role": "SYSTEM", "text": "開始"}]
+    speaker_opts = "/".join(role_chats) + "/結束"
+
+    turns = 0
+    end_warn_sent = False   # 尚未觸發收尾提醒
+    closing_phase = False   # 收尾人已提醒，主持人下次可結束
+
+    # ① 開場
+    role_prompt = moderator.send_message(
+        f"討論主題：{scenario}\n請依規範輸出首位 JSON。"
+    )
+
+    # ② 迴圈對話
+    while turns < MAX_TURNS:
+        # ---------- 解析主持人 JSON ----------
+        try:
+            data = safe_json_extract(role_prompt.text)
+        except Exception as e:
+            log.error("主持人 JSON 錯誤：%s", e)
+            role_prompt = moderator.send_message("格式錯誤，請重新輸出純 JSON。")
             continue
-        my_json = role_prompt.text
-        my_json = my_json.replace('```json', '').replace('```', '').strip()
-        my_json = json.loads(my_json)
-        speaker = my_json["speaker"]
-        message = my_json["prompt"]
-        # --- 主持人指定發言者 ---------------------------------------
-        log.info("[主持人 ➜ %s] %s", speaker, message)
 
-        # --- 主持人宣布結束 -------------------------------------------
+        speaker = data.get("speaker", "").strip()
+        prompt  = data.get("prompt", "").strip()
+
+        # ---------- 是否要結束 ----------
         if speaker == "結束":
-            messages.append({"role": "SYSTEM", "text": "結束"})
-            break
+            if closing_phase or turns >= MIN_TURNS:
+                messages.append({"role": "SYSTEM", "text": "結束"})
+                break
+            # 未到收尾階段：請主持人換人
+            role_prompt = moderator.send_message(
+                f"目前僅 {turns} 輪，或尚未收尾，請重新指定 speaker。"
+            )
+            continue
 
-        # --- 主持人指定未知角色 ---------------------------------------
+        # ---------- 未知角色 ----------
         if speaker not in role_chats:
-            err = f"未知角色 {speaker}"
-            log.error(err)
-            messages.append({"role": "SYSTEM", "text": err})
-            break
-        
-        # --- 角色發言 -------------------------------------------------
-        reply = role_chats[speaker].send_message(message).text
+            role_prompt = moderator.send_message(
+                f"角色「{speaker}」不存在，請從 {speaker_opts} 選擇。"
+            )
+            continue
+
+        # ---------- 角色發言 ----------
+        reply = role_chats[speaker].send_message(prompt).text.strip()
+        if len(reply) > MAX_REPLY_CHARS:
+            reply = reply[:MAX_REPLY_CHARS] + "…"
+
         log.info("[%s] %s", speaker, reply)
         messages.append({"role": speaker, "text": reply})
-        
-        
-        # --- 將角色回覆貼回主持人，要求下一人 -------------------------
+        turns += 1
+
+        # ---------- 是否進入「收尾預告」 ----------
+        if not end_warn_sent and turns >= MAX_TURNS - CLOSE_BUFFER:
+            # 要主持人挑一位角色來喊停
+            role_prompt = moderator.send_message(
+                "我們即將達到最大輪數，請挑選一位角色用 ≤20 字提醒大家準備收尾，"
+                "並以 JSON 回覆："
+                "{ \"speaker\": \"" + speaker_opts + "\", "
+                "\"prompt\": \"<收尾提醒>\" }"
+            )
+            end_warn_sent = True
+            closing_phase = True
+            continue
+
+        # ---------- 常規：請主持人挑下一位 ----------
         role_prompt = moderator.send_message(
-            f"這是來自{speaker}的發言" + reply + "請你決定誰最適合回答，並且引導他們進行良好的溝通"\
-            "請你以JSON格式回覆，格式如下\n"\
-            "{"\
-            "\"speaker\": \"" + speaker_opts + "\","\
-            "\"prompt\": \"引導角色發言並讓整體會談流暢發展\""\
-            "}"
-            "請你以繁體中文回答。\n"
+            f"以下為 {speaker} 的回覆：{reply}\n請依規範輸出下一位 JSON。"
         )
-        
+
+    # ③ 若超過 MAX_TURNS 強制結束
+    if turns >= MAX_TURNS:
+        messages.append({"role": "SYSTEM", "text": "已達最長回合，自動結束"})
 
     return messages

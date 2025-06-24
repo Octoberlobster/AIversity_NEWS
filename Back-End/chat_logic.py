@@ -4,7 +4,7 @@ import re
 import os
 
 # 設定 API 金鑰
-API_KEY = os.getenv("API_KEY_Gemini_PAY")
+api_key = os.getenv("API_KEY_Gemini_PAY")
 genai.configure(api_key=api_key)
 # 聊天會話存儲
 chat_sessions = {}
@@ -33,26 +33,39 @@ def interactive_chat_logic(body: dict) -> tuple[dict, int]:
             system_instruction="先利用搜尋工具後取得相關角色資訊，然後再進行回答"
         )
         
-        schema_lines = [
-            '  {',
-            '    "name": "<角色名稱>",',
-            '    "description": "<立場與觀點>",',
-            '    "position": "<角色認為…>",',
-            '    "style": "<語氣風格>"',
-            '  }'
-        ]
-        schema = "{\n  \"characters\": [\n" + ",\n".join(schema_lines) + "\n  ]\n}"
+        schema = """{
+            "characters": [
+                {
+                "name": "<角色名稱>",
+                "description": "<立場與觀點>",
+                "position": "<角色認為…>",
+                "style": "<語氣風格>"
+                }
+            ]
+        }"""
         
-        prompt = (
-            f"""
-            "請你幫以下角色{role}，根據新聞全文:"+{news}+"\
-            +"請你依照{role}的立場、背景利益、價值觀與語氣風格，詳細描述其觀點與態度。此外，請讓角色能夠展現出各自典型的行事風格與說話方式，並能進行理性但充滿立場張力的對話。"\
-            "請你生成立場時，名稱必須與角色名稱一致，不得創造新角色或是隨意改變角色名稱。"\
-            "請你使用以下 JSON 格式回覆，角色需包含完整資訊，便於後續角色扮演或模擬對話使用：請你以JSON格式回覆，格式如下\n"\
-            f"{schema}\n"\
-            "請以繁體中文回答，並且不要有任何的額外說明或是註解。\n"
-            """
-        )
+        prompt = f"""
+                你正在閱讀以下新聞全文：
+                {news}
+
+                ### 角色名稱（固定，禁止更動）
+                {role}
+
+                ### 你要做什麼
+                1. 依照上述新聞內容，站在 **{role}** 的角度，寫出立場、觀點與語氣風格。
+                2. 讓角色能表現典型的行事作風，並保有張力與說服力。
+
+                ### ⚠️ 生成規則（務必遵守）
+                - `name` 欄位 **只能** 是 `{role}`，大小寫、標點必須完全一致。
+                - 不得新增或修改角色名稱。
+                - 若無法遵守，請直接回覆 **ERROR_DO_NOT_RENAME**。
+                - 回覆必須「完全符合」下列 JSON 結構，且不得包含任何多餘文字或註解。
+
+                ### JSON 格式
+                {schema}
+
+                （請使用繁體中文）
+                """
         
         resp = search_model.generate_content(prompt, tools=["google_search_retrieval"])
         data = json.loads(strip_triple_backticks(resp.text))

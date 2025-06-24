@@ -1,6 +1,7 @@
 import React from 'react';
 import './css/Header.css';
 import translateIcon from './Translate.png';
+import { FaSearch } from 'react-icons/fa';
 
 function Header({ language, setLanguage }) {
   return (
@@ -8,7 +9,20 @@ function Header({ language, setLanguage }) {
       <div className="platform-name">
         <span></span>
       </div>
-      {/* 語言選擇器 
+      <div className="search-bar-container">
+        <form className="search-form" onSubmit={(e) => e.preventDefault()}>
+          <input
+            type="text"
+            className="search-input"
+            placeholder="搜尋..."
+          />
+          <button type="submit" className="search-button">
+            <FaSearch />
+          </button>
+        </form>
+      </div>
+
+      {/* 語言選擇器 */}
       <div className="language-selector">
         <img src={translateIcon} alt="Translate" className="translate-icon" />
         <select value={language} className="language-dropdown">
@@ -22,7 +36,6 @@ function Header({ language, setLanguage }) {
           <option value="es">Español</option>
         </select>
       </div>
-      */}
     </div>
   );
 }
