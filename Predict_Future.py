@@ -3,12 +3,14 @@ from supabase import create_client, Client
 import json
 import os
 from collections import defaultdict
+from dotenv import load_dotenv
 
-api_key = os.getenv("API_KEY_Ge")
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=api_key)
 
-SUPABASE_URL         = os.getenv("API_KEY_URL")
-SUPABASE_SERVICE_KEY = os.getenv("API_KEY_supa")
+SUPABASE_URL         = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 model = genai.GenerativeModel('gemini-1.5-pro-002')
@@ -58,12 +60,12 @@ for i in range(len(response)):
         total_content += Predict["content"][j]
         total_content += "\n"
     Predict["content"] = total_content
-    update_response = (
+    
+    print(Predict)
+    print() #我是空行
+    '''update_response = (
         supabase.table("generated_news")
-        .update({"predict_title": Predict["title"],
-                 "predict_content": Predict["content"]})
+        .update({"predict_title": Predict["title"],"predict_content": Predict["content"]})
         .eq("generated_id", response[i]["generated_id"])
         .execute()
-    )
-        
-   
+    )'''
