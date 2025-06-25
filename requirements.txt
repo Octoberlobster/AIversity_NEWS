@@ -1,0 +1,13 @@
+requests
+beautifulsoup4
+pandas
+google.generativeai
+feedparser
+schedule
+jieba
+supabase
+schedule
+scikit-learn
+numpy
+feedparser
+googletrans
