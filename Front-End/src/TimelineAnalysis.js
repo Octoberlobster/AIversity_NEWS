@@ -1,78 +1,68 @@
 import React, { useState, useEffect } from 'react';
-import './TimelineAnalysis.css';
+import { useSupabase } from './supabase';
+import TimelineItem from './TimelineItem';
+import './css/TimelineAnalysis.css';
 
-const TimelineAnalysis = () => {
-  const [expandedItems, setExpandedItems] = useState({});
-  const [timelineData, setTimelineData] = useState([]);
-  const [newsTopics, setNewsTopics] = useState({});
+const TimelineAnalysis = ({ eventId }) => {
+  const [timelineItems, setTimelineItems] = useState([]);
+  const [predictionItem, setPredictionItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const supabaseClient = useSupabase();
   
-  // 定義不同新聞台的顏色
-  const mediaColors = {
-    'cnn.com': '#CC0000',
-    'foxnews.com': '#003366',
-    'bbc.com': '#BB1919',
-    'reuters.com': '#FF8000',
-    'apnews.com': '#0078D4',
-    'default': '#777777',
-    'rg.ru': '#123972'
-  };
+  // 定義顏色設置...
+  const mediaColors = { /* 您的媒體顏色映射 */ };
 
+  // 獲取時間軸項目和預測數據
   useEffect(() => {
-    // 動態加載所有時間軸JSON檔案
-    const context = require.context('./processed/progress', false, /\.json$/);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // 獲取時間軸歷史數據
+        const { data: timelineData, error: timelineError } = await supabaseClient
+          .from('timeline_items')
+          .select('*')
+          .eq('event_id', eventId)
+          .order('start_date', { ascending: true });
+          
+        if (timelineError) throw timelineError;
+        
+        // 獲取相同事件的預測數據
+        const { data: predictionData, error: predictionError } = await supabaseClient
+          .from('generated_news')
+          .select('generated_id, predict_title, predict_content, date')
+          .eq('event_id', eventId)
+          .order('date', { ascending: false })
+          .limit(1); // 獲取最新的預測
+          
+        if (predictionError) throw predictionError;
+        
+        setTimelineItems(timelineData || []);
+        
+        // 如果有預測數據，轉換為時間軸項目格式
+        if (predictionData && predictionData.length > 0) {
+          const prediction = predictionData[0];
+          // 創建一個與時間軸項目格式相符的預測項目
+          setPredictionItem({
+            timeline_items_id: `prediction-${prediction.generated_id}`,
+            date_range: '趨勢分析',
+            summary: prediction.predict_title,
+            content: prediction.predict_content,
+            is_prediction: true // 標記為預測項目
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching timeline data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    // 在 useEffect 中加載 progress 資料時進行轉換
-    const loadedData = context.keys().map(key => {
-      const item = context(key);
-      // 轉換 URL 陣列為 Sources 陣列
-      const sources = item.URL ? item.URL.map(url => ({
-        Source: new URL(url).hostname.replace('www.', ''),
-        URL: url
-      })) : [];
-      
-      return {
-        ...item,
-        Sources: sources,
-        id: key.replace(/^\.\/|\.json$/g, ''),
-        startDate: new Date(item.DateRange.split(' ~ ')[0])
-      };
-    });
-    
-    // 按日期排序
-    loadedData.sort((a, b) => a.startDate - b.startDate);
-    setTimelineData(loadedData);
-    
-    // 加載媒體焦點數據
-    try {
-      const topicsContext = require.context('./processed/similarty', false, /\.json$/);
-      const topicsData = {};
-      
-      topicsContext.keys().forEach(key => {
-        const data = topicsContext(key);
-        // 將數據按日期範圍分組
-        data.forEach(item => {
-          if (!topicsData[item.DateRange]) {
-            topicsData[item.DateRange] = [];
-          }
-          topicsData[item.DateRange].push(item);
-        });
-      });
-      
-      setNewsTopics(topicsData);
-    } catch (error) {
-      console.error("Error loading news topics:", error);
-    }
-  }, []);
+    fetchData();
+  }, [eventId, supabaseClient]);
 
-  const toggleItem = (id) => {
-    setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-  
-  // 獲取新聞來源的顏色
-  const getSourceColor = (source) => {
-    return mediaColors[source] || mediaColors.default;
-  };
-
+  // 渲染部分...
+  // 在這裡集成預測項目到時間軸中
   return (
     <div className="timeline-container">
       <h2 className="timeline-main-title">新聞時序 & 趨勢分析</h2>
@@ -80,86 +70,31 @@ const TimelineAnalysis = () => {
       <div className="timeline">
         <div className="timeline-line"></div>
         
-        {timelineData.map((item, index) => (
-          <div className={`timeline-item ${expandedItems[item.id] ? 'expanded' : ''}`} key={item.id}>
-            <div className="timeline-date-box">
-              <div className="timeline-date">{item.DateRange}</div>
-            </div>
-            
-            <div 
-              className={`timeline-node ${index % 3 === 0 ? 'node-blue' : index % 3 === 1 ? 'node-green' : 'node-red'}`}
-              onClick={() => toggleItem(item.id)}
-            ></div>
-            
-            <div className="timeline-content">
-              <h3 className="timeline-title">{item.Title}</h3>
-              <p className="timeline-summary">{item.Summary}</p>
-              
-              {expandedItems[item.id] && (
-                <div className="timeline-details">
-                  {newsTopics[item.DateRange] && newsTopics[item.DateRange].length > 0 ? (
-                    <div className="media-topics">
-                      <h4 className="topics-title">媒體焦點分析</h4>
-                      
-                      {newsTopics[item.DateRange].map((topic, topicIndex) => (
-                        <div className="topic-item" key={topicIndex}>
-                          <div className="topic-content">{topic.Topic}</div>
-                          
-                          {topic.News_sources && topic.News_sources.length > 0 && (
-                            <div className="topic-sources">
-                              {topic.News_sources.map((source, sourceIndex) => (
-                                <span 
-                                  className="media-source-tag" 
-                                  key={sourceIndex}
-                                  style={{
-                                    backgroundColor: `${getSourceColor(source)}20`,
-                                    color: getSourceColor(source),
-                                    borderLeft: `3px solid ${getSourceColor(source)}`
-                                  }}
-                                >
-                                  {source}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="no-topics">此時間段無媒體焦點分析</div>
-                  )}
-                  
-                  {item.Sources && item.Sources.length > 0 && (
-                    <div className="original-sources">
-                      <h4 className="sources-title">原始新聞來源</h4>
-                      <div className="news-sources">
-                        {item.Sources.map((source, sourceIndex) => (
-                          <a 
-                            href={source.URL} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="news-source-tag"
-                            key={sourceIndex}
-                            style={{
-                              backgroundColor: `${getSourceColor(source.Source)}15`,
-                              color: getSourceColor(source.Source),
-                              borderLeft: `3px solid ${getSourceColor(source.Source)}`
-                            }}
-                          >
-                            {source.Source}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+        {/* 呈現所有的歷史時間軸項目 */}
+        {timelineItems.map((item, index) => (
+          <TimelineItem 
+            key={item.timeline_items_id}
+            item={item}
+            index={index}
+            mediaColors={mediaColors}
+            isPrediction={false}
+          />
         ))}
+        
+        {/* 如果有預測數據，在時間軸最後呈現預測項目 */}
+        {predictionItem && (
+          <TimelineItem 
+            key={predictionItem.timeline_items_id}
+            item={predictionItem}
+            index={timelineItems.length}
+            mediaColors={mediaColors}
+            isPrediction={true}
+          />
+        )}
       </div>
     </div>
   );
 };
+
 
 export default TimelineAnalysis;
