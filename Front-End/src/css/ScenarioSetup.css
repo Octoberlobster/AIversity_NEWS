@@ -1,0 +1,14 @@
+/* src/ScenarioSetup.css */
+.scenario-setup{
+    display:flex;flex-direction:column;gap:.6rem;
+    background:white;padding:16px;border-radius:15px;
+    box-shadow:0 2px 6px #0002;
+  }
+  .role-checkboxes{display:flex;flex-wrap:wrap;gap:.5rem;}
+  .role-item{background:#f0f0f0;padding:4px 8px;border-radius:6px;}
+  .primary-btn{
+    align-self:flex-end;padding:6px 18px;border-radius:8px;
+    background:#7DD1D1;border:none;color:#fff;cursor:pointer;
+  }
+  .primary-btn:disabled{opacity:.45;cursor:not-allowed;}
+  
