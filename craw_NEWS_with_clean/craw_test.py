@@ -41,24 +41,24 @@ key_map = {
 
 # 設定 RSS 來源
 sources = {
-    "UDN": "https://udn.com/news/rssfeed/",
-    "ETtoday": "https://feeds.feedburner.com/ettoday/realtime",
-    "NewTalk": "https://newtalk.tw/rss/all/",
-    # "LTN": "https://news.ltn.com.tw/rss/all.xml",
-    "CNA": [
-        "https://feeds.feedburner.com/rsscna/politics",
-        "https://feeds.feedburner.com/rsscna/intworld",
-        "https://feeds.feedburner.com/rsscna/mainland",
-        "https://feeds.feedburner.com/rsscna/finance",
-        "https://feeds.feedburner.com/rsscna/technology",
-        "https://feeds.feedburner.com/rsscna/lifehealth",
-        "https://feeds.feedburner.com/rsscna/social",
-        "https://feeds.feedburner.com/rsscna/local",
-        "https://feeds.feedburner.com/rsscna/culture",
-        "https://feeds.feedburner.com/rsscna/sport",
-        "https://feeds.feedburner.com/rsscna/stars",
-    ],
-    # "TTV": "https://www.ttv.com.tw/rss/RSSHandler.ashx?d=news",
+    # "UDN": "https://udn.com/news/rssfeed/",
+    # "ETtoday": "https://feeds.feedburner.com/ettoday/realtime",
+    # "NewTalk": "https://newtalk.tw/rss/all/",
+    # "CNA": [
+    #     "https://feeds.feedburner.com/rsscna/politics",
+    #     "https://feeds.feedburner.com/rsscna/intworld",
+    #     "https://feeds.feedburner.com/rsscna/mainland",
+    #     "https://feeds.feedburner.com/rsscna/finance",
+    #     "https://feeds.feedburner.com/rsscna/technology",
+    #     "https://feeds.feedburner.com/rsscna/lifehealth",
+    #     "https://feeds.feedburner.com/rsscna/social",
+    #     "https://feeds.feedburner.com/rsscna/local",
+    #     "https://feeds.feedburner.com/rsscna/culture",
+    #     "https://feeds.feedburner.com/rsscna/sport",
+    #     "https://feeds.feedburner.com/rsscna/stars",
+    # ],
+    "LTN": "https://news.ltn.com.tw/rss/all.xml",
+    "TTV": "https://www.ttv.com.tw/rss/RSSHandler.ashx?d=news",
 }
 
 def normalize_key(key):
@@ -99,7 +99,7 @@ def fetch_UDN_news_content_and_images(news_url: str):
         response = requests.get(news_url, headers=headers, timeout=10)#, verify=False)
         response.encoding = "utf-8"
         print(f"訪問新聞: {news_url}，狀態碼: {response.status_code}")
-        # print(f"訪問新聞內文: {response.text}")
+        print(f"訪問新聞內文: {response.text}")
 
         if response.status_code != 200:
             print("❌ 無法訪問新聞內文")
@@ -116,18 +116,20 @@ def fetch_UDN_news_content_and_images(news_url: str):
                 soup.find_all('div', class_='text boxTitle boxText') or
                 soup.find_all('div', class_='paragraph') or
                 soup.find_all('section', class_='article-content__editor') or
-                soup.find_all('div', class_='story')
+                soup.find_all('div', class_='story') or
+                soup.find_all('div', id='newscontent')
             )
             
             # 如果沒有找到內容，嘗試從特定位置開始解析
             if not content_section:
-                soup = BeautifulSoup(response.text[50000:], 'html.parser')
+                soup = BeautifulSoup(response.text[70000:], 'html.parser')
                 content_section = (
                     soup.find_all('div', attrs={'data-desc': '內文'}) or 
                     soup.find_all('div', attrs={'data-desc': '內容頁'}) or
                     soup.find_all('div', class_='text boxTitle boxText') or
                     soup.find_all('section', class_='article-content__editor') or
-                    soup.find_all('div', class_='story')
+                    soup.find_all('div', class_='story') or
+                    soup.find_all('div', id='newscontent')
                 )
         except Exception as e:
             print(f"❌ 解析 HTML 時發生錯誤: {e}")
@@ -163,7 +165,17 @@ def fetch_UDN_news_content_and_images(news_url: str):
                         '／彰化報導' in p.text or
                         '▲' in p.text or
                         '圖文／CTWANT' in p.text or
-                        '／編譯' in p.text):
+                        '／編譯' in p.text or
+                        '示意圖' in p.text or
+                        '（路透）' in p.text or
+                        '（中二解顏提供）' in p.text or
+                        '圖取自' in p.text or
+                        '（資料照）' in p.text or
+                        '翻攝）' in p.text or
+                        '（美聯社）' in p.text or
+                        '（本報資料照' in p.text or 
+                        '攝）' in p.text or
+                        '提供）' in p.text):
                         continue
                     else:
                         content.append(text)
@@ -246,6 +258,7 @@ def crawl_news():
 
         for url in urls:
             feed = feedparser.parse(url)
+            print(f"正在處理來源: {source}，RSS URL: {url}")
 
             for entry in feed.entries:
                 if "現場直播中" in entry.get("title"):
@@ -255,6 +268,7 @@ def crawl_news():
                 if entry.get("published_parsed"):
                     t = entry.published_parsed
                     dt = datetime.datetime(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
+                    print(f"解析時間: {dt.strftime('%Y/%m/%d %H:%M:%S')} (published_parsed)")
                 elif entry.get("published"):  # 嘗試用 published 字串補救
                     try:
                         date_str = entry.published.replace(',', ', ')  # 修復缺空格問題
@@ -268,7 +282,7 @@ def crawl_news():
                     dt = None
 
                 # 加時區補正
-                if dt and source in ["CNA", "UDN", "NewTalk"]:
+                if dt and source in ["CNA", "UDN", "NewTalk", "LTN", "TTV"]:
                     dt = dt + datetime.timedelta(hours=8) 
                     print("發布時間：", dt.strftime("%Y/%m/%d %H:%M"))
                 
@@ -303,7 +317,7 @@ def crawl_news():
                 news["image"] = image_url or ""
                 
                 # 嘗試抓取新聞內文
-                if source == "UDN" or source == "ETtoday" or source == "LTN" or source == "CNA":
+                if source == "UDN" or source == "ETtoday" or source == "LTN" or source == "CNA" or source == "TTV":
                     content_str = fetch_UDN_news_content_and_images(entry.link)
                 elif source == "NewTalk":
                     content_str = fetch_NewTalk_news_content_and_images(entry.description)
@@ -329,16 +343,16 @@ def crawl_news():
         converted_data = transform_all(raw_data)
 
         # # === 匯入 Supabase ===
-        try:
-            # 使用 upsert，on_conflict 指定衝突時的處理方式
-            for item in converted_data:
-                res = supabase.table("cleaned_news").upsert(
-                    item,
-                    on_conflict="title"  # 以 title 為衝突檢查欄位
-                ).execute()
-            print(f"✅ 資料處理完成，共處理 {len(converted_data)} 筆")
-        except Exception as e:
-            print("❌ 匯入失敗：", e)
+        # try:
+        #     # 使用 upsert，on_conflict 指定衝突時的處理方式
+        #     for item in converted_data:
+        #         res = supabase.table("cleaned_news").upsert(
+        #             item,
+        #             on_conflict="title"  # 以 title 為衝突檢查欄位
+        #         ).execute()
+        #     print(f"✅ 資料處理完成，共處理 {len(converted_data)} 筆")
+        # except Exception as e:
+        #     print("❌ 匯入失敗：", e)
 
 
 crawl_news()

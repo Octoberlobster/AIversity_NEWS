@@ -110,7 +110,13 @@ class UDNContentExtractor(ContentExtractor):
             "活動辦法", "請繼續往下閱讀", "圖／", "資料照／", "中央社記者",
             "記者宋健生/攝影", "／攝影", "／翻攝", "／台南報導", "／台中報導",
             "／綜合報導", "／新北報導", "／高雄報導", "／彰化報導", "▲",
-            "圖文／CTWANT", "／編譯", "／桃園報導", "／台東報導", "／台北報導"
+            "圖文／CTWANT", "／編譯", "／桃園報導", "／台東報導", "／台北報導",
+            "示意圖", "（路透）", "（中二解顏提供）", "圖取自",
+            "資料照）", "翻攝）", "（美聯社）", "（本報資料照",
+            "攝）", "提供）", "（彭博）", "（法新社）", "（圖擷自",
+            "／澎湖報導", "／宜蘭報導", "／花蓮報導", "／屏東報導",
+            "／南投報導", "／基隆報導", "／苗栗報導", "／新竹報導",
+            "／雲林報導", "／嘉義報導", "首次上稿", "（法新社資料照）"
         ]
     
     def extract_content(self, news_url: str) -> str:
@@ -175,7 +181,7 @@ class UDNContentExtractor(ContentExtractor):
                 text = p.get_text(strip=True)
                 
                 # 檢查是否為結束關鍵字
-                if any(kw in text for kw in self.excluded_keywords[:6]):
+                if any(kw in text for kw in self.excluded_keywords[:7]):
                     break
                 
                 # 檢查是否為排除內容
@@ -292,6 +298,7 @@ class NewsSource:
             "https://feeds.feedburner.com/rsscna/sport",
             "https://feeds.feedburner.com/rsscna/stars",
         ],
+        "LTN": "https://news.ltn.com.tw/rss/all.xml",
     }
 
 class NewsCrawler:
@@ -382,7 +389,7 @@ class NewsCrawler:
                 logger.warning(f"⚠️ 無法解析 published 字串: {entry.published}，錯誤: {e}")
         
         # 時區補正
-        if dt and source in ["CNA", "UDN", "NewTalk"]:
+        if dt and source in ["CNA", "UDN", "NewTalk", "LTN"]:
             dt = dt + datetime.timedelta(hours=8)
             logger.info(f"發布時間：{dt.strftime('%Y/%m/%d %H:%M')}")
         
@@ -444,7 +451,7 @@ class NewsCrawler:
     def _save_to_json(self, news_data: List[NewsItem]) -> None:
         """儲存到 JSON 檔案"""
         timestamp = time.strftime("%Y_%m_%d_%H", time.localtime())
-        json_path = f"json/{timestamp}.json"
+        json_path = f"json/Cle/{timestamp}.json"
         
         # 確保目錄存在
         os.makedirs("json", exist_ok=True)
@@ -462,10 +469,11 @@ def main():
     crawler = NewsCrawler()
     
     # 立即執行一次
+    logging.info("🟢 啟動爬蟲，立即執行一次")
     crawler.crawl_news()
     
     # 設定排程（每 59 分鐘執行一次）
-    schedule.every(59).minutes.do(crawler.crawl_news)
+    schedule.every(59).minutes.do(lambda: logging.info("🔁 排程觸發") or crawler.crawl_news())
     
     # 持續運行排程
     while True:

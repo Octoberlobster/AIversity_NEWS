@@ -37,7 +37,6 @@ key_map = {
 sources = {
     "UDN": "https://udn.com/news/rssfeed/",
     "NewTalk": "https://newtalk.tw/rss/all/",
-    "LTN": "https://news.ltn.com.tw/rss/all.xml",
     "CNA": "https://feeds.feedburner.com/rsscna/politics",
     "CNA": "https://feeds.feedburner.com/rsscna/intworld",
     "CNA": "https://feeds.feedburner.com/rsscna/mainland",
@@ -49,6 +48,7 @@ sources = {
     "CNA": "https://feeds.feedburner.com/rsscna/culture",
     "CNA": "https://feeds.feedburner.com/rsscna/sport",
     "CNA": "https://feeds.feedburner.com/rsscna/stars",
+    "LTN": "https://news.ltn.com.tw/rss/all.xml",
     "TTV": "https://www.ttv.com.tw/rss/RSSHandler.ashx?d=news",
 }
 

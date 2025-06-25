@@ -1,0 +1,7 @@
+services:
+  - type: worker
+    name: crawler
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python craw_Claude重構.py"
+    plan: free
