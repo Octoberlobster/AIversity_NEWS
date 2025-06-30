@@ -44,9 +44,9 @@ function Header({ language, setLanguage }) {
 
       {/* 主題列 */}
       <div className="sub-nav-bar">
-        <Link to="#" className="sub-nav-item active">首頁</Link>
-        <Link to="#recommend" className="sub-nav-item">為你推薦</Link>
-        <Link to="#trending" className="sub-nav-item">追蹤中</Link>
+        <Link to="/" className="sub-nav-item active">首頁</Link>
+        <Link to="/#recommend" className="sub-nav-item">為你推薦</Link>
+        <Link to="/#trending" className="sub-nav-item">追蹤中</Link>
         <Link to="/category/Politics" className="sub-nav-item">政治</Link>
         <Link to="/category/Social News" className="sub-nav-item">社會</Link>
         <Link to="/category/Science" className="sub-nav-item">科學</Link>
