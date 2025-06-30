@@ -4,6 +4,7 @@ import App from './App';
 import EventDetail from './EventDetail';
 import NewsCategory from './News_category';
 import { SupabaseProvider } from './supabase';
+import SearchResults from './SearchResults';
 
 function Router() {
   return (
@@ -13,6 +14,7 @@ function Router() {
           <Route path="/" element={<App />} />
           <Route path="/event/:eventId" element={<EventDetail />} />
           <Route path="/category/:type" element={<NewsCategory />} />
+          <Route path="/search/:query" element={<SearchResults />} />
         </Routes>
       </SupabaseProvider>
     </BrowserRouter>

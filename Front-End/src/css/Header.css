@@ -208,3 +208,26 @@ flex-shrink: 0; /* 防止被壓縮 */
   background-color: #f1f1f1;
   color: #1a73e8;
 }
+
+.date-filter-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 20px; /* 與搜尋列保持間距 */
+}
+
+.date-filter-container label {
+  font-size: 14px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.date-input {
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: none;
+  font-size: 14px;
+}
