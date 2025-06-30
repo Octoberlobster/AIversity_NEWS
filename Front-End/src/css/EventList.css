@@ -12,6 +12,13 @@
     font-weight: 700;
   }
   
+  .event-section-title {
+    font-size: 24px;
+    margin: 20px 0;
+    color: #34495e;
+    font-weight: 600;
+  }
+  
   .event-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -47,4 +54,3 @@
     font-size: 1.2rem;
     color: #666;
   }
-  
