@@ -146,3 +146,65 @@ flex-shrink: 0; /* 防止被壓縮 */
 .language-selector:hover .language-dropdown {
   animation: fadeIn 0.3s ease forwards;
 }
+
+.sub-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;    /* 這一行讓內容水平置中 */
+  background-color: #7DD1D1;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0 24px;
+  height: 48px;
+  font-size: 16px;
+  z-index: 10;
+}
+
+.sub-nav-item {
+  color: #222;
+  text-decoration: none;
+  margin-right: 24px;
+  padding: 12px 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  outline: none;
+  font: inherit;
+}
+
+.sub-nav-item:hover,
+.sub-nav-dropdown:hover .sub-nav-item {
+  color: #1a73e8;
+  border-bottom: 2px solid #1a73e8;
+}
+
+.sub-nav-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.sub-nav-dropdown-content {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  min-width: 120px;
+  /* background-color: #fff; */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 20;
+}
+
+.sub-nav-dropdown:hover .sub-nav-dropdown-content {
+  display: block;
+}
+
+.sub-nav-dropdown-content a {
+  color: #222;
+  padding: 10px 16px;
+  display: block;
+  text-decoration: none;
+}
+
+.sub-nav-dropdown-content a:hover {
+  background-color: #f1f1f1;
+  color: #1a73e8;
+}
