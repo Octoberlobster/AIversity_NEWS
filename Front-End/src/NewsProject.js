@@ -1,26 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useSupabase } from './supabase';
 import { Link } from 'react-router-dom';
-import './css/EventList.css'; 
+import './css/EventList.css';
 
-// 將組件名稱從 NewsFeature 更新為 NewsProject
 function NewsProject() {
-  const [events, setEvents] = useState([]);
+  const [popularEvents, setPopularEvents] = useState([]);
+  const [latestEvents, setLatestEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const supabase = useSupabase();
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const { data, error } = await supabase
+        // Fetch popular events (sorted by view_count descending)
+        const { data: popularData, error: popularError } = await supabase
           .from('event')
-          .select('event_id, event_title')
-          .order('event_id', { ascending: false });
+          .select('event_id, event_title, view_count')
+          .order('view_count', { ascending: false })
+          .limit(5);
 
-        if (error) throw error;
+        if (popularError) throw popularError;
 
-        setEvents(data.map(event => ({ id: event.event_id, title: event.event_title })) || []);
-        console.log("新聞專題資料已載入");
+        setPopularEvents(
+          popularData.map(event => ({ id: event.event_id, title: event.event_title })) || []
+        );
+
+        const { data: latestData, error: latestError } = await supabase
+          .from('generated_news')
+          .select('event_id, date, event:event_id(event_title)')
+          .order('date', { ascending: false })
+          .limit(5);
+        console.log(latestData);
+        if (latestError) throw latestError;
+
+        setLatestEvents(
+          latestData.map(item => ({
+            id: item.event_id,
+            title: item.event?.event_title || '未知標題'
+          })) || []
+        );
+        
+
+        console.log("熱門專題和最新專題資料已載入");
       } catch (error) {
         console.error('抓取新聞專題時發生錯誤:', error);
       } finally {
@@ -39,26 +60,36 @@ function NewsProject() {
     <div className="event-list-container">
       {/* 頁面標題 */}
       <h1 className="event-list-title">新聞事件專題</h1>
-      
-      {/* 條件渲染：加載中顯示加載指示器，否則顯示事件網格 */}
-      {loading ? (
-        <div className="loading-indicator">載入中...</div>
-      ) : (
-        <div className="event-grid">
-          {/* 遍歷渲染事件卡片 */}
-          {events.map(event => (
-            <Link key={event.id} // React列表元素的唯一標識 
-              to={`/event/${event.id}`} // 導航到事件詳情頁的路由
-              className="event-card"
-            >
-              <h2 className="event-title">{event.title}</h2>
-            </Link>
-          ))}
-        </div>
-      )}
+
+      {/* 熱門專題 */}
+      <h2 className="event-section-title">熱門專題</h2>
+      <div className="event-grid">
+        {popularEvents.map(event => (
+          <Link
+            key={event.id}
+            to={`/event/${event.id}`}
+            className="event-card"
+          >
+            <h2 className="event-title">{event.title}</h2>
+          </Link>
+        ))}
+      </div>
+
+      {/* 最新專題 */}
+      <h2 className="event-section-title">最新專題</h2>
+      <div className="event-grid">
+        {latestEvents.map(event => (
+          <Link
+            key={event.id}
+            to={`/event/${event.id}`}
+            className="event-card"
+          >
+            <h2 className="event-title">{event.title}</h2>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
 
-// 更新導出的組件名稱
 export default NewsProject;

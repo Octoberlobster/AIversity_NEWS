@@ -2,19 +2,64 @@ import React from 'react';
 import './css/Header.css';
 import translateIcon from './Translate.png';
 import { FaSearch } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 function Header({ language, setLanguage }) {
   // 新增日期狀態
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [keyword, setKeyword] = useState('');
-  const navigate = useNavigate();
 
-  // 日期變更處理（可依需求改寫）
-  const handleStartDateChange = (e) => setStartDate(e.target.value);
-  const handleEndDateChange = (e) => setEndDate(e.target.value);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // 從 URL 參數中讀取日期設定
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const urlStartDate = searchParams.get('startDate');
+    const urlEndDate = searchParams.get('endDate');
+    
+    if (urlStartDate) setStartDate(urlStartDate);
+    if (urlEndDate) setEndDate(urlEndDate);
+  }, [location.search]);
+
+  // 當日期改變時，更新當前頁面的 URL
+  const handleDateChange = (newStartDate, newEndDate) => {
+    const searchParams = new URLSearchParams(location.search);
+    
+    // 更新或刪除日期參數
+    if (newStartDate) {
+      searchParams.set('startDate', newStartDate);
+    } else {
+      searchParams.delete('startDate');
+    }
+    
+    if (newEndDate) {
+      searchParams.set('endDate', newEndDate);
+    } else {
+      searchParams.delete('endDate');
+    }
+    
+    // 構建新的 URL
+    const newSearch = searchParams.toString();
+    const newPath = `${location.pathname}${newSearch ? `?${newSearch}` : ''}`;
+    
+    // 更新 URL（不會觸發頁面重新載入）
+    navigate(newPath, { replace: true });
+  };
+
+  const handleStartDateChange = (e) => {
+    const newStartDate = e.target.value;
+    setStartDate(newStartDate);
+    handleDateChange(newStartDate, endDate);
+  };
+
+  const handleEndDateChange = (e) => {
+    const newEndDate = e.target.value;
+    setEndDate(newEndDate);
+    handleDateChange(startDate, newEndDate);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -30,6 +75,7 @@ function Header({ language, setLanguage }) {
 
     navigate(path);
   };
+
   return (
     <>
       <div className="header-bar">
