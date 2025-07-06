@@ -3,16 +3,30 @@ import './css/Header.css';
 import translateIcon from './Translate.png';
 import { FaSearch } from 'react-icons/fa';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 function Header({ language, setLanguage }) {
   // 新增日期狀態
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [keyword, setKeyword] = useState('');
-
+  
+  // 搜尋建議相關狀態
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  
   const navigate = useNavigate();
   const location = useLocation();
+  const searchInputRef = useRef(null);
+  const suggestionsRef = useRef(null);
+
+  // 模擬搜尋建議數據（實際應用中應該從 API 獲取）
+  const mockSuggestions = [
+    '台灣選舉', '疫情最新消息', '經濟政策', '氣候變遷', '人工智能',
+    '房價趨勢', '教育改革', '健康飲食', '運動賽事', '娛樂新聞',
+    '科技創新', '交通建設', '環保政策', '國際關係', '文化活動'
+  ];
 
   // 從 URL 參數中讀取日期設定
   useEffect(() => {
@@ -23,6 +37,40 @@ function Header({ language, setLanguage }) {
     if (urlStartDate) setStartDate(urlStartDate);
     if (urlEndDate) setEndDate(urlEndDate);
   }, [location.search]);
+
+  // 處理搜尋建議
+  useEffect(() => {
+    if (keyword.trim() && keyword.length > 0) {
+      const filteredSuggestions = mockSuggestions.filter(suggestion =>
+        suggestion.toLowerCase().includes(keyword.toLowerCase())
+      );
+      setSearchSuggestions(filteredSuggestions.slice(0, 8)); // 限制顯示 8 個建議
+      setShowSuggestions(filteredSuggestions.length > 0);
+    } else {
+      setSearchSuggestions([]);
+      setShowSuggestions(false);
+    }
+    setSelectedSuggestionIndex(-1);
+  }, [keyword]);
+
+  // 處理點擊外部關閉建議
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target) &&
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // 當日期改變時，更新當前頁面的 URL
   const handleDateChange = (newStartDate, newEndDate) => {
@@ -61,9 +109,8 @@ function Header({ language, setLanguage }) {
     handleDateChange(startDate, newEndDate);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!keyword.trim()) return;
+  const handleSearch = (searchKeyword) => {
+    if (!searchKeyword.trim()) return;
 
     // 組合搜尋路由，將日期篩選條件用 query string 傳遞
     const params = new URLSearchParams();
@@ -71,9 +118,61 @@ function Header({ language, setLanguage }) {
     if (endDate) params.append('endDate', endDate);
 
     const queryString = params.toString();
-    const path = `/search/${encodeURIComponent(keyword.trim())}${queryString ? `?${queryString}` : ''}`;
+    const path = `/search/${encodeURIComponent(searchKeyword.trim())}${queryString ? `?${queryString}` : ''}`;
 
     navigate(path);
+    setShowSuggestions(false);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleSearch(keyword);
+  };
+
+  const handleInputChange = (e) => {
+    setKeyword(e.target.value);
+  };
+
+  const handleInputFocus = () => {
+    if (keyword.trim() && searchSuggestions.length > 0) {
+      setShowSuggestions(true);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setKeyword(suggestion);
+    handleSearch(suggestion);
+  };
+
+  const handleKeyDown = (e) => {
+    if (!showSuggestions) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev => 
+          prev < searchSuggestions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev => 
+          prev > 0 ? prev - 1 : searchSuggestions.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedSuggestionIndex >= 0) {
+          handleSuggestionClick(searchSuggestions[selectedSuggestionIndex]);
+        } else {
+          handleSubmit(e);
+        }
+        break;
+      case 'Escape':
+        setShowSuggestions(false);
+        setSelectedSuggestionIndex(-1);
+        break;
+    }
   };
 
   return (
@@ -84,16 +183,41 @@ function Header({ language, setLanguage }) {
         </div>
         <div className="search-bar-container">
           <form className="search-form" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="搜尋主題、地點和來源"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-            />
-            <button type="submit" className="search-button">
-              <FaSearch />
-            </button>
+            <div className="search-input-wrapper">
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="search-input"
+                placeholder="搜尋主題、地點和來源"
+                value={keyword}
+                onChange={handleInputChange}
+                onFocus={handleInputFocus}
+                onKeyDown={handleKeyDown}
+                autoComplete="off"
+              />
+              <button type="submit" className="search-button">
+                <FaSearch />
+              </button>
+              
+              {/* 搜尋建議列表 */}
+              {showSuggestions && (
+                <div ref={suggestionsRef} className="search-suggestions">
+                  {searchSuggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className={`suggestion-item ${
+                        index === selectedSuggestionIndex ? 'selected' : ''
+                      }`}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                    >
+                      <FaSearch className="suggestion-icon" />
+                      <span className="suggestion-text">{suggestion}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </form>
         </div>
 
