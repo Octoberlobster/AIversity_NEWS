@@ -1,1 +1,9 @@
 .env
+cluster/
+cluster-2/
+v1/
+v2/
+v3/
+v4/
+cluster-2.zip
+full_backfill_report.html
