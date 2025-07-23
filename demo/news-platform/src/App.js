@@ -7,6 +7,7 @@ import CategorySection from './components/CategorySection';
 import UnifiedNewsCard from './components/UnifiedNewsCard';
 import NewsDetail from './components/NewsDetail';
 import FloatingChat from './components/FloatingChat';
+import KeywordNewsPage from './components/KeywordNewsPage';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -206,7 +207,11 @@ function App() {
                 <MainColumn>
                   <SectionTitle>最新新聞</SectionTitle>
                   <UnifiedNewsCard limit={showAllNews ? undefined : 6} />
-                  {!showAllNews && (
+                  {(() => {
+                    // 取得所有新聞數量
+                    const newsData = require('./components/UnifiedNewsCard').defaultNewsData || [];
+                    if (!showAllNews && newsData.length >= 4) {
+                      return (
                     <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
                       <button
                         style={{
@@ -226,14 +231,23 @@ function App() {
                         閱讀更多新聞
                       </button>
                     </div>
-                  )}
+                      );
+                    }
+                    return null;
+                  })()}
                 </MainColumn>
                 <Sidebar>
                   <SidebarCard>
                     <SidebarTitle>🔥 熱門搜尋關鍵字</SidebarTitle>
                     <KeywordCloud>
                       {hotKeywords.map((kw, i) => (
-                        <Keyword key={kw} size={1 + Math.random()*0.5}>{kw}</Keyword>
+                        <Keyword
+                          key={kw}
+                          size={1 + Math.random()*0.5}
+                          onClick={() => window.location.href = `/keyword/${encodeURIComponent(kw)}`}
+                        >
+                          {kw}
+                        </Keyword>
                       ))}
                     </KeywordCloud>
                   </SidebarCard>
@@ -264,6 +278,7 @@ function App() {
             </MainContent>
           } />
           <Route path="/news/:id" element={<NewsDetail />} />
+          <Route path="/keyword/:keyword" element={<KeywordNewsPage />} />
         </Routes>
         
         <FloatingChat />

@@ -108,33 +108,34 @@ const ChatBody = styled.div`
 `;
 
 const SearchSection = styled.div`
-  padding: 1.5rem;
+  padding: 1rem;
   background: #f8fafc;
   border-bottom: 1px solid #e5e7eb;
 `;
 
 const SearchTitle = styled.h4`
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.5rem 0;
   color: #374151;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
 `;
 
 const SearchDescription = styled.p`
-  margin: 0 0 1rem 0;
+  margin: 0;
   color: #6b7280;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.4;
 `;
 
 const MessagesContainer = styled.div`
-  flex: 1;
+  flex: 1 1 0;
   padding: 1rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
   background: #fafafa;
+  min-height: 120px;
 `;
 
 const Message = styled.div`
@@ -161,12 +162,54 @@ const MessageTime = styled.span`
   margin-top: 0.2rem;
 `;
 
+const QuickPrompts = styled.div`
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+  max-height: 60px;
+  overflow-y: auto;
+  padding: 0.8rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 56px; /* 預留輸入框高度 */
+  z-index: 2;
+`;
+
+const PromptButton = styled.button`
+  background: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  margin: 0.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #667eea;
+    color: white;
+  }
+`;
+
+// 快速提示
+const quickPrompts = [
+  "搜尋最新科技新聞",
+  "分析今日股市趨勢",
+  "推薦熱門話題",
+  "查找相關報導",
+  "總結新聞重點"
+];
+
 const InputContainer = styled.div`
-  padding: 1rem;
   border-top: 1px solid #e5e7eb;
   display: flex;
   gap: 0.5rem;
   background: white;
+  padding: 0.8rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
 `;
 
 const MessageInput = styled.input`
@@ -207,40 +250,6 @@ const SendButton = styled.button`
     transform: none;
   }
 `;
-
-const QuickPrompts = styled.div`
-  padding: 1rem;
-  background: #f8fafc;
-  border-top: 1px solid #e5e7eb;
-  max-height: 80px;
-  overflow-y: auto;
-`;
-
-const PromptButton = styled.button`
-  background: #f3f4f6;
-  color: #4b5563;
-  border: none;
-  border-radius: 12px;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.8rem;
-  margin: 0.2rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #667eea;
-    color: white;
-  }
-`;
-
-// 快速提示
-const quickPrompts = [
-  "搜尋最新科技新聞",
-  "分析今日股市趨勢",
-  "推薦熱門話題",
-  "查找相關報導",
-  "總結新聞重點"
-];
 
 function FloatingChat() {
   const [isExpanded, setIsExpanded] = useState(false);

@@ -263,7 +263,7 @@ const termDefinitions = {
 };
 
 // 模擬新聞資料
-const newsData = [
+export const defaultNewsData = [
   {
     id: 1,
     title: "人工智慧在醫療領域的突破性進展",
@@ -386,12 +386,20 @@ NASA、SpaceX、歐洲航天局等機構正在積極推進火星探索計劃。S
   }
 ];
 
-function UnifiedNewsCard({ limit }) {
+function UnifiedNewsCard({ limit, keyword }) {
   const [expandedCards, setExpandedCards] = useState({});
   const [tooltipTerm, setTooltipTerm] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
-  const displayNews = limit ? newsData.slice(0, limit) : newsData;
+  let filteredNews = defaultNewsData;
+  if (keyword) {
+    filteredNews = defaultNewsData.filter(news =>
+      (news.keywords && news.keywords.some(kw => kw === keyword)) ||
+      (news.title && news.title.includes(keyword)) ||
+      (news.shortSummary && news.shortSummary.includes(keyword))
+    );
+  }
+  const displayNews = limit ? filteredNews.slice(0, limit) : filteredNews;
 
   const toggleExpanded = (cardId) => {
     setExpandedCards(prev => ({
