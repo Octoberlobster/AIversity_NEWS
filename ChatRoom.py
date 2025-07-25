@@ -1,6 +1,8 @@
 from google import genai
 from google.genai import types
+from pydantic import BaseModel
 from supabase import create_client, Client
+from flask import jsonify
 import os
 
 # 設定環境變數
@@ -25,6 +27,12 @@ model_dict = {
     "Health & Wellness": -1,
 }
 
+
+class ChatInfo(BaseModel):
+    name: str
+    chat_response: str
+    related_news: list[str]
+
 def create_model(category):
     # 要設定json格式的話再參考https://ai.google.dev/gemini-api/docs/migrate?hl=zh-tw
 
@@ -43,9 +51,9 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     elif category == "Social News":
@@ -53,9 +61,9 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     elif category == "Science":
@@ -63,9 +71,9 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     elif category == "Technology":
@@ -73,9 +81,9 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     elif category == "International News":
@@ -83,9 +91,9 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     elif category == "Lifestyle & Consumer News":
@@ -93,9 +101,9 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     elif category == "Sports":
@@ -103,9 +111,9 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     elif category == "Entertainment":
@@ -113,9 +121,9 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     elif category == "Business & Finance":
@@ -123,9 +131,9 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     elif category == "Health & Wellness":
@@ -133,25 +141,27 @@ def create_model(category):
         return gemini_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction
-                #response_mime_type="application/json",
-                #response_json_schema=
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
             ),
         )
     else:
         raise ValueError("Unknown category: {}".format(category))
 
-def chat(prompt, category):
-    if model_dict[category] == -1:
-        model_dict[category] = create_model(category)
-    
-    response = model_dict[category].send_message(message=prompt)
-    
-    return response
+def chat(prompt, categories):
+    responses = []
+    for category in categories:
+        if model_dict[category] == -1:
+            model_dict[category] = create_model(category)
+        
+        response = model_dict[category].send_message(message=prompt)
+        responses.append(dict(response.parsed))  # 將回應加入列表
+    return responses
 
 # prompt = "你好"
-# for category in model_flag:
-#     print(f"Category: {category}")
-#     print(chat(prompt, category).text)
-#     print("-" * 40)
+# category_response = chat(prompt, model_flag)
+# print(category_response)
+
+    
 
