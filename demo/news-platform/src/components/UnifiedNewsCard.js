@@ -3,15 +3,30 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import TermTooltip from './TermTooltip';
 
+const NewsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
 const CardContainer = styled.div`
   background: white;
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 1.2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   border-left: 4px solid #667eea;
-  margin-bottom: 1.5rem;
   position: relative;
+  height: fit-content;
   
   &:hover {
     transform: translateY(-4px);
@@ -24,18 +39,22 @@ const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 `;
 
 const CardTitle = styled(Link)`
   margin: 0;
   color: #1e3a8a;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.3;
   flex: 1;
   text-decoration: none;
   transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   
   &:hover {
     color: #667eea;
@@ -45,54 +64,73 @@ const CardTitle = styled(Link)`
 const CardMeta = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
   flex-wrap: wrap;
+`;
+
+const CardInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: #6b7280;
 `;
 
 const CategoryTag = styled.span`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
   font-weight: 500;
 `;
 
 const DateText = styled.span`
   color: #6b7280;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+`;
+
+const AuthorText = styled.span`
+  color: #6b7280;
+  font-size: 0.8rem;
 `;
 
 const SourceCount = styled.span`
   background: #f3f4f6;
   color: #4b5563;
-  padding: 0.3rem 0.8rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
   font-weight: 500;
 `;
 
 const KeywordChip = styled.span`
   background: #e0e7ff;
   color: #3730a3;
-  border-radius: 12px;
-  padding: 0.2rem 0.9rem;
-  font-size: 0.95rem;
+  border-radius: 10px;
+  padding: 0.15rem 0.7rem;
+  font-size: 0.8rem;
   font-weight: 500;
-  margin-left: 0.3rem;
+  margin-left: 0.2rem;
 `;
 
 const CardContent = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 `;
 
 const SummaryText = styled.p`
   color: #4b5563;
-  line-height: 1.6;
+  line-height: 1.5;
   margin: 0;
-  font-size: ${props => props.isExpanded ? '1rem' : '0.95rem'};
+  font-size: ${props => props.isExpanded ? '0.9rem' : '0.85rem'};
   transition: all 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: ${props => props.isExpanded ? 'none' : '3'};
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
 const ExpandedContent = styled.div`
@@ -228,18 +266,15 @@ const ReadMoreButton = styled.div`
   }
 `;
 
-const HighlightedTerm = styled.span`
-  background: linear-gradient(120deg, #fbbf24 0%, #f59e0b 100%);
-  color: white;
-  padding: 0.1rem 0.3rem;
-  border-radius: 4px;
-  font-weight: 500;
+const HighlightedTerm = styled.strong`
+  color: #667eea;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   
   &:hover {
-    background: linear-gradient(120deg, #f59e0b 0%, #d97706 100%);
-    transform: scale(1.05);
+    color: #5a67d8;
+    text-decoration: underline;
   }
 `;
 
@@ -259,7 +294,10 @@ const termDefinitions = {
   "火星殖民": "火星殖民計劃旨在在火星建立人類永久居住地，是人類太空探索的重要目標。",
   "數位貨幣": "數位貨幣是中央銀行發行的電子形式法定貨幣，具有法定地位。",
   "金融科技": "金融科技（FinTech）結合金融服務和技術創新，改變傳統金融業態。",
-  "永續發展": "永續發展指在滿足當代需求的同時，不損害後代滿足其需求的能力。"
+  "永續發展": "永續發展指在滿足當代需求的同時，不損害後代滿足其需求的能力。",
+  "三級三審": "指案件經過地方法院、高等法院、最高法院三級法院，以及各級法院三次審判程序的制度。確保司法審查的嚴謹性與公正性。",
+  "IRB" : "在台灣，IRB 通常指「人體試驗委員會」（Institutional Review Board），負責審查和監督涉及人體的研究，以確保研究的倫理性和參與者的安全與權益。",
+  "SDGs": "可持續發展目標（Sustainable Development Goals），是聯合國在2015年制定的17個全球發展目標，旨在2030年前消除貧窮、保護地球並確保所有人享有和平與繁榮。"
 };
 
 // 模擬新聞資料
@@ -268,16 +306,17 @@ export const defaultNewsData = [
     id: 1,
     title: "人工智慧在醫療領域的突破性進展",
     category: "科技",
-    date: "2024-01-15",
+    date: "2024-01-15 14:30",
+    author: "張明華",
     sourceCount: 5,
-    shortSummary: "最新研究顯示，<term>人工智慧</term>技術在疾病診斷和治療方案制定方面取得了重大突破。通過<term>機器學習</term>算法，AI系統能夠分析大量醫療數據，為<term>精準醫療</term>提供支持。",
-    longSummary: `人工智慧技術在醫療領域的應用正經歷前所未有的發展。最新研究顯示，<term>人工智慧</term>技術在疾病診斷和治療方案制定方面取得了重大突破。
+    shortSummary: "最新研究顯示，**人工智慧**技術在疾病診斷和治療方案制定方面取得了重大突破。通過**機器學習**算法，AI系統能夠分析大量醫療數據，為**精準醫療**提供支持。",
+    longSummary: `人工智慧技術在醫療領域的應用正經歷前所未有的發展。最新研究顯示，**人工智慧**技術在疾病診斷和治療方案制定方面取得了重大突破。
 
 根據多家權威醫療機構的報告，AI輔助診斷系統的準確率已達到95%以上，在某些特定疾病的診斷中甚至超過了資深醫師的判斷。這項技術的應用不僅提高了診斷效率，還大幅降低了誤診率。
 
-在治療方案制定方面，AI系統能夠根據患者的基因組數據、病史和當前症狀，為每位患者量身定制最適合的治療方案。這種<term>精準醫療</term>模式正在改變傳統的醫療模式。
+在治療方案制定方面，AI系統能夠根據患者的基因組數據、病史和當前症狀，為每位患者量身定制最適合的治療方案。這種**精準醫療**模式正在改變傳統的醫療模式。
 
-目前，全球已有超過200家醫院開始採用AI輔助診斷系統，預計在未來三年內，這一數字將增長到1000家以上。專家預測，<term>人工智慧</term>技術將在未來十年內徹底改變醫療行業的運作方式。`,
+目前，全球已有超過200家醫院開始採用AI輔助診斷系統，預計在未來三年內，這一數字將增長到1000家以上。專家預測，**人工智慧**技術將在未來十年內徹底改變醫療行業的運作方式。`,
     relatedNews: [
       { id: 101, title: "AI 診斷系統獲 FDA 批准" },
       { id: 102, title: "基因編輯技術與 AI 結合的新突破" },
@@ -286,22 +325,24 @@ export const defaultNewsData = [
     views: "2.3k",
     comments: "45",
     likes: "128",
-    keywords: ["人工智慧", "機器學習", "精準醫療"]
+    keywords: ["AI", "醫療", "診斷"], // 領域關鍵字
+    terms: ["人工智慧", "機器學習", "精準醫療"] // 專有名詞
   },
   {
     id: 2,
     title: "全球氣候變遷對經濟的影響分析",
     category: "環境",
-    date: "2024-01-14",
+    date: "2024-01-14 16:45",
+    author: "李曉雯",
     sourceCount: 3,
-    shortSummary: "專家預測<term>氣候變遷</term>將對全球經濟產生深遠影響，各國政府正積極制定<term>碳中和</term>策略。實現<term>永續發展</term>目標需要全球合作和創新技術。",
-    longSummary: `全球<term>氣候變遷</term>已成為21世紀最嚴峻的挑戰之一。最新研究顯示，氣候變遷對全球經濟的影響遠超預期，各國政府正積極制定應對策略。
+    shortSummary: "專家預測**氣候變遷**將對全球經濟產生深遠影響，各國政府正積極制定**碳中和**策略。實現**永續發展**目標需要全球合作和創新技術。",
+    longSummary: `全球**氣候變遷**已成為21世紀最嚴峻的挑戰之一。最新研究顯示，氣候變遷對全球經濟的影響遠超預期，各國政府正積極制定應對策略。
 
 根據聯合國氣候變遷專門委員會的報告，如果不採取積極行動，到2050年，氣候變遷可能導致全球GDP損失高達18%。這將影響所有經濟部門，從農業到製造業，從金融服務到旅遊業。
 
-各國政府正在加速推進<term>碳中和</term>目標，通過減少溫室氣體排放和增加碳吸收來實現淨零碳排放。這需要大規模的能源轉型、技術創新和投資。
+各國政府正在加速推進**碳中和**目標，通過減少溫室氣體排放和增加碳吸收來實現淨零碳排放。這需要大規模的能源轉型、技術創新和投資。
 
-實現<term>永續發展</term>目標需要全球合作，包括發達國家和發展中國家的共同努力。創新技術如再生能源、電動汽車、碳捕獲和儲存等將在這一過程中發揮關鍵作用。`,
+實現**永續發展**目標需要全球合作，包括發達國家和發展中國家的共同努力。創新技術如再生能源、電動汽車、碳捕獲和儲存等將在這一過程中發揮關鍵作用。`,
     relatedNews: [
       { id: 201, title: "再生能源發展新突破" },
       { id: 202, title: "碳交易市場的發展趨勢" },
@@ -310,22 +351,24 @@ export const defaultNewsData = [
     views: "1.8k",
     comments: "32",
     likes: "95",
-    keywords: ["氣候變遷", "碳中和", "永續發展"]
+    keywords: ["環境", "經濟", "政策"], // 領域關鍵字
+    terms: ["氣候變遷", "碳中和", "永續發展"] // 專有名詞
   },
   {
     id: 3,
     title: "數位貨幣發展趨勢與監管挑戰",
     category: "金融",
-    date: "2024-01-13",
+    date: "2024-01-13 11:20",
+    author: "王建國",
     sourceCount: 4,
-    shortSummary: "隨著<term>加密貨幣</term>的普及，各國監管機構面臨新的挑戰。<term>數位貨幣</term>的發展正在重塑全球金融體系，<term>金融科技</term>創新推動支付方式變革。",
-    longSummary: `<term>數位貨幣</term>的發展正在重塑全球金融體系，各國央行和監管機構面臨前所未有的挑戰和機遇。
+    shortSummary: "隨著**加密貨幣**的普及，各國監管機構面臨新的挑戰。**數位貨幣**的發展正在重塑全球金融體系，**金融科技**創新推動支付方式變革。",
+    longSummary: `**數位貨幣**的發展正在重塑全球金融體系，各國央行和監管機構面臨前所未有的挑戰和機遇。
 
-隨著<term>加密貨幣</term>如比特幣、以太坊等的普及，傳統金融體系正在經歷深刻變革。這些基於<term>區塊鏈</term>技術的數字資產為金融服務帶來了新的可能性，但也帶來了監管挑戰。
+隨著**加密貨幣**如比特幣、以太坊等的普及，傳統金融體系正在經歷深刻變革。這些基於**區塊鏈**技術的數字資產為金融服務帶來了新的可能性，但也帶來了監管挑戰。
 
 各國央行正在積極研發央行數位貨幣（CBDC），這將是貨幣發行和支付系統的重大創新。CBDC有望提高支付效率、降低交易成本，並增強金融包容性。
 
-<term>金融科技</term>創新正在推動支付方式的變革，從移動支付到跨境支付，從智能合約到去中心化金融（DeFi），新技術正在改變人們使用金融服務的方式。`,
+**金融科技**創新正在推動支付方式的變革，從移動支付到跨境支付，從智能合約到去中心化金融（DeFi），新技術正在改變人們使用金融服務的方式。`,
     relatedNews: [
       { id: 301, title: "央行數位貨幣試點進展" },
       { id: 302, title: "加密貨幣監管新政策" },
@@ -334,16 +377,18 @@ export const defaultNewsData = [
     views: "3.1k",
     comments: "67",
     likes: "156",
-    keywords: ["數位貨幣", "金融科技", "區塊鏈"]
+    keywords: ["金融", "科技", "監管"], // 領域關鍵字
+    terms: ["數位貨幣", "金融科技", "區塊鏈", "加密貨幣"] // 專有名詞
   },
   {
     id: 4,
     title: "太空探索新紀元：火星殖民計劃",
     category: "太空",
-    date: "2024-01-12",
+    date: "2024-01-12 09:15",
+    author: "陳宇航",
     sourceCount: 6,
-    shortSummary: "NASA 和 SpaceX 等機構正在推進<term>火星殖民</term>計劃，預計在未來十年內實現人類登陸火星。<term>太空探索</term>技術的進步為人類開拓新的生存空間。",
-    longSummary: `人類<term>太空探索</term>正進入一個新紀元，<term>火星殖民</term>計劃代表了人類歷史上最雄心勃勃的科學工程之一。
+    shortSummary: "NASA 和 SpaceX 等機構正在推進**火星殖民**計劃，預計在未來十年內實現人類登陸火星。**太空探索**技術的進步為人類開拓新的生存空間。",
+    longSummary: `人類**太空探索**正進入一個新紀元，**火星殖民**計劃代表了人類歷史上最雄心勃勃的科學工程之一。
 
 NASA、SpaceX、歐洲航天局等機構正在積極推進火星探索計劃。SpaceX的星際飛船（Starship）計劃在2024年進行首次載人火星任務，而NASA的阿爾忒彌斯計劃則為火星任務奠定基礎。
 
@@ -358,42 +403,75 @@ NASA、SpaceX、歐洲航天局等機構正在積極推進火星探索計劃。S
     views: "2.7k",
     comments: "89",
     likes: "234",
-    keywords: ["太空探索", "火星殖民", "火星探測"]
+    keywords: ["太空", "科技", "探索"], // 領域關鍵字
+    terms: ["太空探索", "火星殖民", "火星探測"] // 專有名詞
   },
   {
     id: 5,
-    title: "量子計算技術的商業化應用",
-    category: "科技",
-    date: "2024-01-11",
-    sourceCount: 4,
-    shortSummary: "<term>量子計算</term>技術正從實驗室走向商業應用，將在密碼學、藥物研發等領域帶來革命性變化。結合<term>人工智慧</term>技術，量子計算的潛力將進一步釋放。",
-    longSummary: `<term>量子計算</term>技術正從實驗室走向商業應用，這將為多個領域帶來革命性變化。量子計算機利用量子力學原理，能夠同時處理大量信息，解決傳統計算機無法處理的複雜問題。
+    title: "台師大女足抽血案落幕：教練周台英遭解聘並終身禁足足球界，教育部擬追學倫與刑責",
+    category: "臺灣",
+    date: "2024-07-25 13:45",
+    author: "林正義",
+    sourceCount: 10,
+    shortSummary: "歷時近一年半的台師大女足「抽血換學分」案，在學校今天（7月25日）完成**三級三審**後拍板定案：涉案教練周台英確定遭解聘，且四年內不得再任教；中華足協早先亦已撤銷其教練證並判處終身不得參與足球事務。校方指出，周台英長期以扣學分、退隊等手段強迫球員配合抽血研究，屬於持續性霸凌並違反研究倫理；部分採血更由無醫事人員執行，且同意書事後補簽，構成『權力不對等』情節。\n\n教育部表示，待正式函報後將依《教師法》迅速完成核定，確定解聘者不得請領退休金。同時，研究主持人陳忠慶及相關行政程序的責任，將移交學術倫理調查及檢調單位進一步釐清。\n\n檢方偵辦方向已鎖定強制、侵占等罪嫌，近日陸續約談 13 名學生與助理，並不排除對周台英祭出境管。事件揭露了體育生升學制度與研究審查機制的結構性缺失，各界呼籃教育部與國科會全面檢討 **IRB** 及受試者保護流程，避免類案再度發生。",
+    longSummary: `台師大女足「抽血換學分」案歷時近一年半，終於在今天（7月25日）完成**三級三審**程序後正式定案。這起案件涉及教練周台英強迫球員配合抽血研究，引發社會各界關注。
 
-在密碼學領域，量子計算機能夠破解現有的加密算法，但也為量子加密技術的發展提供了機會。科學家正在開發抗量子攻擊的加密方法，以保護信息安全。
+根據學校調查報告，周台英長期以扣學分、退隊等手段強迫球員配合抽血研究，屬於持續性霸凌並違反研究倫理。部分採血更由無醫事人員執行，且同意書事後補簽，構成『權力不對等』情節。
 
-在藥物研發方面，量子計算機能夠精確模擬分子結構和化學反應，加速新藥的發現和開發過程。這將大大縮短藥物研發週期，降低研發成本。
+中華足協已撤銷周台英的教練證並判處終身不得參與足球事務。教育部表示，待正式函報後將依《教師法》迅速完成核定，確定解聘者不得請領退休金。
 
-結合<term>人工智慧</term>技術，量子計算的潛力將進一步釋放。量子機器學習算法能夠處理更大規模的數據，提供更準確的預測和決策支持。`,
+同時，研究主持人陳忠慶及相關行政程序的責任，將移交學術倫理調查及檢調單位進一步釐清。檢方偵辦方向已鎖定強制、侵占等罪嫌，近日陸續約談13名學生與助理。
+
+事件揭露了體育生升學制度與研究審查機制的結構性缺失，各界呼籲教育部與國科會全面檢討**IRB**及受試者保護流程，避免類案再度發生。`,
     relatedNews: [
-      { id: 501, title: "量子加密技術突破" },
-      { id: 502, title: "量子計算在藥物研發中的應用" },
-      { id: 503, title: "量子機器學習新進展" }
+      { id: 501, title: "體育生升學制度檢討" },
+      { id: 502, title: "研究倫理審查機制改革" },
+      { id: 503, title: "教練資格審查新規定" }
     ],
     views: "1.9k",
     comments: "41",
     likes: "112",
-    keywords: ["量子計算", "量子加密", "量子機器學習"]
+    keywords: ["教育", "體育", "倫理"], // 領域關鍵字
+    terms: ["三級三審", "IRB"] // 專有名詞
+  },
+  {
+    id: 6,
+    title: "全球永續發展目標進展報告：2030年目標達成率分析",
+    category: "國際",
+    date: "2024-01-10 08:30",
+    author: "黃永續",
+    sourceCount: 8,
+    shortSummary: "聯合國發布最新**永續發展**報告顯示，全球在**碳中和**目標達成方面進展緩慢，但**再生能源**發展表現亮眼。各國需要加速行動以實現2030年**SDGs**目標。",
+    longSummary: `聯合國最新發布的**永續發展**目標進展報告顯示，全球在實現2030年可持續發展目標方面面臨嚴峻挑戰。
+
+在**碳中和**方面，雖然各國承諾在2050年前實現淨零排放，但實際行動進展緩慢。目前全球溫室氣體排放量仍在上升，距離《巴黎協定》設定的目標還有很大差距。
+
+然而，**再生能源**發展表現亮眼。2023年全球再生能源投資達到創紀錄的5000億美元，太陽能和風能發電成本持續下降，已成為最具競爭力的能源選擇。
+
+**SDGs**（可持續發展目標）涵蓋17個領域，包括消除貧窮、優質教育、性別平等、清潔能源等。報告指出，在消除貧窮、改善教育、促進性別平等等領域取得了一定進展，但在氣候行動、海洋保護、陸地生態系統保護等方面仍需加強。
+
+專家呼籲各國政府、企業和公民社會加強合作，加速行動以實現2030年目標。特別是在氣候變遷、生物多樣性保護和循環經濟等關鍵領域需要更多創新和投資。`,
+    relatedNews: [
+      { id: 601, title: "再生能源投資新紀錄" },
+      { id: 602, title: "氣候變遷政策評估" },
+      { id: 603, title: "SDGs實施進展報告" }
+    ],
+    views: "2.1k",
+    comments: "38",
+    likes: "156",
+    keywords: ["國際", "環境", "發展"], // 領域關鍵字
+    terms: ["永續發展", "碳中和", "再生能源", "SDGs"] // 專有名詞
   }
 ];
 
-function UnifiedNewsCard({ limit, keyword }) {
+function UnifiedNewsCard({ limit, keyword, customData }) {
   const [expandedCards, setExpandedCards] = useState({});
   const [tooltipTerm, setTooltipTerm] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
-  let filteredNews = defaultNewsData;
+  let filteredNews = customData || defaultNewsData;
   if (keyword) {
-    filteredNews = defaultNewsData.filter(news =>
+    filteredNews = filteredNews.filter(news =>
       (news.keywords && news.keywords.some(kw => kw === keyword)) ||
       (news.title && news.title.includes(keyword)) ||
       (news.shortSummary && news.shortSummary.includes(keyword))
@@ -422,16 +500,22 @@ function UnifiedNewsCard({ limit, keyword }) {
     setTooltipTerm(null);
   };
 
-  const renderHighlightedText = (text) => {
-    const parts = text.split(/(<term>.*?<\/term>)/);
+  const renderHighlightedText = (text, newsTerms) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, index) => {
-      if (part.startsWith('<term>') && part.endsWith('</term>')) {
-        const term = part.replace(/<\/?term>/g, '');
+      if (part.startsWith('**') && part.endsWith('**')) {
+        const term = part.slice(2, -2);
+        const isClickable = newsTerms && newsTerms.includes(term);
         return (
           <HighlightedTerm
             key={index}
-            onClick={(e) => handleTermClick(term, e)}
-            title={`點擊查看 ${term} 的定義`}
+            onClick={isClickable ? (e) => handleTermClick(term, e) : undefined}
+            title={isClickable ? `點擊查看 ${term} 的定義` : undefined}
+            style={{
+              cursor: isClickable ? 'pointer' : 'default',
+              color: isClickable ? '#667eea' : 'inherit',
+              textDecoration: isClickable ? 'underline' : 'none'
+            }}
           >
             {term}
           </HighlightedTerm>
@@ -443,60 +527,60 @@ function UnifiedNewsCard({ limit, keyword }) {
 
   return (
     <div>
-      {displayNews.map(news => {
-        const isExpanded = expandedCards[news.id] || false;
-        return (
-          <CardContainer key={news.id}>
-            <CardHeader>
-              <CardTitle to={`/news/${news.id}`}>{news.title}</CardTitle>
-            </CardHeader>
-            <CardMeta>
-              <CategoryTag>{news.category}</CategoryTag>
-              <DateText>{news.date}</DateText>
-              <SourceCount>{news.sourceCount} 個來源</SourceCount>
-              {news.keywords && news.keywords.map(kw => (
-                <KeywordChip key={kw}>{kw}</KeywordChip>
-              ))}
-            </CardMeta>
-            <CardContent>
-              <SummaryText isExpanded={isExpanded}>
-                {isExpanded ? renderHighlightedText(news.shortSummary) : renderHighlightedText(news.shortSummary.substring(0, 150))}
-              </SummaryText>
-              {isExpanded && (
-                <ExpandedContent>
-                  <RelatedNews>
-                    <RelatedNewsTitle>相關報導</RelatedNewsTitle>
-                    <RelatedNewsList>
-                      {news.relatedNews.map(relatedNews => (
-                        <RelatedNewsItem key={relatedNews.id}>
-                          <RelatedNewsLink to={`/news/${relatedNews.id}`}>
-                            {relatedNews.title}
-                          </RelatedNewsLink>
-                        </RelatedNewsItem>
-                      ))}
-                    </RelatedNewsList>
-                  </RelatedNews>
-                </ExpandedContent>
-              )}
-            </CardContent>
-            <CardActions>
-              <ActionButtons>
-                <ActionButton onClick={() => toggleExpanded(news.id)}>
-                  {isExpanded ? '收起' : '展開'}
-                </ActionButton>
-              </ActionButtons>
-              <StatsContainer>
-                <StatItem>👁️ {news.views}</StatItem>
-              </StatsContainer>
-            </CardActions>
-            <ReadMoreButton>
-              <Link to={`/news/${news.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-                閱讀全文 →
-              </Link>
-            </ReadMoreButton>
-          </CardContainer>
-        );
-      })}
+      <NewsGrid>
+        {displayNews.map(news => {
+          const isExpanded = expandedCards[news.id] || false;
+          return (
+            <CardContainer key={news.id}>
+              <CardHeader>
+                <CardTitle to={`/news/${news.id}`}>{news.title}</CardTitle>
+              </CardHeader>
+              <CardInfo>
+                <DateText>{news.date}</DateText>
+                <AuthorText>記者 {news.author}</AuthorText>
+              </CardInfo>
+              <CardMeta>
+                <CategoryTag>{news.category}</CategoryTag>
+                <SourceCount>{news.sourceCount} 個來源</SourceCount>
+                {news.keywords && news.keywords.map(kw => (
+                  <KeywordChip key={kw}>{kw}</KeywordChip>
+                ))}
+              </CardMeta>
+              <CardContent>
+                <SummaryText isExpanded={isExpanded}>
+                  {isExpanded ? renderHighlightedText(news.shortSummary, news.terms) : renderHighlightedText(news.shortSummary.substring(0, 150), news.terms)}
+                </SummaryText>
+                {isExpanded && (
+                  <ExpandedContent>
+                    <RelatedNews>
+                      <RelatedNewsTitle>相關報導</RelatedNewsTitle>
+                      <RelatedNewsList>
+                        {news.relatedNews.map(relatedNews => (
+                          <RelatedNewsItem key={relatedNews.id}>
+                            <RelatedNewsLink to={`/news/${relatedNews.id}`}>
+                              {relatedNews.title}
+                            </RelatedNewsLink>
+                          </RelatedNewsItem>
+                        ))}
+                      </RelatedNewsList>
+                    </RelatedNews>
+                  </ExpandedContent>
+                )}
+              </CardContent>
+              <CardActions>
+                <ActionButtons>
+                  <ActionButton onClick={() => toggleExpanded(news.id)}>
+                    {isExpanded ? '收起' : '展開'}
+                  </ActionButton>
+                </ActionButtons>
+                <StatsContainer>
+                  <StatItem>👁️ {news.views}</StatItem>
+                </StatsContainer>
+              </CardActions>
+            </CardContainer>
+          );
+        })}
+      </NewsGrid>
       {tooltipTerm && (
         <TermTooltip
           term={tooltipTerm}

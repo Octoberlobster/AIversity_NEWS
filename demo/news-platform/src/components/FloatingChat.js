@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { useLocation } from 'react-router-dom';
 
 const FloatingChatContainer = styled.div`
   position: fixed;
@@ -32,6 +33,7 @@ const ChatHeader = styled.div`
   justify-content: space-between;
   cursor: pointer;
   height: 60px;
+  position: relative;
 `;
 
 const HeaderContent = styled.div`
@@ -255,8 +257,12 @@ function FloatingChat() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [unreadCount, setUnreadCount] = useState(2);
+
   const messagesEndRef = useRef(null);
+  const location = useLocation();
+  
+  // 檢查是否在新聞詳情頁面
+  const isNewsDetailPage = location.pathname.startsWith('/news/');
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -264,9 +270,6 @@ function FloatingChat() {
 
   const toggleChat = () => {
     setIsExpanded(!isExpanded);
-    if (!isExpanded) {
-      setUnreadCount(0);
-    }
   };
 
   const handleSendMessage = () => {
@@ -303,33 +306,47 @@ function FloatingChat() {
     }
   };
 
+  // 如果在新聞詳情頁面，不顯示全域聊天室
+  if (isNewsDetailPage) {
+    return null;
+  }
+
   return (
     <FloatingChatContainer>
       <ChatWindow isExpanded={isExpanded}>
-        <ChatHeader onClick={toggleChat}>
-          <HeaderContent>
+        {!isExpanded ? (
+          <div 
+            onClick={toggleChat}
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transform: 'translateY(-2px)'
+            }}
+          >
             <ChatIcon>🔍</ChatIcon>
-            {isExpanded && (
+          </div>
+        ) : (
+          <ChatHeader onClick={toggleChat}>
+            <HeaderContent>
+              <ChatIcon>🔍</ChatIcon>
               <div>
                 <ChatTitle>智慧搜尋助手</ChatTitle>
                 <ChatSubtitle>AI 驅動的新聞搜尋與分析</ChatSubtitle>
               </div>
-            )}
-          </HeaderContent>
-          <div style={{ position: 'relative' }}>
+            </HeaderContent>
             <ToggleButton>
-              {isExpanded ? '×' : '+'}
+              ×
             </ToggleButton>
-            {!isExpanded && unreadCount > 0 && (
-              <NotificationBadge>{unreadCount}</NotificationBadge>
-            )}
-          </div>
-        </ChatHeader>
+          </ChatHeader>
+        )}
         
         {isExpanded && (
           <ChatBody isExpanded={isExpanded}>
             <SearchSection>
-              <SearchTitle>🔍 智慧搜尋</SearchTitle>
               <SearchDescription>
                 輸入任何關鍵字、問題或主題，我將為您搜尋相關新聞、提供分析見解，並推薦相關報導。
                 支援自然語言查詢，讓您快速找到所需資訊。

@@ -144,6 +144,14 @@ function TermTooltip({ term, definition, position, onClose }) {
       "深度學習": {
         title: "應用例子",
         text: "例如：自然語言處理、圖像生成、語音合成等"
+      },
+      "三級三審":{
+        title: "應用例子",
+        text: "這起殺人案因為案情複雜，經過三級三審，歷時多年才最終定讞。\n\n由於證據不足，高等法院發回更審，這個案件可能要走完三級三審的程序。"
+      },
+      "IRB":{
+        title: "應用例子",
+        text: "這個研究計畫必須先通過 IRB 審查才能開始執行。\n\n因為 IRB 的要求，我們需要修改受試者同意書。\n\nIRB 委員仔細審閱了研究方案，並提出了一些建議。"
       }
     };
     return examples[term] || null;

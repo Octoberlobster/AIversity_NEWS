@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 const HeaderContainer = styled.header`
@@ -126,22 +127,42 @@ const DomainTagBar = styled.div`
 `;
 
 const Tag = styled.button`
-  background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f3f4f6'};
-  color: ${props => props.active ? 'white' : '#4b5563'};
+  background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent'};
+  color: ${props => props.active ? 'white' : '#1e3a8a'};
   border: none;
-  border-radius: 20px;
-  padding: 0.45rem 1.3rem;
-  font-size: 1.05rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 25px;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.18s;
-  box-shadow: 0 1px 2px rgba(102,126,234,0.04);
+  transition: all 0.3s ease;
   white-space: nowrap;
-  letter-spacing: 0.5px;
+  
   &:hover {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    transform: translateY(-2px) scale(1.04);
+    background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'rgba(102, 126, 234, 0.1)'};
+    transform: translateY(-1px);
+  }
+`;
+
+const TagLink = styled(Link)`
+  background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent'};
+  color: ${props => props.active ? 'white' : '#1e3a8a'};
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
+  
+  &:hover {
+    background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'rgba(102, 126, 234, 0.1)'};
+    transform: translateY(-1px);
+    text-decoration: none;
+    color: ${props => props.active ? 'white' : '#1e3a8a'};
   }
 `;
 
@@ -224,28 +245,48 @@ const hotEvents = [
   { id: 'event2', label: '大罷免', icon: '⚡' }
 ];
 const domains = [
-  { id: 'politics', label: '政治' },
-  { id: 'society', label: '社會' },
-  { id: 'science', label: '科學' },
-  { id: 'tech', label: '科技' },
-  { id: 'international', label: '國際' },
-  { id: 'life', label: '生活' },
-  { id: 'sports', label: '運動' },
-  { id: 'entertainment', label: '娛樂' },
-  { id: 'finance', label: '財經' },
-  { id: 'health', label: '醫療保健' }
+  { id: '/', label: '首頁', path: '/'},
+  { id: 'politics', label: '政治', path: '/category/politics' },
+  { id: 'society', label: '社會', path: '/category/society' },
+  { id: 'science', label: '科學', path: '/category/science' },
+  { id: 'tech', label: '科技', path: '/category/tech' },
+  { id: 'international', label: '國際', path: '/category/international' },
+  { id: 'life', label: '生活', path: '/category/life' },
+  { id: 'sports', label: '運動', path: '/category/sports' },
+  { id: 'entertainment', label: '娛樂', path: '/category/entertainment' },
+  { id: 'finance', label: '財經', path: '/category/finance' },
+  { id: 'health', label: '醫療保健', path: '/category/health' },
+  { id: 'project', label: '專題報導', path: '/special-reports'}
 ];
 const MAX_VISIBLE = 6;
 
 function Header() {
   const [activeDomain, setActiveDomain] = useState(domains[0].id);
   const [search, setSearch] = useState('');
+  const location = useLocation();
+
+  // 根據當前路徑設置活動標籤
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setActiveDomain('/');
+    } else if (location.pathname.startsWith('/special-reports')) {
+      setActiveDomain('project');
+    } else if (location.pathname.startsWith('/category/')) {
+      const category = location.pathname.split('/')[2];
+      const domain = domains.find(d => d.path === `/category/${category}`);
+      if (domain) {
+        setActiveDomain(domain.id);
+      }
+    }
+  }, [location.pathname]);
 
   return (
     <HeaderContainer>
       <MainBar>
         <BrandSection>
-          <Logo>AIversity</Logo>
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Logo>AIversity</Logo>
+          </Link>
           <Tagline>智能新聞，深度洞察</Tagline>
         </BrandSection>
         <SearchSection>
@@ -262,15 +303,18 @@ function Header() {
       </MainBar>
       <TagBarWrapper>
         <DomainTagBar>
-          {domains.map(domain => (
-            <Tag
-              key={domain.id}
-              active={activeDomain === domain.id}
-              onClick={() => setActiveDomain(domain.id)}
-            >
-              {domain.label}
-            </Tag>
-          ))}
+          {domains.map(domain => {
+            return (
+              <TagLink
+                key={domain.id}
+                to={domain.path}
+                active={activeDomain === domain.id}
+                onClick={() => setActiveDomain(domain.id)}
+              >
+                {domain.label}
+              </TagLink>
+            );
+          })}
         </DomainTagBar>
       </TagBarWrapper>
     </HeaderContainer>

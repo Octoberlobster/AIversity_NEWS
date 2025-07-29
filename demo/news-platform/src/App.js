@@ -8,6 +8,8 @@ import UnifiedNewsCard from './components/UnifiedNewsCard';
 import NewsDetail from './components/NewsDetail';
 import FloatingChat from './components/FloatingChat';
 import KeywordNewsPage from './components/KeywordNewsPage';
+import SpecialReportPage from './components/SpecialReportPage';
+import SpecialReportDetail from './components/SpecialReportDetail';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -206,11 +208,12 @@ function App() {
               <ContentGrid>
                 <MainColumn>
                   <SectionTitle>最新新聞</SectionTitle>
-                  <UnifiedNewsCard limit={showAllNews ? undefined : 6} />
+                  <UnifiedNewsCard limit={showAllNews ? undefined : 9} />
                   {(() => {
                     // 取得所有新聞數量
-                    const newsData = require('./components/UnifiedNewsCard').defaultNewsData || [];
-                    if (!showAllNews && newsData.length >= 4) {
+                    const { defaultNewsData } = require('./components/UnifiedNewsCard');
+                    const newsData = defaultNewsData || [];
+                    if (!showAllNews && newsData.length > 6) {
                       return (
                     <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
                       <button
@@ -238,7 +241,7 @@ function App() {
                 </MainColumn>
                 <Sidebar>
                   <SidebarCard>
-                    <SidebarTitle>🔥 熱門搜尋關鍵字</SidebarTitle>
+                    <SidebarTitle>🔥 熱門專題</SidebarTitle>
                     <KeywordCloud>
                       {hotKeywords.map((kw, i) => (
                         <Keyword
@@ -251,34 +254,24 @@ function App() {
                       ))}
                     </KeywordCloud>
                   </SidebarCard>
-                  
-                  <SidebarCard>
-                    <SidebarTitle>📊 平台統計</SidebarTitle>
-                    <StatsCard>
-                      <StatBox>
-                        <StatNumber>1.2T</StatNumber>
-                        <StatLabel>總閱讀量</StatLabel>
-                      </StatBox>
-                      <StatBox>
-                        <StatNumber>45T</StatNumber>
-                        <StatLabel>活躍用戶</StatLabel>
-                      </StatBox>
-                      <StatBox>
-                        <StatNumber>2.8T</StatNumber>
-                        <StatLabel>今日文章</StatLabel>
-                      </StatBox>
-                      <StatBox>
-                        <StatNumber>156T</StatNumber>
-                        <StatLabel>專家在線</StatLabel>
-                      </StatBox>
-                    </StatsCard>
-                  </SidebarCard>
                 </Sidebar>
               </ContentGrid>
             </MainContent>
           } />
           <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/keyword/:keyword" element={<KeywordNewsPage />} />
+          <Route path="/category/politics" element={<CategorySection category="政治" />} />
+          <Route path="/category/society" element={<CategorySection category="社會" />} />
+          <Route path="/category/science" element={<CategorySection category="科學" />} />
+          <Route path="/category/tech" element={<CategorySection category="科技" />} />
+          <Route path="/category/international" element={<CategorySection category="國際" />} />
+          <Route path="/category/life" element={<CategorySection category="生活" />} />
+          <Route path="/category/sports" element={<CategorySection category="運動" />} />
+          <Route path="/category/entertainment" element={<CategorySection category="娛樂" />} />
+          <Route path="/category/finance" element={<CategorySection category="財經" />} />
+          <Route path="/category/health" element={<CategorySection category="醫療保健" />} />
+          <Route path="/special-reports" element={<SpecialReportPage />} />
+          <Route path="/special-report/:id" element={<SpecialReportDetail />} />
         </Routes>
         
         <FloatingChat />

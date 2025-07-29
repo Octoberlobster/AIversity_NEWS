@@ -43,8 +43,12 @@ const CarouselSlide = styled.div`
 
 const SlideContent = styled.div`
   color: white;
-  max-width: 600px;
+  max-width: 50%;
   z-index: 2;
+  padding-right: 2rem;
+  padding-left: 2rem;
+  margin-left: 2rem;
+  transform: translateY(-20%);
 `;
 
 const SlideCategory = styled.span`
@@ -90,6 +94,33 @@ const SlideButton = styled(Link)`
   }
 `;
 
+const SlideImage = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: ${props => props.imageUrl ? `url(${props.imageUrl})` : 'none'};
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.8;
+  }
+`;
+
 const CarouselIndicators = styled.div`
   position: absolute;
   bottom: 2rem;
@@ -119,38 +150,36 @@ const CarouselControls = styled.div`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 100%;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: space-between;
   padding: 0 1rem;
   z-index: 3;
+  pointer-events: none;
+  max-width: 100%;
+  box-sizing: border-box;
 `;
 
 const ControlButton = styled.button`
   background: rgba(255, 255, 255, 0.2);
   border: none;
   color: white;
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   transition: all 0.3s ease;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   &:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.1);
   }
-`;
-
-const SlideOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 40%;
-  height: 100%;
-  background: linear-gradient(45deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
-  z-index: 1;
 `;
 
 // 模擬輪播新聞資料
@@ -161,7 +190,8 @@ const carouselNews = [
     description: "最新研究顯示，量子計算技術與人工智慧的結合將為科技發展帶來革命性突破，預計在未來五年內實現商業化應用。",
     category: "科技",
     gradientStart: "#667eea",
-    gradientEnd: "#764ba2"
+    gradientEnd: "#764ba2",
+    imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop"
   },
   {
     id: 2,
@@ -169,7 +199,8 @@ const carouselNews = [
     description: "面對日益嚴峻的氣候挑戰，各國政府紛紛推出新的環保政策，致力於實現碳中和目標。",
     category: "環境",
     gradientStart: "#11998e",
-    gradientEnd: "#38ef7d"
+    gradientEnd: "#38ef7d",
+    imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop"
   },
   {
     id: 3,
@@ -177,7 +208,8 @@ const carouselNews = [
     description: "各國央行加速推進數位貨幣研發，這將重塑全球金融體系和支付方式。",
     category: "金融",
     gradientStart: "#f093fb",
-    gradientEnd: "#f5576c"
+    gradientEnd: "#f5576c",
+    imageUrl: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=600&fit=crop"
   },
   {
     id: 4,
@@ -185,7 +217,8 @@ const carouselNews = [
     description: "NASA 和 SpaceX 等機構在火星探索方面取得重大進展，人類登陸火星的夢想即將實現。",
     category: "太空",
     gradientStart: "#4facfe",
-    gradientEnd: "#00f2fe"
+    gradientEnd: "#00f2fe",
+    imageUrl: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=800&h=600&fit=crop"
   },
   {
     id: 5,
@@ -193,7 +226,8 @@ const carouselNews = [
     description: "基因編輯和精準醫療技術的發展，為治療罕見疾病和癌症帶來新的希望。",
     category: "醫療",
     gradientStart: "#fa709a",
-    gradientEnd: "#fee140"
+    gradientEnd: "#fee140",
+    imageUrl: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop"
   }
 ];
 
@@ -239,7 +273,7 @@ function NewsCarousel() {
                 閱讀全文 →
               </SlideButton>
             </SlideContent>
-            <SlideOverlay />
+            <SlideImage imageUrl={news.imageUrl} />
           </CarouselSlide>
         ))}
 

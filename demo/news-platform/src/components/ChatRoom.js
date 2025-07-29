@@ -8,7 +8,7 @@ const ChatContainer = styled.div`
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
-  height: 600px;
+  height: 700px;
   border: 1px solid #e5e7eb;
   overflow: hidden;
 `;
@@ -53,72 +53,126 @@ const ChatSubtitle = styled.p`
 `;
 
 const ExpertSelector = styled.div`
-  padding: 1rem 1.5rem;
+  padding: 0.8rem 1.5rem;
   background: #f8fafc;
   border-bottom: 1px solid #e5e7eb;
+  position: relative;
 `;
 
-const SelectorTitle = styled.h4`
-  margin: 0 0 0.8rem 0;
+const DropdownContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const DropdownButton = styled.button`
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: #374151;
-  font-size: 0.95rem;
-  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  min-width: 200px;
+  
+  &:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
 `;
 
-const ChipsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  max-height: 80px;
+const DropdownIcon = styled.span`
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+  transform: ${props => props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+`;
+
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 300px;
   overflow-y: auto;
+  margin-top: 0.5rem;
   
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
   
   &::-webkit-scrollbar-track {
     background: #f1f5f9;
-    border-radius: 2px;
+    border-radius: 3px;
   }
   
   &::-webkit-scrollbar-thumb {
     background: #cbd5e1;
-    border-radius: 2px;
+    border-radius: 3px;
   }
 `;
 
-const ExpertChip = styled.div`
+const DropdownItem = styled.div`
+  padding: 0.8rem 1rem;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f3f4f6'};
-  color: ${props => props.active ? 'white' : '#4b5563'};
-  border-radius: 20px;
-  padding: 0.4rem 1rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s ease;
-  user-select: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid #f3f4f6;
   
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    background: #f8fafc;
+  }
+  
+  &:last-child {
+    border-bottom: none;
   }
 `;
 
-const RemoveIcon = styled.span`
-  margin-left: 0.5rem;
-  color: ${props => props.active ? 'rgba(255,255,255,0.8)' : '#667eea'};
-  font-weight: bold;
-  font-size: 1.1em;
-  cursor: pointer;
-  transition: color 0.2s ease;
+const Checkbox = styled.div`
+  width: 16px;
+  height: 16px;
+  border: 2px solid ${props => props.checked ? '#667eea' : '#d1d5db'};
+  border-radius: 3px;
+  background: ${props => props.checked ? '#667eea' : 'transparent'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
   
-  &:hover {
-    color: ${props => props.active ? 'white' : '#764ba2'};
+  &::after {
+    content: '✓';
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    opacity: ${props => props.checked ? 1 : 0};
+    transition: opacity 0.2s ease;
   }
+`;
+
+const SelectedCount = styled.span`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
 `;
 
 const MessagesContainer = styled.div`
@@ -129,6 +183,7 @@ const MessagesContainer = styled.div`
   flex-direction: column;
   gap: 1rem;
   background: #fafafa;
+  scroll-behavior: smooth;
   
   &::-webkit-scrollbar {
     width: 6px;
@@ -171,33 +226,96 @@ const MessageTime = styled.span`
 `;
 
 const PromptContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  padding: 1rem 1.5rem;
+  padding: 0.8rem 1.5rem;
   background: #f8fafc;
   border-top: 1px solid #e5e7eb;
-  max-height: 100px;
-  overflow-y: auto;
+  position: relative;
 `;
 
-const PromptButton = styled.button`
-  background: #f3f4f6;
-  color: #4b5563;
-  border: none;
-  border-radius: 20px;
-  padding: 0.5rem 1.2rem;
+const PromptDropdownContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const PromptDropdownButton = styled.button`
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
   font-size: 0.9rem;
   font-weight: 500;
+  color: #374151;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
   
   &:hover {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+`;
+
+const PromptDropdownIcon = styled.span`
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+  transform: ${props => props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+`;
+
+const PromptDropdownMenu = styled.div`
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 0.5rem;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+`;
+
+const PromptDropdownItem = styled.div`
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.9rem;
+  color: #374151;
+  
+  &:hover {
+    background: #f8fafc;
+    color: #667eea;
+  }
+  
+  &:last-child {
+    border-bottom: none;
   }
 `;
 
@@ -296,11 +414,43 @@ function ChatRoom() {
   const [selectedExperts, setSelectedExperts] = useState([1, 2, 3]);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isPromptDropdownOpen, setIsPromptDropdownOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const promptDropdownRef = useRef(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      const messagesContainer = messagesEndRef.current.closest('[data-messages-container]');
+      if (messagesContainer) {
+        messagesContainer.scrollTo({
+          top: messagesContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }
   }, [messages]);
+
+  // 點擊外部關閉下拉選單
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+      if (promptDropdownRef.current && !promptDropdownRef.current.contains(event.target)) {
+        setIsPromptDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen || isPromptDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen, isPromptDropdownOpen]);
 
   const toggleExpert = (id) => {
     setSelectedExperts(prev =>
@@ -308,12 +458,12 @@ function ChatRoom() {
     );
   };
 
-  const handlePromptSend = (prompt) => {
+  const handlePromptSend = (promptText) => {
     if (selectedExperts.length === 0) return;
 
     const userMsg = {
       id: Date.now(),
-      text: prompt,
+      text: promptText,
       isOwn: true,
       time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
     };
@@ -332,6 +482,9 @@ function ChatRoom() {
         setMessages(prev => [...prev, reply]);
       }, 1000 + index * 500);
     });
+    
+    // 關閉提示下拉選單
+    setIsPromptDropdownOpen(false);
   };
 
   const handleSendMessage = () => {
@@ -380,24 +533,35 @@ function ChatRoom() {
       </ChatHeader>
 
       <ExpertSelector>
-        <SelectorTitle>選擇專家</SelectorTitle>
-        <ChipsContainer>
-          {experts.map(expert => (
-            <ExpertChip
-              key={expert.id}
-              active={selectedExperts.includes(expert.id)}
-              onClick={() => toggleExpert(expert.id)}
-            >
-              {expert.name}
-              {selectedExperts.includes(expert.id) && (
-                <RemoveIcon active={true}>×</RemoveIcon>
-              )}
-            </ExpertChip>
-          ))}
-        </ChipsContainer>
+        <DropdownContainer ref={dropdownRef}>
+          <DropdownButton 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            type="button"
+          >
+            <span>選擇專家</span>
+            {selectedExperts.length > 0 && (
+              <SelectedCount>{selectedExperts.length}</SelectedCount>
+            )}
+            <DropdownIcon isOpen={isDropdownOpen}>▼</DropdownIcon>
+          </DropdownButton>
+          
+          {isDropdownOpen && (
+            <DropdownMenu>
+              {experts.map(expert => (
+                <DropdownItem
+                  key={expert.id}
+                  onClick={() => toggleExpert(expert.id)}
+                >
+                  <span>{expert.name}</span>
+                  <Checkbox checked={selectedExperts.includes(expert.id)} />
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          )}
+        </DropdownContainer>
       </ExpertSelector>
 
-      <MessagesContainer>
+      <MessagesContainer data-messages-container>
         {messages.length === 0 && (
           <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💬</div>
@@ -417,15 +581,29 @@ function ChatRoom() {
       </MessagesContainer>
 
       <PromptContainer>
-        {quickPrompts.map((prompt, index) => (
-          <PromptButton
-            key={index}
-            onClick={() => handlePromptSend(prompt)}
+        <PromptDropdownContainer ref={promptDropdownRef}>
+          <PromptDropdownButton 
+            onClick={() => setIsPromptDropdownOpen(!isPromptDropdownOpen)}
+            type="button"
             disabled={selectedExperts.length === 0}
           >
-            {prompt}
-          </PromptButton>
-        ))}
+            <span>💡 快速提示</span>
+            <PromptDropdownIcon isOpen={isPromptDropdownOpen}>▼</PromptDropdownIcon>
+          </PromptDropdownButton>
+          
+          {isPromptDropdownOpen && (
+            <PromptDropdownMenu>
+              {quickPrompts.map((prompt, index) => (
+                <PromptDropdownItem
+                  key={index}
+                  onClick={() => handlePromptSend(prompt)}
+                >
+                  {prompt}
+                </PromptDropdownItem>
+              ))}
+            </PromptDropdownMenu>
+          )}
+        </PromptDropdownContainer>
       </PromptContainer>
 
       <InputContainer>
