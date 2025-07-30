@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import UnifiedNewsCard from './UnifiedNewsCard';
 
 const PageContainer = styled.div`
+  min-height: 100vh;
+  background-color: #f8fafc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+`;
+
+const MainContent = styled.div`
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
@@ -30,11 +35,6 @@ const HeaderContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-`;
-
-const ReportIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
 `;
 
 const ReportTitle = styled.h1`
@@ -65,23 +65,6 @@ const MetaItem = styled.div`
   gap: 0.5rem;
   color: #6b7280;
   font-size: 0.9rem;
-`;
-
-const ConnectionSection = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 2rem;
-  align-items: center;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const ConnectionText = styled.div`
-  color: #4b5563;
-  font-size: 1rem;
-  line-height: 1.6;
 `;
 
 const ConnectionImage = styled.div`
@@ -118,7 +101,8 @@ const ConnectionImage = styled.div`
   }
 `;
 
-const ContentGrid = styled.div`
+// 完全獨立的布局
+const ContentLayout = styled.div`
   display: grid;
   grid-template-columns: 1fr 350px;
   gap: 2rem;
@@ -128,7 +112,11 @@ const ContentGrid = styled.div`
   }
 `;
 
-const MainContent = styled.div``;
+const MainColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
 
 const Sidebar = styled.div`
   display: flex;
@@ -137,13 +125,16 @@ const Sidebar = styled.div`
   position: sticky;
   top: 2rem;
   height: fit-content;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
 `;
 
 const SidebarCard = styled.div`
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
 `;
 
 const SidebarTitle = styled.h3`
@@ -151,120 +142,276 @@ const SidebarTitle = styled.h3`
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
+  border-bottom: 2px solid #e0e7ff;
+  padding-bottom: 0.5rem;
 `;
 
-const EventGuide = styled.div`
-  margin-bottom: 1rem;
-`;
-
-const EventItem = styled.div`
-  padding: 0.8rem;
-  margin-bottom: 0.5rem;
-  background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f8fafc'};
-  color: ${props => props.active ? 'white' : '#4b5563'};
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
-  font-weight: 500;
-  
-  &:hover {
-    background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#e0e7ff'};
-    transform: translateX(4px);
-  }
-  
-  &::before {
-    content: "•";
-    margin-right: 0.5rem;
-    color: ${props => props.active ? 'white' : '#667eea'};
-  }
-`;
-
-const EventContent = styled.div`
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #f3f4f6;
-`;
-
-const EventTitle = styled.h4`
-  color: #1e3a8a;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-`;
-
-const EventSummary = styled.p`
-  color: #6b7280;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0 0 1rem 0;
-`;
-
-const EventArticles = styled.div`
+const NavigationMenu = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 `;
 
-const EventArticle = styled.div`
-  padding: 0.5rem;
-  background: #f8fafc;
-  border-radius: 6px;
-  font-size: 0.85rem;
+const NavItem = styled.div`
+  padding: 0.8rem 1rem;
+  background: ${props => props.active ? '#e0e7ff' : 'transparent'};
+  color: ${props => props.active ? '#1e3a8a' : '#4b5563'};
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 0.95rem;
+  font-weight: ${props => props.active ? '600' : '500'};
+  border-left: 3px solid ${props => props.active ? '#667eea' : 'transparent'};
   
   &:hover {
-    background: #e0e7ff;
-    transform: translateX(4px);
+    background: ${props => props.active ? '#e0e7ff' : '#f8fafc'};
+    color: #1e3a8a;
   }
 `;
 
-const ArticleTitle = styled.div`
-  color: #1e3a8a;
-  font-weight: 500;
-  margin-bottom: 0.2rem;
-`;
-
-const ArticleMeta = styled.div`
-  color: #6b7280;
-  font-size: 0.8rem;
-  display: flex;
-  gap: 1rem;
+const ContentSection = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  scroll-margin-top: 8rem;
 `;
 
 const SectionTitle = styled.h2`
   color: #1e3a8a;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin: 2rem 0 1rem 0;
+  margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   
   &::before {
     content: "📰";
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 `;
 
-const RelatedNewsSection = styled.div`
-  margin-top: 2rem;
+const SectionSummary = styled.p`
+  color: #4b5563;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
 `;
 
-const NewsFilter = styled.div`
+// 完全按照UnifiedNewsCard的樣式
+const NewsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const CardContainer = styled.div`
+  background: white;
+  border-radius: 16px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 4px solid #667eea;
+  position: relative;
+  height: fit-content;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    border-left-color: #7c3aed;
+  }
+`;
+
+const CardHeader = styled.div`
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.8rem;
+`;
+
+const CardTitle = styled(Link)`
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.3;
+  flex: 1;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  
+  &:hover {
+    color: #667eea;
+  }
+`;
+
+const CardMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
   flex-wrap: wrap;
 `;
 
-const FilterButton = styled.button`
-  background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f3f4f6'};
-  color: ${props => props.active ? 'white' : '#4b5563'};
+const CardInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: #6b7280;
+`;
+
+const CategoryTag = styled.span`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+`;
+
+const DateText = styled.span`
+  color: #6b7280;
+  font-size: 0.8rem;
+`;
+
+const AuthorText = styled.span`
+  color: #6b7280;
+  font-size: 0.8rem;
+`;
+
+const SourceCount = styled.span`
+  background: #f3f4f6;
+  color: #4b5563;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+`;
+
+const KeywordChip = styled.span`
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 10px;
+  padding: 0.15rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-left: 0.2rem;
+`;
+
+const CardContent = styled.div`
+  margin-bottom: 0.8rem;
+`;
+
+const SummaryText = styled.p`
+  color: #4b5563;
+  line-height: 1.5;
+  margin: 0;
+  font-size: ${props => props.isExpanded ? '0.9rem' : '0.85rem'};
+  transition: all 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: ${props => props.isExpanded ? 'none' : '3'};
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const ExpandedContent = styled.div`
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  animation: slideDown 0.3s ease;
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+const RelatedNews = styled.div`
+  margin-top: 1rem;
+`;
+
+const RelatedNewsTitle = styled.h4`
+  color: #374151;
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+`;
+
+const RelatedNewsList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+const RelatedNewsItem = styled.li`
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const RelatedNewsLink = styled(Link)`
+  color: #4b5563;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: #667eea;
+  }
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+`;
+
+const ActionButton = styled.button`
+  background: ${props => props.primary ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f3f4f6'};
+  color: ${props => props.primary ? 'white' : '#4b5563'};
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 20px;
+  border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -276,60 +423,149 @@ const FilterButton = styled.button`
   }
 `;
 
-const NewsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1.5rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+const StatsContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+  flex-wrap: wrap;
 `;
 
-const NewsCard = styled.div`
+const StatItem = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+`;
+
+// 專題聊天室組件 - 整合到邊欄
+const TopicChatCard = styled.div`
   background: white;
   border-radius: 12px;
-  padding: 1.2rem;
+  padding: 1.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  border-left: 3px solid #667eea;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  }
+  border: 1px solid #e5e7eb;
+  margin-top: 1.5rem;
 `;
 
-const NewsTitle = styled.h3`
+const ChatHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 2px solid #e0e7ff;
+`;
+
+const ChatIcon = styled.div`
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+`;
+
+const ChatTitle = styled.h4`
+  margin: 0;
   color: #1e3a8a;
   font-size: 1.1rem;
   font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  line-height: 1.3;
 `;
 
-const NewsSummary = styled.p`
+const ChatDescription = styled.p`
+  margin: 0.3rem 0 0 0;
   color: #6b7280;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0 0 0.8rem 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
 `;
 
-const NewsMeta = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.8rem;
-  color: #9ca3af;
-`;
-
-const NewsCategory = styled.span`
-  background: #e0e7ff;
-  color: #3730a3;
-  padding: 0.2rem 0.6rem;
+const ChatMessages = styled.div`
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: #f8fafc;
   border-radius: 8px;
-  font-size: 0.75rem;
+  border: 1px solid #e2e8f0;
+`;
+
+const Message = styled.div`
+  margin-bottom: 0.8rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: ${props => props.isOwn ? '#667eea' : 'white'};
+  color: ${props => props.isOwn ? 'white' : '#374151'};
+  font-size: 0.9rem;
+  line-height: 1.4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const QuickPrompts = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const PromptButton = styled.button`
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #e5e7eb;
+    transform: translateY(-1px);
+  }
+`;
+
+const ChatInput = styled.input`
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+`;
+
+const SendButton = styled.button`
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 // 模擬專題報導詳細資料
@@ -337,7 +573,7 @@ const specialReportData = {
   1: {
     id: 1,
     title: "2025罷免案",
-    summary: "國民黨與民眾黨自2024年合作以來，因立法改革引發不滿，民間團體於2025年開始發起罷免國民黨立委。7月26日24位國民黨立委及新竹市長高虹安面臨罷免投票，25案全數被否決。第二波7案罷免投票將於8月23日舉行，包括馬文君、游顥、羅明才、江啟臣、楊瓊瓔、顏寬恒、林思銘等立委。",
+    summary: "國民黨與民眾黨2024年起聯手以人數優勢陸續通過國會職權等修法引發不滿，民團2025年起陸續鎖定國民黨立委發動罷免連署。24位藍委及新竹市長高虹安罷免案7月26日投開票，25案全數遭到否決。第二波共7案罷免投票將在8月23日登場，包括國民黨立委馬文君、游顥、羅明才、江啟臣、楊瓊瓔、顏寬恒、林思銘。",
     status: "進行中",
     icon: "🗳️",
     events: [
@@ -353,512 +589,483 @@ const specialReportData = {
     connectionMap: "罷免案涉及國民黨24位立委及新竹市長高虹安，共25案。第一波投票於7月26日舉行，全數被否決。第二波7案將於8月23日舉行，主要針對特定立委的罷免投票。",
     articles: 15,
     views: "25.3k",
-    lastUpdate: "2025/7/29 15:48",
+    lastUpdate: "2025/7/30 18:10",
     eventDetails: {
       "即時開票": {
         title: "即時開票結果",
         summary: "最新罷免投票開票結果，包含各選區投票率、同意票與不同意票統計。",
         articles: [
-          { id: 101, title: "7月26日罷免投票開票結果出爐", views: "12.5k", date: "2025/7/26" },
-          { id: 102, title: "高虹安罷免案投票率達45%", views: "8.9k", date: "2025/7/26" },
-          { id: 103, title: "24位立委罷免案全數被否決", views: "15.2k", date: "2025/7/26" }
+          { 
+            id: 101, 
+            title: "大罷免投票率平均破5成5 傅崐萁案破6成創紀錄", 
+            views: "12.5k", 
+            date: "2025/7/26 22:55", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 3,
+            shortSummary: "2025年7月26日舉行的罷免投票中，整體投票率平均突破55%，其中傅崐萁案的投票率更突破60%，創下歷史新高。各選區的投票情況顯示民眾對罷免案的高度關注。",
+            relatedNews: [
+              { id: 1011, title: "傅崐萁罷免案詳細分析" },
+              { id: 1012, title: "各選區投票率統計" },
+              { id: 1013, title: "罷免案投票結果影響" }
+            ],
+            keywords: ["投票", "罷免", "統計"]
+          },
+          { 
+            id: 102, 
+            title: "2025立委罷免案開票結果一覽 7月26日24案全數不通過", 
+            views: "8.9k", 
+            date: "2025/7/26 16:00", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 4,
+            shortSummary: "7月26日舉行的24個立委罷免案全部未通過門檻，顯示選民對罷免制度的態度趨於保守。各案投票結果分析顯示，反對罷免的票數明顯高於支持罷免。",
+            relatedNews: [
+              { id: 1021, title: "罷免制度檢討聲浪" },
+              { id: 1022, title: "選民態度分析報告" },
+              { id: 1023, title: "政治影響評估" }
+            ],
+            keywords: ["罷免", "制度", "分析"]
+          },
+          { 
+            id: 103, 
+            title: "高虹安鄭正鈐罷免案即時開票 中央社圖表掌握實況", 
+            views: "15.2k", 
+            date: "2025/7/26 15:00", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 2,
+            shortSummary: "新竹市長高虹安與立委鄭正鈐的罷免案開票過程透過中央社即時圖表呈現，讓民眾能夠第一時間掌握投票進度與結果。",
+            relatedNews: [
+              { id: 1031, title: "高虹安罷免案背景" },
+              { id: 1032, title: "鄭正鈐政治立場" },
+              { id: 1033, title: "新竹市政治情勢" }
+            ],
+            keywords: ["高虹安", "鄭正鈐", "新竹"]
+          }
         ]
       },
       "結果分析": {
         title: "投票結果深度分析",
         summary: "分析罷免投票結果的背後原因、政治影響及未來發展趨勢。",
         articles: [
-          { id: 201, title: "罷免案失敗原因分析：選民結構與動員能力", views: "9.7k", date: "2025/7/27" },
-          { id: 202, title: "國民黨基層組織力挽狂瀾，成功守住席次", views: "7.3k", date: "2025/7/27" },
-          { id: 203, title: "罷免案對2026年選舉的影響評估", views: "11.8k", date: "2025/7/28" }
+          { 
+            id: 201, 
+            title: "美學者：大罷免未過不影響台美互動 須持續深化互信", 
+            views: "9.7k", 
+            date: "2025/7/29 10:45", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 5,
+            shortSummary: "美國學者分析指出，台灣的罷免案結果不會影響台美關係發展，但雙方需要持續深化互信關係，在國防、經濟等領域加強合作。",
+            relatedNews: [
+              { id: 2011, title: "台美關係發展趨勢" },
+              { id: 2012, title: "國際學者觀點" },
+              { id: 2013, title: "外交政策影響" }
+            ],
+            keywords: ["台美", "外交", "學者"]
+          },
+          { 
+            id: 202, 
+            title: "大罷免結果對台美影響 智庫學者：取決在野國防路線", 
+            views: "7.3k", 
+            date: "2025/7/29 07:14", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 3,
+            shortSummary: "智庫學者認為，罷免案結果對台美關係的影響主要取決於在野黨在國防政策上的立場，以及是否願意與美方保持良好溝通。",
+            relatedNews: [
+              { id: 2021, title: "國防政策分析" },
+              { id: 2022, title: "智庫研究報告" },
+              { id: 2023, title: "政策影響評估" }
+            ],
+            keywords: ["國防", "政策", "智庫"]
+          }
         ]
       },
       "投票日動態": {
         title: "投票日現場直擊",
         summary: "投票日當天的現場情況、選民反應及重要事件。",
         articles: [
-          { id: 301, title: "投票日現場：選民踴躍參與，秩序良好", views: "6.4k", date: "2025/7/26" },
-          { id: 302, title: "各黨派動員情況：國民黨全力催票", views: "5.2k", date: "2025/7/26" },
-          { id: 303, title: "投票過程中的爭議事件整理", views: "4.8k", date: "2025/7/26" }
+          { 
+            id: 301, 
+            title: "大罷免失敗 罷團開票晚會感傷提前結束", 
+            views: "6.4k", 
+            date: "2025/7/26 19:54", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 2,
+            shortSummary: "罷免團體在開票晚會上看到結果不如預期，現場氣氛感傷，活動提前結束。許多支持者表示失望但仍會繼續關注相關議題。",
+            relatedNews: [
+              { id: 3011, title: "罷免團體反應" },
+              { id: 3012, title: "支持者心聲" },
+              { id: 3013, title: "後續行動計劃" }
+            ],
+            keywords: ["罷免", "團體", "反應"]
+          }
         ]
       },
       "立委罷免案": {
         title: "立委罷免案詳情",
         summary: "針對24位國民黨立委的罷免案詳細資訊及背景。",
         articles: [
-          { id: 401, title: "24位國民黨立委罷免案完整名單", views: "13.1k", date: "2025/7/25" },
-          { id: 402, title: "各立委罷免案連署人數統計", views: "8.6k", date: "2025/7/25" },
-          { id: 403, title: "立委回應罷免案：強調服務選民決心", views: "7.9k", date: "2025/7/25" }
+          { 
+            id: 401, 
+            title: "24位國民黨立委罷免案完整名單", 
+            views: "13.1k", 
+            date: "2025/7/25", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 6,
+            shortSummary: "完整列出24位國民黨立委的罷免案詳細資訊，包括各立委的基本資料、罷免理由、連署人數等相關資訊。",
+            relatedNews: [
+              { id: 4011, title: "各立委背景資料" },
+              { id: 4012, title: "罷免理由分析" },
+              { id: 4013, title: "連署情況統計" }
+            ],
+            keywords: ["立委", "國民黨", "名單"]
+          }
         ]
       },
       "高虹安罷免案": {
         title: "高虹安罷免案專題",
         summary: "新竹市長高虹安罷免案的詳細過程及結果。",
         articles: [
-          { id: 501, title: "高虹安罷免案投票率創新高", views: "16.3k", date: "2025/7/26" },
-          { id: 502, title: "新竹市民對高虹安施政滿意度調查", views: "9.4k", date: "2025/7/25" },
-          { id: 503, title: "高虹安回應罷免案：繼續為市民服務", views: "6.7k", date: "2025/7/26" }
+          { 
+            id: 501, 
+            title: "高虹安罷免案投票率創新高", 
+            views: "16.3k", 
+            date: "2025/7/26", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 4,
+            shortSummary: "新竹市長高虹安的罷免案投票率創下歷史新高，顯示新竹市民對此次罷免案的高度關注和參與。",
+            relatedNews: [
+              { id: 5011, title: "新竹市民反應" },
+              { id: 5012, title: "高虹安回應" },
+              { id: 5013, title: "政治影響分析" }
+            ],
+            keywords: ["高虹安", "新竹", "投票率"]
+          }
         ]
       },
       "罷免案日程": {
         title: "罷免案重要時程",
         summary: "罷免案的重要時間節點及後續發展。",
         articles: [
-          { id: 601, title: "第二波罷免案8月23日舉行", views: "10.2k", date: "2025/7/28" },
-          { id: 602, title: "罷免案法律程序及時間表", views: "5.8k", date: "2025/7/24" },
-          { id: 603, title: "未來罷免案可能發展趨勢", views: "7.5k", date: "2025/7/29" }
+          { 
+            id: 601, 
+            title: "第二波罷免案8月23日舉行", 
+            views: "10.2k", 
+            date: "2025/7/28", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 3,
+            shortSummary: "第二波共7個罷免案將於8月23日舉行投票，包括國民黨立委馬文君、游顥、羅明才、江啟臣、楊瓊瓔、顏寬恒、林思銘。",
+            relatedNews: [
+              { id: 6011, title: "第二波罷免名單" },
+              { id: 6012, title: "投票準備工作" },
+              { id: 6013, title: "時程安排" }
+            ],
+            keywords: ["第二波", "罷免", "時程"]
+          }
         ]
       },
       "投票須知": {
         title: "投票相關資訊",
         summary: "罷免投票的相關規定、注意事項及投票指南。",
         articles: [
-          { id: 701, title: "罷免投票資格及注意事項", views: "12.7k", date: "2025/7/24" },
-          { id: 702, title: "投票地點查詢及交通資訊", views: "8.1k", date: "2025/7/24" },
-          { id: 703, title: "投票日天氣預報及建議", views: "4.3k", date: "2025/7/25" }
+          { 
+            id: 701, 
+            title: "罷免投票資格及注意事項", 
+            views: "12.7k", 
+            date: "2025/7/24", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 5,
+            shortSummary: "詳細說明罷免投票的資格條件、投票程序、注意事項等相關規定，幫助選民了解如何正確參與投票。",
+            relatedNews: [
+              { id: 7011, title: "投票資格查詢" },
+              { id: 7012, title: "投票程序說明" },
+              { id: 7013, title: "注意事項提醒" }
+            ],
+            keywords: ["投票", "資格", "程序"]
+          }
         ]
       },
       "其他文章": {
         title: "相關新聞報導",
         summary: "與罷免案相關的其他新聞及評論文章。",
         articles: [
-          { id: 801, title: "學者分析：罷免案對台灣民主的影響", views: "9.8k", date: "2025/7/27" },
-          { id: 802, title: "國際媒體關注台灣罷免案發展", views: "6.2k", date: "2025/7/28" },
-          { id: 803, title: "民眾對罷免制度的看法調查", views: "7.9k", date: "2025/7/29" }
-        ]
-      }
-    }
-  },
-  2: {
-    id: 2,
-    title: "人工智慧發展專題",
-    summary: "深入探討人工智慧技術在各領域的應用與發展，從基礎技術到實際應用案例，全面解析AI對社會的影響。涵蓋機器學習、深度學習、自然語言處理等核心技術，以及AI在醫療、金融、教育等領域的應用。",
-    status: "進行中",
-    icon: "🤖",
-    events: [
-      "AI技術發展",
-      "機器學習應用",
-      "深度學習進展",
-      "AI倫理議題",
-      "產業應用案例",
-      "未來趨勢預測",
-      "專家觀點",
-      "技術解析"
-    ],
-    connectionMap: "AI技術發展涵蓋機器學習、深度學習、自然語言處理等核心領域。各技術相互關聯，共同推動AI產業發展。應用領域包括醫療診斷、金融風控、教育輔助等。",
-    articles: 12,
-    views: "18.7k",
-    lastUpdate: "2025/7/28 10:30",
-    eventDetails: {
-      "AI技術發展": {
-        title: "AI技術發展歷程",
-        summary: "人工智慧技術的發展歷程、重要里程碑及技術突破。",
-        articles: [
-          { id: 901, title: "AI發展史：從圖靈測試到ChatGPT", views: "14.2k", date: "2025/7/28" },
-          { id: 902, title: "2024年AI技術重大突破回顧", views: "11.5k", date: "2025/7/27" },
-          { id: 903, title: "AI技術發展趨勢預測", views: "9.8k", date: "2025/7/26" }
-        ]
-      },
-      "機器學習應用": {
-        title: "機器學習實際應用",
-        summary: "機器學習技術在各行業的實際應用案例及效果。",
-        articles: [
-          { id: 904, title: "機器學習在醫療診斷中的應用", views: "12.3k", date: "2025/7/28" },
-          { id: 905, title: "金融業如何運用機器學習降低風險", views: "8.7k", date: "2025/7/27" },
-          { id: 906, title: "機器學習在教育領域的創新應用", views: "7.4k", date: "2025/7/26" }
-        ]
-      },
-      "深度學習進展": {
-        title: "深度學習技術進展",
-        summary: "深度學習技術的最新發展、算法改進及應用突破。",
-        articles: [
-          { id: 907, title: "深度學習在自然語言處理的突破", views: "13.1k", date: "2025/7/28" },
-          { id: 908, title: "計算機視覺技術的最新進展", views: "10.2k", date: "2025/7/27" },
-          { id: 909, title: "深度學習模型效率優化技術", views: "8.9k", date: "2025/7/26" }
-        ]
-      },
-      "AI倫理議題": {
-        title: "AI倫理與社會影響",
-        summary: "人工智慧發展中的倫理問題、社會影響及監管議題。",
-        articles: [
-          { id: 910, title: "AI偏見問題：如何確保公平性", views: "11.8k", date: "2025/7/28" },
-          { id: 911, title: "AI對就業市場的影響分析", views: "9.6k", date: "2025/7/27" },
-          { id: 912, title: "AI監管政策國際比較", views: "7.3k", date: "2025/7/26" }
-        ]
-      },
-      "產業應用案例": {
-        title: "AI產業應用案例",
-        summary: "各產業中AI技術的實際應用案例及成功經驗。",
-        articles: [
-          { id: 913, title: "製造業AI轉型成功案例", views: "10.5k", date: "2025/7/28" },
-          { id: 914, title: "零售業AI應用提升顧客體驗", views: "8.2k", date: "2025/7/27" },
-          { id: 915, title: "農業AI技術應用現況", views: "6.7k", date: "2025/7/26" }
-        ]
-      },
-      "未來趨勢預測": {
-        title: "AI未來發展趨勢",
-        summary: "人工智慧技術的未來發展方向及趨勢預測。",
-        articles: [
-          { id: 916, title: "2025年AI技術發展趨勢預測", views: "12.7k", date: "2025/7/28" },
-          { id: 917, title: "量子計算與AI結合的前景", views: "9.4k", date: "2025/7/27" },
-          { id: 918, title: "AI在太空探索中的應用前景", views: "7.8k", date: "2025/7/26" }
-        ]
-      },
-      "專家觀點": {
-        title: "AI專家觀點分享",
-        summary: "AI領域專家的觀點、見解及對未來發展的看法。",
-        articles: [
-          { id: 919, title: "AI專家談技術發展與社會責任", views: "11.2k", date: "2025/7/28" },
-          { id: 920, title: "企業AI轉型專家的實戰經驗", views: "8.9k", date: "2025/7/27" },
-          { id: 921, title: "學術界對AI發展的擔憂與建議", views: "6.5k", date: "2025/7/26" }
-        ]
-      },
-      "技術解析": {
-        title: "AI技術深度解析",
-        summary: "人工智慧技術的深度技術解析及原理說明。",
-        articles: [
-          { id: 922, title: "神經網絡原理深度解析", views: "13.8k", date: "2025/7/28" },
-          { id: 923, title: "自然語言處理技術詳解", views: "10.1k", date: "2025/7/27" },
-          { id: 924, title: "AI算法優化技術分析", views: "8.3k", date: "2025/7/26" }
-        ]
-      }
-    }
-  },
-  3: {
-    id: 3,
-    title: "氣候變遷與永續發展",
-    summary: "分析全球氣候變遷現況，探討各國應對策略及永續發展目標的實現路徑，從科學證據到政策制定。涵蓋氣候科學、政策分析、技術創新等多個面向，為讀者提供全面的氣候議題解析。",
-    status: "進行中",
-    icon: "🌍",
-    events: [
-      "氣候科學數據",
-      "全球政策分析",
-      "永續發展目標",
-      "減碳技術",
-      "綠色能源",
-      "國際合作",
-      "個人行動指南",
-      "未來展望"
-    ],
-    connectionMap: "氣候變遷影響全球各國，需要國際合作共同應對。各國制定減碳政策，發展綠色能源技術，推動永續發展目標。個人行動與政策制定相輔相成。",
-    articles: 8,
-    views: "12.4k",
-    lastUpdate: "2025/7/27 14:15",
-    eventDetails: {
-      "氣候科學數據": {
-        title: "氣候科學數據分析",
-        summary: "最新的氣候科學數據、研究發現及趨勢分析。",
-        articles: [
-          { id: 1001, title: "2024年全球氣溫創歷史新高", views: "15.3k", date: "2025/7/27" },
-          { id: 1002, title: "北極冰層融化速度加快", views: "11.7k", date: "2025/7/26" },
-          { id: 1003, title: "極端氣候事件頻率增加", views: "9.2k", date: "2025/7/25" }
-        ]
-      },
-      "全球政策分析": {
-        title: "全球氣候政策分析",
-        summary: "各國氣候政策的比較分析及效果評估。",
-        articles: [
-          { id: 1004, title: "歐盟氣候政策最新進展", views: "12.8k", date: "2025/7/27" },
-          { id: 1005, title: "美國氣候政策轉變分析", views: "10.4k", date: "2025/7/26" },
-          { id: 1006, title: "亞洲國家氣候政策比較", views: "8.6k", date: "2025/7/25" }
-        ]
-      },
-      "永續發展目標": {
-        title: "永續發展目標進展",
-        summary: "聯合國永續發展目標的實現進度及挑戰。",
-        articles: [
-          { id: 1007, title: "SDGs目標實現進度報告", views: "13.5k", date: "2025/7/27" },
-          { id: 1008, title: "企業永續發展實踐案例", views: "9.8k", date: "2025/7/26" },
-          { id: 1009, title: "永續發展目標面臨的挑戰", views: "7.3k", date: "2025/7/25" }
-        ]
-      },
-      "減碳技術": {
-        title: "減碳技術創新",
-        summary: "最新的減碳技術發展及應用案例。",
-        articles: [
-          { id: 1010, title: "碳捕獲技術最新突破", views: "14.2k", date: "2025/7/27" },
-          { id: 1011, title: "工業減碳技術應用案例", views: "10.7k", date: "2025/7/26" },
-          { id: 1012, title: "建築節能技術發展", views: "8.9k", date: "2025/7/25" }
-        ]
-      },
-      "綠色能源": {
-        title: "綠色能源發展",
-        summary: "可再生能源技術發展及應用現況。",
-        articles: [
-          { id: 1013, title: "太陽能技術效率提升", views: "12.1k", date: "2025/7/27" },
-          { id: 1014, title: "風力發電成本持續下降", views: "9.5k", date: "2025/7/26" },
-          { id: 1015, title: "氫能源技術發展前景", views: "7.8k", date: "2025/7/25" }
-        ]
-      },
-      "國際合作": {
-        title: "國際氣候合作",
-        summary: "國際氣候合作的進展及挑戰。",
-        articles: [
-          { id: 1016, title: "巴黎協定執行進度評估", views: "13.9k", date: "2025/7/27" },
-          { id: 1017, title: "國際氣候基金運作現況", views: "10.2k", date: "2025/7/26" },
-          { id: 1018, title: "氣候談判最新進展", views: "8.4k", date: "2025/7/25" }
-        ]
-      },
-      "個人行動指南": {
-        title: "個人減碳行動",
-        summary: "個人可以採取的減碳行動及生活建議。",
-        articles: [
-          { id: 1019, title: "日常生活減碳小技巧", views: "11.6k", date: "2025/7/27" },
-          { id: 1020, title: "綠色消費指南", views: "9.1k", date: "2025/7/26" },
-          { id: 1021, title: "環保生活實踐案例", views: "7.2k", date: "2025/7/25" }
-        ]
-      },
-      "未來展望": {
-        title: "氣候變遷未來展望",
-        summary: "氣候變遷的未來發展趨勢及應對策略。",
-        articles: [
-          { id: 1022, title: "2050年氣候變遷預測", views: "14.7k", date: "2025/7/27" },
-          { id: 1023, title: "氣候適應策略發展", views: "10.8k", date: "2025/7/26" },
-          { id: 1024, title: "氣候正義議題探討", views: "8.5k", date: "2025/7/25" }
+          { 
+            id: 801, 
+            title: "學者分析：罷免案對台灣民主的影響", 
+            views: "9.8k", 
+            date: "2025/7/27", 
+            author: "中央社",
+            category: "專題報導",
+            sourceCount: 4,
+            shortSummary: "政治學者分析罷免案對台灣民主發展的影響，探討罷免制度在民主政治中的角色和意義。",
+            relatedNews: [
+              { id: 8011, title: "民主制度檢討" },
+              { id: 8012, title: "學者觀點彙整" },
+              { id: 8013, title: "制度影響評估" }
+            ],
+            keywords: ["學者", "民主", "制度"]
+          }
         ]
       }
     }
   }
-};
-
-// 模擬專題相關新聞資料
-const getRelatedNews = (reportId) => {
-  const newsData = {
-    1: { // 2025罷免案
-      "即時開票": [
-        { id: 101, title: "7月26日罷免投票開票結果出爐", summary: "最新罷免投票開票結果，包含各選區投票率、同意票與不同意票統計。", category: "政治", views: "12.5k", date: "2025/7/26" },
-        { id: 102, title: "高虹安罷免案投票率達45%", summary: "新竹市長高虹安罷免案投票率創下新高，顯示選民對罷免案的高度關注。", category: "政治", views: "8.9k", date: "2025/7/26" },
-        { id: 103, title: "24位立委罷免案全數被否決", summary: "國民黨24位立委罷免案投票結果出爐，所有罷免案均未通過門檻。", category: "政治", views: "15.2k", date: "2025/7/26" }
-      ],
-      "結果分析": [
-        { id: 201, title: "罷免案失敗原因分析：選民結構與動員能力", summary: "深入分析罷免案失敗的背後原因，探討選民結構與政黨動員能力的影響。", category: "分析", views: "9.7k", date: "2025/7/27" },
-        { id: 202, title: "國民黨基層組織力挽狂瀾，成功守住席次", summary: "國民黨基層組織展現強大動員能力，成功守住所有面臨罷免的立委席次。", category: "政治", views: "7.3k", date: "2025/7/27" },
-        { id: 203, title: "罷免案對2026年選舉的影響評估", summary: "專家分析罷免案結果對2026年選舉的潛在影響及政治效應。", category: "分析", views: "11.8k", date: "2025/7/28" }
-      ],
-      "投票日動態": [
-        { id: 301, title: "投票日現場：選民踴躍參與，秩序良好", summary: "罷免投票日現場直擊，選民踴躍參與投票，整體秩序良好。", category: "現場", views: "6.4k", date: "2025/7/26" },
-        { id: 302, title: "各黨派動員情況：國民黨全力催票", summary: "各黨派在罷免投票日的動員情況，國民黨展現強大的基層組織力。", category: "政治", views: "5.2k", date: "2025/7/26" },
-        { id: 303, title: "投票過程中的爭議事件整理", summary: "罷免投票過程中發生的爭議事件整理及相關處理情況。", category: "政治", views: "4.8k", date: "2025/7/26" }
-      ],
-      "立委罷免案": [
-        { id: 401, title: "24位國民黨立委罷免案完整名單", summary: "完整列出24位面臨罷免的國民黨立委名單及相關背景資訊。", category: "政治", views: "13.1k", date: "2025/7/25" },
-        { id: 402, title: "各立委罷免案連署人數統計", summary: "各立委罷免案的連署人數統計及達標情況分析。", category: "統計", views: "8.6k", date: "2025/7/25" },
-        { id: 403, title: "立委回應罷免案：強調服務選民決心", summary: "面臨罷免的立委們回應罷免案，強調繼續服務選民的決心。", category: "政治", views: "7.9k", date: "2025/7/25" }
-      ],
-      "高虹安罷免案": [
-        { id: 501, title: "高虹安罷免案投票率創新高", summary: "新竹市長高虹安罷免案投票率創下新高，顯示選民高度關注。", category: "政治", views: "16.3k", date: "2025/7/26" },
-        { id: 502, title: "新竹市民對高虹安施政滿意度調查", summary: "最新民調顯示新竹市民對高虹安施政的滿意度調查結果。", category: "民調", views: "9.4k", date: "2025/7/25" },
-        { id: 503, title: "高虹安回應罷免案：繼續為市民服務", summary: "高虹安針對罷免案發表回應，強調將繼續為新竹市民服務。", category: "政治", views: "6.7k", date: "2025/7/26" }
-      ],
-      "罷免案日程": [
-        { id: 601, title: "第二波罷免案8月23日舉行", summary: "第二波7案罷免投票將於8月23日舉行，包含多位國民黨立委。", category: "政治", views: "10.2k", date: "2025/7/28" },
-        { id: 602, title: "罷免案法律程序及時間表", summary: "詳細說明罷免案的法律程序、時間表及相關規定。", category: "法律", views: "5.8k", date: "2025/7/24" },
-        { id: 603, title: "未來罷免案可能發展趨勢", summary: "分析未來罷免案可能的發展趨勢及對政治生態的影響。", category: "分析", views: "7.5k", date: "2025/7/29" }
-      ],
-      "投票須知": [
-        { id: 701, title: "罷免投票資格及注意事項", summary: "詳細說明罷免投票的資格條件及投票時需要注意的事項。", category: "指南", views: "12.7k", date: "2025/7/24" },
-        { id: 702, title: "投票地點查詢及交通資訊", summary: "提供罷免投票地點查詢服務及相關交通資訊。", category: "指南", views: "8.1k", date: "2025/7/24" },
-        { id: 703, title: "投票日天氣預報及建議", summary: "罷免投票日的天氣預報及相關投票建議。", category: "指南", views: "4.3k", date: "2025/7/25" }
-      ],
-      "其他文章": [
-        { id: 801, title: "學者分析：罷免案對台灣民主的影響", summary: "學者專家分析罷免案對台灣民主發展的深遠影響。", category: "分析", views: "9.8k", date: "2025/7/27" },
-        { id: 802, title: "國際媒體關注台灣罷免案發展", summary: "國際媒體對台灣罷免案發展的關注及相關報導。", category: "國際", views: "6.2k", date: "2025/7/28" },
-        { id: 803, title: "民眾對罷免制度的看法調查", summary: "最新民調顯示民眾對罷免制度的看法及支持度調查。", category: "民調", views: "7.9k", date: "2025/7/29" }
-      ]
-    },
-    2: { // 人工智慧發展專題
-      "AI技術發展": [
-        { id: 901, title: "AI發展史：從圖靈測試到ChatGPT", summary: "回顧人工智慧發展的重要里程碑，從圖靈測試到現代AI技術的演進。", category: "科技", views: "14.2k", date: "2025/7/28" },
-        { id: 902, title: "2024年AI技術重大突破回顧", summary: "2024年人工智慧技術的重大突破及對產業的影響分析。", category: "科技", views: "11.5k", date: "2025/7/27" },
-        { id: 903, title: "AI技術發展趨勢預測", summary: "專家預測未來AI技術的發展趨勢及可能的技術突破。", category: "科技", views: "9.8k", date: "2025/7/26" }
-      ],
-      "機器學習應用": [
-        { id: 904, title: "機器學習在醫療診斷中的應用", summary: "機器學習技術在醫療診斷領域的實際應用案例及效果評估。", category: "醫療", views: "12.3k", date: "2025/7/28" },
-        { id: 905, title: "金融業如何運用機器學習降低風險", summary: "金融業運用機器學習技術降低風險的實際案例及效果分析。", category: "金融", views: "8.7k", date: "2025/7/27" },
-        { id: 906, title: "機器學習在教育領域的創新應用", summary: "機器學習技術在教育領域的創新應用案例及未來發展前景。", category: "教育", views: "7.4k", date: "2025/7/26" }
-      ],
-      "深度學習進展": [
-        { id: 907, title: "深度學習在自然語言處理的突破", summary: "深度學習技術在自然語言處理領域的最新突破及應用。", category: "科技", views: "13.1k", date: "2025/7/28" },
-        { id: 908, title: "計算機視覺技術的最新進展", summary: "計算機視覺技術的最新發展及在各領域的應用突破。", category: "科技", views: "10.2k", date: "2025/7/27" },
-        { id: 909, title: "深度學習模型效率優化技術", summary: "深度學習模型效率優化的最新技術及實際應用效果。", category: "科技", views: "8.9k", date: "2025/7/26" }
-      ],
-      "AI倫理議題": [
-        { id: 910, title: "AI偏見問題：如何確保公平性", summary: "探討AI系統中的偏見問題及如何確保AI決策的公平性。", category: "倫理", views: "11.8k", date: "2025/7/28" },
-        { id: 911, title: "AI對就業市場的影響分析", summary: "深入分析AI技術對就業市場的影響及未來就業趨勢。", category: "社會", views: "9.6k", date: "2025/7/27" },
-        { id: 912, title: "AI監管政策國際比較", summary: "各國AI監管政策的比較分析及對產業發展的影響。", category: "政策", views: "7.3k", date: "2025/7/26" }
-      ],
-      "產業應用案例": [
-        { id: 913, title: "製造業AI轉型成功案例", summary: "製造業運用AI技術進行數位轉型的成功案例分享。", category: "產業", views: "10.5k", date: "2025/7/28" },
-        { id: 914, title: "零售業AI應用提升顧客體驗", summary: "零售業運用AI技術提升顧客體驗的實際應用案例。", category: "產業", views: "8.2k", date: "2025/7/27" },
-        { id: 915, title: "農業AI技術應用現況", summary: "AI技術在農業領域的應用現況及未來發展前景。", category: "農業", views: "6.7k", date: "2025/7/26" }
-      ],
-      "未來趨勢預測": [
-        { id: 916, title: "2025年AI技術發展趨勢預測", summary: "專家預測2025年AI技術的發展趨勢及可能的技術突破。", category: "預測", views: "12.7k", date: "2025/7/28" },
-        { id: 917, title: "量子計算與AI結合的前景", summary: "量子計算與AI技術結合的發展前景及潛在應用。", category: "科技", views: "9.4k", date: "2025/7/27" },
-        { id: 918, title: "AI在太空探索中的應用前景", summary: "AI技術在太空探索領域的應用前景及發展潛力。", category: "太空", views: "7.8k", date: "2025/7/26" }
-      ],
-      "專家觀點": [
-        { id: 919, title: "AI專家談技術發展與社會責任", summary: "AI領域專家分享對技術發展與社會責任的看法。", category: "觀點", views: "11.2k", date: "2025/7/28" },
-        { id: 920, title: "企業AI轉型專家的實戰經驗", summary: "企業AI轉型專家分享實戰經驗及成功關鍵因素。", category: "經驗", views: "8.9k", date: "2025/7/27" },
-        { id: 921, title: "學術界對AI發展的擔憂與建議", summary: "學術界對AI發展的擔憂及相關政策建議。", category: "學術", views: "6.5k", date: "2025/7/26" }
-      ],
-      "技術解析": [
-        { id: 922, title: "神經網絡原理深度解析", summary: "深入解析神經網絡的基本原理及運作機制。", category: "技術", views: "13.8k", date: "2025/7/28" },
-        { id: 923, title: "自然語言處理技術詳解", summary: "詳細介紹自然語言處理技術的原理及應用。", category: "技術", views: "10.1k", date: "2025/7/27" },
-        { id: 924, title: "AI算法優化技術分析", summary: "分析AI算法優化的最新技術及實際應用效果。", category: "技術", views: "8.3k", date: "2025/7/26" }
-      ]
-    },
-    3: { // 氣候變遷與永續發展
-      "氣候科學數據": [
-        { id: 1001, title: "2024年全球氣溫創歷史新高", summary: "最新氣候數據顯示2024年全球氣溫創下歷史新高，氣候變遷加劇。", category: "科學", views: "15.3k", date: "2025/7/27" },
-        { id: 1002, title: "北極冰層融化速度加快", summary: "科學家發現北極冰層融化速度正在加快，對全球氣候造成影響。", category: "科學", views: "11.7k", date: "2025/7/26" },
-        { id: 1003, title: "極端氣候事件頻率增加", summary: "最新研究顯示極端氣候事件的頻率正在增加，影響全球各地。", category: "科學", views: "9.2k", date: "2025/7/25" }
-      ],
-      "全球政策分析": [
-        { id: 1004, title: "歐盟氣候政策最新進展", summary: "歐盟最新氣候政策的進展及對全球氣候行動的影響。", category: "政策", views: "12.8k", date: "2025/7/27" },
-        { id: 1005, title: "美國氣候政策轉變分析", summary: "分析美國氣候政策的轉變及對國際氣候合作的影響。", category: "政策", views: "10.4k", date: "2025/7/26" },
-        { id: 1006, title: "亞洲國家氣候政策比較", summary: "比較亞洲各國的氣候政策及實施效果。", category: "政策", views: "8.6k", date: "2025/7/25" }
-      ],
-      "永續發展目標": [
-        { id: 1007, title: "SDGs目標實現進度報告", summary: "聯合國永續發展目標的實現進度報告及挑戰分析。", category: "永續", views: "13.5k", date: "2025/7/27" },
-        { id: 1008, title: "企業永續發展實踐案例", summary: "企業實踐永續發展目標的成功案例分享。", category: "企業", views: "9.8k", date: "2025/7/26" },
-        { id: 1009, title: "永續發展目標面臨的挑戰", summary: "分析永續發展目標實現過程中面臨的挑戰及解決方案。", category: "永續", views: "7.3k", date: "2025/7/25" }
-      ],
-      "減碳技術": [
-        { id: 1010, title: "碳捕獲技術最新突破", summary: "碳捕獲技術的最新突破及在減碳中的應用前景。", category: "技術", views: "14.2k", date: "2025/7/27" },
-        { id: 1011, title: "工業減碳技術應用案例", summary: "工業減碳技術的實際應用案例及效果評估。", category: "技術", views: "10.7k", date: "2025/7/26" },
-        { id: 1012, title: "建築節能技術發展", summary: "建築節能技術的最新發展及在永續建築中的應用。", category: "技術", views: "8.9k", date: "2025/7/25" }
-      ],
-      "綠色能源": [
-        { id: 1013, title: "太陽能技術效率提升", summary: "太陽能技術效率的最新提升及成本下降趨勢。", category: "能源", views: "12.1k", date: "2025/7/27" },
-        { id: 1014, title: "風力發電成本持續下降", summary: "風力發電技術成本持續下降，競爭力不斷提升。", category: "能源", views: "9.5k", date: "2025/7/26" },
-        { id: 1015, title: "氫能源技術發展前景", summary: "氫能源技術的發展前景及在能源轉型中的角色。", category: "能源", views: "7.8k", date: "2025/7/25" }
-      ],
-      "國際合作": [
-        { id: 1016, title: "巴黎協定執行進度評估", summary: "巴黎協定的執行進度評估及各國承諾的實現情況。", category: "國際", views: "13.9k", date: "2025/7/27" },
-        { id: 1017, title: "國際氣候基金運作現況", summary: "國際氣候基金的運作現況及對發展中國家的支持。", category: "國際", views: "10.2k", date: "2025/7/26" },
-        { id: 1018, title: "氣候談判最新進展", summary: "國際氣候談判的最新進展及未來發展方向。", category: "國際", views: "8.4k", date: "2025/7/25" }
-      ],
-      "個人行動指南": [
-        { id: 1019, title: "日常生活減碳小技巧", summary: "提供日常生活中可以採取的減碳小技巧及建議。", category: "生活", views: "11.6k", date: "2025/7/27" },
-        { id: 1020, title: "綠色消費指南", summary: "綠色消費的完整指南及環保產品選擇建議。", category: "生活", views: "9.1k", date: "2025/7/26" },
-        { id: 1021, title: "環保生活實踐案例", summary: "環保生活的實際實踐案例分享及經驗交流。", category: "生活", views: "7.2k", date: "2025/7/25" }
-      ],
-      "未來展望": [
-        { id: 1022, title: "2050年氣候變遷預測", summary: "科學家對2050年氣候變遷的預測及應對策略。", category: "預測", views: "14.7k", date: "2025/7/27" },
-        { id: 1023, title: "氣候適應策略發展", summary: "氣候適應策略的發展及在極端氣候中的應用。", category: "策略", views: "10.8k", date: "2025/7/26" },
-        { id: 1024, title: "氣候正義議題探討", summary: "探討氣候正義議題及對發展中國家的影響。", category: "正義", views: "8.5k", date: "2025/7/25" }
-      ]
-    }
-  };
-  
-  return newsData[reportId] || {};
 };
 
 function SpecialReportDetail() {
   const { id } = useParams();
   const report = specialReportData[id];
   const [activeEvent, setActiveEvent] = useState(report?.events[0] || '');
-  const [selectedCategory, setSelectedCategory] = useState('全部');
+  const [expandedCards, setExpandedCards] = useState({});
+  const sectionRefs = useRef({});
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
 
   if (!report) {
     return (
       <PageContainer>
-        <div style={{ textAlign: 'center', padding: '3rem' }}>
-          <h2>專題報導不存在</h2>
-          <p>請返回專題報導列表</p>
-          <Link to="/special-reports" style={{ color: '#667eea' }}>返回專題報導</Link>
-        </div>
+        <MainContent>
+          <div style={{ textAlign: 'center', padding: '3rem' }}>
+            <h2>專題報導不存在</h2>
+            <p>請返回專題報導列表</p>
+            <Link to="/special-reports" style={{ color: '#667eea' }}>返回專題報導</Link>
+          </div>
+        </MainContent>
       </PageContainer>
     );
   }
 
-  const relatedNews = getRelatedNews(report.id);
-  const allNews = Object.values(relatedNews).flat();
-  const categories = ['全部', ...new Set(allNews.map(news => news.category))];
-  
-  const filteredNews = selectedCategory === '全部' 
-    ? allNews 
-    : allNews.filter(news => news.category === selectedCategory);
+  const handleNavClick = (event) => {
+    setActiveEvent(event);
+    const targetRef = sectionRefs.current[event];
+    if (targetRef) {
+      targetRef.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  };
+
+  const toggleExpanded = (cardId) => {
+    setExpandedCards(prev => ({
+      ...prev,
+      [cardId]: !prev[cardId]
+    }));
+  };
+
+  const handleSendMessage = () => {
+    if (chatInput.trim()) {
+      const userMsg = {
+        id: Date.now(),
+        text: chatInput,
+        isOwn: true,
+        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, userMsg]);
+      setChatInput('');
+      
+      // 模擬AI助手回覆
+      setTimeout(() => {
+        const reply = {
+          id: Date.now() + 1,
+          text: `關於「${report.title}」這個專題，我可以為您提供深入分析。您提到的內容與專題中的「${activeEvent}」部分相關。需要我為您詳細解釋某個特定觀點嗎？`,
+          isOwn: false,
+          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+        };
+        setChatMessages(prev => [...prev, reply]);
+      }, 1000);
+    }
+  };
+
+  const handleQuickPrompt = (prompt) => {
+    setChatInput(prompt);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  };
+
+  const quickPrompts = [
+    "分析這個專題",
+    "相關背景資訊",
+    "專家觀點",
+    "未來發展趨勢"
+  ];
 
   return (
     <PageContainer>
-      <ReportHeader>
-        <HeaderContent>
-          <ReportIcon>{report.icon}</ReportIcon>
-          <ReportTitle>{report.title}</ReportTitle>
-          <ReportSummary>{report.summary}</ReportSummary>
-          <ReportMeta>
-            <MetaItem>
-              <span>📅</span>
-              <span>{report.lastUpdate}</span>
-            </MetaItem>
-            <MetaItem>
-              <span>📄</span>
-              <span>{report.articles} 篇文章</span>
-            </MetaItem>
-            <MetaItem>
-              <span>👁️</span>
-              <span>{report.views}</span>
-            </MetaItem>
-          </ReportMeta>
-        </HeaderContent>
-        
-        <ConnectionImage />
-      </ReportHeader>
+      <MainContent>
+        <ReportHeader>
+          <HeaderContent>
+            <ReportTitle>{report.title}</ReportTitle>
+            <ReportSummary>{report.summary}</ReportSummary>
+            <ReportMeta>
+              <MetaItem>
+                <span>📅</span>
+                <span>{report.lastUpdate}</span>
+              </MetaItem>
+              <MetaItem>
+                <span>📄</span>
+                <span>{report.articles} 篇文章</span>
+              </MetaItem>
+              <MetaItem>
+                <span>👁️</span>
+                <span>{report.views}</span>
+              </MetaItem>
+            </ReportMeta>
+          </HeaderContent>
+          
+          <ConnectionImage />
+        </ReportHeader>
 
-      <ContentGrid>
-        <MainContent>
-          <SectionTitle>相關報導</SectionTitle>
-          
-          <NewsFilter>
-            {categories.map(category => (
-              <FilterButton
-                key={category}
-                active={selectedCategory === category}
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </FilterButton>
-            ))}
-          </NewsFilter>
-          
-          <NewsGrid>
-            {filteredNews.map(news => (
-              <NewsCard key={news.id}>
-                <NewsTitle>{news.title}</NewsTitle>
-                <NewsSummary>{news.summary}</NewsSummary>
-                <NewsMeta>
-                  <div>
-                    <NewsCategory>{news.category}</NewsCategory>
-                  </div>
-                  <div>
-                    <span>👁️ {news.views}</span>
-                    <span style={{ marginLeft: '0.5rem' }}>📅 {news.date}</span>
-                  </div>
-                </NewsMeta>
-              </NewsCard>
-            ))}
-          </NewsGrid>
-        </MainContent>
-        
-        <Sidebar>
-          <SidebarCard>
-            <SidebarTitle>事件導引</SidebarTitle>
-            <EventGuide>
-              {report.events.map((event, index) => (
-                <EventItem
+        <ContentLayout>
+          <MainColumn>
+            {report.events.map((event, index) => {
+              const eventDetail = report.eventDetails[event];
+              return (
+                <ContentSection 
                   key={index}
-                  active={activeEvent === event}
-                  onClick={() => setActiveEvent(event)}
+                  ref={(el) => {
+                    sectionRefs.current[event] = el;
+                  }}
                 >
-                  {event}
-                </EventItem>
-              ))}
-            </EventGuide>
-          </SidebarCard>
-        </Sidebar>
-      </ContentGrid>
+                  <SectionTitle>{event}</SectionTitle>
+                  <SectionSummary>{eventDetail?.summary}</SectionSummary>
+                  
+                  <NewsGrid>
+                    {eventDetail?.articles.map(news => {
+                      const isExpanded = expandedCards[news.id] || false;
+                      return (
+                        <CardContainer key={news.id}>
+                          <CardHeader>
+                            <CardTitle to={`/news/${news.id}`}>{news.title}</CardTitle>
+                          </CardHeader>
+                          <CardInfo>
+                            <DateText>{news.date}</DateText>
+                            <AuthorText>記者 {news.author}</AuthorText>
+                          </CardInfo>
+                          <CardMeta>
+                            <CategoryTag>{news.category}</CategoryTag>
+                            <SourceCount>{news.sourceCount} 個來源</SourceCount>
+                            {news.keywords && news.keywords.map(kw => (
+                              <KeywordChip key={kw}>{kw}</KeywordChip>
+                            ))}
+                          </CardMeta>
+                          <CardContent>
+                            <SummaryText isExpanded={isExpanded}>
+                              {isExpanded ? news.shortSummary : news.shortSummary.substring(0, 150)}
+                            </SummaryText>
+                            {isExpanded && (
+                              <ExpandedContent>
+                                <RelatedNews>
+                                  <RelatedNewsTitle>相關報導</RelatedNewsTitle>
+                                  <RelatedNewsList>
+                                    {news.relatedNews.map(relatedNews => (
+                                      <RelatedNewsItem key={relatedNews.id}>
+                                        <RelatedNewsLink to={`/news/${relatedNews.id}`}>
+                                          {relatedNews.title}
+                                        </RelatedNewsLink>
+                                      </RelatedNewsItem>
+                                    ))}
+                                  </RelatedNewsList>
+                                </RelatedNews>
+                              </ExpandedContent>
+                            )}
+                          </CardContent>
+                          <CardActions>
+                            <ActionButtons>
+                              <ActionButton onClick={() => toggleExpanded(news.id)}>
+                                {isExpanded ? '收起' : '展開'}
+                              </ActionButton>
+                            </ActionButtons>
+                            <StatsContainer>
+                              <StatItem>👁️ {news.views}</StatItem>
+                            </StatsContainer>
+                          </CardActions>
+                        </CardContainer>
+                      );
+                    })}
+                  </NewsGrid>
+                </ContentSection>
+              );
+            })}
+          </MainColumn>
+          
+          <Sidebar>
+            <SidebarCard>
+              <SidebarTitle>專題導覽</SidebarTitle>
+              <NavigationMenu>
+                {report.events.map((event, index) => (
+                  <NavItem
+                    key={index}
+                    active={activeEvent === event}
+                    onClick={() => handleNavClick(event)}
+                  >
+                    {event}
+                  </NavItem>
+                ))}
+              </NavigationMenu>
+            </SidebarCard>
+
+            <TopicChatCard>
+              <ChatHeader>
+                <ChatIcon>💬</ChatIcon>
+                <div>
+                  <ChatTitle>專題討論</ChatTitle>
+                  <ChatDescription>與AI助手討論這個專題的相關議題</ChatDescription>
+                </div>
+              </ChatHeader>
+
+              <QuickPrompts>
+                {quickPrompts.map((prompt, index) => (
+                  <PromptButton
+                    key={index}
+                    onClick={() => handleQuickPrompt(prompt)}
+                  >
+                    {prompt}
+                  </PromptButton>
+                ))}
+              </QuickPrompts>
+
+              <ChatMessages>
+                {chatMessages.length === 0 && (
+                  <Message isOwn={false}>
+                    歡迎討論「{report.title}」這個專題！您可以詢問任何相關問題。
+                  </Message>
+                )}
+                {chatMessages.map(message => (
+                  <Message key={message.id} isOwn={message.isOwn}>
+                    {message.text}
+                  </Message>
+                ))}
+              </ChatMessages>
+
+              <ChatInput
+                type="text"
+                placeholder="輸入您的問題或觀點..."
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+              <SendButton
+                onClick={handleSendMessage}
+                disabled={!chatInput.trim()}
+              >
+                發送訊息
+              </SendButton>
+            </TopicChatCard>
+          </Sidebar>
+        </ContentLayout>
+      </MainContent>
     </PageContainer>
   );
 }

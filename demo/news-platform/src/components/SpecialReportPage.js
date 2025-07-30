@@ -304,7 +304,6 @@ function SpecialReportPage() {
         {specialReports.map(report => (
           <ReportCard key={report.id}>
             <ReportHeader>
-              <ReportIcon>{report.icon}</ReportIcon>
               <ReportTitle>{report.title}</ReportTitle>
             </ReportHeader>
             <ReportContent>

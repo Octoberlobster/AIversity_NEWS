@@ -257,17 +257,23 @@ function FloatingChat() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const location = useLocation();
-  
-  // 檢查是否在新聞詳情頁面
-  const isNewsDetailPage = location.pathname.startsWith('/news/');
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // 檢查是否在專題詳情頁面或新聞詳情頁面
+  const isSpecialReportPage = location.pathname.includes('/special-report/');
+  const isNewsDetailPage = location.pathname.startsWith('/news/');
+
+  // 如果在專題詳情頁面或新聞詳情頁面，不顯示全域聊天室
+  if (isSpecialReportPage || isNewsDetailPage) {
+    return null;
+  }
+  
   const toggleChat = () => {
     setIsExpanded(!isExpanded);
   };
@@ -305,11 +311,6 @@ function FloatingChat() {
       handleSendMessage();
     }
   };
-
-  // 如果在新聞詳情頁面，不顯示全域聊天室
-  if (isNewsDetailPage) {
-    return null;
-  }
 
   return (
     <FloatingChatContainer>
