@@ -145,6 +145,6 @@ for eid, news in events_news.items():
     items_rows, sources_rows = analyse_event(eid, news)
     print(items_rows)
     print(sources_rows)
-    supabase.table("timeline_items").insert(items_rows).execute()
-    supabase.table("timeline_sources").insert(sources_rows).execute()
+    #supabase.table("timeline_items").insert(items_rows).execute()
+    #supabase.table("timeline_sources").insert(sources_rows).execute()
     print(f"完成插入items {len(items_rows)}、sources {len(sources_rows)}")

@@ -1,0 +1,4300 @@
+[
+    {
+        "timeline_items_id": "daaf9332-cc3e-4995-998b-6656ed8a1e65",
+        "event_id": "Event_0",
+        "date_range": "2025-05-03 ~ 2025-05-03",
+        "start_date": "2025-05-03",
+        "summary": "日台青年局聚焦海洋合作與安全議題"
+    },
+    {
+        "timeline_items_id": "0886a7b9-0d50-4a78-98b5-a8ae5f4b6d31",
+        "event_id": "Event_0",
+        "date_range": "2025-05-03 ~ 2025-05-03",
+        "start_date": "2025-05-03",
+        "summary": "自民黨青年局訪台，強調日台海洋合作"
+    },
+    {
+        "timeline_items_id": "e107b919-8d84-4100-b7c1-2710758f5c29",
+        "event_id": "Event_1",
+        "date_range": "2025-05-06 ~ 2025-05-06",
+        "start_date": "2025-05-06",
+        "summary": "賴總統會見西村康稔，強調台日合作"
+    },
+    {
+        "timeline_items_id": "9661aa7f-2d37-4618-b872-4ed2ae6e25dc",
+        "event_id": "Event_1",
+        "date_range": "2025-05-06 ~ 2025-05-06",
+        "start_date": "2025-05-06",
+        "summary": "日議員重申台灣有事即世界有事"
+    },
+    {
+        "timeline_items_id": "4ca8a690-398a-4f74-bf74-adac8126272f",
+        "event_id": "Event_1",
+        "date_range": "2025-05-06 ~ 2025-05-06",
+        "start_date": "2025-05-06",
+        "summary": "西村康稔訪台，強調台海和平重要性"
+    },
+    {
+        "timeline_items_id": "b9542382-a1cd-46ce-b400-1bfbbe5e3175",
+        "event_id": "Event_2",
+        "date_range": "2025-05-05 ~ 2025-05-05",
+        "start_date": "2025-05-05",
+        "summary": "黃呂錦茹抗告罷免案羈押禁見"
+    },
+    {
+        "timeline_items_id": "1deb9518-c60c-442d-9a9d-a4fc34adc55d",
+        "event_id": "Event_2",
+        "date_range": "2025-05-06 ~ 2025-05-06",
+        "start_date": "2025-05-06",
+        "summary": "黃呂錦茹不服羈押，提抗告。"
+    },
+    {
+        "timeline_items_id": "6a025f8c-ba78-4bca-8d37-5f393614fda3",
+        "event_id": "Event_3",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "犬貓美容定型化契約正式上路"
+    },
+    {
+        "timeline_items_id": "7af6989a-b40a-41fc-b6cd-66d997e26347",
+        "event_id": "Event_3",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "寵物美容定型化契約公告實施"
+    },
+    {
+        "timeline_items_id": "4ee6724d-c53c-4e6e-9135-5c62ded34251",
+        "event_id": "Event_4",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "安捷航空完成增資，拓展離岸風電維運"
+    },
+    {
+        "timeline_items_id": "24d7f8af-ed52-42c6-b82d-2ad62c103504",
+        "event_id": "Event_4",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "安捷完成增資，投入離岸風電維運"
+    },
+    {
+        "timeline_items_id": "12bc7325-f525-45bc-9b5c-3a490a331b62",
+        "event_id": "Event_5",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "普亭提談判，澤倫斯基要求先停火"
+    },
+    {
+        "timeline_items_id": "1ce50d32-7718-4b58-bbac-4e6b32242c35",
+        "event_id": "Event_5",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "川普促烏俄談判，澤倫斯基同意"
+    },
+    {
+        "timeline_items_id": "ad275a5d-dac8-4c94-bbca-d3d71fe2022f",
+        "event_id": "Event_6",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "台中商辦交易穩健，微型商辦崛起"
+    },
+    {
+        "timeline_items_id": "b8748121-8fed-40d7-ac87-ca72cd553b0e",
+        "event_id": "Event_6",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "台中商辦交易占比逆勢增長"
+    },
+    {
+        "timeline_items_id": "2903e862-8a8a-40c9-937a-2a617933f334",
+        "event_id": "Event_6",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "台中商辦交易逆勢成長，微型商辦興起"
+    },
+    {
+        "timeline_items_id": "48dce0a2-590f-4a5e-84e2-94eaa419cea8",
+        "event_id": "Event_7",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "川普擬簽署行政命令降低藥價"
+    },
+    {
+        "timeline_items_id": "19c9f49e-b4a6-4cea-aa08-b2b59a5ec91c",
+        "event_id": "Event_7",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "川普擬簽署行政命令降低藥價"
+    },
+    {
+        "timeline_items_id": "15eb7770-3359-44bb-b699-9fa55071bb9e",
+        "event_id": "Event_7",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "川普擬大幅降低美國藥價"
+    },
+    {
+        "timeline_items_id": "b16f3fe7-76b7-4433-9624-0f7c87f819bf",
+        "event_id": "Event_7",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "川普宣布藥價將降 59%"
+    },
+    {
+        "timeline_items_id": "5db8e73d-c9bb-44ca-9431-6770bf707c2d",
+        "event_id": "Event_8",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "台北羽球賽台灣男女雙皆奪冠"
+    },
+    {
+        "timeline_items_id": "fe94bb75-3720-4b0c-8c7f-1580f53d29e2",
+        "event_id": "Event_8",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "麟邱配奪冠升至17名創最佳"
+    },
+    {
+        "timeline_items_id": "75a649b3-8715-4354-9f86-f47cc1660d19",
+        "event_id": "Event_9",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "高雄酒駕男連闖紅燈撞死婦人"
+    },
+    {
+        "timeline_items_id": "c902967f-d055-4cc4-8494-a7e3d3780668",
+        "event_id": "Event_9",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "高雄酒駕男連闖紅燈撞死婦人"
+    },
+    {
+        "timeline_items_id": "1576c46b-97eb-42b7-9dac-fe7b1879ca20",
+        "event_id": "Event_9",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "高雄酒駕男撞死婦人遭羈押"
+    },
+    {
+        "timeline_items_id": "c48d01ef-12f2-4b94-9f5e-1f6e7e328613",
+        "event_id": "Event_9",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "酒駕男撞死騎士遭收押"
+    },
+    {
+        "timeline_items_id": "0794c401-cd10-4f41-9289-ebebbcb51302",
+        "event_id": "Event_10",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "美中關稅休兵，新台幣先升後貶"
+    },
+    {
+        "timeline_items_id": "47c07674-3266-49e3-b779-68963ea5241e",
+        "event_id": "Event_10",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "美中聲明利好，新台幣尾盤翻貶"
+    },
+    {
+        "timeline_items_id": "6c7f89ed-2eb4-4989-95b7-1e656b64b538",
+        "event_id": "Event_11",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "中美貿易談判取得重大進展"
+    },
+    {
+        "timeline_items_id": "c9b95cb0-7a76-4560-a4b0-c878d72285bc",
+        "event_id": "Event_11",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "中美貿易談判取得重大進展，建立磋商機制。"
+    },
+    {
+        "timeline_items_id": "5ef85232-a751-418f-8ba7-34d680a7c368",
+        "event_id": "Event_11",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "中美貿易談判取得實質性進展"
+    },
+    {
+        "timeline_items_id": "c1ed1393-3371-4eb0-bd10-6113aedad7c8",
+        "event_id": "Event_11",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "美中貿易談判獲實質進展"
+    },
+    {
+        "timeline_items_id": "ca10dcd7-30cb-47e9-9666-c59fddf7ef4d",
+        "event_id": "Event_12",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "美中貿易戰降溫，教宗選舉揭曉"
+    },
+    {
+        "timeline_items_id": "1431c55c-ba11-4de9-ad90-42dcd9de8823",
+        "event_id": "Event_12",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "國際局勢緊張，多國關係複雜。"
+    },
+    {
+        "timeline_items_id": "3670f3b2-7a14-49c1-973f-5bd2b353b319",
+        "event_id": "Event_13",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "黃仁勳抵台，COMPUTEX將登場"
+    },
+    {
+        "timeline_items_id": "fcc7c54d-5c54-4cff-ad52-5829ccaf84ab",
+        "event_id": "Event_13",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "黃仁勳將訪台，與高市府密切交流AI技術"
+    },
+    {
+        "timeline_items_id": "f77cd9cc-0c74-4a11-95d3-d803b21ffcae",
+        "event_id": "Event_13",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "黃仁勳將訪台，與高雄密切交流合作"
+    },
+    {
+        "timeline_items_id": "358f30f6-8c65-4054-a0c6-5e408eb89546",
+        "event_id": "Event_14",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "華航招募運務員及資訊工程師"
+    },
+    {
+        "timeline_items_id": "e2033b92-49a2-4cb0-b929-9837230f6e6d",
+        "event_id": "Event_14",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "華航招募逾60名運務及資訊人才"
+    },
+    {
+        "timeline_items_id": "29fe749c-bf60-4011-b389-6d02709fb068",
+        "event_id": "Event_15",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "信義房屋首季獲利衰退，展望第三季房市"
+    },
+    {
+        "timeline_items_id": "81589876-5bed-4fa6-a34f-e0b687f55096",
+        "event_id": "Event_15",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "信義房屋Q1獲利衰退，預計一兩季回穩"
+    },
+    {
+        "timeline_items_id": "ce21c915-a3bd-4bf9-b318-c344aabf76b0",
+        "event_id": "Event_16",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "桃園消保官人力不足，影響消費爭議處理。"
+    },
+    {
+        "timeline_items_id": "3cfa2a08-d347-4c1b-958d-92abc23b80a0",
+        "event_id": "Event_16",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "桃園消保官人力不足，將增編一人"
+    },
+    {
+        "timeline_items_id": "dabbf41f-682e-4b8c-8494-f76a5b7b7f77",
+        "event_id": "Event_16",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "桃園消保官人力不足，將增編一人"
+    },
+    {
+        "timeline_items_id": "28501783-9a9b-4de0-81bf-d48e2aa9226e",
+        "event_id": "Event_17",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "高雄酒駕肇事，婦人死亡"
+    },
+    {
+        "timeline_items_id": "0b1ee87e-a7bc-4d98-a09a-21843c044868",
+        "event_id": "Event_17",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "高雄男酒駕撞死女騎士"
+    },
+    {
+        "timeline_items_id": "333c0105-d67f-4c1e-81e1-afc89e31a6ef",
+        "event_id": "Event_18",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "龔明鑫率團赴美，促進台美經貿合作"
+    },
+    {
+        "timeline_items_id": "b644394c-3dc2-4200-8d0d-daf86e40e1d7",
+        "event_id": "Event_18",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "台灣企業積極參與美國投資峰會"
+    },
+    {
+        "timeline_items_id": "c21516e9-b0c2-4004-a957-2c7fc71933b7",
+        "event_id": "Event_19",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "軍公教持中國證件清查首波完成"
+    },
+    {
+        "timeline_items_id": "d78c8d01-36bc-4c0b-bb5c-4bcd3bd9eee5",
+        "event_id": "Event_19",
+        "date_range": "2025-05-13 ~ 2025-05-13",
+        "start_date": "2025-05-13",
+        "summary": "清查軍公教陸籍，兩人曾涉機密業務"
+    },
+    {
+        "timeline_items_id": "30927b38-373b-4604-851e-20023d391587",
+        "event_id": "Event_20",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "美中貿易談判取得實質進展"
+    },
+    {
+        "timeline_items_id": "3cc07fd4-7f99-495f-9579-0e8195954010",
+        "event_id": "Event_20",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "美中貿易談判取得進展，但未有具體讓步。"
+    },
+    {
+        "timeline_items_id": "8307e060-dc90-4572-80e8-da2a90741bcc",
+        "event_id": "Event_21",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "美中貿易談判獲重大進展，台股大漲"
+    },
+    {
+        "timeline_items_id": "c6b0acd6-0716-4af0-8f0a-8fa14e6c1ad6",
+        "event_id": "Event_21",
+        "date_range": "2025-05-12 ~ 2025-05-12",
+        "start_date": "2025-05-12",
+        "summary": "美中貿易談判有重大進展，台股大漲"
+    },
+    {
+        "timeline_items_id": "0af764f3-0e7b-405c-94ea-fa907beb02bc",
+        "event_id": "Event_22",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "伊朗暗示核反擊，局勢緊張升級"
+    },
+    {
+        "timeline_items_id": "40fc99a0-2d1a-4aaf-b1ce-18e8838d00ed",
+        "event_id": "Event_22",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "傳川普因伊朗核武問題與情報總監不合"
+    },
+    {
+        "timeline_items_id": "5217828a-0290-43a3-a73f-759c2f5bf8d4",
+        "event_id": "Event_23",
+        "date_range": "2025-06-18 ~ 2025-06-18",
+        "start_date": "2025-06-18",
+        "summary": "桃猿勝兄弟，林智平關鍵安"
+    },
+    {
+        "timeline_items_id": "0a41ddd6-9302-48e2-9700-9ef9293efdc4",
+        "event_id": "Event_23",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "桃猿林智平關鍵安打助隊逆轉勝兄弟"
+    },
+    {
+        "timeline_items_id": "4b8f9b61-5b75-4419-9357-46d47a3101bb",
+        "event_id": "Event_23",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "林智平猛打賞助桃猿逆轉勝兄弟"
+    },
+    {
+        "timeline_items_id": "e6902597-5fcc-4086-a525-9e20e2f1a2b3",
+        "event_id": "Event_24",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "黃呂錦茹續押，黃國昌質疑司法不公"
+    },
+    {
+        "timeline_items_id": "e3cef98d-bfa4-467a-92d7-9c5e68f21160",
+        "event_id": "Event_24",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "黃呂錦茹遭羈押，黃國昌質疑司法不公"
+    },
+    {
+        "timeline_items_id": "a8f1af96-6df0-4e52-9b15-b82b610c7e92",
+        "event_id": "Event_25",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "台灣三大學QS排名進全球兩百強"
+    },
+    {
+        "timeline_items_id": "db22ca74-273d-45b5-a473-36dc61729d94",
+        "event_id": "Event_25",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "台大QS排名63名創新高"
+    },
+    {
+        "timeline_items_id": "a651bb05-67f8-468d-aa71-fa55cacaf945",
+        "event_id": "Event_26",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "巴斯家族出售湖人多數股權"
+    },
+    {
+        "timeline_items_id": "8a821945-3816-4852-821b-503175de02a1",
+        "event_id": "Event_26",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "湖人主要股權售予華特，珍妮·巴斯續任總裁"
+    },
+    {
+        "timeline_items_id": "c6fa9cad-3433-4421-bc97-20138ab83ef3",
+        "event_id": "Event_27",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "疑似中國國家級駭客攻擊逢甲大學"
+    },
+    {
+        "timeline_items_id": "5c135797-cfc3-45dd-b75e-327771d7d459",
+        "event_id": "Event_27",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "逢甲大學遭勒索軟體Nova攻擊"
+    },
+    {
+        "timeline_items_id": "57ec5f8d-1695-4286-8fa3-96d8fb1186da",
+        "event_id": "Event_27",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "逢甲大學遭勒索病毒攻擊，啟動應變措施"
+    },
+    {
+        "timeline_items_id": "c5264fdc-009e-4c5f-89ed-5c5a1f240a4d",
+        "event_id": "Event_28",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "中國連兩月減持美債，退居第三"
+    },
+    {
+        "timeline_items_id": "94026293-779a-4200-b7b5-2d00c5632c87",
+        "event_id": "Event_28",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "中國連兩月減持美債，降至第三大債權國"
+    },
+    {
+        "timeline_items_id": "9338a847-949d-4e6a-8dfe-1c21ceffba72",
+        "event_id": "Event_29",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "台灣百萬美元富豪人數全球第十五"
+    },
+    {
+        "timeline_items_id": "5235baa3-3976-4ad6-9228-ae29efd2ed30",
+        "event_id": "Event_29",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "美國百萬美元富豪人數全球居冠，台灣排名十五"
+    },
+    {
+        "timeline_items_id": "f4747ea1-2712-4f55-adb2-72ffc1fee4dc",
+        "event_id": "Event_30",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "星宇航空增購十架A350-1000客機"
+    },
+    {
+        "timeline_items_id": "96eba9b8-cd10-47b3-a107-ef125c55aa40",
+        "event_id": "Event_30",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "星宇增購十架A350-1000客機"
+    },
+    {
+        "timeline_items_id": "b64ece36-f445-4afd-9802-4ca47ff190dc",
+        "event_id": "Event_31",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "淡水火災一死一傷，兩男疑涉案遭逮"
+    },
+    {
+        "timeline_items_id": "20954b34-26a7-4781-9a79-a8ccf6427ea7",
+        "event_id": "Event_31",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "淡水火警一死一傷，兩嫌竊車逃逸被捕"
+    },
+    {
+        "timeline_items_id": "0ad0ce84-25b8-4116-883c-effbbf5ccbbb",
+        "event_id": "Event_32",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "漢光演習結合城鎮韌性演練"
+    },
+    {
+        "timeline_items_id": "bc4bf83f-a48b-4629-a48a-9bbcc20fc42c",
+        "event_id": "Event_32",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "漢光演習結合城鎮韌性演練"
+    },
+    {
+        "timeline_items_id": "124ac02d-cb6c-4d93-aa5c-0f8a34bea13e",
+        "event_id": "Event_33",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "花蓮規模3.7淺層地震，南投震度3級"
+    },
+    {
+        "timeline_items_id": "58486119-061d-434e-9723-88ccff0c6ed8",
+        "event_id": "Event_33",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "花蓮兩次小區域地震，最大震度3級"
+    },
+    {
+        "timeline_items_id": "444d0f34-ee37-49ec-b8a9-2602d7dbfaa9",
+        "event_id": "Event_34",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "林芳郁罹患失智症，吳明賢感念其貢獻。"
+    },
+    {
+        "timeline_items_id": "d13be322-e97c-4b9f-a2a3-1ef737d23a86",
+        "event_id": "Event_34",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "林芳郁確診失智，各界關懷並成立基金會"
+    },
+    {
+        "timeline_items_id": "778e807e-e580-4bae-a73c-6e27f8c15929",
+        "event_id": "Event_35",
+        "date_range": "2025-06-18 ~ 2025-06-18",
+        "start_date": "2025-06-18",
+        "summary": "今彩539頭獎槓龜，二獎189注"
+    },
+    {
+        "timeline_items_id": "1e50e83d-10e8-4203-8da5-b9e69dcec7c2",
+        "event_id": "Event_35",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "今彩539開獎，頭獎一注獨得八百萬"
+    },
+    {
+        "timeline_items_id": "a16ad542-9303-4d7f-ad8e-e2371d3955f9",
+        "event_id": "Event_35",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "今彩539頭獎槓龜，二獎227注。"
+    },
+    {
+        "timeline_items_id": "80bc3814-0a07-48f1-ace5-2ff700a9a7f6",
+        "event_id": "Event_35",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "今彩539開獎，頭獎一人獨得。"
+    },
+    {
+        "timeline_items_id": "4c1d70e3-8ee6-4bb5-80b9-6160cc290182",
+        "event_id": "Event_36",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "租金補貼中央地方協商分攤比例"
+    },
+    {
+        "timeline_items_id": "1a17cdf2-cd0c-4300-9e90-a9537e4f9c80",
+        "event_id": "Event_36",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "中央擬恢復地方分擔租金補貼"
+    },
+    {
+        "timeline_items_id": "2e8332ce-8adc-4111-a07b-27a015f83dfc",
+        "event_id": "Event_37",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "家族企業接班傳承規劃重要性"
+    },
+    {
+        "timeline_items_id": "f7c1da25-53e5-41bb-bb34-0d85c97e26ef",
+        "event_id": "Event_37",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "報告揭示家族企業接班規劃不足"
+    },
+    {
+        "timeline_items_id": "edbf0f1c-1f62-4a34-8354-923cbce264df",
+        "event_id": "Event_38",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "名軒股東會通過配息4.5元，下半年推三大案"
+    },
+    {
+        "timeline_items_id": "bddc5417-423e-42b1-aed8-6e7a487c848e",
+        "event_id": "Event_38",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "名軒下半年推三案，插旗台北苗栗高雄"
+    },
+    {
+        "timeline_items_id": "f8df3bf6-5eef-46ff-814f-60a458169c30",
+        "event_id": "Event_39",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "以伊衝突升溫，美啟動撤僑"
+    },
+    {
+        "timeline_items_id": "def6894b-1831-4976-92f4-e6ad439cc7c2",
+        "event_id": "Event_39",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "以伊衝突升溫，美啟動撤僑"
+    },
+    {
+        "timeline_items_id": "0a21d157-3d86-40b9-bcde-5214e1c2282f",
+        "event_id": "Event_39",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "美駐以大使館啟動撤僑"
+    },
+    {
+        "timeline_items_id": "f9ae11f4-0c62-4957-9b76-8d5c2d6e3ffb",
+        "event_id": "Event_40",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "五億高中生案一審判婚姻無效"
+    },
+    {
+        "timeline_items_id": "2723b748-c3d8-4d4d-9730-b0f0adf267f2",
+        "event_id": "Event_40",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "夏男與賴生婚姻無效，失五億繼承權"
+    },
+    {
+        "timeline_items_id": "f3d019c0-f476-4e26-a606-707b5cca3081",
+        "event_id": "Event_41",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "龍巖台中太平寶山水土保持遭質疑"
+    },
+    {
+        "timeline_items_id": "b4827f6b-ada7-48eb-875b-afb526e9c12a",
+        "event_id": "Event_41",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "龍巖陰宅水土保持遭質疑"
+    },
+    {
+        "timeline_items_id": "b5671516-c744-4037-a70f-b789ad360ac3",
+        "event_id": "Event_42",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "美伊緊張局勢升級，伊朗尋求談判。"
+    },
+    {
+        "timeline_items_id": "4dc77c2f-68b7-4dd6-9b13-26a1e3f966dc",
+        "event_id": "Event_42",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "美伊緊張升級，川普未排除攻擊伊朗核設施"
+    },
+    {
+        "timeline_items_id": "1e3c6f4e-b081-4d01-9f43-830ffd131201",
+        "event_id": "Event_42",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "美伊緊張局勢升級，戰爭一觸即發"
+    },
+    {
+        "timeline_items_id": "3f5d4579-0999-477f-a9fa-8afb391be45d",
+        "event_id": "Event_43",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "川普批准攻擊伊朗但暫緩，伊朗揚言報復"
+    },
+    {
+        "timeline_items_id": "a508c3be-dfa1-451f-bb01-43e1e38a16c5",
+        "event_id": "Event_43",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "川普稱考慮攻擊伊朗但未做最終決定"
+    },
+    {
+        "timeline_items_id": "b2651669-9f11-4800-90a1-b204dd560f51",
+        "event_id": "Event_43",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "川普稱考慮攻擊伊朗但尚未決定"
+    },
+    {
+        "timeline_items_id": "34326f35-9877-4788-8c05-9f938af7e777",
+        "event_id": "Event_44",
+        "date_range": "2025-06-18 ~ 2025-06-18",
+        "start_date": "2025-06-18",
+        "summary": "賴清德邀在野黨國安簡報遭拒"
+    },
+    {
+        "timeline_items_id": "ae45c5be-2038-43d6-a08a-ae02f18b6387",
+        "event_id": "Event_44",
+        "date_range": "2025-06-18 ~ 2025-06-18",
+        "start_date": "2025-06-18",
+        "summary": "國安簡報破局，賴籲朝野團結對外"
+    },
+    {
+        "timeline_items_id": "af91a2ce-b4fd-40d7-9863-15bac4d798b6",
+        "event_id": "Event_45",
+        "date_range": "2025-06-18 ~ 2025-06-18",
+        "start_date": "2025-06-18",
+        "summary": "高雄成立罷免支援總部，全台宣講。"
+    },
+    {
+        "timeline_items_id": "7377420f-b84a-42bf-9fc0-b00c3d36cee1",
+        "event_id": "Event_45",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "高雄成立罷免支援總部，全台巡迴宣講。"
+    },
+    {
+        "timeline_items_id": "e26f6a03-4f5a-4fca-b99a-134750abc71f",
+        "event_id": "Event_46",
+        "date_range": "2025-06-18 ~ 2025-06-18",
+        "start_date": "2025-06-18",
+        "summary": "民進黨2026地方選舉提名條例草案出爐"
+    },
+    {
+        "timeline_items_id": "966c7d2a-4070-4c8a-9a22-da9ffa37abd8",
+        "event_id": "Event_46",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "民進黨通過2026地方選舉提名條例草案"
+    },
+    {
+        "timeline_items_id": "14bc4e75-dfa2-4fa1-ae09-3b946d2aebd9",
+        "event_id": "Event_47",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "英國大學教師教學自由受限"
+    },
+    {
+        "timeline_items_id": "34958c58-3082-452d-94b7-9b680bfb1469",
+        "event_id": "Event_47",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "兩成英國教師稱教學自由受限"
+    },
+    {
+        "timeline_items_id": "4a9c00cc-356b-4b19-b0b4-5d30c820dab9",
+        "event_id": "Event_48",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "威剛受惠DDR4需求爆發，訂單滿載。"
+    },
+    {
+        "timeline_items_id": "15f0b709-53d2-4aa3-b57a-9e0b73cfde09",
+        "event_id": "Event_48",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "DDR4需求激增，價格漲幅達30~40%"
+    },
+    {
+        "timeline_items_id": "76f96ab7-9ff5-476e-947c-1d73aee6d9a5",
+        "event_id": "Event_49",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "三位台灣女將挑戰女子PGA錦標賽"
+    },
+    {
+        "timeline_items_id": "5402bbd5-1ba2-4a33-a2ce-da1bf52eaa07",
+        "event_id": "Event_49",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "錢珮芸女子PGA錦標賽暫並列第七"
+    },
+    {
+        "timeline_items_id": "47889fde-c030-4998-9f0a-fb2c1338aaf8",
+        "event_id": "Event_49",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "錢珮芸女子PGA錦標賽暫列第七"
+    },
+    {
+        "timeline_items_id": "f16834ed-ba4d-4e61-b2a3-82e60d222b22",
+        "event_id": "Event_50",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "饅頭媽店面遭賓士車撞擊貨物"
+    },
+    {
+        "timeline_items_id": "dd1fbf36-a6e1-479d-a55d-5585c0430bc7",
+        "event_id": "Event_50",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "饅頭媽店面遭撞，疑似遭恐嚇報復"
+    },
+    {
+        "timeline_items_id": "24d4072f-529b-46cf-a3b4-3c50ad8fafb3",
+        "event_id": "Event_51",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "八仙山土石崩塌，五十遊客受困待援。"
+    },
+    {
+        "timeline_items_id": "9883976d-9250-4ba0-8202-15a3ca85bba2",
+        "event_id": "Event_51",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "八仙山土石崩塌，遊客受困後獲救"
+    },
+    {
+        "timeline_items_id": "761aca76-013f-42c2-ba7e-b1263fe74770",
+        "event_id": "Event_52",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "中正紀念堂轉型民主教育園區"
+    },
+    {
+        "timeline_items_id": "211dd9d3-2033-498a-8e24-036c2cd02d51",
+        "event_id": "Event_52",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "中正紀念堂將轉型為民主教育園區"
+    },
+    {
+        "timeline_items_id": "7d96a906-ced7-4a83-9712-9ca8a3ef2abd",
+        "event_id": "Event_53",
+        "date_range": "2025-06-19 ~ 2025-06-20",
+        "start_date": "2025-06-19",
+        "summary": "新台幣先貶後升，收盤價維持29.59元"
+    },
+    {
+        "timeline_items_id": "6da960a7-041f-4a23-9209-d7eb5eef0979",
+        "event_id": "Event_53",
+        "date_range": "2025-06-21 ~ 2025-06-27",
+        "start_date": "2025-06-21",
+        "summary": "新台幣持續升值，由29.529升至29.14元。"
+    },
+    {
+        "timeline_items_id": "726a88db-ca1f-4c72-b776-45b99ab63eb3",
+        "event_id": "Event_53",
+        "date_range": "2025-06-27 ~ 2025-06-28",
+        "start_date": "2025-06-27",
+        "summary": "新台幣先升後貶，終收貶值"
+    },
+    {
+        "timeline_items_id": "8c97d129-95e3-4f0a-9110-e80f9073ad8f",
+        "event_id": "Event_53",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "新台幣開盤升值2分，來到29.16元"
+    },
+    {
+        "timeline_items_id": "c3acb10d-66d5-4ed4-a2b8-51fc3ca0e53b",
+        "event_id": "Event_54",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "高溫炎熱，月底將進入颱風活躍期"
+    },
+    {
+        "timeline_items_id": "06008d64-c033-4b6d-b9c3-fcecd70ef066",
+        "event_id": "Event_54",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "持續晴熱，6月底前無梅雨"
+    },
+    {
+        "timeline_items_id": "5cb5b03c-64b4-4a61-b31c-443377d43786",
+        "event_id": "Event_54",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "11縣市高溫達36度，午後有局部雷陣雨"
+    },
+    {
+        "timeline_items_id": "9d447fc8-3629-43f3-93d2-2aed9bd48c53",
+        "event_id": "Event_54",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "持續高溫，夏至後中南部轉雨"
+    },
+    {
+        "timeline_items_id": "37b97b55-989b-488b-bd11-f6a58505e08e",
+        "event_id": "Event_55",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "三縣市發布大雷雨即時訊息"
+    },
+    {
+        "timeline_items_id": "2d5fbf6a-b750-49ac-ba1b-20ea64ad24ca",
+        "event_id": "Event_55",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "四縣市發布大雷雨特報"
+    },
+    {
+        "timeline_items_id": "115e68ba-2e26-4de9-8dad-120130fd66f5",
+        "event_id": "Event_56",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "共機擾台，19架次逾越中線"
+    },
+    {
+        "timeline_items_id": "3f71d73a-f439-4e50-9b9d-9c3f13b914a9",
+        "event_id": "Event_56",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "共機艦大舉擾台，國軍嚴密監控"
+    },
+    {
+        "timeline_items_id": "c9846b61-e074-4e71-acd1-0ddde809b96a",
+        "event_id": "Event_56",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "共軍持續擾台，逾越中線架次增加"
+    },
+    {
+        "timeline_items_id": "d7127420-2728-4c0f-9f85-c84f8be65ba3",
+        "event_id": "Event_56",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "共機艦擾台，國軍監控應處"
+    },
+    {
+        "timeline_items_id": "7468cdc7-9b05-4984-8406-b1080a14cceb",
+        "event_id": "Event_57",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "以伊互轟，攻擊核設施及醫院"
+    },
+    {
+        "timeline_items_id": "45b5612f-b662-4cc9-a9e3-70d2f43faf33",
+        "event_id": "Event_57",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "以伊互 bombing 核設施與醫院"
+    },
+    {
+        "timeline_items_id": "529d4bb2-3ade-4a7b-868d-cec943b81954",
+        "event_id": "Event_58",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "蕭美琴談及台灣需強化防衛能力，嚇阻中共。"
+    },
+    {
+        "timeline_items_id": "9baab251-7d9f-4e55-87d9-0061e93e0e2f",
+        "event_id": "Event_58",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "蕭美琴：強化國防，避免台海衝突"
+    },
+    {
+        "timeline_items_id": "a83ad3fd-90f0-40e8-817b-21a9a16b833c",
+        "event_id": "Event_59",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "李正皓遭辣椒水攻擊，疑似預謀犯案"
+    },
+    {
+        "timeline_items_id": "f217b6e7-a148-4fe3-83aa-7339df2d1d8a",
+        "event_id": "Event_59",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "李正皓遭辣椒水攻擊，已報警"
+    },
+    {
+        "timeline_items_id": "fb7f4c05-6609-4d1e-965a-93cda70642c1",
+        "event_id": "Event_59",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "李正皓遭辣椒水攻擊，警追緝嫌犯"
+    },
+    {
+        "timeline_items_id": "47eebcb4-abcc-4a5d-a5b8-c73b0f9c2aa8",
+        "event_id": "Event_60",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "美以伊衝突升溫，川普或轟炸伊朗"
+    },
+    {
+        "timeline_items_id": "3ff7eb20-99b0-405a-91c5-379452a82795",
+        "event_id": "Event_60",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "美或24小時內空襲伊朗"
+    },
+    {
+        "timeline_items_id": "63b4057a-a7bb-409a-a24c-8ca99cc64ffe",
+        "event_id": "Event_60",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "美中歧見，川普平衡各方意見"
+    },
+    {
+        "timeline_items_id": "5de762be-7808-4278-b683-a977191d2bf5",
+        "event_id": "Event_60",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "川普兩週內決定是否對伊朗採取行動"
+    },
+    {
+        "timeline_items_id": "cf15f2d3-d120-4294-a2be-0a5c4cba67c2",
+        "event_id": "Event_61",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "新北藍委反罷免，籲投不同意"
+    },
+    {
+        "timeline_items_id": "9b4b96ef-5bae-4e9d-8736-30c936a37cb4",
+        "event_id": "Event_61",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "新北五藍委籲726反罷免"
+    },
+    {
+        "timeline_items_id": "31f1f36b-ff95-4771-b4e9-1d22623fb7e4",
+        "event_id": "Event_62",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "羅明才反罷免，稱對方陣營使奧步。"
+    },
+    {
+        "timeline_items_id": "6ec35038-40b3-44ba-84bc-f21df45f6f56",
+        "event_id": "Event_62",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "羅明才反罷免，稱遭惡罷"
+    },
+    {
+        "timeline_items_id": "25169fe5-9237-4370-b8e3-c3de6ecce87e",
+        "event_id": "Event_62",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "立委罷免案領銜人遭恐嚇"
+    },
+    {
+        "timeline_items_id": "e1ad294c-0627-4715-91cd-8d6601a7569d",
+        "event_id": "Event_63",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "小孟老師發布十二星座運勢"
+    },
+    {
+        "timeline_items_id": "262c6952-476e-4877-9810-8902cab6aeb1",
+        "event_id": "Event_63",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "十二星座運勢公布，金牛天蠍運勢佳"
+    },
+    {
+        "timeline_items_id": "8e982eb3-69da-4695-84a7-798d42a4142e",
+        "event_id": "Event_64",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "大樂透、今彩539等開獎號碼公布"
+    },
+    {
+        "timeline_items_id": "d17b9117-e276-4622-8157-477b9372a47d",
+        "event_id": "Event_64",
+        "date_range": "2025-06-21 ~ 2025-06-22",
+        "start_date": "2025-06-21",
+        "summary": "大樂透連六槓，下期頭獎上看兩億"
+    },
+    {
+        "timeline_items_id": "25d15bf6-60db-4a88-8757-bd6253f599cb",
+        "event_id": "Event_64",
+        "date_range": "2025-06-28 ~ 2025-06-29",
+        "start_date": "2025-06-28",
+        "summary": "大樂透連八槓，頭獎累積至2.7億"
+    },
+    {
+        "timeline_items_id": "396a5412-f23a-42a7-a272-370b68d45b6d",
+        "event_id": "Event_64",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "今彩539等開獎號碼公布"
+    },
+    {
+        "timeline_items_id": "856ec8ef-0bd5-49dd-a74a-b5aa08ae8699",
+        "event_id": "Event_65",
+        "date_range": "2025-06-18 ~ 2025-06-18",
+        "start_date": "2025-06-18",
+        "summary": "國王遭海神逆轉，林書豪犯滿離場"
+    },
+    {
+        "timeline_items_id": "c65c1c3f-382f-4624-9b17-fb55bdc142f6",
+        "event_id": "Event_65",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "林書豪六犯離場，國王遭海神逆轉"
+    },
+    {
+        "timeline_items_id": "1fe3841a-b248-4b0d-9ac1-8a9c7d82fec3",
+        "event_id": "Event_66",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "黃國昌示範帶爭議持續延燒"
+    },
+    {
+        "timeline_items_id": "5b1506db-9bd9-43ec-a24f-3142a0186f9c",
+        "event_id": "Event_66",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "黃國昌自製示範帶引發爭議"
+    },
+    {
+        "timeline_items_id": "8e4b964d-a25a-4e50-a3fe-7bfbc37dafd7",
+        "event_id": "Event_66",
+        "date_range": "2025-06-20 ~ 2025-06-21",
+        "start_date": "2025-06-20",
+        "summary": "黃國昌承認示範帶自製，並批評鄭銘謙"
+    },
+    {
+        "timeline_items_id": "01900c46-54a2-426f-a678-f9159ec19dd1",
+        "event_id": "Event_67",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "行動電源大廠因電芯瑕疵召回百萬顆"
+    },
+    {
+        "timeline_items_id": "555df54d-ab81-4456-985c-62e2009c03ab",
+        "event_id": "Event_67",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "中國製行動電源爆燃，安克召回七十萬顆"
+    },
+    {
+        "timeline_items_id": "3a90f5dd-feb3-4858-ac6b-a034aaa35e39",
+        "event_id": "Event_68",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "牛耳藝術村紀念創辦人黃炳松"
+    },
+    {
+        "timeline_items_id": "48f73ab9-e747-4eeb-b62b-6cdab89656b8",
+        "event_id": "Event_68",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "牛耳藝術村紀念創辦人黃炳松"
+    },
+    {
+        "timeline_items_id": "6d4ebbc4-67d0-452b-b76e-59dbe269a027",
+        "event_id": "Event_69",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "TPASS提升大眾運輸使用率，但私家車仍創新高"
+    },
+    {
+        "timeline_items_id": "971f7ad0-a733-442b-abff-a975bc94b8d5",
+        "event_id": "Event_69",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "TPASS推動公共運輸市占率微幅成長"
+    },
+    {
+        "timeline_items_id": "f262536f-b0db-4817-8258-70827d7a0545",
+        "event_id": "Event_70",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "美東協訂單創新高，電子產品外銷強勁"
+    },
+    {
+        "timeline_items_id": "8ef87df6-e727-47e3-8388-81d4d87f75b9",
+        "event_id": "Event_70",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "5月外銷訂單創新高，AI需求旺盛，拉貨潮趨緩。"
+    },
+    {
+        "timeline_items_id": "f2acce31-a58a-4177-811d-c92e81c4cd59",
+        "event_id": "Event_71",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "16縣市大雨特報，午後雷陣雨"
+    },
+    {
+        "timeline_items_id": "54ba9df2-5d58-46cc-9d09-4d73ef026d60",
+        "event_id": "Event_71",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "十五縣市發布大雨特報"
+    },
+    {
+        "timeline_items_id": "cb971cb0-afab-434c-8960-aacf794329f4",
+        "event_id": "Event_71",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "14縣市發布大雨特報，午後防短時強降雨"
+    },
+    {
+        "timeline_items_id": "df308641-0c95-4c71-853c-cb30657716ca",
+        "event_id": "Event_71",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "15縣市大雨特報，下週恐有颱風"
+    },
+    {
+        "timeline_items_id": "3da1777b-1c3a-4c59-be28-2be4a663a0fa",
+        "event_id": "Event_72",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "持續高溫，午後山區有雨，十天內颱風機率低"
+    },
+    {
+        "timeline_items_id": "89e473ce-0fa8-4316-b7d2-0d32a77a8c78",
+        "event_id": "Event_72",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "持續高溫炎熱，防中暑，無颱風威脅"
+    },
+    {
+        "timeline_items_id": "5fa1394b-b8ac-42a3-997a-f74e7f434d76",
+        "event_id": "Event_72",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "多處發布高溫警報，新店達36.3度。"
+    },
+    {
+        "timeline_items_id": "c8878db0-afdd-4928-8c75-2c3ade9ae4c5",
+        "event_id": "Event_72",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "夏至高溫，未來十天颱風機率低"
+    },
+    {
+        "timeline_items_id": "2b16f71c-6056-43ae-87fb-4bc249eaf9f6",
+        "event_id": "Event_72",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "未來十天高溫炎熱，關島北方海面或有颱風"
+    },
+    {
+        "timeline_items_id": "6beb5328-4c90-4701-8d0e-65ea6f1d9b29",
+        "event_id": "Event_73",
+        "date_range": "2025-06-18 ~ 2025-06-19",
+        "start_date": "2025-06-18",
+        "summary": "川普持續抨擊鮑爾，施壓Fed降息"
+    },
+    {
+        "timeline_items_id": "1e0083de-83c4-4962-bef2-06c6b71396d2",
+        "event_id": "Event_73",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "聯準會維持利率不變，預計下半年或降息兩次。"
+    },
+    {
+        "timeline_items_id": "5d8843c0-e3ed-444b-9b90-1871e4dab7b8",
+        "event_id": "Event_73",
+        "date_range": "2025-06-20 ~ 2025-06-22",
+        "start_date": "2025-06-20",
+        "summary": "Fed維持利率不變，川普施壓無效"
+    },
+    {
+        "timeline_items_id": "4d002dd0-3bbc-4cea-83ca-8f0dd6aa0a9c",
+        "event_id": "Event_74",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "美轟炸伊朗核設施恐引發持久戰"
+    },
+    {
+        "timeline_items_id": "ed965f3e-426f-48f4-a370-ef78bcc471f8",
+        "event_id": "Event_74",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "美考慮攻擊伊朗方案，川普尚未決定"
+    },
+    {
+        "timeline_items_id": "2b2fe9b6-6f33-4ddc-b332-4fc678d131a7",
+        "event_id": "Event_74",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "川普考慮以空襲介入以伊衝突"
+    },
+    {
+        "timeline_items_id": "8e489e27-6e30-4bff-8fa3-6fd66c7add65",
+        "event_id": "Event_75",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "議員遭裸照威脅，與李正皓遇襲相關"
+    },
+    {
+        "timeline_items_id": "577d25ec-298f-440e-b8ee-7d9d64239447",
+        "event_id": "Event_75",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "林亮君遭裸照威脅已報警"
+    },
+    {
+        "timeline_items_id": "9215f5cb-f544-4611-a802-daa713428437",
+        "event_id": "Event_75",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "林亮君遭恐嚇握有不雅照已報警"
+    },
+    {
+        "timeline_items_id": "8c3eb8d6-c7db-4f1d-bbac-007ebee7fb7b",
+        "event_id": "Event_76",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "新華泰富涉內線交易，前董事遭調查。"
+    },
+    {
+        "timeline_items_id": "afa1c8bf-37bb-431d-851d-0c611acd838c",
+        "event_id": "Event_76",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "新華泰富涉內線交易及陸資介入遭調查"
+    },
+    {
+        "timeline_items_id": "66ec5344-235b-42cf-a8f6-556a6c25ec74",
+        "event_id": "Event_77",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "監院糾正勞動部職場霸凌與基金濫用"
+    },
+    {
+        "timeline_items_id": "ed197cf3-21ec-4582-bd97-249a79d564c4",
+        "event_id": "Event_77",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "勞動部遭糾正，職場霸凌及基金濫用"
+    },
+    {
+        "timeline_items_id": "04b4878e-ef6a-44e0-8940-995cddd73388",
+        "event_id": "Event_78",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "吳怡農籲民進黨維持初選制度"
+    },
+    {
+        "timeline_items_id": "61d62a91-7ec3-4d0a-bad1-7f0755862531",
+        "event_id": "Event_78",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "吳怡農籲民進黨維持初選制度"
+    },
+    {
+        "timeline_items_id": "9261ff2d-04a7-48ae-9fba-c4c63b4f7dae",
+        "event_id": "Event_78",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "吳怡農籲民進黨勿廢初選"
+    },
+    {
+        "timeline_items_id": "b5337fa8-63d1-4a6f-af7f-3a41e571b626",
+        "event_id": "Event_79",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "建議延後國民黨主席選舉"
+    },
+    {
+        "timeline_items_id": "405e044d-65b6-46ce-bfff-221a1570aa12",
+        "event_id": "Event_79",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "藍營建議黨主席選舉延後"
+    },
+    {
+        "timeline_items_id": "2ae1536f-96a2-4843-85c6-6801ce9e5dbf",
+        "event_id": "Event_80",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "藍委質疑罷免案連署造假"
+    },
+    {
+        "timeline_items_id": "4f2ca2e1-0555-423c-b9d5-bad9fec48c7d",
+        "event_id": "Event_80",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "藍營罷免連署造假遭綠營反擊"
+    },
+    {
+        "timeline_items_id": "dd074974-0ad9-4851-be4c-8b01e89b0d95",
+        "event_id": "Event_81",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "龍年新生暴增，新北國中增90班"
+    },
+    {
+        "timeline_items_id": "fd5e770c-1e0e-4f31-9990-71970387200d",
+        "event_id": "Event_81",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "新北龍年國一新生增，增班逾90班"
+    },
+    {
+        "timeline_items_id": "38936e0b-ad48-4d6a-951f-5f381856b6cb",
+        "event_id": "Event_82",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "川普抨擊鮑爾，不滿未降息"
+    },
+    {
+        "timeline_items_id": "d31bbf17-1085-4601-a1ce-5e020e60cc39",
+        "event_id": "Event_82",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "川普施壓降息，Fed內部現歧見"
+    },
+    {
+        "timeline_items_id": "7636f12f-024a-4830-a652-132210895434",
+        "event_id": "Event_83",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "摩薩德包圍哈米尼藏身處"
+    },
+    {
+        "timeline_items_id": "c0ba1c7e-7562-4861-abe8-6248a3d2b7b3",
+        "event_id": "Event_83",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "以色列包圍哈米尼藏身處，要求停止核計畫"
+    },
+    {
+        "timeline_items_id": "5b348651-a3d6-4e85-a902-4c0313e705c6",
+        "event_id": "Event_84",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "台灣樂團捷克音樂節亮相，展現文化軟實力"
+    },
+    {
+        "timeline_items_id": "086110aa-5624-4f72-9708-7bc167e5caf6",
+        "event_id": "Event_84",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "捷克音樂節聚焦台灣，展現文化軟實力"
+    },
+    {
+        "timeline_items_id": "2ed472ee-4e12-4105-a93e-48ae33ec50af",
+        "event_id": "Event_85",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "名醫林芳郁失智，照護挑戰多。"
+    },
+    {
+        "timeline_items_id": "1a237f96-2357-4505-a34c-a015b0687505",
+        "event_id": "Event_85",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "林芳郁醫師失智案例籲重視失智政策"
+    },
+    {
+        "timeline_items_id": "6387e982-5423-41c5-b8cc-00fbe5a71a6b",
+        "event_id": "Event_85",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "林靜芸分享失智照顧經驗：快樂為核心"
+    },
+    {
+        "timeline_items_id": "fdf9595d-13b8-44ec-bde9-c2e988da1322",
+        "event_id": "Event_86",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "共機擾台，逾越中線，國軍監控"
+    },
+    {
+        "timeline_items_id": "496f9068-3c56-450f-821a-db944a70125e",
+        "event_id": "Event_86",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "共機艦擾台，8架次越中線"
+    },
+    {
+        "timeline_items_id": "e7d691b7-ce88-4621-90ca-dda0df46acbb",
+        "event_id": "Event_86",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "共機艦持續擾台，國軍監控應處"
+    },
+    {
+        "timeline_items_id": "26e09449-8dbe-4acc-95b6-29e479794649",
+        "event_id": "Event_86",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "共軍38機艦擾台，國軍監控應處"
+    },
+    {
+        "timeline_items_id": "9a146c84-7a4d-4159-a839-987abd853040",
+        "event_id": "Event_86",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "共機艦擾台，國軍嚴密監控"
+    },
+    {
+        "timeline_items_id": "26c1ad6c-0da2-4665-b06b-2575684972bd",
+        "event_id": "Event_87",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "持續高溫午後雨，下週二起或有颱風"
+    },
+    {
+        "timeline_items_id": "e585b5d0-57d0-46c7-83de-105ddbe40410",
+        "event_id": "Event_87",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "6/29起環境有利颱風生成"
+    },
+    {
+        "timeline_items_id": "66f285ae-e771-4780-aae2-70e9d3a5af08",
+        "event_id": "Event_88",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "議員籲橋聳雲天增設防墜網"
+    },
+    {
+        "timeline_items_id": "884f6b3c-73f6-4c0f-ad28-5c21e3c81902",
+        "event_id": "Event_88",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "國六橋聳雲天再傳墜落，議員籲設防護網"
+    },
+    {
+        "timeline_items_id": "5718ff31-43dd-45c4-9769-bf11ad615a51",
+        "event_id": "Event_89",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "樹林工廠火警，已撲滅，無人傷亡"
+    },
+    {
+        "timeline_items_id": "8bf400a3-b4a1-4342-b736-971330c4de43",
+        "event_id": "Event_89",
+        "date_range": "2025-06-21 ~ 2025-06-21",
+        "start_date": "2025-06-21",
+        "summary": "樹林工廠火警，波及鄰近，無人傷亡"
+    },
+    {
+        "timeline_items_id": "b042edd8-3878-4a67-b682-64e175d6201c",
+        "event_id": "Event_90",
+        "date_range": "2025-06-19 ~ 2025-06-19",
+        "start_date": "2025-06-19",
+        "summary": "川普猶豫是否轟炸伊朗核設施"
+    },
+    {
+        "timeline_items_id": "bcf7634e-c082-4433-a746-9b626d367084",
+        "event_id": "Event_90",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "美攻擊伊朗三核設施，川普稱追求和平"
+    },
+    {
+        "timeline_items_id": "b2b06f46-cca1-49c0-ab93-d60c228a8212",
+        "event_id": "Event_90",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "美轟炸伊朗三核設施，川普稱促和平"
+    },
+    {
+        "timeline_items_id": "9abba5e1-ed99-488d-9e14-108bb7ba45a8",
+        "event_id": "Event_90",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "美空襲伊朗核設施，川普促停戰"
+    },
+    {
+        "timeline_items_id": "e116ffa2-fb68-4fdc-8fd8-0f45fa33c3c4",
+        "event_id": "Event_90",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "美軍空襲摧毀伊朗關鍵核設施"
+    },
+    {
+        "timeline_items_id": "e7e8d77a-182d-42a7-9e58-6b781f753c78",
+        "event_id": "Event_91",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "李正皓遭辣椒水攻擊，嫌犯聲押禁見"
+    },
+    {
+        "timeline_items_id": "ef17851c-a123-4c77-af85-1b85f66e5f5e",
+        "event_id": "Event_91",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "李正皓遭辣椒水攻擊，嫌犯無保請回"
+    },
+    {
+        "timeline_items_id": "99609f7e-2068-47f6-a971-e132ef6d241f",
+        "event_id": "Event_92",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "張啟楷自爆偵訊光碟來源，引爆爭議"
+    },
+    {
+        "timeline_items_id": "08632824-9479-4fce-af77-4e354c8a6f4f",
+        "event_id": "Event_92",
+        "date_range": "2025-06-20 ~ 2025-06-20",
+        "start_date": "2025-06-20",
+        "summary": "張啓楷言論爆破黃國昌示範帶說法"
+    },
+    {
+        "timeline_items_id": "9fcacc7e-3095-4ded-8d74-9d6667b6257b",
+        "event_id": "Event_93",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "優人神鼓歐洲巡演啟動，推廣台灣文化。"
+    },
+    {
+        "timeline_items_id": "5346acf0-4f7f-4568-aeec-08af7a1b12e7",
+        "event_id": "Event_93",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "優人神鼓啟動歐洲巡演，宣揚台灣文化。"
+    },
+    {
+        "timeline_items_id": "b56d6f7e-265c-4d7b-b540-52db6b458a23",
+        "event_id": "Event_94",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "央行控管外資反向ETF炒匯"
+    },
+    {
+        "timeline_items_id": "ca7f1af7-ad1b-4bce-be8f-315ab875effc",
+        "event_id": "Event_94",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "央行控管外資反向ETF投資防炒匯"
+    },
+    {
+        "timeline_items_id": "4a0db9ca-5a6d-4429-8f7b-3017ca5c6322",
+        "event_id": "Event_95",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "北約達成協議，提高國防支出。"
+    },
+    {
+        "timeline_items_id": "b4cb35a3-bd53-4996-9e0e-a30c0b6edf48",
+        "event_id": "Event_95",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "北約達成協議，提高軍費占比。"
+    },
+    {
+        "timeline_items_id": "dcd7992e-a712-429f-babc-16733764f471",
+        "event_id": "Event_96",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "成大恐嚇案判刑，緩刑限制靠近校園"
+    },
+    {
+        "timeline_items_id": "870b5c83-e2b4-439d-a064-f64dba3b2afe",
+        "event_id": "Event_96",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "成大校友恐嚇判緩刑，遠離校園"
+    },
+    {
+        "timeline_items_id": "6632136f-eed9-4a34-aa62-ad7fe5298d8e",
+        "event_id": "Event_97",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "英國對中政策盤點：強調挑戰，尋求平衡"
+    },
+    {
+        "timeline_items_id": "8484c189-88ba-41e7-89e6-cb8a4e2151be",
+        "event_id": "Event_97",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "英國重申視中國為挑戰，強調接觸及安全成長。"
+    },
+    {
+        "timeline_items_id": "2125020c-5ddd-4beb-b9a6-5707937d8d1e",
+        "event_id": "Event_98",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "越南廢除八項罪名死刑"
+    },
+    {
+        "timeline_items_id": "f088bb94-375e-4a43-851b-c95a8affd81f",
+        "event_id": "Event_98",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "越南廢除八項罪名死刑"
+    },
+    {
+        "timeline_items_id": "dcae75ee-5892-44c0-9f72-4262885db2bd",
+        "event_id": "Event_99",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "華碩股價波動，ETF換股影響"
+    },
+    {
+        "timeline_items_id": "e3ce49ed-239d-4972-8d66-f10728e4be24",
+        "event_id": "Event_99",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "華碩股價波動，復華投信澄清與00929換股關聯"
+    },
+    {
+        "timeline_items_id": "6044d291-e710-4d61-8a6d-aec66c76db96",
+        "event_id": "Event_100",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "台北分監受刑人攻擊四人遭起訴"
+    },
+    {
+        "timeline_items_id": "0d6e48a4-22cb-45a8-9b60-79585b99dd4c",
+        "event_id": "Event_100",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "台北分監受刑人攻擊獄方人員遭起訴"
+    },
+    {
+        "timeline_items_id": "c30cdf43-252d-4c4d-b6c9-1f2367b36f69",
+        "event_id": "Event_101",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "張博洋七月退黨，理念不合"
+    },
+    {
+        "timeline_items_id": "fff65038-17a2-458b-9aee-885e26b7ba17",
+        "event_id": "Event_101",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "兩議員退出基進黨，以無黨籍參選"
+    },
+    {
+        "timeline_items_id": "5b45a2c9-f50a-4393-aa35-12f6d37f8729",
+        "event_id": "Event_102",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "14縣市發布大雨特報"
+    },
+    {
+        "timeline_items_id": "1bd410fb-044d-45ea-a976-9aa2fe0d5977",
+        "event_id": "Event_102",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "桃園以南發布大雨特報"
+    },
+    {
+        "timeline_items_id": "132833f1-50e5-4bf6-a863-e99895e6974f",
+        "event_id": "Event_102",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "北北桃大雷雨特報，慎防劇烈降雨。"
+    },
+    {
+        "timeline_items_id": "71cfbfcb-82a6-477c-acb0-c4a7585b3423",
+        "event_id": "Event_103",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "關島附近或有颱風生成，十天內不侵台"
+    },
+    {
+        "timeline_items_id": "935cfcff-fa2f-4edd-9fd1-4caa1f865d14",
+        "event_id": "Event_103",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "關島北方擾動發展，預測遠離台灣"
+    },
+    {
+        "timeline_items_id": "fe92787e-e461-46a4-b4d7-e87d4cda5890",
+        "event_id": "Event_103",
+        "date_range": "2025-06-22 ~ 2025-06-22",
+        "start_date": "2025-06-22",
+        "summary": "十天內無颱風，天氣晴熱偶陣雨"
+    },
+    {
+        "timeline_items_id": "dfebb45b-5665-49a9-b846-e32ef39f04e2",
+        "event_id": "Event_104",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "曼達尼紐約市長初選領先，民主黨現路線危機"
+    },
+    {
+        "timeline_items_id": "4ca04ab0-de73-4a75-91f7-e32237852d40",
+        "event_id": "Event_104",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "紐約市長初選，左派曼達尼領先"
+    },
+    {
+        "timeline_items_id": "1b6d7ba1-3476-40e9-82fe-fb39adcf3c11",
+        "event_id": "Event_105",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "YouTube直播年齡限制將提高至16歲"
+    },
+    {
+        "timeline_items_id": "30bbb5ad-886e-4103-9f08-df9e1d35e581",
+        "event_id": "Event_105",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "YouTube直播最低年齡提高至16歲"
+    },
+    {
+        "timeline_items_id": "4305668d-0e5e-4114-8366-d2a05d23053e",
+        "event_id": "Event_106",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "勞動部推動身心障礙者職場合理調整。"
+    },
+    {
+        "timeline_items_id": "4cd45108-e07b-4a62-9aee-5715a3a09614",
+        "event_id": "Event_106",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "勞動部發布障礙者職場合理調整指導。"
+    },
+    {
+        "timeline_items_id": "5b6ffe27-aee1-48b7-95f1-9da0378b81e1",
+        "event_id": "Event_107",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "立委促AI法納兒少保護機制"
+    },
+    {
+        "timeline_items_id": "104c8683-9755-44c7-8853-78ddff9591b6",
+        "event_id": "Event_107",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "立委籲AI基本法納入兒少保護"
+    },
+    {
+        "timeline_items_id": "5e770d10-f859-4b65-b5cf-f12a01b5e759",
+        "event_id": "Event_108",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "萬丹泥火山今年首噴，四孔噴發"
+    },
+    {
+        "timeline_items_id": "c56711c0-7fb6-45fa-b977-7192344be6dd",
+        "event_id": "Event_108",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "萬丹泥火山再度噴發，影響農田。"
+    },
+    {
+        "timeline_items_id": "431ee81f-e459-4160-803f-720621613690",
+        "event_id": "Event_109",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "弘道基金會助獨居長輩裝扶手防跌倒"
+    },
+    {
+        "timeline_items_id": "565ff2aa-ae59-497b-b28c-14b990c172cf",
+        "event_id": "Event_109",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "弘道助獨居長輩改善居家安全防跌倒"
+    },
+    {
+        "timeline_items_id": "e5d5cd94-4e4b-4605-957d-85b06912e492",
+        "event_id": "Event_110",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "俄艦頻繁活動英國水域，船錨失蹤引關注"
+    },
+    {
+        "timeline_items_id": "62ba8b1c-6aa4-4452-8e90-a7036804f6ec",
+        "event_id": "Event_110",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "俄艦頻繁現蹤英國水域，一船錨失蹤"
+    },
+    {
+        "timeline_items_id": "2a8d2cfe-6aee-48b9-b18e-bca124c10166",
+        "event_id": "Event_110",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "俄艦頻繁現蹤英國水域，一艦船錨失蹤"
+    },
+    {
+        "timeline_items_id": "b0683749-0cf6-41c3-9ca8-07736cbbd4e8",
+        "event_id": "Event_111",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "警民合作停權七萬多個詐騙LINE帳號"
+    },
+    {
+        "timeline_items_id": "68283d80-59cc-4caa-99be-c6a599f4a91f",
+        "event_id": "Event_111",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "警民合作停權 7.3 萬詐騙 LINE 帳號"
+    },
+    {
+        "timeline_items_id": "3c22a46c-fc35-4c83-8f8c-255525fc0667",
+        "event_id": "Event_112",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "中華電信導入Copilot提升AI開發效率"
+    },
+    {
+        "timeline_items_id": "aa57b9aa-5b3c-48f8-844e-f430c138c6a5",
+        "event_id": "Event_112",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "電信商導入Copilot提升AI應用"
+    },
+    {
+        "timeline_items_id": "c577edb6-979c-4ef5-bff4-cc957ab9243e",
+        "event_id": "Event_113",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "瑞銀看好陸股因關稅下降而反彈"
+    },
+    {
+        "timeline_items_id": "acd04f40-7cee-44cd-a3ba-2d3c3abaa913",
+        "event_id": "Event_113",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "預測年底美對陸關稅降至40%以下"
+    },
+    {
+        "timeline_items_id": "271fdfb3-98f1-438c-9feb-7029a58788da",
+        "event_id": "Event_114",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "美軍轟炸伊朗核設施，耗資巨大。"
+    },
+    {
+        "timeline_items_id": "1f5f8bdb-e22a-4e6f-be17-6441e3b7b921",
+        "event_id": "Event_114",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "B-2轟炸機佯動任務中一架故障迫降夏威夷"
+    },
+    {
+        "timeline_items_id": "353378a5-a9d9-442d-b2d6-e48d00610d33",
+        "event_id": "Event_115",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "內政部導入無人機強化搜救及保育"
+    },
+    {
+        "timeline_items_id": "5cc43f87-f00a-43a4-b19d-e9e935ed77ae",
+        "event_id": "Event_115",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "內政部推動無人機科技執法及搜救"
+    },
+    {
+        "timeline_items_id": "2536e836-25f8-485b-810c-dedea84bb71a",
+        "event_id": "Event_116",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "礁溪餐廳保險箱遭竊，警方鎖定嫌犯"
+    },
+    {
+        "timeline_items_id": "e3c5e0c1-7e4c-4076-bd03-c16e84a52382",
+        "event_id": "Event_116",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "礁溪餐廳保險箱遭竊，損失逾30萬"
+    },
+    {
+        "timeline_items_id": "b5dcd488-7774-4d49-bb5e-e00648ac60e0",
+        "event_id": "Event_117",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "川普被戲稱「以伊爹地」"
+    },
+    {
+        "timeline_items_id": "5ac57e64-1bfe-4abd-86c7-ba8e8be30cab",
+        "event_id": "Event_117",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "北約秘書長失言稱川普為爸爸"
+    },
+    {
+        "timeline_items_id": "2bd71eff-a486-4a0b-8a77-d0f78f364460",
+        "event_id": "Event_117",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "川普被稱為「爹地」，白宮認證"
+    },
+    {
+        "timeline_items_id": "d1c7cec4-305e-4f14-afa8-d2b6fd9822d6",
+        "event_id": "Event_118",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "台巴科技合作，打造南美台灣"
+    },
+    {
+        "timeline_items_id": "46f3cb5a-98d0-4ec9-9edc-08dbf7658470",
+        "event_id": "Event_118",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "台巴科技合作，打造南美台灣"
+    },
+    {
+        "timeline_items_id": "61d828f5-5c1a-426d-9c23-6a6746093798",
+        "event_id": "Event_119",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "網紅投訴澎湖店家，店家遭勒令停業。"
+    },
+    {
+        "timeline_items_id": "71fdf509-0b2a-4d16-8a3a-055d3a5e779f",
+        "event_id": "Event_119",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "阿家生蠔辱韓星遭勒令停業"
+    },
+    {
+        "timeline_items_id": "550ba750-11c0-4181-a1e6-bba6b63f70a7",
+        "event_id": "Event_120",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "北約峰會決議提高國防開支至GDP5%"
+    },
+    {
+        "timeline_items_id": "f4b9e251-6a9e-4e35-98f3-05b46db8019d",
+        "event_id": "Event_120",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "北約峰會：提高國防開支至GDP5%"
+    },
+    {
+        "timeline_items_id": "328e3f6b-8985-4176-bb51-3c48424c9254",
+        "event_id": "Event_121",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "中華隊亞太青棒賽奪冠，將赴美征戰世界賽"
+    },
+    {
+        "timeline_items_id": "8b32fa39-c83f-4f48-a735-0453c89dd52f",
+        "event_id": "Event_121",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "台灣隊奪冠，將赴美參加世界賽"
+    },
+    {
+        "timeline_items_id": "c9d64872-ca28-49f2-a44f-795dfd9ef89a",
+        "event_id": "Event_122",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "川普籲蒲亭停戰，研議援烏愛國者飛彈"
+    },
+    {
+        "timeline_items_id": "cc4b164e-02ac-4082-8056-ad05b1027c4a",
+        "event_id": "Event_122",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "川普籲普亭停戰，考慮售烏愛國者"
+    },
+    {
+        "timeline_items_id": "d9abd3ef-47d1-40a8-ab22-91543a24e8d6",
+        "event_id": "Event_122",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "川普籲普丁停戰，研議援烏飛彈"
+    },
+    {
+        "timeline_items_id": "6a1a74b1-dbdd-4aa3-aeae-9cc89d52d70d",
+        "event_id": "Event_123",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "伊朗籲中國主持公道，維護地區和平。"
+    },
+    {
+        "timeline_items_id": "acbd0467-81fe-4ebb-bd8b-15ef0483f0e8",
+        "event_id": "Event_123",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "伊朗防長訪中促地區和平"
+    },
+    {
+        "timeline_items_id": "28b3be3c-d416-4eb8-abf3-3abcc506d429",
+        "event_id": "Event_124",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "公益揭弊者保護法7/22上路"
+    },
+    {
+        "timeline_items_id": "c7c50801-1cc2-43ed-a83d-10cf446cbecc",
+        "event_id": "Event_124",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "揭弊者保護法7/22上路，籌備施行細節"
+    },
+    {
+        "timeline_items_id": "41f79d73-4856-417e-9afa-ae4cd2402626",
+        "event_id": "Event_125",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "毒駕撞死警察，重判十八年六月"
+    },
+    {
+        "timeline_items_id": "2a10503f-f605-4ed3-93e2-7d1b4927d201",
+        "event_id": "Event_125",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "毒駕男撞死警，國民法官判18年6月"
+    },
+    {
+        "timeline_items_id": "3b7a7a97-bb04-436a-9a6e-7d515ac5eaf0",
+        "event_id": "Event_126",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "台南千層岩瀑布溺水，大學生命危"
+    },
+    {
+        "timeline_items_id": "72f5114e-1920-47f2-9b0f-12fe95b3e14c",
+        "event_id": "Event_126",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "千層岩瀑布溺水，成大生不治。"
+    },
+    {
+        "timeline_items_id": "4c7125ec-b07c-41e5-9a0e-e115ef7178d2",
+        "event_id": "Event_127",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "陸推首來族免台胞證費用"
+    },
+    {
+        "timeline_items_id": "08845189-ae5e-440d-86a6-5fc7d2428b95",
+        "event_id": "Event_127",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "陸推台胞證免費吸首來族"
+    },
+    {
+        "timeline_items_id": "d2c1b119-f91b-45d0-a24c-02d08fcd9151",
+        "event_id": "Event_128",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "陸委會協助陸配繳交喪失原籍證明"
+    },
+    {
+        "timeline_items_id": "e9dad60d-cd93-4b94-99ea-4ff76016b9b2",
+        "event_id": "Event_128",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "陸委會協助陸配補繳喪失原籍證明"
+    },
+    {
+        "timeline_items_id": "0f25c810-1320-4e41-bbdd-a73ec13dc6af",
+        "event_id": "Event_129",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "00929澄清華碩暴漲暴跌非其造成"
+    },
+    {
+        "timeline_items_id": "c2eed390-b808-4ce8-ba08-4412a7848173",
+        "event_id": "Event_129",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "華碩除息貼息，ETF換股影響股價"
+    },
+    {
+        "timeline_items_id": "44f89c3c-eb80-433b-a64e-7e7a64b26872",
+        "event_id": "Event_130",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "林榮錦再涉內線交易遭搜索約談"
+    },
+    {
+        "timeline_items_id": "e2c5f797-3e07-4316-a68c-a76becdc8f0d",
+        "event_id": "Event_130",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "林榮錦涉內線交易遭搜索移送北檢"
+    },
+    {
+        "timeline_items_id": "1afc56fc-a616-4336-aae5-ebd32e158505",
+        "event_id": "Event_131",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "賀瓏陷桃色風波遭解約，高嘉瑜代班主持"
+    },
+    {
+        "timeline_items_id": "ec033238-d890-46b3-ae70-22d1474ae6ee",
+        "event_id": "Event_131",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "天殘閨蜜揭私事反遭批二度傷害"
+    },
+    {
+        "timeline_items_id": "08f1dea7-4e41-43cb-9aec-777ce72112ca",
+        "event_id": "Event_132",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "Albee否認介入賀瓏感情，網友不買單"
+    },
+    {
+        "timeline_items_id": "a6d7f5f1-2b58-4604-aea4-41dc91421e91",
+        "event_id": "Event_132",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "Albee否認小三慣犯指控並提告"
+    },
+    {
+        "timeline_items_id": "e277c5b1-ae43-40f8-820e-94d6c667a5ef",
+        "event_id": "Event_133",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "冷心低壓抵台，午後劇烈雷雨"
+    },
+    {
+        "timeline_items_id": "7feebb2c-8ed0-451e-a524-07f224177303",
+        "event_id": "Event_133",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "冷心低壓籠罩台灣，防雷雨冰雹"
+    },
+    {
+        "timeline_items_id": "345d6a4e-38fc-4cbd-b5f8-ea1eb46a7cf4",
+        "event_id": "Event_134",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "八縣市高溫炎熱，下週可能雙颱"
+    },
+    {
+        "timeline_items_id": "e51703de-bb71-4c04-b0f8-534ad6a704d9",
+        "event_id": "Event_134",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "全台高溫炎熱，午後西半部防雷雨。"
+    },
+    {
+        "timeline_items_id": "6e1e51d1-2087-450d-9d1e-4048bc8b5277",
+        "event_id": "Event_135",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "日議員訪台，強化日台關係，勿讓台灣孤立"
+    },
+    {
+        "timeline_items_id": "220b29b2-7f56-4e89-a21c-db216a3bbba1",
+        "event_id": "Event_135",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "日大臣訪台，強化台日合作，不讓台灣孤立"
+    },
+    {
+        "timeline_items_id": "916915af-09e0-49b8-83db-517e8fc725d7",
+        "event_id": "Event_135",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "日大臣訪台籲強化日台連結，勿讓台灣孤立"
+    },
+    {
+        "timeline_items_id": "b9cbefa4-3b9e-4515-b934-7d59610628ed",
+        "event_id": "Event_136",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "兩議員退黨，基進盼續同行"
+    },
+    {
+        "timeline_items_id": "a19d4953-2a77-4e59-85c8-04734a1ac77a",
+        "event_id": "Event_136",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "兩議員退黨，台灣基進地方歸零"
+    },
+    {
+        "timeline_items_id": "a7870de9-c902-40fb-bd9f-01043e7bec08",
+        "event_id": "Event_137",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "陳乃瑜遭恐嚇，堅稱勇敢面對"
+    },
+    {
+        "timeline_items_id": "3765e930-4b31-426f-abbb-2f573dbf4724",
+        "event_id": "Event_137",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "陳乃瑜揭露罷免案期間遭恐嚇"
+    },
+    {
+        "timeline_items_id": "1e6f6480-c82a-4ee7-88f3-152c7c7e73a5",
+        "event_id": "Event_138",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "民進黨全代會聚焦深化民主"
+    },
+    {
+        "timeline_items_id": "0d295aa0-54df-493c-8eea-1e2120bf1a67",
+        "event_id": "Event_138",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "民進黨全代會將討論2026選戰提名條例"
+    },
+    {
+        "timeline_items_id": "7de68e03-bd29-4b6b-a415-98d11ddfe0bd",
+        "event_id": "Event_139",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "性平觀念提升，但育嬰仍有刻板印象"
+    },
+    {
+        "timeline_items_id": "53c4f45b-4c6d-4215-a812-be03f46d4146",
+        "event_id": "Event_139",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "性別平權觀念提升，但照顧嬰幼兒仍有傳統印象。"
+    },
+    {
+        "timeline_items_id": "c63951ec-8760-4a0d-b1b7-addb598eaa20",
+        "event_id": "Event_140",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "多國太空人搭乘商業太空船前往國際太空站"
+    },
+    {
+        "timeline_items_id": "7a0ac7c8-aad7-4a9c-b98b-e90166bb4f76",
+        "event_id": "Event_140",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "公理4號成功對接國際太空站"
+    },
+    {
+        "timeline_items_id": "8e6ab221-eef3-443c-a6da-82c9b628a3ef",
+        "event_id": "Event_140",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "公理4號任務太空人抵達國際太空站"
+    },
+    {
+        "timeline_items_id": "da805942-7d99-4d1d-a52d-c2fa42881fd2",
+        "event_id": "Event_141",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "景氣燈號轉綠，但發展穩定"
+    },
+    {
+        "timeline_items_id": "5ae3ed7f-1980-4f93-9f2b-d9b9939d590f",
+        "event_id": "Event_141",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "五月景氣綠燈，需關注關稅及地緣政治"
+    },
+    {
+        "timeline_items_id": "7dadae41-7955-48b2-96de-e292171bcd9c",
+        "event_id": "Event_142",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "英國發布貿易戰略，強調與美中歐三大經濟體合作。"
+    },
+    {
+        "timeline_items_id": "98d7dd88-fd6c-4551-b7c3-8ccf4e8cb1d9",
+        "event_id": "Event_142",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "英國發布貿易戰略，平衡歐美中關係"
+    },
+    {
+        "timeline_items_id": "6385257b-4165-414f-ba6f-68a4255bc6c4",
+        "event_id": "Event_143",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "七法侵權法源，創辦人遭重判。"
+    },
+    {
+        "timeline_items_id": "9a279251-75a9-4309-8a78-11aa68f4d0f3",
+        "event_id": "Event_143",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "Lawsnote遭判賠一億，爬蟲恐違法"
+    },
+    {
+        "timeline_items_id": "49d22a20-a2bf-41b4-af09-6927e4381911",
+        "event_id": "Event_144",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "屏東教室烤肉釀一氧化碳中毒"
+    },
+    {
+        "timeline_items_id": "91ded976-f774-44b3-b913-cdff35f24070",
+        "event_id": "Event_144",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "教室烤肉致五生一氧化碳中毒"
+    },
+    {
+        "timeline_items_id": "dcf46c61-d165-423d-9bbe-5a5b55862456",
+        "event_id": "Event_144",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "教室烤肉缺氧，五生送醫，校方究責"
+    },
+    {
+        "timeline_items_id": "605fd0bc-b5f7-4769-841c-13bf97a87d6e",
+        "event_id": "Event_145",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "億光濫發專利警告函，遭公平會罰200萬"
+    },
+    {
+        "timeline_items_id": "c554998f-54a8-44e1-8c15-33bb1cd0705d",
+        "event_id": "Event_145",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "億光遭罰200萬不服將上訴"
+    },
+    {
+        "timeline_items_id": "e2aff5ab-cc85-44ea-8a81-844939df2baa",
+        "event_id": "Event_146",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "墾丁水豚遭毒殺，警方展開調查"
+    },
+    {
+        "timeline_items_id": "7d44bed4-74ae-4870-8cdd-02ac903f3c0a",
+        "event_id": "Event_146",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "墾丁水豚遭毒殺，園方報警緝凶"
+    },
+    {
+        "timeline_items_id": "cc308413-7194-4cb9-a857-527a12ba22b1",
+        "event_id": "Event_147",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "醫學生員額調整爭議，教育部稱未超額。"
+    },
+    {
+        "timeline_items_id": "3a45c2fc-f47c-4157-a27a-59dc0198aa63",
+        "event_id": "Event_147",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "後醫系公費生轉自費，招生增至35名"
+    },
+    {
+        "timeline_items_id": "a168f3f9-647c-4331-981d-681cc28027ee",
+        "event_id": "Event_147",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "後醫系改自費，總量控管未超額"
+    },
+    {
+        "timeline_items_id": "8f430ea1-333c-4e04-818c-ce2a64f26792",
+        "event_id": "Event_148",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "一周詐騙財損20億，立委促檢討打詐網"
+    },
+    {
+        "timeline_items_id": "d7c7b687-ac4a-4e01-9090-17c6679b95aa",
+        "event_id": "Event_148",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "立委籲檢討打詐網防誤刪"
+    },
+    {
+        "timeline_items_id": "01bc78a8-5131-434b-962c-1d7c33334576",
+        "event_id": "Event_149",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "台電股東會，小股東抗議虧損，抨擊廢核。"
+    },
+    {
+        "timeline_items_id": "f0477472-59b3-4b66-b9c7-5ff3dd04f106",
+        "event_id": "Event_149",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "台電虧損擴大，小股東抨擊廢核"
+    },
+    {
+        "timeline_items_id": "150a88f6-91fb-4b07-8bb6-8a4d38677e64",
+        "event_id": "Event_150",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "神達伺服器訂單暢旺，積極擴產。"
+    },
+    {
+        "timeline_items_id": "b5d3ec0d-c3c2-4dc0-a725-6c2c4430a0d5",
+        "event_id": "Event_150",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "神達伺服器訂單暢旺，美國產能滿載，持續擴產。"
+    },
+    {
+        "timeline_items_id": "37324b35-fa6b-4694-8ab6-bec4cfdcfa1f",
+        "event_id": "Event_151",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "中美達成協議，中國出口稀土，美取消限制"
+    },
+    {
+        "timeline_items_id": "839a8b47-6b26-4703-a313-6e598be84bd1",
+        "event_id": "Event_151",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "中美達成稀土出口協議，美將取消限制"
+    },
+    {
+        "timeline_items_id": "607e1d47-423e-41f9-9564-6e9d4c181d22",
+        "event_id": "Event_152",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "越南水泥傾銷，台灣產業受損害"
+    },
+    {
+        "timeline_items_id": "71cf76fc-3711-486a-abe4-823bc3c9e947",
+        "event_id": "Event_152",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "越南水泥傾銷恐損害台灣產業"
+    },
+    {
+        "timeline_items_id": "c3dc9bf6-ddcd-4f46-9091-c51eae2c92e4",
+        "event_id": "Event_152",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "越南水泥傾銷損害台灣產業，經部建議課稅"
+    },
+    {
+        "timeline_items_id": "13707b50-92a6-488b-9f32-e197edc31724",
+        "event_id": "Event_153",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "川普空襲伊朗，加劇台海局勢不確定性"
+    },
+    {
+        "timeline_items_id": "9fd082a7-a46d-4258-84ea-a47303219f05",
+        "event_id": "Event_153",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "川普空襲伊朗，加劇北京對台誤判"
+    },
+    {
+        "timeline_items_id": "6b94a3df-00f9-4583-9131-44ac8f7d3e4c",
+        "event_id": "Event_154",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "美憂中飛彈及太空殺傷網威脅"
+    },
+    {
+        "timeline_items_id": "e50d2d35-a66c-4e87-8662-e79463e1db43",
+        "event_id": "Event_154",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "美憂中飛彈及太空殺傷網威脅"
+    },
+    {
+        "timeline_items_id": "ae957389-3474-46f7-9291-b1cfdf59aad4",
+        "event_id": "Event_155",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "阿家生蠔因未登記遭勒令停業"
+    },
+    {
+        "timeline_items_id": "6b71a73f-1c44-4776-bade-36f5f84a6ccf",
+        "event_id": "Event_155",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "網紅投訴生蠔店，未登記遭停業。"
+    },
+    {
+        "timeline_items_id": "4d036b3b-97c2-41ab-9217-9236b34d2760",
+        "event_id": "Event_156",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "安聯推出高息成長主動式ETF"
+    },
+    {
+        "timeline_items_id": "09a66ae1-dcb9-47af-b850-bb1d71d21def",
+        "event_id": "Event_156",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "安聯00984A募集，鎖定高息成長股"
+    },
+    {
+        "timeline_items_id": "43c51fa8-551b-47d3-b690-4d694b0e8111",
+        "event_id": "Event_156",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "00984A ETF上市，主打高息成長策略"
+    },
+    {
+        "timeline_items_id": "482f54fe-e6ee-49b2-ad4b-bac508eb0a0c",
+        "event_id": "Event_157",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "美或延長關稅緩期，股市收漲"
+    },
+    {
+        "timeline_items_id": "32778798-1829-4fd0-b2fc-8e08a6eeb22b",
+        "event_id": "Event_157",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "美或延長關稅緩期，股市收漲"
+    },
+    {
+        "timeline_items_id": "890d63b0-3dd3-4400-b78f-dccc332e0f54",
+        "event_id": "Event_158",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "川普關稅暫緩期或延長"
+    },
+    {
+        "timeline_items_id": "8d215464-df6b-4d59-9dc7-9458c8862acb",
+        "event_id": "Event_158",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "川普關稅暫緩期或延長"
+    },
+    {
+        "timeline_items_id": "92c6d318-07f9-487e-a0d3-331233104f0e",
+        "event_id": "Event_159",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "台股大漲241點，台積電漲至1070元"
+    },
+    {
+        "timeline_items_id": "db2d6f94-a74a-4324-9f00-a5f3a6483d08",
+        "event_id": "Event_159",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "台股收漲87點，台積電漲至1080元"
+    },
+    {
+        "timeline_items_id": "5bcbc33c-f845-4582-9534-476e49936048",
+        "event_id": "Event_160",
+        "date_range": "2025-06-25 ~ 2025-06-25",
+        "start_date": "2025-06-25",
+        "summary": "台股期貨上漲，現貨收漲"
+    },
+    {
+        "timeline_items_id": "9c64ffcd-27db-4f69-8228-940bf1090c9a",
+        "event_id": "Event_160",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "台股漲，期指跌，逆價差擴大"
+    },
+    {
+        "timeline_items_id": "c2ce4ad5-7521-4049-bc16-0b4c50a126ef",
+        "event_id": "Event_160",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "台股漲87點，期貨小漲，逆價差"
+    },
+    {
+        "timeline_items_id": "268de158-224a-4410-bf7d-78807411ac56",
+        "event_id": "Event_160",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "台股漲，電子期跌，金融期漲"
+    },
+    {
+        "timeline_items_id": "72ccbb3b-8b1e-400e-b43a-5cf851259a8d",
+        "event_id": "Event_161",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "桃猿傷兵多，啟用新秀力拼"
+    },
+    {
+        "timeline_items_id": "6dfc643e-8958-49dd-8cf8-4afe1e1c0c35",
+        "event_id": "Event_161",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "樂天啟用年輕球員，爭冠失利"
+    },
+    {
+        "timeline_items_id": "188ca019-e3c3-498e-b518-f593989b12f6",
+        "event_id": "Event_162",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "台鐵票價漲，運量降，營收增"
+    },
+    {
+        "timeline_items_id": "3058aa6a-aee3-40b7-bc0a-7b1b676618ef",
+        "event_id": "Event_162",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "台鐵漲價運量降營收增，檢討票價與座位"
+    },
+    {
+        "timeline_items_id": "c7072306-9cbd-4e41-a566-52f6fa1d19c6",
+        "event_id": "Event_163",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "三重騎士闖紅燈撞死婦人"
+    },
+    {
+        "timeline_items_id": "b3a14150-6415-499d-a4c4-86e32c366d13",
+        "event_id": "Event_163",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "三重騎士闖紅燈撞死人，搜出毒品"
+    },
+    {
+        "timeline_items_id": "106e6b45-ca43-4362-8227-7f0149bd3891",
+        "event_id": "Event_164",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "李在明發表施政演說，聚焦經濟與實用外交"
+    },
+    {
+        "timeline_items_id": "8d3436e7-19fe-48be-b362-0d344ab6fc76",
+        "event_id": "Event_164",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "南韓總統李在明推動經濟振興方案"
+    },
+    {
+        "timeline_items_id": "643afe19-0603-45bd-9600-c537bd3347ef",
+        "event_id": "Event_165",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "嘉義豪雨致萬戶停電，積極搶修中"
+    },
+    {
+        "timeline_items_id": "6505eedb-20b1-4e4f-a030-f7020337b07c",
+        "event_id": "Event_165",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "嘉義雷雨致萬戶停電，已全數復電"
+    },
+    {
+        "timeline_items_id": "a4142006-937f-4355-976a-05ac9e31a428",
+        "event_id": "Event_166",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "花東交通建設爭議，傅崐萁與陳世凱交鋒"
+    },
+    {
+        "timeline_items_id": "c30b2277-6d2e-435a-88ff-91df39e4d98a",
+        "event_id": "Event_166",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "花蓮鐵路立體化爭議，交通部承諾不延宕"
+    },
+    {
+        "timeline_items_id": "4fb7892f-5b22-43b4-98f1-eeed0fd58483",
+        "event_id": "Event_167",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "陳瑩罷免案檢調約談國民黨人員"
+    },
+    {
+        "timeline_items_id": "9b554deb-f11e-434e-8ddd-1b0c70bb4364",
+        "event_id": "Event_167",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "國民黨質疑綠營罷免連署造假"
+    },
+    {
+        "timeline_items_id": "ea252e0c-5689-4db6-94be-6bfe2013971e",
+        "event_id": "Event_168",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "新竹市加碼婚後孕前健檢補助"
+    },
+    {
+        "timeline_items_id": "02d298e1-5476-4a00-9624-cd3d13e04dbf",
+        "event_id": "Event_168",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "竹市加碼補助婚後孕前健檢"
+    },
+    {
+        "timeline_items_id": "13c91a1b-2c8e-429e-8868-7a5d28f3c6b8",
+        "event_id": "Event_169",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "聯卡中心董事長遭冒名詐騙"
+    },
+    {
+        "timeline_items_id": "60615b20-2cd2-4929-9fc1-6c7a22209593",
+        "event_id": "Event_169",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "詐騙集團冒聯卡中心名義行騙"
+    },
+    {
+        "timeline_items_id": "0d68fe0e-e95b-4366-811b-6620239ddb41",
+        "event_id": "Event_170",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "高中打架，教育局介入輔導"
+    },
+    {
+        "timeline_items_id": "93222ada-bc32-4322-99fe-043eb2c49a81",
+        "event_id": "Event_170",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "教育局持續協助學生復原並呼籲勿散佈影片"
+    },
+    {
+        "timeline_items_id": "e0738d09-e188-410e-9a7d-993db085de2e",
+        "event_id": "Event_171",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "教部放寬醫學生招生，衛福部表憂慮"
+    },
+    {
+        "timeline_items_id": "9e2592a3-e3d9-44ec-9778-327c623c1813",
+        "event_id": "Event_171",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "衛福部堅守醫學生1300人上限"
+    },
+    {
+        "timeline_items_id": "8f9bb6fd-e1e9-4c35-b643-dd04f7f68a68",
+        "event_id": "Event_171",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "醫學生員額計算爭議引發醫界反彈"
+    },
+    {
+        "timeline_items_id": "f6e37c94-7d1f-41da-97b7-3980dec7065a",
+        "event_id": "Event_172",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "最高法院限制法官全國性阻擋出生公民權命令"
+    },
+    {
+        "timeline_items_id": "77eb0b89-b448-46db-ab50-c56e8e649fa5",
+        "event_id": "Event_172",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "最高法院限制全國禁令，川普出生公民權政策推進"
+    },
+    {
+        "timeline_items_id": "31b216e8-06c7-443f-b36f-ab1bfe722b8d",
+        "event_id": "Event_173",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "2025年5月高溫，恐成史上最熱年"
+    },
+    {
+        "timeline_items_id": "b43c7dc7-ecfb-4011-8e6f-6f9dc1896e05",
+        "event_id": "Event_173",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "2025年5月史上第二熱，恐為最熱年份之一"
+    },
+    {
+        "timeline_items_id": "c2ee88a7-4212-4bf7-b92a-26651233f463",
+        "event_id": "Event_174",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "員工偷吃雞排遭訴，失主反被資遣敗訴"
+    },
+    {
+        "timeline_items_id": "f3b32f31-86d2-448f-9387-ead74b8a59dc",
+        "event_id": "Event_174",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "台積電員工偷吃雞排遭判免賠"
+    },
+    {
+        "timeline_items_id": "e5536333-f2c1-4d72-91ae-87caa68c4044",
+        "event_id": "Event_175",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "以伊衝突結束，以色列宣稱重創伊朗軍事及核設施。"
+    },
+    {
+        "timeline_items_id": "ce23d4f8-bd09-4b8a-9236-04ceb75f75b5",
+        "event_id": "Event_175",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "以色列空襲重創伊朗核計畫與軍事設施"
+    },
+    {
+        "timeline_items_id": "80812399-2b23-4a93-93d2-914cc20cd8f8",
+        "event_id": "Event_176",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "南投多管齊下解決偏鄉師資荒"
+    },
+    {
+        "timeline_items_id": "a9c1d4b8-bee4-40d9-8d7d-8c868a54cf5e",
+        "event_id": "Event_176",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "南投多管齊下，改善偏鄉教師荒。"
+    },
+    {
+        "timeline_items_id": "e861d84c-04b4-43b8-ad02-f4660e3c6988",
+        "event_id": "Event_177",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "共機擾台，國軍監控應處"
+    },
+    {
+        "timeline_items_id": "e507d4fe-1eef-4223-850b-f0684dc1651c",
+        "event_id": "Event_177",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "中國出動機艦擾台，國軍監控應處"
+    },
+    {
+        "timeline_items_id": "342fd4ca-9b87-44dc-9091-c2dc7ee8d992",
+        "event_id": "Event_177",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "共軍機艦擾台，國軍監控應處"
+    },
+    {
+        "timeline_items_id": "bc168060-afda-4309-b6e8-0797acbba5b5",
+        "event_id": "Event_177",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "共軍機艦擾台，國軍監控應處"
+    },
+    {
+        "timeline_items_id": "fc1fefc4-0f89-4cf1-832b-c1e6c22dfda4",
+        "event_id": "Event_178",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "哆啦A夢特展將於華山開展"
+    },
+    {
+        "timeline_items_id": "e805de89-c912-43f2-a9d8-8a3a760e4dab",
+        "event_id": "Event_178",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "哆啦A夢特展華山開展"
+    },
+    {
+        "timeline_items_id": "b603aa1f-7f3f-458f-939e-a643b92ab4ad",
+        "event_id": "Event_179",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "交通部：滑手機影響通行安全可開罰"
+    },
+    {
+        "timeline_items_id": "3bb4af21-7a6f-4bdf-938b-a1013d6174ca",
+        "event_id": "Event_179",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "過馬路滑手機影響安全將開罰"
+    },
+    {
+        "timeline_items_id": "9fef3b53-2d14-420d-b9de-aa4bb65fe7cb",
+        "event_id": "Event_180",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "跨部會合作，紓解缺工，拓展海外就業"
+    },
+    {
+        "timeline_items_id": "02fcecde-5bd8-4518-aa0c-60d8d8f8c990",
+        "event_id": "Event_180",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "跨部會合作，促進國際人才交流。"
+    },
+    {
+        "timeline_items_id": "3d349640-49e2-4cc7-98fb-5a21681b95c6",
+        "event_id": "Event_181",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "三重工地塌陷，砂石車翻覆無人傷"
+    },
+    {
+        "timeline_items_id": "ca5613c5-041a-4629-b137-807b8dd4a175",
+        "event_id": "Event_181",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "三重工地坍塌，勒令停工罰款"
+    },
+    {
+        "timeline_items_id": "d9b1f8b0-b391-405e-bfc1-1f1021a34d35",
+        "event_id": "Event_182",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "蔡英文身體不適缺席民進黨全代會"
+    },
+    {
+        "timeline_items_id": "5f871bc5-c997-4432-8ff8-24cd7c299b26",
+        "event_id": "Event_182",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "蔡英文身體不適缺席民進黨全代會"
+    },
+    {
+        "timeline_items_id": "217fc147-c100-427d-8945-20cde63ec0fd",
+        "event_id": "Event_183",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "葛藍喬安娜溫網資格賽落敗"
+    },
+    {
+        "timeline_items_id": "59c9863f-98ea-43c6-b2e3-3d8d83c6e0cd",
+        "event_id": "Event_183",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "葛藍喬安娜溫網資格賽落敗"
+    },
+    {
+        "timeline_items_id": "846afa07-8023-4c2a-b505-15b72cb57ccb",
+        "event_id": "Event_184",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "七月份舉行漢光及城鎮韌性演習"
+    },
+    {
+        "timeline_items_id": "bd3fb71b-9a24-412f-9b8e-ddef297c36df",
+        "event_id": "Event_184",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "7月定為國家團結月，強化全民國防演練。"
+    },
+    {
+        "timeline_items_id": "8d3ea4d8-4fe4-4a91-932f-9ae24b96c9b4",
+        "event_id": "Event_185",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "中國擬衝撞蕭美琴，藍營未譴責"
+    },
+    {
+        "timeline_items_id": "687642fe-0eb4-4614-be12-d4adda53e58c",
+        "event_id": "Event_185",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "林右昌批國民黨未譴責中國脅迫蕭美琴"
+    },
+    {
+        "timeline_items_id": "9e8a418a-3aa0-4dc2-a5dd-60ce2fb4c340",
+        "event_id": "Event_186",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "南高屏發布大雷雨特報"
+    },
+    {
+        "timeline_items_id": "3b3a2dc1-4ecf-40ab-b90d-421cec358cd7",
+        "event_id": "Event_186",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "高溫炎熱，午後雷陣雨，南方雲系北移"
+    },
+    {
+        "timeline_items_id": "61ee0a93-999f-4245-b5fe-85c26a1bd4aa",
+        "event_id": "Event_187",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "朱立倫批民進黨靠中共抹紅"
+    },
+    {
+        "timeline_items_id": "7dd2c9cf-c665-4a76-a79a-1240e3541816",
+        "event_id": "Event_187",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "韓國瑜籲投不同意罷免賴士葆"
+    },
+    {
+        "timeline_items_id": "8467dd61-3064-4b28-87eb-a5191c0c2dd3",
+        "event_id": "Event_188",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "中選會說明罷免投票須保持中立"
+    },
+    {
+        "timeline_items_id": "92f5b57a-4ec1-46d7-85b6-ef87e27947c2",
+        "event_id": "Event_188",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "中選會：罷免投票須維持選務中立"
+    },
+    {
+        "timeline_items_id": "6b7f49e1-44e7-43f2-bfb4-128c9f9e5279",
+        "event_id": "Event_189",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "林思銘罷免案補件完成，待查對。"
+    },
+    {
+        "timeline_items_id": "ffddd646-980a-4f06-ac70-04c51e47dd82",
+        "event_id": "Event_189",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "林思銘罷免案補件完成，待查對。"
+    },
+    {
+        "timeline_items_id": "ab8b687e-cb0c-4b37-8582-c77d6b9bb976",
+        "event_id": "Event_190",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "今彩539頭獎兩注中獎，各得八百萬"
+    },
+    {
+        "timeline_items_id": "a68152a1-35dd-4ef6-a776-e8e57b60e9c0",
+        "event_id": "Event_190",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "今彩539頭獎槓龜，二獎150注"
+    },
+    {
+        "timeline_items_id": "a158fd09-4aca-4757-be14-35379494e0ea",
+        "event_id": "Event_190",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "今彩539開獎，頭獎一注獨得八百萬"
+    },
+    {
+        "timeline_items_id": "cd589003-4d53-49c3-b263-83bb80627179",
+        "event_id": "Event_191",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "印度空難確認260人罹難，DNA比對完成"
+    },
+    {
+        "timeline_items_id": "2d623901-9fea-42ad-a142-2b31d7ad1091",
+        "event_id": "Event_191",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "印航空難DNA比對完成，確認260人罹難。"
+    },
+    {
+        "timeline_items_id": "44836735-0f6f-42e2-9d33-7b8639a8e46e",
+        "event_id": "Event_192",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "越航兩機擦撞，尾翼損毀，無人傷亡"
+    },
+    {
+        "timeline_items_id": "663dcfee-acfe-4f1c-92e3-83be1fb68ccc",
+        "event_id": "Event_192",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "越南飛機碰撞，無人傷亡，原因待查。"
+    },
+    {
+        "timeline_items_id": "d2f0df2a-e4d9-4281-8079-1adc959321b7",
+        "event_id": "Event_193",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中國有條件恢復部分日本水產品進口"
+    },
+    {
+        "timeline_items_id": "d6136b33-7187-4ee8-8408-bcdd5224d27c",
+        "event_id": "Event_193",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中國有條件恢復日本水產進口"
+    },
+    {
+        "timeline_items_id": "6486f318-19ce-4e2f-bb29-485939fd0d1f",
+        "event_id": "Event_193",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中國有條件恢復部分日本水產品進口"
+    },
+    {
+        "timeline_items_id": "4e5dc8ca-4fa4-4bf7-bacc-e423f1193655",
+        "event_id": "Event_193",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中國有條件恢復部分日本水產品進口"
+    },
+    {
+        "timeline_items_id": "584e2863-c69c-4874-b1df-7c3bc5d968b9",
+        "event_id": "Event_194",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "代理教師年資可比照專任提敘"
+    },
+    {
+        "timeline_items_id": "3e91b176-1ae4-4f5e-b90b-3a92484eb1e4",
+        "event_id": "Event_194",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "代理教師年資採計入法，八年倡議成功"
+    },
+    {
+        "timeline_items_id": "7ea76564-a3b7-4431-82a2-6f92beeb4ed4",
+        "event_id": "Event_195",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "加薩17死，以色列促撤離"
+    },
+    {
+        "timeline_items_id": "9aaf66d7-268b-4ae5-986f-1b1d884e1265",
+        "event_id": "Event_195",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "以色列空襲加薩，致17死，巴人南撤"
+    },
+    {
+        "timeline_items_id": "d819c65f-c0a7-4f74-a6c3-30c93d30491e",
+        "event_id": "Event_196",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "台灣豬肉擬外銷日本生鮮、美國加工品"
+    },
+    {
+        "timeline_items_id": "5f507d6a-cdbe-448a-ba25-ca4e07e47c92",
+        "event_id": "Event_196",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "台灣豬肉外銷前景看好，但供應量是挑戰"
+    },
+    {
+        "timeline_items_id": "b745c2a5-bfc2-4f83-9841-a6eb3fb0a200",
+        "event_id": "Event_197",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "川普大而美法案驚險通過參院程序投票"
+    },
+    {
+        "timeline_items_id": "ca62ba09-71d3-4268-9aa8-3b91de67ffc0",
+        "event_id": "Event_197",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "參議院驚險通過大而美法案辯論程序"
+    },
+    {
+        "timeline_items_id": "192ca499-8887-461a-b422-03b3aac78b6c",
+        "event_id": "Event_198",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "2025年5月為史上第二熱"
+    },
+    {
+        "timeline_items_id": "e196f565-e155-4337-b472-8bcca950a160",
+        "event_id": "Event_198",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "5月全球均溫史上第二高，暖化加劇"
+    },
+    {
+        "timeline_items_id": "2c1c6a1b-34bd-431e-b4d1-12d92c9d7b4c",
+        "event_id": "Event_199",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "地緣政治風險緩解，美股台股反彈，電力基建ETF受關注"
+    },
+    {
+        "timeline_items_id": "8602a1ec-4e19-45ec-ac21-29bb143d9032",
+        "event_id": "Event_199",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "地緣風險緩和，美股台股上漲，電力基建ETF創新高"
+    },
+    {
+        "timeline_items_id": "8563cd6e-8acf-46ed-b07b-79a6ead33bb0",
+        "event_id": "Event_200",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "護病比獎勵金發放，27家醫院未達標"
+    },
+    {
+        "timeline_items_id": "fc7073ef-1a87-4627-ac84-50b50d7ac5c6",
+        "event_id": "Event_200",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "護病比獎金發放，27家醫院未達標"
+    },
+    {
+        "timeline_items_id": "fecc3897-2274-4352-9c8e-a0d25591abe3",
+        "event_id": "Event_201",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "十一醫師團體反對擴招醫學生"
+    },
+    {
+        "timeline_items_id": "4eb090d0-4c37-4f87-93b2-2923634ac36d",
+        "event_id": "Event_201",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "醫界反對擴招醫學生，憂衝擊醫療品質"
+    },
+    {
+        "timeline_items_id": "e64507c3-6166-404e-baa9-4ad523b9770d",
+        "event_id": "Event_202",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "美智庫籲建印太網路之盾抗中"
+    },
+    {
+        "timeline_items_id": "2189aee4-0969-4be5-952a-faed65bd2b6a",
+        "event_id": "Event_202",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "美智庫籲建印太網路之盾抗中"
+    },
+    {
+        "timeline_items_id": "ee46183c-da6b-401e-ae38-72d69384eaf1",
+        "event_id": "Event_203",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "日本提前招標三萬噸免關稅米以平抑米價"
+    },
+    {
+        "timeline_items_id": "890185d0-730a-40ca-882f-f9d24c5310e7",
+        "event_id": "Event_203",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "日本標售三萬噸免關稅米以平抑米價"
+    },
+    {
+        "timeline_items_id": "572f2511-d048-4472-b5f1-651b62c710c9",
+        "event_id": "Event_204",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "伊朗重啟與中國洽購殲10C戰機"
+    },
+    {
+        "timeline_items_id": "1568cbcf-257c-4d5b-94e8-669f023c6872",
+        "event_id": "Event_204",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "伊朗擬購中國殲10C戰機強化空軍"
+    },
+    {
+        "timeline_items_id": "1c07a71d-483b-410d-a489-481284584490",
+        "event_id": "Event_205",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "新北綠竹筍奪冠，展售促銷體驗。"
+    },
+    {
+        "timeline_items_id": "876d3df2-1d69-42de-aa94-39aa70088513",
+        "event_id": "Event_205",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "新北筍農父子奪全國及新北綠竹筍冠軍"
+    },
+    {
+        "timeline_items_id": "85ac7249-10b4-4b8f-984c-e0378d88c0a6",
+        "event_id": "Event_206",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "消費者購房信心持續低迷"
+    },
+    {
+        "timeline_items_id": "35d70ee7-01e5-4136-84d0-9a66cb5ceb97",
+        "event_id": "Event_206",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "房市信心續探底，下半年三大指標成關鍵"
+    },
+    {
+        "timeline_items_id": "4f5906a0-0434-403b-9bbb-d21e45ece05b",
+        "event_id": "Event_207",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "共機艦持續擾台，國軍監控應處"
+    },
+    {
+        "timeline_items_id": "bc6fe47a-44c6-4e09-9749-f6ba06f0cc2f",
+        "event_id": "Event_207",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "共機艦擾台，國軍嚴密監控"
+    },
+    {
+        "timeline_items_id": "baeb1a39-78a0-4a7d-b441-e0275e10d182",
+        "event_id": "Event_208",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中擬邀川普出席九三閱兵"
+    },
+    {
+        "timeline_items_id": "e0ccf329-76a0-4fe2-97c0-899916c8a78c",
+        "event_id": "Event_208",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中國擬邀川普出席九三閱兵"
+    },
+    {
+        "timeline_items_id": "5cbff8cd-ccf6-47e1-98ac-49b8572d7b50",
+        "event_id": "Event_209",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "李澤鉅因出售港口爭議未續任特首顧問"
+    },
+    {
+        "timeline_items_id": "e567ad9f-c8e2-4163-ac56-7ae567e8b418",
+        "event_id": "Event_209",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "李澤鉅因出售港口爭議未續任特首顧問"
+    },
+    {
+        "timeline_items_id": "f6785486-e1ad-44b4-b6b5-23c591c1cc4f",
+        "event_id": "Event_209",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "李澤鉅未續任特首顧問"
+    },
+    {
+        "timeline_items_id": "8efb7e96-c6a4-424f-9325-5ffe9ba40ed5",
+        "event_id": "Event_210",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "吳東興家族回歸，掌控新光三越董事會"
+    },
+    {
+        "timeline_items_id": "4e1932d0-02ac-4dd3-ba86-2ab9c45f38ab",
+        "event_id": "Event_210",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "吳東興家族重掌新光三越"
+    },
+    {
+        "timeline_items_id": "9629e385-3173-4872-a1bf-baf27efaac10",
+        "event_id": "Event_211",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "肥前屋今日熄燈，結束50年營業"
+    },
+    {
+        "timeline_items_id": "9b4ffaf9-a625-4592-bd1a-23460d2511a7",
+        "event_id": "Event_211",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "肥前屋歇業，民眾不捨"
+    },
+    {
+        "timeline_items_id": "4adc9064-a653-42ef-a055-0606b3c481d1",
+        "event_id": "Event_212",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "桃園蘆竹饋線跳脫，3012戶停電搶修中"
+    },
+    {
+        "timeline_items_id": "c1ad1fbd-00c4-48db-bc02-552015bceec6",
+        "event_id": "Event_212",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "桃園蘆竹饋線跳脫停電，已全數復電"
+    },
+    {
+        "timeline_items_id": "31b10d59-1203-426e-9180-639d4cd2c438",
+        "event_id": "Event_212",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "桃園蘆竹饋線跳脫停電，已全數復電"
+    },
+    {
+        "timeline_items_id": "8cd1cd38-8a8a-43fa-85e7-e392459803bd",
+        "event_id": "Event_213",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "台美對等關稅第二輪磋商取得建設性進展"
+    },
+    {
+        "timeline_items_id": "75b89a5f-cbe3-46d7-81db-5afa370eae01",
+        "event_id": "Event_213",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "台美對等關稅第二輪磋商取得進展"
+    },
+    {
+        "timeline_items_id": "dbee9708-48d2-4bba-b44f-f863f4b2ce58",
+        "event_id": "Event_213",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "台美對等關稅談判第二輪磋商獲正面進展"
+    },
+    {
+        "timeline_items_id": "02f8bb48-85f9-4b03-8817-72971d14888a",
+        "event_id": "Event_213",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "台美關稅第二輪磋商取得建設性進展"
+    },
+    {
+        "timeline_items_id": "6099647a-d256-4d77-8450-01ff6d7d542b",
+        "event_id": "Event_214",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "陸委會再收炸彈恐嚇，要求撤銷蕭美琴遭跟監新聞稿"
+    },
+    {
+        "timeline_items_id": "2cb71e81-3ee1-4d4f-a525-d3369b1d1f35",
+        "event_id": "Event_214",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "陸委會連收恐嚇信，威脅縱火砍人"
+    },
+    {
+        "timeline_items_id": "18459616-756b-4db6-8e79-7e955e8db5ed",
+        "event_id": "Event_215",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "哆啦A夢裝置現身台北12區"
+    },
+    {
+        "timeline_items_id": "3fa50234-4d9f-4396-9fc7-16418aaf0d44",
+        "event_id": "Event_215",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "哆啦A夢主題裝置亮相台北十二區"
+    },
+    {
+        "timeline_items_id": "a9cf1777-d261-4c3a-aa41-4f5837516a65",
+        "event_id": "Event_216",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "俄羅斯大規模空襲烏克蘭，波蘭戒備。"
+    },
+    {
+        "timeline_items_id": "3e41307a-2e0f-49ee-b530-98090164ed2f",
+        "event_id": "Event_216",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "俄羅斯大規模空襲烏克蘭，烏軍F-16飛行員陣亡"
+    },
+    {
+        "timeline_items_id": "58e0185f-68aa-4f40-a27a-6ede558e4892",
+        "event_id": "Event_217",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "外交官呂志堅性騷擾，判休職三年確定"
+    },
+    {
+        "timeline_items_id": "37c90113-5293-4b57-850b-d7229d051750",
+        "event_id": "Event_217",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "外交官性騷擾女下屬，判休職三年確定"
+    },
+    {
+        "timeline_items_id": "2e0d6c34-d9d2-4035-85cc-884f0d1b4719",
+        "event_id": "Event_218",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "八旬婦劍龍稜跌傷，直升機救援送醫"
+    },
+    {
+        "timeline_items_id": "6a69d9ed-c964-4a6c-9194-1b30993e27d3",
+        "event_id": "Event_218",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "老婦劍龍稜摔傷，隔夜獲救"
+    },
+    {
+        "timeline_items_id": "eda4e3ba-2457-4aa8-b853-d9e50a23674f",
+        "event_id": "Event_219",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "廟東夜市火災後迅速恢復營業"
+    },
+    {
+        "timeline_items_id": "db4fa3f3-34a2-4da1-bfb1-ac374677cdb7",
+        "event_id": "Event_219",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "廟東夜市凌晨火災，無人傷亡，夜市照常營業"
+    },
+    {
+        "timeline_items_id": "e8679eae-9c57-4d8f-b397-d9b79547e92f",
+        "event_id": "Event_220",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "小微返中維權遭刑拘"
+    },
+    {
+        "timeline_items_id": "b4d09a2f-37cf-4f70-8316-fbde1d69cab4",
+        "event_id": "Event_220",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "小微返中維權遭打壓，傳被刑拘"
+    },
+    {
+        "timeline_items_id": "14b281be-efdd-4e55-a665-d984083fd62c",
+        "event_id": "Event_221",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "李竺芯金曲獎奪三大獎，成最大贏家"
+    },
+    {
+        "timeline_items_id": "f39ce6d9-1554-42c3-b8bc-f424bc3149a1",
+        "event_id": "Event_221",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "李竺芯奪金曲三獎，台南之光"
+    },
+    {
+        "timeline_items_id": "3172c2e5-821a-427c-87ba-3872cc5b7181",
+        "event_id": "Event_222",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "板橋海砂屋都更案審議通過"
+    },
+    {
+        "timeline_items_id": "58feb6c8-fa28-4e44-8111-f03b94bd5981",
+        "event_id": "Event_222",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "板橋全家福海砂屋都更案審議通過"
+    },
+    {
+        "timeline_items_id": "1c3795a6-21b6-46e5-a324-10544c605431",
+        "event_id": "Event_222",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "板橋全家福海砂屋都更案通過"
+    },
+    {
+        "timeline_items_id": "38de3e16-7941-406b-b5ba-d7150fd8d28b",
+        "event_id": "Event_223",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "台中汽車數量六都第一，大眾運輸使用率低"
+    },
+    {
+        "timeline_items_id": "7d627bee-fc0d-4756-aa50-87907f811faf",
+        "event_id": "Event_223",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "台中汽機車多，大眾運輸使用率低"
+    },
+    {
+        "timeline_items_id": "51cc2d1b-e341-4a7d-ac36-01111868189b",
+        "event_id": "Event_224",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "謝淑薇晉級伊斯特本網賽女雙決賽"
+    },
+    {
+        "timeline_items_id": "ad28b71a-5d3e-4d5c-8785-847c68b3fa9a",
+        "event_id": "Event_224",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "謝淑薇伊斯特本女雙奪亞軍"
+    },
+    {
+        "timeline_items_id": "ad44ea8a-508d-45f8-b777-6919148df81a",
+        "event_id": "Event_224",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "謝淑薇伊斯特本女雙奪亞軍"
+    },
+    {
+        "timeline_items_id": "ba8c0aa0-49de-4fb7-8a49-ca5773afe31f",
+        "event_id": "Event_225",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "天貺日逢虎爺生日，宜祈福轉運"
+    },
+    {
+        "timeline_items_id": "424b7ef0-4219-44f7-b64b-23ef111ecb47",
+        "event_id": "Event_225",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "天貺節逢虎爺生日，曬印章祈求轉運補財庫"
+    },
+    {
+        "timeline_items_id": "ac99eca1-d5d4-4161-919c-930b63ebe68c",
+        "event_id": "Event_226",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "陳亭妃包場電影呼籲團結挺台灣"
+    },
+    {
+        "timeline_items_id": "2e73f8fd-a46b-43e0-b577-e41fe5723587",
+        "event_id": "Event_226",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "陳亭妃包場電影，呼籲團結守護台灣。"
+    },
+    {
+        "timeline_items_id": "52fbbf47-d82b-4541-a4a1-646a9c7d9e44",
+        "event_id": "Event_227",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "沈家羲1A初登板挨轟，仍展現抗壓性"
+    },
+    {
+        "timeline_items_id": "5ac1b252-8631-4a92-af40-54d560e91a78",
+        "event_id": "Event_227",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "沈家羲1A初登板挨轟後回穩"
+    },
+    {
+        "timeline_items_id": "554e9daa-c873-4dd0-aeb3-37e6a3877afd",
+        "event_id": "Event_228",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "大谷翔平飆163.7公里火球，刷新生涯紀錄"
+    },
+    {
+        "timeline_items_id": "d0c9f217-0abb-4f4f-b333-2fd114288b73",
+        "event_id": "Event_228",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "大谷翔平飆163.7公里速球，刷新生涯紀錄"
+    },
+    {
+        "timeline_items_id": "91515d7e-28e3-462e-83d6-dc1789053c03",
+        "event_id": "Event_229",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "中共干預台灣政局，多起國安事件。"
+    },
+    {
+        "timeline_items_id": "ee176d64-12d1-4ddc-956d-54b072a6606a",
+        "event_id": "Event_229",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "蕭美琴訪捷克險遭陸方撞車"
+    },
+    {
+        "timeline_items_id": "5fa86eb5-2d10-469b-8b9f-024a8e97ed22",
+        "event_id": "Event_230",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "賴清德批在野黨修法違憲"
+    },
+    {
+        "timeline_items_id": "5c888e93-6f6a-47b9-ac29-83b65308917e",
+        "event_id": "Event_230",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "賴清德批立院修法違憲史無前例"
+    },
+    {
+        "timeline_items_id": "0676cc4b-d639-4ab4-bf18-e13e73c3ada3",
+        "event_id": "Event_230",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "賴清德細數在野黨違憲修法"
+    },
+    {
+        "timeline_items_id": "fba5f254-a7cb-4955-8eb4-222e04a127d6",
+        "event_id": "Event_231",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "賴清德制憲言論遭國民黨駁斥"
+    },
+    {
+        "timeline_items_id": "4df11d81-f46f-4c9f-925e-01952bd14ed8",
+        "event_id": "Event_231",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "賴清德制憲言論遭國民黨駁斥"
+    },
+    {
+        "timeline_items_id": "98f45359-3d3a-43ad-a2ba-1a70ff4e6faf",
+        "event_id": "Event_232",
+        "date_range": "2025-06-26 ~ 2025-06-26",
+        "start_date": "2025-06-26",
+        "summary": "冷心低壓影響台灣，午後防強對流。"
+    },
+    {
+        "timeline_items_id": "0dff6ecb-401a-47bb-8459-0fe37861985d",
+        "event_id": "Event_232",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "冷心低壓影響，午後雷雨增強"
+    },
+    {
+        "timeline_items_id": "3b8ef367-c6e4-408e-9255-a6d6a7a39247",
+        "event_id": "Event_233",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "民進黨2026地方選舉提名，多數徵召引發黨內民主爭議。"
+    },
+    {
+        "timeline_items_id": "110a0a02-a151-46a7-8243-2d0d8754896a",
+        "event_id": "Event_233",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "民進黨2026地方選舉初選僅三縣市"
+    },
+    {
+        "timeline_items_id": "4cbfaa56-d4ff-4a1a-a742-06c14db13314",
+        "event_id": "Event_234",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "藍白合作反罷免，共同舉辦造勢活動。"
+    },
+    {
+        "timeline_items_id": "ef645f1b-1012-4550-b270-f65936ad4a7f",
+        "event_id": "Event_234",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "藍白合作反罷免，戴錫欽籲投不同意票"
+    },
+    {
+        "timeline_items_id": "17cecb82-f0e7-4c08-8ffc-70b6c1f8bc8c",
+        "event_id": "Event_235",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "賴清德批在野，宣示與公民同行"
+    },
+    {
+        "timeline_items_id": "c8fb2881-d61d-4871-89a6-1073cf0a3536",
+        "event_id": "Event_235",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "賴清德闡述顧主權、護民主、拚經濟"
+    },
+    {
+        "timeline_items_id": "1a5a8562-47d9-43de-a50c-1e66ba746e94",
+        "event_id": "Event_236",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "九縣市發布大雨特報，注意雷擊強陣風"
+    },
+    {
+        "timeline_items_id": "971cd803-b01f-4d3d-b25b-543f729674e9",
+        "event_id": "Event_236",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "十二縣市豪大雨特報，防雷擊強陣風。"
+    },
+    {
+        "timeline_items_id": "0d8abc08-b497-4a36-b13e-0590cdcccc85",
+        "event_id": "Event_237",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "30歲以下頂級刷手年刷200萬居冠"
+    },
+    {
+        "timeline_items_id": "16870745-5edb-4fab-8c9b-e235fc623a79",
+        "event_id": "Event_237",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "年輕頂級刷手年消費逾兩百萬居冠"
+    },
+    {
+        "timeline_items_id": "640761f7-a06a-4672-a687-2c3e7c192a86",
+        "event_id": "Event_237",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "30歲以下成頂級刷手，年均消費204萬"
+    },
+    {
+        "timeline_items_id": "cc41dbfe-bd5f-4c09-9e51-6f2042d1908c",
+        "event_id": "Event_238",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "一次性用品減量目標延至2035年"
+    },
+    {
+        "timeline_items_id": "3e6992ec-1f33-40ea-86fc-a28e1156ba97",
+        "event_id": "Event_238",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "一次用產品減量期程將更新"
+    },
+    {
+        "timeline_items_id": "ad4769cb-ed09-4484-995a-16d5fe5ddbbe",
+        "event_id": "Event_239",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "誤診白內障案例凸顯黃斑部病變重要性"
+    },
+    {
+        "timeline_items_id": "ea721d28-58ac-45e7-a366-2cc9dc333691",
+        "event_id": "Event_239",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "七旬翁黃斑部裂孔手術後視力恢復"
+    },
+    {
+        "timeline_items_id": "96bbc222-a1ee-4f24-884d-096fcb9df775",
+        "event_id": "Event_240",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "大阪世博遊客增，行李箱棄置問題嚴重"
+    },
+    {
+        "timeline_items_id": "803cde98-a5f5-4eb8-81b6-5e1116890e43",
+        "event_id": "Event_240",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "大阪世博遊客增，棄置行李成公害"
+    },
+    {
+        "timeline_items_id": "bf4c09c8-1407-4007-acaf-e546dc101330",
+        "event_id": "Event_241",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "內政部發布緊急避難包準備指引"
+    },
+    {
+        "timeline_items_id": "fac22a86-b1ef-4d2c-88d5-9b30dd9d5328",
+        "event_id": "Event_241",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "內政部公布防空避難指引"
+    },
+    {
+        "timeline_items_id": "476b4288-203d-4306-8115-d2d2995d5323",
+        "event_id": "Event_241",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "內政部發布防空避難指引"
+    },
+    {
+        "timeline_items_id": "728a3b97-6562-475d-aa7d-c65bb6fcdd68",
+        "event_id": "Event_241",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "內政部發布防空避難指引"
+    },
+    {
+        "timeline_items_id": "3eefbba1-7f7e-4eaa-a4c1-dd6e9565da56",
+        "event_id": "Event_242",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "婦人熱天騎車缺水致橫紋肌溶解"
+    },
+    {
+        "timeline_items_id": "3afbd044-5a4c-4c54-babc-e0943631b4d3",
+        "event_id": "Event_242",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "婦人天熱脫水致橫紋肌溶解"
+    },
+    {
+        "timeline_items_id": "19794b04-5c1e-4fa3-b0a8-c0888fb2cece",
+        "event_id": "Event_243",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中國有條件恢復部分日本水產品進口"
+    },
+    {
+        "timeline_items_id": "34b7d523-9d94-484f-a40a-79939fd2868e",
+        "event_id": "Event_243",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中國有條件恢復部分日本水產品進口"
+    },
+    {
+        "timeline_items_id": "1ac83f5a-d261-427b-a850-b87b4193ee7b",
+        "event_id": "Event_243",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "中國有條件恢復部分日本水產品進口"
+    },
+    {
+        "timeline_items_id": "ab75508e-37cd-42da-baa0-3a10bc74a0a5",
+        "event_id": "Event_244",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "星巴克連兩天大杯以上買一送一"
+    },
+    {
+        "timeline_items_id": "0b94e908-ce7c-467b-9d04-1e56cbcb0087",
+        "event_id": "Event_244",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "星巴克買一送一，並推原住民公益活動"
+    },
+    {
+        "timeline_items_id": "fc843c3c-0188-416a-9df5-60a8fd4726a7",
+        "event_id": "Event_245",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "蔡明忠談經營風險與誠信重要性"
+    },
+    {
+        "timeline_items_id": "0375fa9b-f7a1-42a1-83d5-4458b07f1815",
+        "event_id": "Event_245",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "蔡明忠談誠信經營與風險控管"
+    },
+    {
+        "timeline_items_id": "5678353c-9d54-4fa0-a1c8-d261b5d9bbed",
+        "event_id": "Event_245",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "蔡明忠談防疫保單900億理賠和經營理念"
+    },
+    {
+        "timeline_items_id": "a1b2020b-b938-4bdd-910d-2c84c269940a",
+        "event_id": "Event_246",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "醫學系招生名額維持1300名不變"
+    },
+    {
+        "timeline_items_id": "15bc2719-7957-4cdc-a388-134041144c3d",
+        "event_id": "Event_246",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "醫學生員額維持1300人不變"
+    },
+    {
+        "timeline_items_id": "2e610577-c4a0-4029-9766-615e1c3dac18",
+        "event_id": "Event_247",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "菲華裔市長被判中國公民撤職"
+    },
+    {
+        "timeline_items_id": "7ede77c2-55c8-4a94-9f35-b12c90c28735",
+        "event_id": "Event_247",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "菲華裔市長被判中國籍褫奪公職"
+    },
+    {
+        "timeline_items_id": "bd3f1c31-9f12-486e-8988-2774d653c6b7",
+        "event_id": "Event_248",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中擬邀川普參加閱兵，峰會地點待定"
+    },
+    {
+        "timeline_items_id": "8ca16f34-7f57-4496-adb5-ae4cdcc67210",
+        "event_id": "Event_248",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "中邀美俄元首出席九三閱兵"
+    },
+    {
+        "timeline_items_id": "fa0463fd-fcbf-47c6-8913-77164197b4a5",
+        "event_id": "Event_249",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "英貿易部長訪台，簽署三項ETP協議"
+    },
+    {
+        "timeline_items_id": "0fae65d2-50b0-4e85-b880-ccda87bac511",
+        "event_id": "Event_249",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "英貿易部長訪台簽署三項合作協議"
+    },
+    {
+        "timeline_items_id": "436890eb-ebde-4a14-843a-6c2c13d1317d",
+        "event_id": "Event_250",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "輝達高層趁AI熱潮套現逾10億美元"
+    },
+    {
+        "timeline_items_id": "edbc333b-3007-4ca4-aef6-8fb573e6be64",
+        "event_id": "Event_250",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "輝達高層逢高出脫逾10億美元持股"
+    },
+    {
+        "timeline_items_id": "b704638c-aabf-4e49-a567-4c96c2cb5d3a",
+        "event_id": "Event_251",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "愛山林股東會，營收獲利創新高"
+    },
+    {
+        "timeline_items_id": "1fc5c38b-ba5c-4f11-bd02-e983314002e7",
+        "event_id": "Event_251",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "愛山林營收獲利創新高，轉型建商"
+    },
+    {
+        "timeline_items_id": "049e4ab3-9086-44d0-8c15-35b8e9a27c25",
+        "event_id": "Event_252",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "金鐘主持人王浩一驟逝"
+    },
+    {
+        "timeline_items_id": "385500ea-2746-4e63-aa1d-af576c5070c3",
+        "event_id": "Event_252",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "王浩一駕車外出猝逝，享壽68歲"
+    },
+    {
+        "timeline_items_id": "3245cbff-b528-420d-9395-6a7ed04b403e",
+        "event_id": "Event_253",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "長榮航空休士頓航線十週年慶祝"
+    },
+    {
+        "timeline_items_id": "69bd0f9a-8712-4c94-9140-f13215dc0597",
+        "event_id": "Event_253",
+        "date_range": "2025-06-27 ~ 2025-06-27",
+        "start_date": "2025-06-27",
+        "summary": "長榮航空休士頓航線十週年慶"
+    },
+    {
+        "timeline_items_id": "73de80e8-fd4d-4e66-b656-da7f16e6edc6",
+        "event_id": "Event_254",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "山東艦航母編隊七月訪港"
+    },
+    {
+        "timeline_items_id": "bbced2c5-4e7c-474b-9341-17e22d743f45",
+        "event_id": "Event_254",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "山東艦將訪港，展現軍力"
+    },
+    {
+        "timeline_items_id": "4e17796e-7c37-4d64-84a0-12cf7193489d",
+        "event_id": "Event_255",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "北大牛津學霸轉職外送員"
+    },
+    {
+        "timeline_items_id": "6fb10e6c-675c-457f-9f40-7bf1edff3ba8",
+        "event_id": "Event_255",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "北大牛津學霸轉行新加坡外送員"
+    },
+    {
+        "timeline_items_id": "a4c015ed-b46d-4357-adbc-3bf39ad65830",
+        "event_id": "Event_256",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "警專區隊長私帶女友入營區幽會"
+    },
+    {
+        "timeline_items_id": "253ca1a6-f530-4694-b714-1d2d36badad6",
+        "event_id": "Event_256",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "警專區隊長私帶女友探視役男遭懲處"
+    },
+    {
+        "timeline_items_id": "4c40a677-d9d8-4991-8cfe-777ca80edb9e",
+        "event_id": "Event_257",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "桃園蘆竹饋線跳脫，近全數復電"
+    },
+    {
+        "timeline_items_id": "275e35c7-5077-4951-bc54-1c67e2de9cd1",
+        "event_id": "Event_257",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "桃園蘆竹饋線跳脫，3012戶停電後復電"
+    },
+    {
+        "timeline_items_id": "fa76be3c-060b-42a4-a737-212332ea4326",
+        "event_id": "Event_258",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "高虹安停職感嘆難兌現政見"
+    },
+    {
+        "timeline_items_id": "d251b319-ed3f-48c9-95e4-d3dddb65468b",
+        "event_id": "Event_258",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "高虹安停職近一年，談心境與政見推動。"
+    },
+    {
+        "timeline_items_id": "99496eb0-b4e4-4c39-a3ac-e855a8d8369c",
+        "event_id": "Event_259",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "交通部修法增停止線與穿越線距離"
+    },
+    {
+        "timeline_items_id": "8fc330a1-fe42-4978-848b-d0e18ccebad2",
+        "event_id": "Event_259",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "交通部修法增停止線與穿越線距離"
+    },
+    {
+        "timeline_items_id": "518338e2-03a1-4da5-9b0f-99d172b796b5",
+        "event_id": "Event_260",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "國1西螺至員林段施工，部分及全線封閉。"
+    },
+    {
+        "timeline_items_id": "c1d9ed91-41d9-4111-bfd1-4fbf5885cd83",
+        "event_id": "Event_260",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "國1西螺-員林段施工，車道縮減封閉"
+    },
+    {
+        "timeline_items_id": "8f804bba-25d0-4e39-aabb-098589f3e648",
+        "event_id": "Event_261",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "韓國瑜接見潘孟安，盼大法官提名過關"
+    },
+    {
+        "timeline_items_id": "9ed5869c-a2cd-4f12-b369-fb96547461b3",
+        "event_id": "Event_261",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "大法官被提名人拜會立法院長"
+    },
+    {
+        "timeline_items_id": "398e4b3e-bc4f-4c55-bb73-d1820f92192b",
+        "event_id": "Event_261",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "黃國昌籲大法官被提名人尊重國會"
+    },
+    {
+        "timeline_items_id": "91398fae-bb17-40d0-a38d-f69ab1e58262",
+        "event_id": "Event_261",
+        "date_range": "2025-07-01 ~ 2025-07-01",
+        "start_date": "2025-07-01",
+        "summary": "大法官被提名人拜會立院尋求支持"
+    },
+    {
+        "timeline_items_id": "67eb34a3-1496-4680-b663-4919b99bfc58",
+        "event_id": "Event_262",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "持續高溫，午後新竹以南雷陣雨"
+    },
+    {
+        "timeline_items_id": "19600b1c-9466-4b96-9238-d29b25ae243e",
+        "event_id": "Event_262",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "持續高溫炎熱，大台北及南部近山區上看36度。"
+    },
+    {
+        "timeline_items_id": "8f266b3c-fafd-40a5-9a8a-c140be324779",
+        "event_id": "Event_263",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "中共密謀衝撞蕭美琴座車，美譴責脅迫"
+    },
+    {
+        "timeline_items_id": "fc42c0a8-e0e9-490e-b4c4-3aac7f488af2",
+        "event_id": "Event_263",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "美譴責中共脅迫蕭美琴，促修國安法"
+    },
+    {
+        "timeline_items_id": "e5f2f409-fd67-4b48-b968-7fb303382789",
+        "event_id": "Event_264",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "蔣萬安等人力挺徐巧芯反罷免"
+    },
+    {
+        "timeline_items_id": "725fe3ec-ae66-4d6f-9c70-3f7b3ae94f4f",
+        "event_id": "Event_264",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "徐巧芯批賴清德扭曲制憲史實"
+    },
+    {
+        "timeline_items_id": "95fdbb14-296d-4be5-be5a-1d039a4506a3",
+        "event_id": "Event_265",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "賴清德制憲言論引發爭議"
+    },
+    {
+        "timeline_items_id": "21d4a94d-1bd0-4b7d-88ea-6e8781989b5b",
+        "event_id": "Event_265",
+        "date_range": "2025-06-30 ~ 2025-06-30",
+        "start_date": "2025-06-30",
+        "summary": "賴柯交鋒憲政議題，互相指責違憲"
+    },
+    {
+        "timeline_items_id": "7b93b95e-e786-4ee1-b9a0-9676c5c23b4c",
+        "event_id": "Event_266",
+        "date_range": "2025-06-28 ~ 2025-06-28",
+        "start_date": "2025-06-28",
+        "summary": "民進黨2026地方選舉提名辦法通過"
+    },
+    {
+        "timeline_items_id": "65be845f-6c22-4f20-a7c2-26adbd04b5ac",
+        "event_id": "Event_266",
+        "date_range": "2025-06-29 ~ 2025-06-29",
+        "start_date": "2025-06-29",
+        "summary": "民進黨確定2026縣市長提名辦法"
+    }
+]
