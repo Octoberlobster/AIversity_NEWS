@@ -14,6 +14,8 @@ supabase: Client = create_client(supabase_url, api_key_supabase)
 
 model_flag = ["Politics","Science","Technology"] # 改前端的選擇結果
 
+#Todo : 修改model_dict只有9個領域，增加專題的model與首頁搜尋的model，並且將system_instruction的prompt用別的py或yaml或json來進行管理
+
 model_dict = {
     "Politics": -1,
     "Social News": -1,
