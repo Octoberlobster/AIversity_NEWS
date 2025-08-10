@@ -61,13 +61,13 @@ class ReportGeneratorConfig:
     # 綜合報導長度規範（三種版本）
     COMPREHENSIVE_LENGTHS = {
         "ultra_short": {  # 約 15 秒可讀
-            "min_chars": 80,
-            "max_chars": 140,
+            "min_chars": 60,
+            "max_chars": 100,
             "description": "極短版（約15秒）"
         },
         "short": {        # 約 1~2 分鐘
-            "min_chars": 300,
-            "max_chars": 600,
+            "min_chars": 130,
+            "max_chars": 250,
             "description": "短版（約1~2分鐘）"
         },
         "long": {         # 約 3~5 分鐘
