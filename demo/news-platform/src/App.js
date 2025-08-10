@@ -63,66 +63,6 @@ const SidebarTitle = styled.h3`
   margin: 0 0 1rem 0;
 `;
 
-const TrendingList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const TrendingItem = styled.div`
-  padding: 1rem;
-  background: #f8fafc;
-  border-radius: 12px;
-  border-left: 4px solid #667eea;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  
-  &:hover {
-    background: #f1f5f9;
-    transform: translateX(4px);
-  }
-`;
-
-const TrendingTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  color: #1e3a8a;
-  font-size: 1rem;
-  font-weight: 600;
-`;
-
-const TrendingMeta = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.8rem;
-  color: #6b7280;
-`;
-
-const StatsCard = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-`;
-
-const StatBox = styled.div`
-  text-align: center;
-  padding: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 12px;
-`;
-
-const StatNumber = styled.div`
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-`;
-
-const StatLabel = styled.div`
-  font-size: 0.8rem;
-  opacity: 0.9;
-`;
-
 const SectionTitle = styled.h2`
   color: #1e3a8a;
   font-size: 1.8rem;
@@ -137,35 +77,6 @@ const SectionTitle = styled.h2`
     font-size: 1.5rem;
   }
 `;
-
-// 模擬熱門話題資料
-const trendingTopics = [
-  {
-    id: 1,
-    title: "AI 技術在醫療領域的突破性進展",
-    views: "12.5k",
-    time: "2小時前"
-  },
-  {
-    id: 2,
-    title: "全球氣候變遷對經濟的影響分析",
-    views: "8.9k",
-    time: "4小時前"
-  },
-  {
-    id: 3,
-    title: "數位貨幣發展趨勢與監管挑戰",
-    views: "15.2k",
-    time: "6小時前"
-  },
-  {
-    id: 4,
-    title: "太空探索新紀元：火星殖民計劃",
-    views: "9.7k",
-    time: "8小時前"
-  }
-];
-
 const hotKeywords = [
   '女足', '大罷免', '颱風', '疫苗', 'AI', '房價', '能源', '選舉', '地震', '股市', 'ChatGPT', '缺水', '升息', '碳中和', '罷工', '通膨', '烏俄戰爭', '台積電', 'AI醫療', '元宇宙'
 ];

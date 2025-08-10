@@ -21,97 +21,6 @@ const BackButton = styled(Link)`
   transition: color 0.3s ease;
   &:hover { color: #764ba2; }
 `;
-const NewsTypeSelector = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  justify-content: center;
-`;
-const TypeCard = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  border: 2px solid ${props => props.active ? '#667eea' : 'transparent'};
-  position: relative;
-  overflow: hidden;
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: ${props => props.active ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#e0e0e0'};
-  }
-`;
-const TypeTitle = styled.h3`
-  margin: 0 0 1rem 0;
-  color: #333;
-  font-size: 1.5rem;
-`;
-const TypeDescription = styled.p`
-  color: #666;
-  margin: 0;
-  line-height: 1.5;
-`;
-const Tooltip = styled.div`
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  z-index: 10;
-  ${TypeCard}:hover & {
-    opacity: 1;
-    visibility: visible;
-  }
-  &::before {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 5px solid #333;
-  }
-`;
-const LengthToggle = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 2rem 0;
-`;
-const ToggleButton = styled.button`
-  background: ${props => props.active ? '#667eea' : 'white'};
-  color: ${props => props.active ? 'white' : '#667eea'};
-  border: 2px solid #667eea;
-  padding: 0.5rem 1.5rem;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  &:hover {
-    background: ${props => props.active ? '#764ba2' : '#f0f0f0'};
-    border-color: ${props => props.active ? '#764ba2' : '#764ba2'};
-  }
-`;
 const ArticleContent = styled.div`
   flex: ${props => props.width};
   background: white;
@@ -493,7 +402,6 @@ function NewsDetail() {
     if (!container) return;
     const containerRect = container.getBoundingClientRect();
     const currentMouseX = e.clientX - containerRect.left;
-    const containerWidth = containerRect.width;
     
     // 計算滑鼠移動的距離
     const deltaX = currentMouseX - dragStartX;
