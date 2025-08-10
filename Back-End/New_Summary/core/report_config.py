@@ -34,12 +34,12 @@ class ReportGeneratorConfig:
     # 摘要長度設定
     SUMMARY_LENGTHS = {
         "short": {
-            "min_chars": 50,
-            "max_chars": 80,
+            "min_chars": 60,
+            "max_chars": 100,
             "description": "適合列表預覽的簡短摘要"
         },
         "medium": {
-            "min_chars": 150,
+            "min_chars": 130,
             "max_chars": 250,
             "description": "適合快速閱讀的中等摘要"
         },

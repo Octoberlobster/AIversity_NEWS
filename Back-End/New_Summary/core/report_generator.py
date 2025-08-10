@@ -250,10 +250,8 @@ class ReportGenerator:
                         title = f"{story_data.get('category', '')}專題報導：{story_data.get('story_title', '')}"
                         body = content
                     outputs[version] = {
-                        "title": title,
                         "content": body,
-                        "article_count": len(articles_data),
-                        "generated_at": datetime.now().isoformat()
+                        "generated_at": datetime.now().isoformat(timespec='minutes')
                     }
                 else:
                     outputs[version] = {
@@ -269,7 +267,7 @@ class ReportGenerator:
                 "content": main.get("content", ""),
                 "versions": outputs,  # 新增：三種版本都存這裡
                 "article_count": len(articles_data),
-                "generated_at": datetime.now().isoformat()
+                "generated_at": datetime.now().isoformat(timespec='minutes')
             }
             logger.info("✅ 綜合報導（多版本）生成成功")
             return result

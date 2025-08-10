@@ -265,29 +265,31 @@ const termDefinitions = {
   "永續發展": "永續發展指在滿足當代需求的同時，不損害後代滿足其需求的能力。",
   "三級三審": "指案件經過地方法院、高等法院、最高法院三級法院，以及各級法院三次審判程序的制度。確保司法審查的嚴謹性與公正性。",
   "IRB" : "在台灣，IRB 通常指「人體試驗委員會」（Institutional Review Board），負責審查和監督涉及人體的研究，以確保研究的倫理性和參與者的安全與權益。",
-  "SDGs": "可持續發展目標（Sustainable Development Goals），是聯合國在2015年制定的17個全球發展目標，旨在2030年前消除貧窮、保護地球並確保所有人享有和平與繁榮。"
+  "SDGs": "可持續發展目標（Sustainable Development Goals），是聯合國在2015年制定的17個全球發展目標，旨在2030年前消除貧窮、保護地球並確保所有人享有和平與繁榮。",
+  "逆行行星": "行星在天空中看似反方向運動的天文現象，實際由觀測位置與軌道差異造成。",
+  "聯星系統": "由兩顆或多顆恆星互相繞行組成，透過引力維持穩定運動的恆星系統。",
+  "南極座ν": "位於南極座的一顆恆星，肉眼可見，常作為南天星圖定位參考之一。",
+  "白矮星": "恆星演化末期形成的高密度天體，體積小但質量接近太陽，表面極熱。",
+  "逕向速度": "天體沿視線方向相對觀測者的速度，透過多普勒效應測量，常用於探測系外行星。"
 };
 
 // 模擬新聞資料
 export const defaultNewsData = [
   {
     id: 1,
-    title: "人工智慧在醫療領域的突破性進展",
-    category: "科技",
-    date: "2024-01-15 14:30",
-    author: "張明華",
-    sourceCount: 5,
-    shortSummary: "最新研究顯示，**人工智慧**技術在疾病診斷和治療方案制定方面取得了重大突破。通過**機器學習**算法，AI系統能夠分析大量醫療數據，為**精準醫療**提供支持。",
+    title: "逆行行星挑戰行星形成理論：南極座ν聯星系統發現“第二代行星”",
+    category: "科學與科技",
+    date: "2025-08-10 19:22",
+    sourceCount: 3,
+    shortSummary: "國際團隊在南極座ν聯星系統發現逆行行星，質量約木星14倍，挑戰傳統行星形成理論，或為第二代行星有力證據。",
     relatedNews: [
       { id: 101, title: "AI 診斷系統獲 FDA 批准" },
       { id: 102, title: "基因編輯技術與 AI 結合的新突破" },
       { id: 103, title: "遠程醫療中的 AI 應用" }
     ],
-    views: "2.3k",
-    comments: "45",
-    likes: "128",
-    keywords: ["AI", "醫療", "診斷"], // 領域關鍵字
-    terms: ["人工智慧", "機器學習", "精準醫療"] // 專有名詞
+    views: "2",
+    keywords: ["逆行行星", "天文"], // 領域關鍵字
+    terms: ["逆行行星", "聯星系統", "南極座ν", "白矮星", "逕向速度"] // 專有名詞
   },
 ];
 
@@ -375,7 +377,7 @@ function UnifiedNewsCard({ limit, keyword, customData }) {
               </CardMeta>
               <CardContent>
                 <SummaryText isExpanded={isExpanded}>
-                  {isExpanded ? renderHighlightedText(news.shortSummary, news.terms) : renderHighlightedText(news.shortSummary.substring(0, 150), news.terms)}
+                  {isExpanded ? renderHighlightedText(news.shortSummary, news.terms) : renderHighlightedText(news.shortSummary, news.terms)}
                 </SummaryText>
                 {isExpanded && (
                   <ExpandedContent>
