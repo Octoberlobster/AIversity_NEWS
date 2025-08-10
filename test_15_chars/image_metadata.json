@@ -1,0 +1,22 @@
+{
+  "total_images": 2,
+  "generated_at": "2025-08-10 23:16:43",
+  "images": [
+    {
+      "image_path": "test_15_chars\\zheng-zhi-\\bei-jian-qian-ze-ke-wen-zhe-bao-zou-huang-guo-chang-feng-zi-zhi-li-kui.png",
+      "description": "柯文哲譴責黃國昌",
+      "article_title": "北檢譴責柯文哲暴走黃國昌諷：自知理虧的小孩哭著回家找媽媽| 政治",
+      "category": "政治",
+      "article_id": "926f11d8-8bb0-4224-bbcc-ad7a6ebff396",
+      "generated": false
+    },
+    {
+      "image_path": "test_15_chars\\zheng-zhi-\\ke-pxiu-ting-nu-chi-jian-cha-guan-bei-jian-qian-ze-.png",
+      "description": "柯文哲譴責北檢柯P休庭怒斥檢察",
+      "article_title": "柯P休庭怒斥檢察官 北檢譴責",
+      "category": "政治",
+      "article_id": "4ee3826b-1230-47b3-8a9c-0cc80b023476",
+      "generated": false
+    }
+  ]
+}

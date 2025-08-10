@@ -187,6 +187,144 @@ def _save_png(img_bytes: bytes, out_path: str):
     image = Image.open(BytesIO(img_bytes))
     image.save(out_path, format="PNG", optimize=True)
 
+def _generate_image_description(news_title: str, news_summary: str, category: str) -> str:
+    """
+    為生成的圖片創建完整的說明文字（最多15字，確保句子完整）
+    
+    Args:
+        news_title (str): 新聞標題
+        news_summary (str): 新聞摘要
+        category (str): 新聞類別
+        
+    Returns:
+        str: 完整的圖片說明文字（最多15字，確保語句完整）
+    """
+    # 清理標題，移除無關標記和網站名稱
+    title_clean = news_title.replace("| 政治", "").replace("｜ 公視新聞網 PNN", "")
+    title_clean = title_clean.replace("｜", "").replace("|", "").replace("PNN", "")
+    title_clean = title_clean.replace("公視新聞網", "").replace("新聞網", "")
+    title_clean = title_clean.strip()
+    
+    # 識別關鍵元素
+    people = []
+    actions = []
+    events = []
+    
+    # 人物識別
+    if "柯文哲" in title_clean or "柯P" in title_clean:
+        people.append("柯文哲")
+    if "黃國昌" in title_clean:
+        people.append("黃國昌")
+    if "北檢" in title_clean:
+        people.append("北檢")
+    if "檢察官" in title_clean:
+        people.append("檢察官")
+    
+    # 動作識別
+    if "譴責" in title_clean:
+        actions.append("譴責")
+    if "暴走" in title_clean:
+        actions.append("暴走")
+    if "怒斥" in title_clean or "怒罵" in title_clean:
+        actions.append("怒斥")
+    
+    # 事件識別
+    if "開庭" in title_clean:
+        events.append("開庭")
+    if "休庭" in title_clean:
+        events.append("休庭")
+    
+    # 生成完整句子的候選方案
+    candidates = []
+    
+    # 方案1: 完整的主謂賓結構
+    if people and actions:
+        if len(people) >= 2:
+            # A 動作 B
+            sentence = f"{people[0]}{actions[0]}{people[1]}"
+            if len(sentence) <= 15:
+                candidates.append((sentence, 3))  # 高優先級
+            
+            # B 受到 A 的動作
+            if "譴責" in actions:
+                sentence = f"{people[1]}遭{people[0]}譴責"
+                if len(sentence) <= 15:
+                    candidates.append((sentence, 3))
+        else:
+            # 單一人物 + 動作 + 事件/對象
+            base = f"{people[0]}{actions[0]}"
+            if len(base) <= 15:
+                candidates.append((base, 2))
+                
+                # 嘗試添加事件
+                if events:
+                    extended = f"{people[0]}{events[0]}{actions[0]}"
+                    if len(extended) <= 15:
+                        candidates.append((extended, 3))
+    
+    # 方案2: 事件描述
+    if events and people:
+        sentence = f"{events[0]}{people[0]}事件"
+        if len(sentence) <= 15:
+            candidates.append((sentence, 2))
+    
+    # 方案3: 直接使用標題中的完整短語
+    import re
+    # 按常見分隔符分割，找出完整短語
+    separators = r'[：:，,。！!？?\s]'
+    phrases = re.split(separators, title_clean)
+    
+    for phrase in phrases:
+        phrase = phrase.strip()
+        if 4 <= len(phrase) <= 15:  # 適當長度的完整短語
+            candidates.append((phrase, 1))
+    
+    # 方案4: 智能截取，確保在合理位置截斷
+    if not candidates:
+        # 找出自然的截取點
+        natural_breaks = ['，', ',', '。', '！', '!', '？', '?', '：', ':', ' ']
+        
+        for i in range(min(15, len(title_clean)), 3, -1):
+            if i < len(title_clean) and title_clean[i] in natural_breaks:
+                candidates.append((title_clean[:i], 1))
+                break
+            elif title_clean[i-1:i+1] not in ['檢察', '國昌', '文哲', '北檢']:
+                # 確保不在常見詞彙中間截斷
+                candidates.append((title_clean[:i], 1))
+                break
+    
+    # 選擇最佳候選
+    best = ""
+    if candidates:
+        # 按優先級排序，然後按長度（偏好較短的完整句子）
+        candidates.sort(key=lambda x: (-x[1], len(x[0])))
+        best = candidates[0][0].strip()
+    else:
+        # 如果沒有候選，使用前15個字符
+        best = title_clean[:15]
+        
+    # 最終檢查：確保不以常見的不完整字詞結尾，並嘗試補全
+    incomplete_endings = ['檢', '察', '國', '昌', '文', '哲', '的', '了', '在', '與', '北', '黃']
+    while best and best[-1] in incomplete_endings and len(best) > 3:
+        # 嘗試從原標題中找到更完整的版本
+        if best.endswith('黃') and '黃國昌' in title_clean and len(best) + 2 <= 15:
+            best = best + '國昌'
+            break
+        elif best.endswith('北') and '北檢' in title_clean and len(best) + 1 <= 15:
+            best = best + '檢'
+            break
+        elif best.endswith('檢') and '檢察' in title_clean and len(best) + 1 <= 15:
+            best = best + '察'
+            break
+        elif best.endswith('察') and '檢察官' in title_clean and len(best) + 1 <= 15:
+            best = best + '官'
+            break
+        else:
+            best = best[:-1].strip()
+    
+    return best    # 兜底方案
+    return title_clean[:12] if len(title_clean) > 12 else title_clean
+
 def generate_from_json(
     input_json: str,
     output_dir: str,
@@ -226,6 +364,9 @@ def generate_from_json(
     processed = 0
     succeeded = 0
     failed = 0
+    
+    # 儲存圖片資訊的列表
+    image_metadata = []
 
     for art in tqdm(articles, desc="Generating event illustrations", ncols=100):
         processed += 1
@@ -245,6 +386,16 @@ def generate_from_json(
             out_name = f"{base_slug}_{i}.png" if max_images_per_article > 1 else f"{base_slug}.png"
             out_path = os.path.join(out_category, out_name)
             if os.path.exists(out_path):
+                # 如果圖片已存在，也要加入metadata
+                description = _generate_image_description(title, summary, category)
+                image_metadata.append({
+                    "image_path": out_path,
+                    "description": description,
+                    "article_title": title,
+                    "category": category,
+                    "article_id": art.get("id", ""),
+                    "generated": False  # 表示這次沒有重新生成
+                })
                 continue
 
             img_bytes = _gen_image_bytes_with_retry(
@@ -257,6 +408,20 @@ def generate_from_json(
 
             try:
                 _save_png(img_bytes, out_path)
+                
+                # 生成圖片說明
+                description = _generate_image_description(title, summary, category)
+                
+                # 將圖片資訊加入metadata
+                image_metadata.append({
+                    "image_path": out_path,
+                    "description": description,
+                    "article_title": title,
+                    "category": category,
+                    "article_id": art.get("id", ""),
+                    "generated": True  # 表示這次新生成的
+                })
+                
                 time.sleep(sleep_between_calls)
             except (IOError, OSError) as e:
                 errors.append({"title": title, "category": category, "reason": f"save_error: {e}"})
@@ -272,6 +437,15 @@ def generate_from_json(
         err_path = os.path.join(output_dir, "errors.json")
         with open(err_path, "w", encoding="utf-8") as f:
             json.dump(errors, f, ensure_ascii=False, indent=2)
+    
+    # 儲存圖片metadata到JSON檔案
+    metadata_path = os.path.join(output_dir, "image_metadata.json")
+    with open(metadata_path, "w", encoding="utf-8") as f:
+        json.dump({
+            "total_images": len(image_metadata),
+            "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "images": image_metadata
+        }, f, ensure_ascii=False, indent=2)
 
     return {
         "processed": processed,
@@ -279,4 +453,6 @@ def generate_from_json(
         "failed": failed,
         "errors_count": len(errors),
         "output_dir": output_dir,
+        "metadata_path": metadata_path,
+        "total_images": len(image_metadata)
     }

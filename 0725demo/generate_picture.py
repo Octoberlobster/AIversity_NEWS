@@ -194,7 +194,8 @@ def main():
     for art in tqdm(articles, desc="Generating event illustrations (all)", ncols=100):
         title = art.get("article_title") or art.get("title") or "untitled"
         category = art.get("category") or art.get("story_category") or "misc"
-        prompt = summarize_for_prompt(art)
+        summary = art.get("article_summary") or art.get("summary") or art.get("content") or ""
+        prompt = generate_news_image_prompt(title, summary, category)
 
         cat_slug = safe_slug(category, maxlen=40)
         out_dir = os.path.join(OUTPUT_DIR, cat_slug)

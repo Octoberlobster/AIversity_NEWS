@@ -1,0 +1,30 @@
+{
+  "total_images": 3,
+  "generated_at": "2025-08-10 22:54:05",
+  "images": [
+    {
+      "image_path": "simple_output\\zheng-zhi-\\bei-jian-qian-ze-ke-wen-zhe-bao-zou-huang-guo-chang-feng-zi-zhi-li-kui.png",
+      "description": "政治事件相關場景：北檢譴責柯文哲暴走黃國昌諷：自知理虧的小孩哭著回家找媽媽| ",
+      "article_title": "北檢譴責柯文哲暴走黃國昌諷：自知理虧的小孩哭著回家找媽媽| 政治",
+      "category": "政治",
+      "article_id": "926f11d8-8bb0-4224-bbcc-ad7a6ebff396",
+      "generated": true
+    },
+    {
+      "image_path": "simple_output\\zheng-zhi-\\ke-pxiu-ting-nu-chi-jian-cha-guan-bei-jian-qian-ze-.png",
+      "description": "政治事件相關場景：柯P休庭怒斥檢察官 北檢譴責",
+      "article_title": "柯P休庭怒斥檢察官 北檢譴責",
+      "category": "政治",
+      "article_id": "4ee3826b-1230-47b3-8a9c-0cc80b023476",
+      "generated": true
+    },
+    {
+      "image_path": "simple_output\\zheng-zhi-\\jing-hua-cheng-an-zai-kai-ting-ke-wen-zhe-xiu-ting-shi-nu-ma-jian-cha-.png",
+      "description": "政治事件相關場景：京華城案再開庭 柯文哲休庭時怒罵檢察官 ｜ 公視新聞網 PN",
+      "article_title": "京華城案再開庭 柯文哲休庭時怒罵檢察官 ｜ 公視新聞網 PNN",
+      "category": "政治",
+      "article_id": "e93e68db-c822-4592-9d12-451721611fd7",
+      "generated": true
+    }
+  ]
+}
