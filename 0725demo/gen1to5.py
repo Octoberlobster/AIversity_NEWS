@@ -14,22 +14,22 @@ from google import genai
 from google.genai import types
 
 # ============ 可調整區 ============
-INPUT_JSON = "cleaned_final_news1.json"   # JSON 檔案路徑
-OUTPUT_DIR = "generated_images"           # 全量輸出資料夾
+INPUT_JSON = "cleaned_final_news1.json"   # 請將附件放在與本檔同層
+OUTPUT_DIR = "generated_images_test5"     # 測試輸出資料夾
 MODEL_ID = "gemini-2.0-flash-preview-image-generation"
-MAX_ITEMS = None                          # None 代表全量處理
-MAX_IMAGES_PER_ARTICLE = 1                # 每篇生成張數
+MAX_ITEMS = 5                              # 僅跑前5篇
+MAX_IMAGES_PER_ARTICLE = 1                # 每篇1張
 RETRY_TIMES = 3
-SLEEP_BETWEEN_CALLS = 0.6                 # 節流，視配額調整
+SLEEP_BETWEEN_CALLS = 0.5
 # ==================================
 
-# 類別→寫實編輯語氣（避免提供會誘發文字的元素）
+# 依類別提供事件示意風格方向（避免產生文字，人物以通用人像處理）
 CATEGORY_STYLE_HINTS = {
-    "政治": "neutral editorial, cinematic realism",
-    "社會": "documentary realism, human-centric",
-    "國際": "cinematic realism with diplomatic symbolism (no flags)",
-    "財經": "corporate realism with abstract financial props (no digits)",
-    "科技": "modern tech realism with device/object focus (no UI text)",
+    "政治": "clean editorial illustration with neutral palette, courtroom or press context implied by props",
+    "社會": "modern flat illustration focusing on generic people and key objects in public settings",
+    "國際": "cinematic moody scene with symbolic objects representing diplomacy or conflict, no flags",
+    "財經": "business-themed illustration using abstract charts (no text), briefcase, coins as icons",
+    "科技": "futuristic illustration with devices and abstract UI panels (no text)",
 }
 
 def safe_slug(text: str, maxlen: int = 60) -> str:
@@ -61,78 +61,117 @@ def load_json(path: str) -> List[Dict[str, Any]]:
         flat = data.get("articles", [])
     return flat
 
-def generate_news_image_prompt(news_title: str, news_summary: str, category: str) -> str:
+def summarize_for_prompt(article: Dict[str, Any]) -> str:
     """
-    根據新聞標題和摘要，生成不含文字的攝影級寫實事件示意圖提示。
-    
-    Args:
-        news_title (str): 新聞標題，用於增加圖像相關性。
-        news_summary (str): 新聞摘要或內容，用於具體化圖像元素。
-        category (str): 新聞類別，用於調整風格提示。
-        
-    Returns:
-        str: 完整的圖像生成提示。
+    事件示意圖（提煉精華→影像意象→寫實無文字）：
+    - 從內文擷取最精華的「人/物/場景/情緒/動作」要素，轉為純影像化描述
+    - 僅以人物或物件意象呈現（generic, non-identifiable persons / symbolic objects）
+    - 嚴禁任何文字、字母、數字、商標、水印、旗幟、UI、字幕、看板字樣
+    - 偏向攝影級寫實（photorealistic）
     """
-    
-    # 根據類別設定風格提示
-    CATEGORY_STYLE_HINTS = {
-        "finance": "neutral corporate tone, high-tech, clean aesthetics",
-        "politics": "dramatic, serious, high-contrast, documentary style",
-        "technology": "futuristic, sleek, innovative, digital aesthetics",
-        "sports": "dynamic, energetic, motion blur, emotional",
-        "environment": "natural, hopeful, subtle textures, wide shots"
-    }
+    import re
+
+    category = article.get("category") or article.get("story_category") or ""
+    content = (article.get("content") or "").strip()
+
+    # 1) 提煉文章精華（非常簡化且保守）：抓取可能代表事件本質的名詞/動作線索
+    # - 避免長句與抽象詞，偏向「可視化的人/物/場景/動作」詞彙
+    # - 若你的環境允許，可換用更進階的關鍵詞抽取；此處給出純內建的保守做法
+    #   規則：抓取常見可視化物件/場景/行為詞（可依你的資料集擴充）
+    keywords_bank = [
+        # 人物與角色
+        "judge", "lawyer", "reporter", "protester", "police", "official",
+        "businessperson", "engineer", "doctor", "student",
+        # 物件與道具
+        "gavel", "microphone", "documents", "briefcase", "scales", "handcuffs",
+        "camera", "laptop", "smartphone", "contract", "chart", "coin",
+        # 場景與地點
+        "courtroom", "press room", "office", "street", "podium", "meeting room",
+        "server room", "lab", "airport",
+        # 動作與姿態
+        "speaking", "signing", "walking", "pointing", "gesturing", "presenting",
+        "negotiating", "inspecting",
+        # 情緒與氛圍
+        "serious", "tense", "calm", "focused", "concerned",
+    ]
+
+    # 將內容轉小寫，粗略掃描關鍵詞
+    text = content.lower()
+    found = []
+    for kw in keywords_bank:
+        # 允許單複數或簡單變形，可依需要擴充
+        pattern = r"\b" + re.escape(kw) + r"(s|es)?\b"
+        if re.search(pattern, text):
+            found.append(kw)
+    # 精簡相似詞、去重，最多保留5個意象詞
+    unique_visual_cues = []
+    for w in found:
+        if w not in unique_visual_cues:
+            unique_visual_cues.append(w)
+        if len(unique_visual_cues) >= 5:
+            break
+
+    # 若文章太難抽取，提供保底意象（避免空白導致模型產生文字）
+    if not unique_visual_cues:
+        unique_visual_cues = ["generic person", "documents", "microphone", "office"]
+
+    # 2) 類別風格引導（沿用既有 CATEGORY_STYLE_HINTS）
     style_hint = CATEGORY_STYLE_HINTS.get(
-        category or "", "neutral editorial tone with subtle cinematic realism"
+        category,
+        "neutral editorial tone with subtle cinematic realism"
     )
 
-    # 固定攝影風格與技術設定
+    # 3) 攝影級寫實參數與構圖
     photo_style = (
         "photorealistic, realistic photo, cinematic still, natural color grading, "
         "soft directional lighting, subtle film grain, shallow depth of field, creamy bokeh, "
         "subject isolation, rule of thirds, foreground/background layering"
     )
-    camera_tech = "full-frame look, 35mm lens, f/1.8, ISO 200, 1/250s shutter, high dynamic range"
+    camera_tech = (
+        "full-frame look, 35mm lens, f/1.8 aperture, ISO 200, 1/250s shutter, "
+        "shot on tripod, high dynamic range, accurate skin tones"
+    )
     lighting = (
         "soft key light with gentle rim light, golden hour ambience or soft overcast, "
         "physically plausible shadows and reflections"
     )
 
-    # 針對新聞內容動態生成圖像描述
-    # 這裡將新聞標題和摘要作為圖像的「核心主題」
-    core_subject = (
-        f"A scene representing the core concepts of the news: '{news_title}'. "
-        f"The visual elements should metaphorically or symbolically illustrate the key points from the summary: '{news_summary}'. "
-        f"Focus on generic, non-identifiable persons and symbolic objects to convey the narrative. "
-        f"Example: Use a blurred gavel for a legal report, an abstract graph for a financial story, or silhouettes of people talking for a political debate."
-    )
-
-    # 強力禁止文字的設定 (保持不變)
+    # 4) 嚴格無文字（多角度冗餘）
     no_text = (
         "Absolutely no text of any kind within the image. "
-        "No letters, numbers, words, captions, labels, banners, signage, UI, or subtitles. "
+        "No letters, numbers, words, captions, labels, banners, signs, UI, or subtitles. "
         "No logos, trademarks, watermarks, brand marks, or flags. "
-        "Avoid any text-like or glyph-like patterns on clothing, props, documents, screens, or backgrounds. "
+        "Avoid any text-like or glyph-like patterns on clothing, props, backgrounds, or screens. "
         "If an element could contain text (documents, screens, boards), render it blank or abstract."
     )
 
-    # 輸出限制 (保持不變)
-    output_constraints = (
-        "Square aspect ratio, high clarity, realistic textures and materials, "
-        "no graphic overlays, no UI elements."
+    # 5) 人物/物件要求（不可辨識）
+    people_objects = (
+        "Focus on generic, non-identifiable persons (faceless or simplified features, "
+        "silhouette or back/side view) and key symbolic objects."
     )
 
-    # 將所有部分組合在一起
-    prompt = (
-        f"{core_subject}. "
-        f"Style: {style_hint}, {photo_style}. "
-        f"Camera: {camera_tech}. "
-        f"Lighting: {lighting}. "
-        f"{no_text}. "
-        f"{output_constraints}."
+    # 6) 將精華意象合併為「純影像化清單」（不給標題、不給摘要長句）
+    visual_keywords = ", ".join(unique_visual_cues)
+
+    output_constraints = (
+        "Square aspect ratio, high clarity, realistic textures, natural materials, "
+        "no text overlays, no graphic UI elements."
     )
-    
+
+    prompt = (
+        f"Create an {style_hint} {photo_style}. "
+        f"Use {camera_tech}. "
+        f"Lighting: {lighting}. "
+        f"{people_objects} "
+        f"Key visual cues (non-textual): {visual_keywords}. "
+        f"{no_text} "
+        f"{output_constraints}"
+    )
     return prompt
+
+
+
 
 def gen_image_bytes_with_retry(client: genai.Client, prompt: str) -> Optional[bytes]:
     for attempt in range(1, RETRY_TIMES + 1):
@@ -141,8 +180,7 @@ def gen_image_bytes_with_retry(client: genai.Client, prompt: str) -> Optional[by
                 model=MODEL_ID,
                 contents=prompt,
                 config=types.GenerateContentConfig(
-                    # 根據官方規範，必須同時要求 TEXT 與 IMAGE 才能輸出圖片
-                    response_modalities=['TEXT', 'IMAGE'],  # 必填[3][1][2]
+                    response_modalities=['TEXT', 'IMAGE'],
                 ),
             )
             cands = getattr(resp, "candidates", [])
@@ -150,7 +188,7 @@ def gen_image_bytes_with_retry(client: genai.Client, prompt: str) -> Optional[by
                 raise RuntimeError("No candidates in response")
 
             img_bytes = None
-            # 僅保存圖片 part；完全忽略文字 part
+            # 僅保存圖片 part；忽略文字 part
             for part in cands[0].content.parts:
                 if getattr(part, "inline_data", None):
                     data = part.inline_data.data
@@ -181,17 +219,15 @@ def save_png(img_bytes: bytes, out_path: str):
 def main():
     load_dotenv()
     ensure_dir(OUTPUT_DIR)
-    client = genai.Client()  # 自動從 GEMINI_API_KEY / GOOGLE_API_KEY 讀取
+    client = genai.Client()  # 從 GEMINI_API_KEY 或 GOOGLE_API_KEY 讀取
 
     articles = load_json(INPUT_JSON)
-    if MAX_ITEMS is not None:
-        articles = articles[:MAX_ITEMS]
+    articles = articles[:MAX_ITEMS] if MAX_ITEMS else articles
 
     errors = []
-    total = len(articles)
-    print(f"Total articles to process: {total}")
+    print(f"Testing first {len(articles)} articles...")
 
-    for art in tqdm(articles, desc="Generating event illustrations (all)", ncols=100):
+    for art in tqdm(articles, desc="Generating event illustrations (first-5, no-text)", ncols=100):
         title = art.get("article_title") or art.get("title") or "untitled"
         category = art.get("category") or art.get("story_category") or "misc"
         prompt = summarize_for_prompt(art)
@@ -220,12 +256,12 @@ def main():
             time.sleep(SLEEP_BETWEEN_CALLS)
 
     if errors:
-        err_path = os.path.join(OUTPUT_DIR, "errors_all.json")
+        err_path = os.path.join(OUTPUT_DIR, "errors_first5.json")
         with open(err_path, "w", encoding="utf-8") as f:
             json.dump(errors, f, ensure_ascii=False, indent=2)
         print(f"Completed with errors: {len(errors)}. See {err_path}")
     else:
-        print("All done without errors.")
+        print("First-5 no-text test done without errors.")
 
 if __name__ == "__main__":
     main()

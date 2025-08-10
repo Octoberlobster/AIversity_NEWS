@@ -1,0 +1,59 @@
+def summarize_for_prompt(article: Dict[str, Any]) -> str:
+    """
+    事件示意圖（寫實照片風）：
+    - 僅以人物或物件意象呈現（generic, non-identifiable persons / symbolic objects）
+    - 嚴禁任何文字、字母、數字、商標、水印、旗幟、UI、字幕、看板字樣
+    - 偏向攝影級寫實（photorealistic），使用攝影語彙與參數提升擬真度
+    """
+    category = article.get("category") or article.get("story_category") or ""
+    style_hint = CATEGORY_STYLE_HINTS.get(
+        category,
+        "neutral editorial tone with subtle cinematic realism"
+    )
+
+    # 寫實風格的攝影參數與構圖關鍵詞
+    photo_style = (
+        "photorealistic, realistic photo, cinematic still, natural color grading, "
+        "soft directional lighting, subtle film grain, shallow depth of field, creamy bokeh, "
+        "subject isolation, rule of thirds, foreground/background layering"
+    )
+    camera_tech = (
+        "full-frame look, 35mm lens, f/1.8 aperture, ISO 200, 1/250s shutter, "
+        "shot on tripod, high dynamic range, accurate skin tones"
+    )
+    lighting = (
+        "soft key light with gentle rim light, golden hour ambience or soft overcast, "
+        "physically plausible shadows and reflections"
+    )
+
+    # 嚴格無文字要求（冗餘多角度）
+    no_text = (
+        "Absolutely no text of any kind within the image. "
+        "No letters, numbers, words, captions, labels, banners, signs, UI, or subtitles. "
+        "No logos, trademarks, watermarks, brand marks, or flags. "
+        "Avoid any text-like or glyph-like patterns on clothing, props, backgrounds, or screens. "
+        "If an element could contain text (documents, screens, boards), render it blank or abstract."
+    )
+
+    # 人物與物件要求（避免真實可辨識）
+    people_objects = (
+        "Focus on generic, non-identifiable persons (faceless or simplified features, "
+        "silhouette or back/side view) and key symbolic objects. "
+        "Use props like gavel, microphone, documents, scales, hand gestures, or abstract geometric forms as needed."
+    )
+
+    # 構圖輸出限制
+    output_constraints = (
+        "Square aspect ratio, high clarity, realistic textures, natural materials, "
+        "no text overlays, no graphic UI elements."
+    )
+
+    prompt = (
+        f"Create an {style_hint} {photo_style}. "
+        f"Use {camera_tech}. "
+        f"Lighting: {lighting}. "
+        f"{people_objects} "
+        f"{no_text} "
+        f"{output_constraints}"
+    )
+    return prompt
