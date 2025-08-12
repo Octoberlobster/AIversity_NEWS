@@ -7,6 +7,7 @@ import TermTooltip from './TermTooltip';
 // --- 導入後端新聞資料 ---
 import rawBackendData from './../final_comprehensive_reports_20250812_013357.json';
 import keywordExplanations from './../keyword_explanations.json'
+import imageMatadata from './../image_metadata.json';
 
 // 將後端資料轉換為前端詳細頁面格式
 const convertBackendToDetailFormat = (backendData) => {
@@ -15,12 +16,13 @@ const convertBackendToDetailFormat = (backendData) => {
     const story_index = (index + 1).toString();
     const keywords = keywordExplanations[story_index]?.keywords || [];
     const terms = keywords.map(item => item.term);
+    const description = imageMatadata.images[index].description || "";
     result[index + 2] = {
       title: story.comprehensive_report.title || "無標題",
       date: story.processed_at || new Date().toISOString(),
       author: "Gemini",
-      image: "",
-      imageCaption: "",
+      image: `/ke-xue-yu-ke-ji-/${story_index}.png`,
+      imageCaption: description,
       short: story.comprehensive_report.versions.short || "",
       long: story.comprehensive_report.versions.long || "",
       keywords: [],
@@ -49,6 +51,8 @@ const mockNewsData = {
   },
   ...convertBackendToDetailFormat(rawBackendData)
 };
+
+console.log(mockNewsData);
 
 const buildTermDefinitions = () => {
   const definitions = {};
