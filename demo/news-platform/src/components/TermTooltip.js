@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import './../css/TermTooltip.css';
+import keywordExplanations from './../keyword_explanations.json';
 
 function TermTooltip({ term, definition, position, onClose }) {
   const contentRef = useRef(null);
@@ -17,6 +18,19 @@ function TermTooltip({ term, definition, position, onClose }) {
     if (e.target === e.currentTarget) onClose();
   };
 
+  // 尋找該 term 在 keywordExplanations 中的 examples
+  const findExample = () => {
+    for (const storyKey in keywordExplanations) {
+      const keywords = keywordExplanations[storyKey].keywords;
+      const keyword = keywords.find(k => k.term === term);
+      if (keyword && keyword.examples && keyword.examples.length > 0) {
+        return keyword.examples[0];
+      }
+    }
+    // 如果在 keywordExplanations 中找不到，使用預設範例
+    return examples[term] || null;
+  };
+
   // 範例內容
   const examples = {
     "人工智慧": { title: "應用例子", text: "例如：語音助手（如 Siri、Alexa）、推薦系統、自動駕駛汽車等" },
@@ -29,7 +43,7 @@ function TermTooltip({ term, definition, position, onClose }) {
     "三級三審": { title: "應用例子", text: "這起殺人案因為案情複雜，經過三級三審，歷時多年才最終定讞。\n\n由於證據不足，高等法院發回更審，這個案件可能要走完三級三審的程序。" },
     "IRB": { title: "應用例子", text: "這個研究計畫必須先通過 IRB 審查才能開始執行。\n\n因為 IRB 的要求，我們需要修改受試者同意書。\n\nIRB 委員仔細審閱了研究方案，並提出了一些建議。" }
   };
-  const example = examples[term] || null;
+  const example = findExample();
 
   return (
     <div className="tooltipOverlay" onClick={handleOverlayClick}>

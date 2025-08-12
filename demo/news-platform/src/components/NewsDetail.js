@@ -6,11 +6,15 @@ import TermTooltip from './TermTooltip';
 
 // --- 導入後端新聞資料 ---
 import rawBackendData from './../final_comprehensive_reports_20250812_013357.json';
+import keywordExplanations from './../keyword_explanations.json'
 
 // 將後端資料轉換為前端詳細頁面格式
 const convertBackendToDetailFormat = (backendData) => {
   const result = {};
   backendData.forEach((story, index) => {
+    const story_index = (index + 1).toString();
+    const keywords = keywordExplanations[story_index]?.keywords || [];
+    const terms = keywords.map(item => item.term);
     result[index + 2] = {
       title: story.comprehensive_report.title || "無標題",
       date: story.processed_at || new Date().toISOString(),
@@ -20,7 +24,7 @@ const convertBackendToDetailFormat = (backendData) => {
       short: story.comprehensive_report.versions.short || "",
       long: story.comprehensive_report.versions.long || "",
       keywords: [],
-      terms: [],
+      terms: terms,
       related: [],
       source: story.comprehensive_report.source_urls || []
     };
@@ -36,31 +40,52 @@ const mockNewsData = {
     author: "張明華",
     image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=500&fit=crop",
     imageCaption: "AI 技術在醫療影像識別中的應用示意圖",
-    short: `最新研究顯示，**人工智慧**技術在疾病診斷和治療方案制定方面取得了重大突破。研究團隊利用**機器學習**算法分析了數千個病例，成功提高了診斷準確率達95%以上。\n\n這項技術特別在**影像識別**方面表現出色，能夠快速識別X光片、CT掃描等醫學影像中的異常情況。專家表示，這將大大減輕醫護人員的工作負擔，並提高醫療效率。\n\n然而，這項技術的應用也面臨著**倫理考量**和**隱私保護**等挑戰。如何在提高醫療效率的同時保護患者隱私，成為業界關注的焦點。`,
-    long: `最新研究顯示，**人工智慧**技術在疾病診斷和治療方案制定方面取得了重大突破。這項由國際頂尖醫療機構聯合進行的研究，歷時三年，投入資金超過數千萬美元，最終在**機器學習**和**深度學習**技術的結合下，成功開發出了新一代醫療AI系統。\n\n研究團隊利用**機器學習**算法分析了數千個病例，涵蓋了從常見疾病到罕見病症的各種情況。通過對大量數據的深度學習，AI系統能夠識別出人類醫生可能忽略的細微症狀，成功提高了診斷準確率達95%以上，遠超傳統診斷方法的準確率。\n\n這項技術特別在**影像識別**方面表現出色，能夠快速識別X光片、CT掃描、核磁共振等各種醫學影像中的異常情況。AI系統不僅能夠識別腫瘤、骨折等明顯病變，還能夠發現早期癌症的微小徵兆，為早期治療提供了寶貴的時間窗口。\n\n專家表示，這將大大減輕醫護人員的工作負擔，並提高醫療效率。在資源緊張的醫療環境中，AI助手可以幫助醫生快速篩選病例，讓醫生能夠將更多時間投入到需要專業判斷的複雜病例中。\n\n然而，這項技術的應用也面臨著**倫理考量**和**隱私保護**等挑戰。如何在提高醫療效率的同時保護患者隱私，成為業界關注的焦點。此外，AI診斷結果的責任歸屬問題也需要法律和倫理框架的完善。\n\n未來，這項技術有望在全球範圍內推廣應用，為更多患者提供更準確、更快速的醫療服務。同時，研究團隊也正在開發針對不同地區和人群的個性化AI模型，以確保技術的普適性和有效性。`,
+    short: `最新研究顯示，人工智慧技術在疾病診斷和治療方案制定方面取得了重大突破。研究團隊利用機器學習算法分析了數千個病例，成功提高了診斷準確率達95%以上。\n\n這項技術特別在影像識別方面表現出色，能夠快速識別X光片、CT掃描等醫學影像中的異常情況。專家表示，這將大大減輕醫護人員的工作負擔，並提高醫療效率。\n\n然而，這項技術的應用也面臨著倫理考量和隱私保護等挑戰。如何在提高醫療效率的同時保護患者隱私，成為業界關注的焦點。`,
+    long: `最新研究顯示，人工智慧技術在疾病診斷和治療方案制定方面取得了重大突破。這項由國際頂尖醫療機構聯合進行的研究，歷時三年，投入資金超過數千萬美元，最終在機器學習和深度學習技術的結合下，成功開發出了新一代醫療AI系統。\n\n研究團隊利用機器學習算法分析了數千個病例，涵蓋了從常見疾病到罕見病症的各種情況。通過對大量數據的深度學習，AI系統能夠識別出人類醫生可能忽略的細微症狀，成功提高了診斷準確率達95%以上，遠超傳統診斷方法的準確率。\n\n這項技術特別在影像識別方面表現出色，能夠快速識別X光片、CT掃描、核磁共振等各種醫學影像中的異常情況。AI系統不僅能夠識別腫瘤、骨折等明顯病變，還能夠發現早期癌症的微小徵兆，為早期治療提供了寶貴的時間窗口。\n\n專家表示，這將大大減輕醫護人員的工作負擔，並提高醫療效率。在資源緊張的醫療環境中，AI助手可以幫助醫生快速篩選病例，讓醫生能夠將更多時間投入到需要專業判斷的複雜病例中。\n\n然而，這項技術的應用也面臨著倫理考量和隱私保護等挑戰。如何在提高醫療效率的同時保護患者隱私，成為業界關注的焦點。此外，AI診斷結果的責任歸屬問題也需要法律和倫理框架的完善。\n\n未來，這項技術有望在全球範圍內推廣應用，為更多患者提供更準確、更快速的醫療服務。同時，研究團隊也正在開發針對不同地區和人群的個性化AI模型，以確保技術的普適性和有效性。`,
     keywords: ["AI", "醫療", "影像識別"],
     terms: ["人工智慧", "機器學習", "影像識別", "倫理考量", "隱私保護", "深度學習"],
-    related: [
-      { id: 2, title: "AI助力癌症早期診斷", relevance: "本篇新聞介紹的 AI 技術在醫療領域的應用，與延伸閱讀中 AI 協助癌症早期診斷的主題密切相關，皆強調 AI 如何提升診斷準確率。" },
-      { id: 3, title: "醫療影像新技術", relevance: "本篇強調 AI 在影像識別的突破，延伸閱讀則深入介紹醫療影像技術的最新發展，兩者皆聚焦於醫療影像的創新。" }
-    ],
+    related: [],
     source: "https://www.healthai-news.com/article/ai-medical-breakthrough"
   },
   ...convertBackendToDetailFormat(rawBackendData)
 };
 
-const termDefinitions = {
-  "人工智慧": "人工智慧（Artificial Intelligence, AI）是指由機器展現的智能，與人類和其他動物的自然智能相對。",
-  "機器學習": "機器學習是人工智慧的一個分支，使計算機能夠在沒有明確編程的情況下學習和改進。",
-  "影像識別": "影像識別是指計算機視覺技術，能夠自動識別和分析圖像中的內容和特徵。",
-  "倫理考量": "倫理考量是指在技術發展和應用過程中需要考慮的道德和價值觀問題。",
-  "隱私保護": "隱私保護是指保護個人信息不被未經授權的訪問、使用或披露的措施。",
-  "深度學習": "深度學習是機器學習的一個子集，使用多層神經網絡來模擬人腦的學習過程。",
-  "技術標準化": "技術標準化是指建立統一的技術規範和標準，確保技術在不同環境下的一致性和互操作性。",
-  "醫生培訓": "醫生培訓是指對醫療人員進行新技術、新方法的專業教育和技能提升。",
-  "設備更新": "設備更新是指醫療機構引進新的醫療設備和技術，以提升診斷和治療能力。",
-  "人員培訓": "人員培訓是指對醫療工作人員進行專業技能和知識的培訓，以適應新技術的應用。"
+const buildTermDefinitions = () => {
+  const definitions = {};
+  
+  // 遍歷所有新聞的關鍵字
+  Object.values(keywordExplanations).forEach(story => {
+    story.keywords.forEach(keyword => {
+      if (keyword.term && keyword.definition) {
+        definitions[keyword.term] = keyword.definition;
+      }
+    });
+  });
+
+  // 合併原有的通用定義
+  return {
+      ...definitions,
+      "人工智慧": "人工智慧（AI）是模擬人類智能的計算機系統，能夠學習、推理、感知和解決問題。",
+      "機器學習": "機器學習是AI的一個子集，通過算法讓計算機從數據中學習模式，無需明確編程。",
+      "深度學習": "深度學習使用多層神經網絡來處理複雜的數據模式，是機器學習的先進技術。",
+      "量子計算": "量子計算利用量子力學原理進行信息處理，具有超越傳統計算機的潛力。",
+      "區塊鏈": "區塊鏈是一種分散式數據庫技術，用於安全記錄和驗證交易信息。",
+      "加密貨幣": "加密貨幣是基於區塊鏈技術的數字貨幣，如比特幣、以太坊等。",
+      "氣候變遷": "氣候變遷指地球氣候系統的長期變化，主要由人類活動和自然因素引起。",
+      "碳中和": "碳中和指通過減少碳排放和增加碳吸收，實現淨零碳排放的目標。",
+      "精準醫療": "精準醫療根據個人的基因、環境和生活方式制定個性化治療方案。",
+      "基因編輯": "基因編輯技術可以精確修改生物體的DNA序列，用於治療疾病和改良作物。",
+      "太空探索": "太空探索是人類對宇宙的科學研究和探索活動，包括行星探測和載人航天。",
+      "火星殖民": "火星殖民計劃旨在在火星建立人類永久居住地，是人類太空探索的重要目標。",
+      "數位貨幣": "數位貨幣是中央銀行發行的電子形式法定貨幣，具有法定地位。",
+      "金融科技": "金融科技（FinTech）結合金融服務和技術創新，改變傳統金融業態。",
+      "永續發展": "永續發展指在滿足當代需求的同時，不損害後代滿足其需求的能力。",
+      "三級三審": "指案件經過地方法院、高等法院、最高法院三級法院，以及各級法院三次審判程序的制度。確保司法審查的嚴謹性與公正性。",
+      "IRB" : "在台灣，IRB 通常指「人體試驗委員會」（Institutional Review Board），負責審查和監督涉及人體的研究，以確保研究的倫理性和參與者的安全與權益。",
+      "SDGs": "可持續發展目標（Sustainable Development Goals），是聯合國在2015年制定的17個全球發展目標，旨在2030年前消除貧窮、保護地球並確保所有人享有和平與繁榮。"
+  };
 };
+const termDefinitions = buildTermDefinitions();
 
 // --- NewsDetail 元件 ---
 function NewsDetail() {
@@ -127,28 +152,37 @@ function NewsDetail() {
     setTooltipPosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
   };
 
-  // 將 **term** 轉成 <strong>，並加上 class 控制樣式
   const renderArticleText = (text) => {
-    const parts = text.split(/(\*\*.*?\*\*)/g);
+    if (!text) return '';
+    if (!newsData.terms || !Array.isArray(newsData.terms)) {
+      return text;
+    }
+
+    // 建立正則表達式，匹配所有 terms
+    const termsPattern = new RegExp(
+      `(${newsData.terms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
+      'g'
+    );
+
+    // 將文字分割成片段
+    const parts = text.split(termsPattern);
+
     return parts.map((part, index) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        const term = part.slice(2, -2);
-        const isClickable = newsData.terms && newsData.terms.includes(term);
-        const classNames = `term ${isClickable ? 'term--clickable' : ''}`;
+      const isTerm = newsData.terms.includes(part);
+      if (isTerm) {
         return (
           <strong
             key={index}
-            className={classNames}
-            onClick={isClickable ? (e) => handleTermClick(term, e) : undefined}
+            className="term term--clickable"
+            onClick={(e) => handleTermClick(part, e)}
           >
-            {term}
+            {part}
           </strong>
         );
       }
       return part;
     });
   };
-
   if (!newsData) {
     return (
       <div className="newsDetail">
