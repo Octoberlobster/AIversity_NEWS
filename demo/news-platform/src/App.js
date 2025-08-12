@@ -75,14 +75,14 @@ function App() {
             <Route path="/news/:id" element={<NewsDetail />} />
             <Route path="/keyword/:keyword" element={<KeywordNewsPage />} />
             <Route path="/category/politics" element={<CategorySection category="政治" />} />
-            <Route path="/category/society" element={<CategorySection category="社會" />} />
+            <Route path="/category/taiwan" element={<CategorySection category="台灣" />} />
             <Route path="/category/scienceandtech" element={<CategorySection category="科學與科技" />} />
             <Route path="/category/international" element={<CategorySection category="國際" />} />
             <Route path="/category/life" element={<CategorySection category="生活" />} />
-            <Route path="/category/sports" element={<CategorySection category="運動" />} />
+            <Route path="/category/sports" element={<CategorySection category="體育" />} />
             <Route path="/category/entertainment" element={<CategorySection category="娛樂" />} />
-            <Route path="/category/finance" element={<CategorySection category="財經" />} />
-            <Route path="/category/health" element={<CategorySection category="醫療保健" />} />
+            <Route path="/category/finance" element={<CategorySection category="商業財經" />} />
+            <Route path="/category/health" element={<CategorySection category="健康" />} />
             <Route path="/special-reports" element={<SpecialReportPage />} />
             <Route path="/special-report/:id" element={<SpecialReportDetail />} />
           </Routes>

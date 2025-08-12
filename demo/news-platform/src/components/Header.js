@@ -5,14 +5,14 @@ import './../css/Header.css';
 const domains = [
   { id: '/', label: '首頁', path: '/'},
   { id: 'politics', label: '政治', path: '/category/politics' },
-  { id: 'society', label: '社會', path: '/category/society' },
-  { id: 'scienceandtech', label: '科學與科技', path: '/category/scienceandtech' },
+  { id: 'taiwan', label: '台灣', path: '/category/taiwan' },
   { id: 'international', label: '國際', path: '/category/international' },
+  { id: 'scienceandtech', label: '科學與科技', path: '/category/scienceandtech' },
   { id: 'life', label: '生活', path: '/category/life' },
-  { id: 'sports', label: '運動', path: '/category/sports' },
+  { id: 'sports', label: '體育', path: '/category/sports' },
   { id: 'entertainment', label: '娛樂', path: '/category/entertainment' },
-  { id: 'finance', label: '財經', path: '/category/finance' },
-  { id: 'health', label: '醫療保健', path: '/category/health' },
+  { id: 'finance', label: '商業財經', path: '/category/finance' },
+  { id: 'health', label: '健康', path: '/category/health' },
   { id: 'project', label: '專題報導', path: '/special-reports'}
 ];
 

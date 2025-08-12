@@ -6,14 +6,14 @@ import UnifiedNewsCard from './UnifiedNewsCard';
 // 分類配置
 const categories = {
   '政治': { id: 'politics', name: '政治', color: '#ef4444' },
-  '社會': { id: 'society', name: '社會', color: '#10b981' },
+  '台灣': { id: 'taiwan', name: '台灣', color: '#10b981' },
   '科學與科技': { id: 'scienceandtech', name: '科學與科技', color: '#8b5cf6' },
   '國際': { id: 'international', name: '國際', color: '#f59e0b' },
   '生活': { id: 'life', name: '生活', color: '#06b6d4' },
-  '運動': { id: 'sports', name: '運動', color: '#059669' },
+  '體育': { id: 'sports', name: '體育', color: '#059669' },
   '娛樂': { id: 'entertainment', name: '娛樂', color: '#ec4899' },
-  '財經': { id: 'finance', name: '財經', color: '#10b981' },
-  '醫療保健': { id: 'health', name: '醫療保健', color: '#ef4444' }
+  '商業財經': { id: 'finance', name: '商業財經', color: '#10b981' },
+  '健康': { id: 'health', name: '健康', color: '#ef4444' }
 };
 
 // 模擬新聞資料
@@ -76,7 +76,7 @@ const newsData = {
       views: "2.0k"
     }
   ],
-  society: [
+  taiwan: [
     {
       id: 9,
       title: "社會福利政策新進展",

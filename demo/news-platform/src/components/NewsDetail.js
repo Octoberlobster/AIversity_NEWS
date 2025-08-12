@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import './../css/NewDetail.css';
+import { useParams, Link, replace } from 'react-router-dom';
+import './../css/NewsDetail.css';
 import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
 
@@ -46,7 +46,10 @@ const mockNewsData = {
     long: `最新研究顯示，人工智慧技術在疾病診斷和治療方案制定方面取得了重大突破。這項由國際頂尖醫療機構聯合進行的研究，歷時三年，投入資金超過數千萬美元，最終在機器學習和深度學習技術的結合下，成功開發出了新一代醫療AI系統。\n\n研究團隊利用機器學習算法分析了數千個病例，涵蓋了從常見疾病到罕見病症的各種情況。通過對大量數據的深度學習，AI系統能夠識別出人類醫生可能忽略的細微症狀，成功提高了診斷準確率達95%以上，遠超傳統診斷方法的準確率。\n\n這項技術特別在影像識別方面表現出色，能夠快速識別X光片、CT掃描、核磁共振等各種醫學影像中的異常情況。AI系統不僅能夠識別腫瘤、骨折等明顯病變，還能夠發現早期癌症的微小徵兆，為早期治療提供了寶貴的時間窗口。\n\n專家表示，這將大大減輕醫護人員的工作負擔，並提高醫療效率。在資源緊張的醫療環境中，AI助手可以幫助醫生快速篩選病例，讓醫生能夠將更多時間投入到需要專業判斷的複雜病例中。\n\n然而，這項技術的應用也面臨著倫理考量和隱私保護等挑戰。如何在提高醫療效率的同時保護患者隱私，成為業界關注的焦點。此外，AI診斷結果的責任歸屬問題也需要法律和倫理框架的完善。\n\n未來，這項技術有望在全球範圍內推廣應用，為更多患者提供更準確、更快速的醫療服務。同時，研究團隊也正在開發針對不同地區和人群的個性化AI模型，以確保技術的普適性和有效性。`,
     keywords: ["AI", "醫療", "影像識別"],
     terms: ["人工智慧", "機器學習", "影像識別", "倫理考量", "隱私保護", "深度學習"],
-    related: [],
+    related: [
+      { id: 2, title: "AI助力癌症早期診斷", relevance: "本篇新聞介紹的 AI 技術在醫療領域的應用，與延伸閱讀中 AI 協助癌症早期診斷的主題密切相關，皆強調 AI 如何提升診斷準確率。" },
+      { id: 3, title: "醫療影像新技術", relevance: "本篇強調 AI 在影像識別的突破，延伸閱讀則深入介紹醫療影像技術的最新發展，兩者皆聚焦於醫療影像的創新。" }
+    ],
     source: "https://www.healthai-news.com/article/ai-medical-breakthrough"
   },
   ...convertBackendToDetailFormat(rawBackendData)
@@ -157,36 +160,54 @@ function NewsDetail() {
   };
 
   const renderArticleText = (text) => {
-    if (!text) return '';
-    if (!newsData.terms || !Array.isArray(newsData.terms)) {
-      return text;
-    }
+    if (!text) return null;
 
-    // 建立正則表達式，匹配所有 terms
-    const termsPattern = new RegExp(
-      `(${newsData.terms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
-      'g'
-    );
+    // 以「空一行」分段；段內的單一換行會轉成 <br/>
+    const paragraphs = String(text).split(/\r?\n\s*\r?\n/);
 
-    // 將文字分割成片段
-    const parts = text.split(termsPattern);
+    // 名詞高亮：保留你原本的點擊 tooltip 功能
+    const terms = Array.isArray(newsData.terms) ? newsData.terms : [];
+    const escapeReg = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // 長的詞優先，避免「AI」先吃掉「生成式AI」這種重疊
+    const sortedTerms = terms.slice().sort((a, b) => b.length - a.length);
+    const termsPattern = sortedTerms.length
+      ? new RegExp(`(${sortedTerms.map(escapeReg).join('|')})`, 'g')
+      : null;
 
-    return parts.map((part, index) => {
-      const isTerm = newsData.terms.includes(part);
-      if (isTerm) {
-        return (
-          <strong
-            key={index}
-            className="term term--clickable"
-            onClick={(e) => handleTermClick(part, e)}
-          >
-            {part}
-          </strong>
-        );
-      }
-      return part;
+    const highlightTermsInLine = (line) => {
+      if (!termsPattern) return line;
+      return line.split(termsPattern).map((part, i) => {
+        if (terms.includes(part)) {
+          return (
+            <strong
+              key={`term-${i}`}
+              className="term term--clickable"
+              onClick={(e) => handleTermClick(part, e)}
+            >
+              {part}
+            </strong>
+          );
+        }
+        return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
+      });
+    };
+
+    // 渲染：每段用 <p> 包起來，段內單行換行 → <br/>
+    return paragraphs.map((para, pi) => {
+      const lines = para.split(/\r?\n/);
+      return (
+        <p key={`p-${pi}`}>
+          {lines.map((line, li) => (
+            <React.Fragment key={`l-${pi}-${li}`}>
+              {highlightTermsInLine(line)}
+              {li < lines.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </p>
+      );
     });
   };
+
   if (!newsData) {
     return (
       <div className="newsDetail">
@@ -267,7 +288,7 @@ function NewsDetail() {
           </div>
         </div>
 
-        <ChatRoom />
+        <ChatRoom news={mockNewsData[id].long} />
       </div>
 
       {/* 延伸閱讀 */}

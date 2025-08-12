@@ -19,6 +19,13 @@
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   transition: flex 0.1s ease; min-width: 300px;
 }
+
+.newsDetail .articleContent p{
+  text-indent: 2em;     /* 兩個中文字寬 */
+  margin: 0 0 1em;      /* 段落間距，可調 */
+  line-height: 1.8;     /* 可選：更好讀 */
+}
+
 .newsDetail .articleContent.is-resizing { transition: none; }
 
 .newsDetail .articleTitle { color: #333; margin: 0 0 0.5rem 0; font-size: 2rem; line-height: 1.3; }

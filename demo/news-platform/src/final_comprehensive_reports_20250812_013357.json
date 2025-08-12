@@ -23,7 +23,7 @@
       "processed_articles": 3,
       "comprehensive_report_success": true
     },
-    "processed_at": "2025-08-12T01:34"
+    "processed_at": "2025-08-12 01:34"
   },
   {
     "story_info": {
@@ -57,7 +57,7 @@
       "processed_articles": 11,
       "comprehensive_report_success": true
     },
-    "processed_at": "2025-08-12T01:34"
+    "processed_at": "2025-08-12 01:34"
   },
   {
     "story_info": {
@@ -88,7 +88,7 @@
       "processed_articles": 8,
       "comprehensive_report_success": true
     },
-    "processed_at": "2025-08-12T01:34"
+    "processed_at": "2025-08-12 01:34"
   },
   {
     "story_info": {
@@ -152,6 +152,6 @@
       "processed_articles": 42,
       "comprehensive_report_success": true
     },
-    "processed_at": "2025-08-12T01:34"
+    "processed_at": "2025-08-12 01:34"
   }
 ]
