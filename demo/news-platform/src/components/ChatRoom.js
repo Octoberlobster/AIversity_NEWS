@@ -1,44 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { fetchJson } from './api';
 import './../css/ChatRoom.css';
 
-// 10大類別專家
 const experts = [
-  { id: 1, name: "科技專家", category: "科技", prompt: "你是科技領域的專家..." },
-  { id: 2, name: "金融專家", category: "金融", prompt: "你是金融領域的專家..." },
-  { id: 3, name: "環境專家", category: "環境", prompt: "你是環境領域的專家..." },
-  { id: 4, name: "醫療專家", category: "醫療", prompt: "你是醫療領域的專家..." },
-  { id: 5, name: "教育專家", category: "教育", prompt: "你是教育領域的專家..." },
-  { id: 6, name: "體育專家", category: "體育", prompt: "你是體育領域的專家..." },
-  { id: 7, name: "政治專家", category: "政治", prompt: "你是政治領域的專家..." },
-  { id: 8, name: "國際專家", category: "國際", prompt: "你是國際事務專家..." },
-  { id: 9, name: "文化專家", category: "文化", prompt: "你是文化領域的專家..." },
-  { id: 10, name: "生活專家", category: "生活", prompt: "你是生活領域的專家..." },
+  { id: 1, name: "政治專家", category: "Politics" },
+  { id: 2, name: "台灣專家", category: "Taiwan News" },
+  { id: 3, name: "國際專家", category: "International News" },
+  { id: 4, name: "科技專家", category: "Science & Technology" },
+  { id: 5, name: "生活專家", category: "Lifestyle & Consumer News" },
+  { id: 6, name: "體育專家", category: "Sports" },
+  { id: 7, name: "娛樂專家", category: "Entertainment" },
+  { id: 8, name: "財經專家", category: "Business & Finance" },
+  { id: 9, name: "健康專家", category: "Health & Wellness" },
 ];
 
-// 專家預設回覆
-const expertReplies = {
-  1: "根據最新科技趨勢，AI 將持續改變我們的生活。",
-  2: "金融市場近期波動，建議多元分散投資。",
-  3: "環境保護需全民參與，減碳是關鍵。",
-  4: "醫療科技進步有助於提升全民健康。",
-  5: "教育創新是未來人才培育的核心。",
-  6: "體育運動有助於身心健康，建議多參與。",
-  7: "政治穩定對國家發展至關重要。",
-  8: "國際局勢變化快速，需持續關注。",
-  9: "文化多元是社會進步的象徵。",
-  10: "生活品質提升需從日常做起。"
-};
+const expertReplies = {};
 
 // 快速提示
-const quickPrompts = [
-  "這則新聞的重點是什麼？",
-  "對社會有什麼影響？",
-  "未來發展趨勢如何？",
-  "有什麼爭議點？",
-  "專家怎麼看？"
-];
+const quickPrompts = [];
 
-function ChatRoom() {
+function ChatRoom({news}) {
   const [selectedExperts, setSelectedExperts] = useState([1, 2, 3]);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -71,10 +52,38 @@ function ChatRoom() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isDropdownOpen, isPromptDropdownOpen]);
 
+  //讓一開始就有提示字可以用
+  useEffect(() => {
+    changeQuickPrompt();
+  }, [selectedExperts]);
+
   const toggleExpert = (id) => {
     setSelectedExperts((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+    changeQuickPrompt();
+  };
+
+  const changeQuickPrompt = async () => {
+    try{
+      const options = selectedExperts.map(
+        (expertId) => experts.find((e) => e.id === expertId).category
+      );
+
+      const response = await fetchJson('hint_prompt', {
+        option : options,
+        article: news,
+      });
+      quickPrompts.length = 0; // 清空之前的提示
+      console.log('Fetched quick prompts:', response);
+      response.Hint_Prompt.forEach((prompt) => {
+        quickPrompts.push(prompt);
+      });      
+      console.log('Updated quick prompts:', quickPrompts);
+    } catch (error) {
+      console.error('Error updating quick prompts:', error);
+    }
+    
   };
 
   const makeUserMsg = (text) => ({
@@ -94,16 +103,38 @@ function ChatRoom() {
     };
   };
 
-  const simulateReplies = () => {
-    selectedExperts.forEach((expertId, index) => {
-      setTimeout(() => setMessages((prev) => [...prev, makeExpertReply(expertId)]), 1000 + index * 500);
-    });
+  const simulateReplies = async () => {
+    try {
+      // 構建請求的資料
+      const categories = selectedExperts.map(
+        (expertId) => experts.find((e) => e.id === expertId).category
+      );
+  
+      // 呼叫後端 API
+      const response = await fetchJson('chat', {
+        prompt: inputMessage,
+        category: categories,
+      });
+  
+      // 處理後端回傳的回覆
+      response.response.forEach((reply, index) => {
+        setTimeout(() => {
+          const expertId = selectedExperts[index]; // 根據順序匹配專家 ID
+          const expertReply = makeExpertReply(expertId); // 使用 makeExpertReply 生成回覆
+          expertReply.text = `${experts.find((e) => e.id === expertId).name}：${reply.chat_response}`; // 更新回覆內容
+
+          setMessages((prev) => [...prev, expertReply]);
+        }, 1000 + index * 500); // 模擬延遲
+      });
+    } catch (error) {
+      console.error('Error fetching expert replies:', error);
+    }
   };
 
+  //這邊運作邏輯要改
   const handlePromptSend = (promptText) => {
-    if (selectedExperts.length === 0) return;
-    setMessages((prev) => [...prev, makeUserMsg(promptText)]);
-    simulateReplies();
+    setInputMessage(promptText);
+    handleSendMessage();
     setIsPromptDropdownOpen(false);
   };
 
@@ -226,4 +257,6 @@ function ChatRoom() {
   );
 }
 
+
+// quickPrompts
 export default ChatRoom;
