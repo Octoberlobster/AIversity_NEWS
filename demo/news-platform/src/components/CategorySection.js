@@ -1,48 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import './../css/UnifiedNewsCard.css';
 import UnifiedNewsCard from './UnifiedNewsCard';
-
-const SectionContainer = styled.div`
-  margin: 2rem 0;
-`;
-
-const SectionHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-`;
-
-const SectionTitle = styled.h2`
-  color: #1e3a8a;
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin: 0;
-`;
-
-const ViewAllButton = styled(Link)`
-  color: #667eea;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #f3f4f6;
-    transform: translateY(-1px);
-  }
-`;
-
-
 
 // 分類配置
 const categories = {
   '政治': { id: 'politics', name: '政治', color: '#ef4444' },
   '社會': { id: 'society', name: '社會', color: '#10b981' },
-  '科學': { id: 'science', name: '科學', color: '#8b5cf6' },
-  '科技': { id: 'tech', name: '科技', color: '#667eea' },
+  '科學與科技': { id: 'scienceandtech', name: '科學與科技', color: '#8b5cf6' },
   '國際': { id: 'international', name: '國際', color: '#f59e0b' },
   '生活': { id: 'life', name: '生活', color: '#06b6d4' },
   '運動': { id: 'sports', name: '運動', color: '#059669' },
@@ -169,7 +134,7 @@ const newsData = {
       views: "1.3k"
     }
   ],
-  science: [
+  scienceandtech: [
     {
       id: 17,
       title: "量子物理研究新突破",
@@ -225,9 +190,7 @@ const newsData = {
       description: "化學家發現新的分子結構，為藥物研發提供新方向。",
       time: "2024-01-15 07:35",
       views: "1.9k"
-    }
-  ],
-  tech: [
+    },
     {
       id: 25,
       title: "AI 技術突破性進展",
@@ -642,68 +605,56 @@ function CategorySection({ category }) {
 
   if (!currentCategory) {
     return (
-      <SectionContainer>
-        <SectionHeader>
-          <SectionTitle>分類新聞</SectionTitle>
-        </SectionHeader>
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-          找不到該分類的新聞
+      <section className="catSec">
+        <div className="catSec__header">
+          <h2 className="catSec__title">分類新聞</h2>
         </div>
-      </SectionContainer>
+        <div className="catSec__empty">找不到該分類的新聞</div>
+      </section>
     );
   }
 
-  // 將 CategorySection 的資料轉換為 UnifiedNewsCard 的格式
-  const convertedNewsData = currentNews.map(news => ({
+  // 轉成 UnifiedNewsCard 所需格式（沿用你的轉換邏輯）
+  const convertedNewsData = currentNews.map((news) => ({
     id: news.id,
     title: news.title,
     category: currentCategory.name,
     date: news.time,
-    author: "記者", // 預設作者
-    sourceCount: 3, // 預設來源數
+    author: '記者',
+    sourceCount: 3,
     shortSummary: news.description,
-    longSummary: news.description + "\n\n" + news.description, // 使用描述作為長摘要
+    longSummary: `${news.description}\n\n${news.description}`,
     relatedNews: [],
     views: news.views,
-    comments: "0",
-    likes: "0",
-    keywords: [currentCategory.name], // 使用分類作為關鍵字
-    terms: [] // 暫時沒有專有名詞
+    comments: '0',
+    likes: '0',
+    keywords: [currentCategory.name],
+    terms: [],
   }));
 
-  const displayNews = showAllNews ? convertedNewsData : convertedNewsData.slice(0, 8);
+  const displayNews = showAllNews
+    ? convertedNewsData
+    : convertedNewsData.slice(0, 8);
 
   return (
-    <SectionContainer>
-      <SectionHeader>
-        <SectionTitle>{category}新聞</SectionTitle>
-      </SectionHeader>
-      
+    <section className="catSec">
+      <div className="catSec__header">
+        <h2 className="catSec__title">{category}新聞</h2>
+        {/* 若之後要放「查看全部」可直接用這個連結樣式 */}
+        {/* <Link className="catSec__viewAll" to={`/category/${currentCategory.id}`}>查看全部</Link> */}
+      </div>
+
       <UnifiedNewsCard limit={displayNews.length} customData={displayNews} />
-      
+
       {!showAllNews && currentNews.length > 8 && (
-        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-          <button
-            style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '25px',
-              padding: '0.7rem 2.2rem',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(102,126,234,0.10)',
-              transition: 'all 0.2s',
-            }}
-            onClick={() => setShowAllNews(true)}
-          >
+        <div className="catSec__moreWrap">
+          <button className="btnPrimary" onClick={() => setShowAllNews(true)}>
             閱讀更多新聞
           </button>
         </div>
       )}
-    </SectionContainer>
+    </section>
   );
 }
 
-export default CategorySection; 
+export default CategorySection;

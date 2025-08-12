@@ -1,188 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import './../css/NewsCarousel.css';
 
-const CarouselContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 400px;
-  border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionTitle = styled.h2`
-  color: #1e3a8a;
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  &::before {
-    content: "🔥";
-    font-size: 1.5rem;
-  }
-`;
-
-const CarouselSlide = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: ${props => props.active ? 1 : 0};
-  transition: opacity 0.8s ease-in-out;
-  background: linear-gradient(135deg, ${props => props.gradientStart} 0%, ${props => props.gradientEnd} 100%);
-  display: flex;
-  align-items: center;
-  padding: 2rem;
-`;
-
-const SlideContent = styled.div`
-  color: white;
-  max-width: 50%;
-  z-index: 2;
-  padding-right: 2rem;
-  padding-left: 2rem;
-  margin-left: 2rem;
-  transform: translateY(-20%);
-`;
-
-const SlideCategory = styled.span`
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  display: inline-block;
-`;
-
-const SlideTitle = styled.h2`
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  line-height: 1.2;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-`;
-
-const SlideDescription = styled.p`
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin: 0 0 1.5rem 0;
-  opacity: 0.9;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-`;
-
-const SlideButton = styled(Link)`
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  text-decoration: none;
-  padding: 0.75rem 2rem;
-  border-radius: 25px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-`;
-
-const SlideImage = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 45%;
-  height: 100%;
-  background: linear-gradient(45deg, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: ${props => props.imageUrl ? `url(${props.imageUrl})` : 'none'};
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.8;
-  }
-`;
-
-const CarouselIndicators = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 0.5rem;
-  z-index: 3;
-`;
-
-const Indicator = styled.button`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: none;
-  background: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.4)'};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.6)'};
-    transform: scale(1.2);
-  }
-`;
-
-const CarouselControls = styled.div`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 1rem;
-  z-index: 3;
-  pointer-events: none;
-  max-width: 100%;
-  box-sizing: border-box;
-`;
-
-const ControlButton = styled.button`
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.3rem;
-  transition: all 0.3s ease;
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.1);
-  }
-`;
-
-// 模擬輪播新聞資料
+// 模擬輪播新聞資料（原樣搬過來）
 const carouselNews = [
   {
     id: 1,
@@ -234,66 +54,116 @@ const carouselNews = [
 function NewsCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // 自動輪播
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselNews.length);
     }, 5000);
-
     return () => clearInterval(timer);
   }, []);
 
-  const goToSlide = (index) => {
+  const goToSlide = useCallback((index) => {
     setCurrentSlide(index);
-  };
+  }, []);
 
-  const goToPrevious = () => {
+  const goToPrevious = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + carouselNews.length) % carouselNews.length);
-  };
+  }, []);
 
-  const goToNext = () => {
+  const goToNext = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % carouselNews.length);
+  }, []);
+
+  // 鍵盤快捷（← / →）
+  const onKeyDown = (e) => {
+    if (e.key === 'ArrowLeft') goToPrevious();
+    if (e.key === 'ArrowRight') goToNext();
   };
 
   return (
     <div>
-      <SectionTitle>熱門新聞</SectionTitle>
-      <CarouselContainer>
-        {carouselNews.map((news, index) => (
-          <CarouselSlide
-            key={news.id}
-            active={index === currentSlide}
-            gradientStart={news.gradientStart}
-            gradientEnd={news.gradientEnd}
+      <h2 className="carousel__sectionTitle">熱門新聞</h2>
+
+      <section
+        className="carousel"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="熱門新聞輪播"
+        onKeyDown={onKeyDown}
+        tabIndex={0}
+      >
+        {carouselNews.map((news, index) => {
+          const isActive = index === currentSlide;
+          return (
+            <div
+              key={news.id}
+              className={`carousel__slide ${isActive ? 'is-active' : ''}`}
+              style={{
+                '--gStart': news.gradientStart,
+                '--gEnd': news.gradientEnd
+              }}
+              aria-hidden={!isActive}
+            >
+              <div className="carousel__content">
+                <span className="carousel__category">{news.category}</span>
+                <h2 className="carousel__title">{news.title}</h2>
+                <p className="carousel__desc">{news.description}</p>
+                <Link className="carousel__btn" to={`/news/${news.id}`}>
+                  閱讀全文 →
+                </Link>
+              </div>
+
+              {/* 右側背景圖，前面多加一層漸層遮罩 */}
+              <div
+                className="carousel__img"
+                style={{
+                  backgroundImage:
+                    `linear-gradient(45deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.4) 100%), url(${news.imageUrl})`
+                }}
+                aria-hidden="true"
+              />
+            </div>
+          );
+        })}
+
+        <div className="carousel__controls" aria-hidden="false">
+          <button
+            className="carousel__controlBtn"
+            onClick={goToPrevious}
+            aria-label="上一張"
+            type="button"
           >
-            <SlideContent>
-              <SlideCategory>{news.category}</SlideCategory>
-              <SlideTitle>{news.title}</SlideTitle>
-              <SlideDescription>{news.description}</SlideDescription>
-              <SlideButton to={`/news/${news.id}`}>
-                閱讀全文 →
-              </SlideButton>
-            </SlideContent>
-            <SlideImage imageUrl={news.imageUrl} />
-          </CarouselSlide>
-        ))}
+            ‹
+          </button>
+          <button
+            className="carousel__controlBtn"
+            onClick={goToNext}
+            aria-label="下一張"
+            type="button"
+          >
+            ›
+          </button>
+        </div>
 
-        <CarouselControls>
-          <ControlButton onClick={goToPrevious}>‹</ControlButton>
-          <ControlButton onClick={goToNext}>›</ControlButton>
-        </CarouselControls>
-
-        <CarouselIndicators>
-          {carouselNews.map((_, index) => (
-            <Indicator
-              key={index}
-              active={index === currentSlide}
-              onClick={() => goToSlide(index)}
-            />
-          ))}
-        </CarouselIndicators>
-      </CarouselContainer>
+        <div className="carousel__indicators" role="tablist" aria-label="選擇投影片">
+          {carouselNews.map((_, index) => {
+            const active = index === currentSlide;
+            return (
+              <button
+                key={index}
+                className="carousel__dot"
+                onClick={() => goToSlide(index)}
+                aria-label={`前往第 ${index + 1} 張`}
+                aria-current={active ? 'true' : 'false'}
+                role="tab"
+                type="button"
+              />
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }
 
-export default NewsCarousel; 
+export default NewsCarousel;

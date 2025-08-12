@@ -1,0 +1,139 @@
+/* 外層頁面樣式 */
+.keywordPage {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 主要內容容器 */
+.keywordPage__main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* 主欄 + 側欄 */
+.keywordPage__grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+@media (max-width: 1200px) {
+  .keywordPage__grid { grid-template-columns: 1fr; }
+}
+
+.keywordPage__mainCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.keywordPage__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 2rem;
+  height: fit-content;
+}
+
+.keywordPage__card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.keywordPage__cardTitle {
+  color: #1e3a8a;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+/* 標題（# 開頭） */
+.keywordPage__sectionTitle {
+  color: #1e3a8a;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 2rem 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.keywordPage__sectionTitle::before {
+  content: "#";
+  font-size: 1.5rem;
+}
+
+/* 關鍵字雲 */
+.keywordPage__cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.1rem;
+  padding: 0.5rem 0.2rem;
+}
+
+.keywordPage__kw {
+  display: inline-block;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e0e7ef 100%);
+  color: #667eea;
+  font-weight: 600;
+  font-size: var(--size, 1.1rem);
+  border-radius: 18px;
+  padding: 0.3rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 2px rgba(102,126,234,0.04);
+}
+.keywordPage__kw:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+}
+
+/* 統計卡 */
+.keywordPage__statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.keywordPage__statBox {
+  text-align: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 12px;
+}
+.keywordPage__statNum {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.keywordPage__statLabel {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+/* 「閱讀更多」按鈕 */
+.keywordPage__moreWrap {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+.keywordPage__moreBtn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 0.7rem 2.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+  transition: all 0.2s;
+}
+.keywordPage__moreBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102,126,234,0.20);
+}

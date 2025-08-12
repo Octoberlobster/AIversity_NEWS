@@ -1,250 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import './../css/UnifiedNewsCard.css';
 import TermTooltip from './TermTooltip';
-
-const NewsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const CardContainer = styled.div`
-  background: white;
-  border-radius: 16px;
-  padding: 1.2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  border-left: 4px solid #667eea;
-  position: relative;
-  height: fit-content;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    border-left-color: #7c3aed;
-  }
-`;
-
-const CardHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.8rem;
-`;
-
-const CardTitle = styled(Link)`
-  margin: 0;
-  color: #1e3a8a;
-  font-size: 1.2rem;
-  font-weight: 600;
-  line-height: 1.3;
-  flex: 1;
-  text-decoration: none;
-  transition: color 0.3s ease;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  
-  &:hover {
-    color: #667eea;
-  }
-`;
-
-const CardMeta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 0.8rem;
-  flex-wrap: wrap;
-`;
-
-const CardInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 0.8rem;
-  flex-wrap: wrap;
-  font-size: 0.8rem;
-  color: #6b7280;
-`;
-
-const CategoryTag = styled.span`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 0.2rem 0.6rem;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 500;
-`;
-
-const DateText = styled.span`
-  color: #6b7280;
-  font-size: 0.8rem;
-`;
-
-const AuthorText = styled.span`
-  color: #6b7280;
-  font-size: 0.8rem;
-`;
-
-const SourceCount = styled.span`
-  background: #f3f4f6;
-  color: #4b5563;
-  padding: 0.2rem 0.6rem;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 500;
-`;
-
-const KeywordChip = styled.span`
-  background: #e0e7ff;
-  color: #3730a3;
-  border-radius: 10px;
-  padding: 0.15rem 0.7rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-left: 0.2rem;
-`;
-
-const CardContent = styled.div`
-  margin-bottom: 0.8rem;
-`;
-
-const SummaryText = styled.p`
-  color: #4b5563;
-  line-height: 1.5;
-  margin: 0;
-  font-size: ${props => props.isExpanded ? '0.9rem' : '0.85rem'};
-  transition: all 0.3s ease;
-  display: -webkit-box;
-  -webkit-line-clamp: ${props => props.isExpanded ? 'none' : '3'};
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-`;
-
-const ExpandedContent = styled.div`
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
-  animation: slideDown 0.3s ease;
-  
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-
-const RelatedNews = styled.div`
-  margin-top: 1rem;
-`;
-
-const RelatedNewsTitle = styled.h4`
-  color: #374151;
-  font-size: 1rem;
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
-`;
-
-const RelatedNewsList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`;
-
-const RelatedNewsItem = styled.li`
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f3f4f6;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const RelatedNewsLink = styled(Link)`
-  color: #4b5563;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.3s ease;
-  
-  &:hover {
-    color: #667eea;
-  }
-`;
-
-const CardActions = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-`;
-
-const ActionButton = styled.button`
-  background: ${props => props.primary ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f3f4f6'};
-  color: ${props => props.primary ? 'white' : '#4b5563'};
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const StatsContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  font-size: 0.8rem;
-  color: #6b7280;
-  flex-wrap: wrap;
-`;
-
-const StatItem = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-`;
-
-const HighlightedTerm = styled.strong`
-  color: #667eea;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    color: #5a67d8;
-    text-decoration: underline;
-  }
-`;
+import rawBackendData from './../final_comprehensive_reports_20250812_013357.json';
 
 // 關鍵字定義
 const termDefinitions = {
@@ -268,12 +26,29 @@ const termDefinitions = {
   "SDGs": "可持續發展目標（Sustainable Development Goals），是聯合國在2015年制定的17個全球發展目標，旨在2030年前消除貧窮、保護地球並確保所有人享有和平與繁榮。"
 };
 
-// 模擬新聞資料
+// 轉換後端資料為前端格式
+const convertBackendToFrontend = (backendData) => {
+  return backendData.map((story, index) => ({
+    id: index + 2,
+    title: story.comprehensive_report.title || "無標題",
+    category: story.story_info.category || "未分類",
+    date: story.processed_at || new Date().toISOString(),
+    author: "Gemini",
+    sourceCount: story.story_info.total_articles || 0,
+    shortSummary: story.comprehensive_report.versions.ultra_short || "",
+    relatedNews: [],
+    views: `${Math.floor(Math.random() * 10)}.${Math.floor(Math.random() * 9)}k`,
+    keywords: [],
+    terms: []
+  }));
+};
+
+// 組合預設資料和後端資料
 export const defaultNewsData = [
   {
     id: 1,
     title: "人工智慧在醫療領域的突破性進展",
-    category: "科技",
+    category: "科學與科技",
     date: "2024-01-15 14:30",
     author: "張明華",
     sourceCount: 5,
@@ -284,11 +59,10 @@ export const defaultNewsData = [
       { id: 103, title: "遠程醫療中的 AI 應用" }
     ],
     views: "2.3k",
-    comments: "45",
-    likes: "128",
-    keywords: ["AI", "醫療", "診斷"], // 領域關鍵字
-    terms: ["人工智慧", "機器學習", "精準醫療"] // 專有名詞
+    keywords: ["AI", "醫療", "診斷"],
+    terms: ["人工智慧", "機器學習", "精準醫療"]
   },
+  ...convertBackendToFrontend(rawBackendData)
 ];
 
 function UnifiedNewsCard({ limit, keyword, customData }) {
@@ -298,8 +72,8 @@ function UnifiedNewsCard({ limit, keyword, customData }) {
 
   let filteredNews = customData || defaultNewsData;
   if (keyword) {
-    filteredNews = filteredNews.filter(news =>
-      (news.keywords && news.keywords.some(kw => kw === keyword)) ||
+    filteredNews = filteredNews.filter((news) =>
+      (news.keywords && news.keywords.some((kw) => kw === keyword)) ||
       (news.title && news.title.includes(keyword)) ||
       (news.shortSummary && news.shortSummary.includes(keyword))
     );
@@ -307,25 +81,16 @@ function UnifiedNewsCard({ limit, keyword, customData }) {
   const displayNews = limit ? filteredNews.slice(0, limit) : filteredNews;
 
   const toggleExpanded = (cardId) => {
-    setExpandedCards(prev => ({
-      ...prev,
-      [cardId]: !prev[cardId]
-    }));
+    setExpandedCards((prev) => ({ ...prev, [cardId]: !prev[cardId] }));
   };
 
   const handleTermClick = (term, event) => {
     event.preventDefault();
     const rect = event.target.getBoundingClientRect();
-    setTooltipPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.top - 10
-    });
+    setTooltipPosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
     setTooltipTerm(term);
   };
-
-  const closeTooltip = () => {
-    setTooltipTerm(null);
-  };
+  const closeTooltip = () => setTooltipTerm(null);
 
   const renderHighlightedText = (text, newsTerms) => {
     const parts = text.split(/(\*\*.*?\*\*)/g);
@@ -333,19 +98,16 @@ function UnifiedNewsCard({ limit, keyword, customData }) {
       if (part.startsWith('**') && part.endsWith('**')) {
         const term = part.slice(2, -2);
         const isClickable = newsTerms && newsTerms.includes(term);
+        const cls = `term ${isClickable ? 'term--clickable' : ''}`;
         return (
-          <HighlightedTerm
+          <strong
             key={index}
+            className={cls}
             onClick={isClickable ? (e) => handleTermClick(term, e) : undefined}
             title={isClickable ? `點擊查看 ${term} 的定義` : undefined}
-            style={{
-              cursor: isClickable ? 'pointer' : 'default',
-              color: isClickable ? '#667eea' : 'inherit',
-              textDecoration: isClickable ? 'underline' : 'none'
-            }}
           >
             {term}
-          </HighlightedTerm>
+          </strong>
         );
       }
       return part;
@@ -353,61 +115,71 @@ function UnifiedNewsCard({ limit, keyword, customData }) {
   };
 
   return (
-    <div>
-      <NewsGrid>
-        {displayNews.map(news => {
-          const isExpanded = expandedCards[news.id] || false;
+    <div className="unifiedNewsCard">
+      <div className="newsGrid">
+        {displayNews.map((news) => {
+          const isExpanded = !!expandedCards[news.id];
           return (
-            <CardContainer key={news.id}>
-              <CardHeader>
-                <CardTitle to={`/news/${news.id}`}>{news.title}</CardTitle>
-              </CardHeader>
-              <CardInfo>
-                <DateText>{news.date}</DateText>
-                <AuthorText>記者 {news.author}</AuthorText>
-              </CardInfo>
-              <CardMeta>
-                <CategoryTag>{news.category}</CategoryTag>
-                <SourceCount>{news.sourceCount} 個來源</SourceCount>
-                {news.keywords && news.keywords.map(kw => (
-                  <KeywordChip key={kw}>{kw}</KeywordChip>
+            <div className="card" key={news.id}>
+              <div className="card__header">
+                <Link className="card__title" to={`/news/${news.id}`}>
+                  {news.title}
+                </Link>
+              </div>
+
+              <div className="card__info">
+                <span className="dateText">{news.date}</span>
+                <span className="authorText">記者 {news.author}</span>
+              </div>
+
+              <div className="card__meta">
+                <span className="tag--category">{news.category}</span>
+                <span className="sourceCount">{news.sourceCount} 個來源</span>
+                {news.keywords?.map((kw) => (
+                  <span className="keywordChip" key={kw}>{kw}</span>
                 ))}
-              </CardMeta>
-              <CardContent>
-                <SummaryText isExpanded={isExpanded}>
-                  {isExpanded ? renderHighlightedText(news.shortSummary, news.terms) : renderHighlightedText(news.shortSummary.substring(0, 150), news.terms)}
-                </SummaryText>
+              </div>
+
+              <div className="card__content">
+                <p className={`summaryText ${isExpanded ? 'is-expanded' : ''}`}>
+                  {isExpanded
+                    ? renderHighlightedText(news.shortSummary, news.terms)
+                    : renderHighlightedText(news.shortSummary.substring(0, 150), news.terms)}
+                </p>
+
                 {isExpanded && (
-                  <ExpandedContent>
-                    <RelatedNews>
-                      <RelatedNewsTitle>相關報導</RelatedNewsTitle>
-                      <RelatedNewsList>
-                        {news.relatedNews.map(relatedNews => (
-                          <RelatedNewsItem key={relatedNews.id}>
-                            <RelatedNewsLink to={`/news/${relatedNews.id}`}>
-                              {relatedNews.title}
-                            </RelatedNewsLink>
-                          </RelatedNewsItem>
+                  <div className="expandedContent">
+                    <div className="relatedNews">
+                      <h4 className="relatedNews__title">相關報導</h4>
+                      <ul className="relatedNews__list">
+                        {news.relatedNews.map((r) => (
+                          <li className="relatedNews__item" key={r.id}>
+                            <Link className="relatedNews__link" to={`/news/${r.id}`}>
+                              {r.title}
+                            </Link>
+                          </li>
                         ))}
-                      </RelatedNewsList>
-                    </RelatedNews>
-                  </ExpandedContent>
+                      </ul>
+                    </div>
+                  </div>
                 )}
-              </CardContent>
-              <CardActions>
-                <ActionButtons>
-                  <ActionButton onClick={() => toggleExpanded(news.id)}>
+              </div>
+
+              <div className="card__actions">
+                <div className="actionButtons">
+                  <button className="actionButton" onClick={() => toggleExpanded(news.id)}>
                     {isExpanded ? '收起' : '展開'}
-                  </ActionButton>
-                </ActionButtons>
-                <StatsContainer>
-                  <StatItem>👁️ {news.views}</StatItem>
-                </StatsContainer>
-              </CardActions>
-            </CardContainer>
+                  </button>
+                </div>
+                <div className="stats">
+                  <span className="stat">👁️ {news.views}</span>
+                </div>
+              </div>
+            </div>
           );
         })}
-      </NewsGrid>
+      </div>
+
       {tooltipTerm && (
         <TermTooltip
           term={tooltipTerm}
@@ -420,4 +192,4 @@ function UnifiedNewsCard({ limit, keyword, customData }) {
   );
 }
 
-export default UnifiedNewsCard; 
+export default UnifiedNewsCard;

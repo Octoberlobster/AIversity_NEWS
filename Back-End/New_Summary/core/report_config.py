@@ -20,7 +20,7 @@ class ReportGeneratorConfig:
     def get_gemini_api_key(cls):
         return os.getenv('GEMINI_API_KEY', '')
     
-    GEMINI_MODEL = "gemini-1.5-flash"  # 或 "gemini-1.5-pro" 用於更高品質
+    GEMINI_MODEL = "gemini-2.0-flash"
     
     # 檔案路徑 - 相對於 core 模組的位置
     INPUT_DIR = os.path.join(os.path.dirname(__file__), "../outputs/processed/")
@@ -30,25 +30,6 @@ class ReportGeneratorConfig:
     # 處理參數
     API_DELAY = 1.5  # API 調用間隔秒數（報導生成需要更多時間）
     BATCH_SAVE_SIZE = 2  # 每處理幾個 stories 後保存進度
-    
-    # 摘要長度設定
-    SUMMARY_LENGTHS = {
-        "short": {
-            "min_chars": 50,
-            "max_chars": 80,
-            "description": "適合列表預覽的簡短摘要"
-        },
-        "medium": {
-            "min_chars": 150,
-            "max_chars": 250,
-            "description": "適合快速閱讀的中等摘要"
-        },
-        "long": {
-            "min_chars": 400,
-            "max_chars": 600,
-            "description": "適合深度閱讀的詳細摘要"
-        }
-    }
     
     # 綜合報導設定
     COMPREHENSIVE_REPORT = {
@@ -60,20 +41,20 @@ class ReportGeneratorConfig:
 
     # 綜合報導長度規範（三種版本）
     COMPREHENSIVE_LENGTHS = {
-        "ultra_short": {  # 約 15 秒可讀
-            "min_chars": 80,
-            "max_chars": 140,
-            "description": "極短版（約15秒）"
+        "ultra_short": {  # 約 30 字
+            "min_chars": 20,
+            "max_chars": 40,
+            "description": "極短版（約30字）"
         },
-        "short": {        # 約 1~2 分鐘
-            "min_chars": 300,
-            "max_chars": 600,
-            "description": "短版（約1~2分鐘）"
+        "short": {        # 約 150 字
+            "min_chars": 100,
+            "max_chars": 180,
+            "description": "短版（約150字）"
         },
-        "long": {         # 約 3~5 分鐘
-            "min_chars": 900,
-            "max_chars": 1500,
-            "description": "長版（約3~5分鐘）"
+        "long": {         # 約 300 字
+            "min_chars": 250,
+            "max_chars": 350,
+            "description": "長版（約300字）"
         }
     }
     
@@ -100,19 +81,19 @@ class ReportGeneratorConfig:
         # 綜合報導三種版本的生成參數（可依需求調整）
         "comprehensive_ultra_short": {
             "temperature": 0.2,
-            "max_output_tokens": 220,
+            "max_output_tokens": 300,
             "top_p": 0.7,
             "top_k": 20
         },
         "comprehensive_short": {
             "temperature": 0.25,
-            "max_output_tokens": 700,
+            "max_output_tokens": 500,
             "top_p": 0.8,
             "top_k": 25
         },
         "comprehensive_long": {
             "temperature": 0.3,
-            "max_output_tokens": 2000,
+            "max_output_tokens": 800,
             "top_p": 0.85,
             "top_k": 25
         }
@@ -186,11 +167,6 @@ class ReportGeneratorConfig:
         # 按修改時間排序，取最新的
         latest_file = max(files, key=os.path.getmtime)
         return latest_file
-    
-    @classmethod
-    def get_summary_requirements(cls, summary_type: str) -> Dict[str, Any]:
-        """取得特定摘要類型的要求"""
-        return cls.SUMMARY_LENGTHS.get(summary_type, {})
     
     @classmethod
     def should_process_article(cls, article_data: Dict) -> bool:
