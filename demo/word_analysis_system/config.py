@@ -19,15 +19,14 @@ class Config:
     
     # API 相關設定
     API_CONFIG = {
-        'model_name': 'gemini-1.5-pro',
+        'model_name': 'gemini-2.5-flash',  # 正確的模型名稱
         'call_delay_seconds': 1,  # API 呼叫間隔（秒）
         'max_retries': 3,         # 最大重試次數
     }
     
     # 處理設定
     PROCESSING_CONFIG = {
-        'keywords_to_extract': 8,      # 每個版本要提取的關鍵字數量
-        'versions_to_process': ['ultra_short', 'short', 'long'], # 要處理的版本類型
+        'keywords_to_extract': 8,      # 每個文本要提取的關鍵字數量
         'explanation_word_limit': 50,  # 詞彙解釋的建議字數
     }
     
@@ -37,7 +36,14 @@ class Config:
         filename = cls.INPUT_FILES.get(file_key)
         if not filename:
             raise ValueError(f"找不到輸入檔案設定: {file_key}")
-        return filename
+        # 檢查檔案是否存在於當前目錄
+        if os.path.exists(filename):
+            return filename
+        # 檢查檔案是否存在於上一層目錄
+        parent_path = os.path.join('..', filename)
+        if os.path.exists(parent_path):
+            return parent_path
+        raise FileNotFoundError(f"找不到輸入檔案: {filename}")
     
     @classmethod
     def get_output_file_path(cls, file_key: str) -> str:

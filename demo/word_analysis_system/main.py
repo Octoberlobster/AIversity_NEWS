@@ -16,6 +16,7 @@ def main():
         
         print(f"讀取輸入檔案：{input_file}")
         print(f"預計輸出檔案：{output_file}")
+        print("-" * 60)
         
         # 初始化並執行處理器
         processor = KeywordProcessor()

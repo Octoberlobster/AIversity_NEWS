@@ -1,4 +1,5 @@
 # keyword_processor.py
+
 import os
 import json
 import time
@@ -127,36 +128,69 @@ class KeywordProcessor:
             print(f"✗ 錯誤：找不到輸入檔案 {input_file}")
             return
         
-        # 2. 提取所有關鍵字
+        # 2. 提取所有關鍵字，並根據 story_index 組織
         print("\n=== 階段一：從新聞中提取關鍵字 ===")
+        # 建立以 story_index 為鍵的字典
+        story_keywords = {}
         all_keywords: Set[str] = set()
+        
         for story in tqdm(news_data, desc="處理新聞故事"):
-            title = story.get('comprehensive_report', {}).get('title', '未知標題')
-            versions = story.get('comprehensive_report', {}).get('versions', {})
-            for version_type in self.proc_config['versions_to_process']:
-                if version_type in versions:
-                    content = versions[version_type]
-                    keywords = self.extract_keywords_from_text(content, title)
-                    all_keywords.update(keywords)
+            story_info = story.get('story_info', {})
+            story_index = story_info.get('story_index')
+            if story_index is None:
+                continue
+                
+            report = story.get('comprehensive_report', {})
+            title = report.get('title', '未知標題')
+            versions = report.get('versions', {})
+            # 使用 long 版本的內容
+            content = versions.get('long', '')
+            
+            # 提取關鍵字
+            keywords = self.extract_keywords_from_text(content, title)
+            
+            # 更新總關鍵字集合
+            all_keywords.update(keywords)
+            
+            # 將關鍵字加入對應的 story_index
+            if story_index not in story_keywords:
+                story_keywords[story_index] = {"keywords": []}
+            story_keywords[story_index]["keywords"].extend(keywords)
+        
+        # 移除重複的關鍵字
+        for idx in story_keywords:
+            story_keywords[idx]["keywords"] = list(set(story_keywords[idx]["keywords"]))
         
         unique_keywords = sorted(list(all_keywords))
         print(f"✓ 階段一完成：共提取 {len(unique_keywords)} 個不重複關鍵字。")
 
         # 3. 為關鍵字生成解釋
         print("\n=== 階段二：為關鍵字生成解釋與範例 ===")
-        explained_terms = []
+        # 建立關鍵字解釋的字典，避免重複處理
+        word_explanations = {}
         for word in tqdm(unique_keywords, desc="生成詞彙解釋"):
             explanation = self.get_word_explanation(word)
             if explanation and "term" in explanation:
-                explained_terms.append(explanation)
+                word_explanations[word] = explanation
             else:
                 print(f"⚠ 未能成功解釋詞彙：'{word}'")
         
-        print(f"✓ 階段二完成：共成功解釋 {len(explained_terms)} 個詞彙。")
+        print(f"✓ 階段二完成：共成功解釋 {len(word_explanations)} 個詞彙。")
         
-        # 4. 儲存最終結果
-        final_output = {"terms": explained_terms}
+        # 4. 整理並儲存最終結果
+        # 將解釋加入到每個 story 的關鍵字中
+        final_stories = {}
+        for story_idx, story_data in story_keywords.items():
+            keywords_with_explanations = []
+            for word in story_data["keywords"]:
+                if word in word_explanations:
+                    keywords_with_explanations.append(word_explanations[word])
+            final_stories[story_idx] = {
+                "keywords": keywords_with_explanations
+            }
+        
+        # 儲存最終結果
         with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(final_output, f, ensure_ascii=False, indent=2)
+            json.dump(final_stories, f, ensure_ascii=False, indent=2)
         
         print(f"\n✓ 處理完成！結果已儲存至：{output_file}")

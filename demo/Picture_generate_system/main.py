@@ -1,13 +1,57 @@
 import os
 import json
 from generate_picture import generate_from_json
+from config import Config
+
+def generate_images(
+    input_json: str = None,
+    output_dir: str = None,
+    model_id: str = None,
+    max_items: int = None,
+    max_images_per_article: int = None,
+    retry_times: int = None,
+    sleep_between_calls: float = None
+) -> dict:
+    """
+    使用設定生成圖片的主要函數
+    
+    Args:
+        input_json: 輸入的JSON檔案路徑，如果不指定則使用Config中的設定
+        output_dir: 輸出目錄路徑，如果不指定則使用Config中的設定
+        model_id: AI模型ID，如果不指定則使用Config中的設定
+        max_items: 處理文章數量限制，如果不指定則使用Config中的設定
+        max_images_per_article: 每篇文章生成圖片數，如果不指定則使用Config中的設定
+        retry_times: 重試次數，如果不指定則使用Config中的設定
+        sleep_between_calls: API呼叫間隔，如果不指定則使用Config中的設定
+    
+    Returns:
+        dict: 包含執行結果的字典
+    """
+    # 使用參數或配置檔中的設定
+    input_json = input_json or Config.get_input_file_path()
+    output_dir = output_dir or Config.get_output_dir_path()
+    model_id = model_id or Config.MODEL_ID
+    max_items = max_items if max_items is not None else Config.MAX_ITEMS
+    max_images_per_article = max_images_per_article or Config.MAX_IMAGES_PER_ARTICLE
+    retry_times = retry_times or Config.RETRY_TIMES
+    sleep_between_calls = sleep_between_calls or Config.SLEEP_BETWEEN_CALLS
+    
+    return generate_from_json(
+        input_json=input_json,
+        output_dir=output_dir,
+        model_id=model_id,
+        max_items=max_items,
+        max_images_per_article=max_images_per_article,
+        retry_times=retry_times,
+        sleep_between_calls=sleep_between_calls,
+    )
 
 def main():
     """主函數 - 生成圖片並建立說明文字"""
     
-    # 設定參數
-    input_json = "cleaned_final_news1.json"  # 使用最新的新聞資料
-    output_dir = "generated_images_main"     # 主程式輸出目錄
+    # 使用配置檔案中的設定
+    input_json = Config.get_input_file_path()
+    output_dir = Config.get_output_dir_path()
     
     print("🎯 開始執行圖片生成與說明建立...")
     print(f"📁 輸入檔案: {input_json}")
@@ -23,12 +67,12 @@ def main():
         result = generate_from_json(
             input_json=input_json,
             output_dir=output_dir,
-            # 可選參數：
-            model_id="gemini-2.0-flash-preview-image-generation",
-            max_items=None,  # None 表示處理全部，可設定數字限制
-            max_images_per_article=1,
-            retry_times=3,
-            sleep_between_calls=0.6,
+            # 使用配置檔中的設定
+            model_id=Config.MODEL_ID,
+            max_items=Config.MAX_ITEMS,
+            max_images_per_article=Config.MAX_IMAGES_PER_ARTICLE,
+            retry_times=Config.RETRY_TIMES,
+            sleep_between_calls=Config.SLEEP_BETWEEN_CALLS,
         )
         
         # 顯示執行結果
