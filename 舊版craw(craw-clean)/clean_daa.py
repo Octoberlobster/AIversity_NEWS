@@ -16,7 +16,7 @@ os.makedirs(move_folder, exist_ok=True)  # ✅ 確保移動資料夾存在
 
 # === 2. 設定 Gemini API 金鑰 ===
 # 設定 Gemini API
-api_key = os.getenv("API_KEY_Ge")
+api_key = os.getenv("GEMINI_API_KEY")
 if not api_key or api_key == "YOUR_GEMINI_API_KEY":
     raise ValueError("請先設定你的 GEMINI_API_KEY，或於程式中直接指定。")
 genai.configure(api_key=api_key)
@@ -63,28 +63,33 @@ for filename in os.listdir(input_folder):
 
         # 處理每篇新聞內容
         for i, article in enumerate(data):
-            print(f"➡️ 正在處理第 {i+1} 篇文章... ({filename})")
+            print(f"➡️ 正在處理第 {i+1} 篇文章...")
 
-            if "content" in article:
-                # (1) 去除 HTML
-                soup = BeautifulSoup(article["content"], "html.parser")
-                cleaned_text = soup.get_text(separator="\n", strip=True)
+            if "articles" in article:
+                for j, sub_article in enumerate(article["articles"]):
+                    print(f"   ➡️ 正在處理第 {j+1} 篇子文章...")
 
-                # (2) 使用 Gemini API 去除雜訊
-                prompt = f"""
-                請去除以下文章中的雜訊，例如多餘的標題、時間戳記、來源資訊等，並最大量的保留所有新聞內容：
+                    # (1) 去除 HTML
+                    raw_content = sub_article.get("content", "")
+                    soup = BeautifulSoup(raw_content, "html.parser")
+                    cleaned_text = soup.get_text(separator="\n", strip=True)
 
-                {cleaned_text}
+                    # (2) 使用 Gemini API 去除雜訊
+                    prompt = f"""
+                    請去除以下文章中的雜訊，例如多餘的標題、時間戳記、來源資訊等，並最大量的保留所有新聞內容：
 
-                你只需要回覆經過處理的內容，不需要任何其他說明或標題。
-                """
-                try:
-                    response = model.generate_content(prompt)
-                    article["content"] = response.text.strip()
-                    time.sleep(1)
-                except Exception as e:
-                    print(f"❌ 發生錯誤於文章：{filename}，錯誤訊息：{e}")
-                    article["content"] = "[清洗失敗]"
+                    {cleaned_text}
+
+                    你只需要回覆經過處理的內容，不需要任何其他說明或標題。
+                    """
+                    try:
+                        # 使用模型生成內容
+                        response = model.generate_content(prompt)
+                        sub_article["content"] = response.text.strip()
+                        time.sleep(1)
+                    except Exception as e:
+                        print(f"❌ 發生錯誤於文章：{filename}，錯誤訊息：{e}")
+                        article["content"] = "[清洗失敗]"
 
         # 輸出處理後的結果到新 JSON 檔案
         with open(output_file_path, "w", encoding="utf-8") as f:
