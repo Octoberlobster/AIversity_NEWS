@@ -1,33 +1,38 @@
-import ChatRoom
 import Hint_Prompt
+import Knowledge_Base
 from flask_cors import CORS
 from flask import Flask, request, jsonify
-
+from ChatRoom import ChatRoom
+#這邊讀檔要改成database抓
+Knowledge_Base.set_knowledge_base("./demo/news-platform/back-end/cleaned_final_news.json")
 
 app = Flask(__name__)
 CORS(app)
-
-#目前想到問題，同個使用者的情況下，換看的新聞會有上次聊天的history，ChatRoom的實作要改為class
+user_sessions = {}
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.json  # 取得前端傳來的 JSON
+    user_id = data.get("user_id")
+    room_id = data.get("room_id")
     prompt = data.get("prompt")
     categories = data.get("category")
+    article = data.get("article")
     Hint_Prompt.refresh_hint_prompt()
 
-    if not prompt:
-        return jsonify({"error": "Missing 'prompt'"}), 400
+    if not user_id or not room_id or not prompt or not categories:
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    key = (user_id, room_id)
+    if key not in user_sessions:
+        user_sessions[key] = ChatRoom()
+    room = user_sessions[key]
 
-    try:
-        # 呼叫 Gemini 模型
-        response = ChatRoom.chat(prompt, categories)
-        print(jsonify({"response": response}))
-        return jsonify({"response": response})
-    except Exception as e:
-        print(f"Error: {e}")
-        print("fuck yourself")
-        return jsonify({"error": str(e)}), 500
+    prompt = f"目前正在閱讀的文章是：{article}，請根據這篇文章回答使用者。以下是使用者的提問：{prompt}"
+
+    response = room.chat(prompt, categories)
+    print(response)
+    return jsonify({"response": response})
 
 @app.route("/api/hint_prompt", methods=["POST"])
 def hint_Prompt():

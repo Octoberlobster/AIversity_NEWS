@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getOrCreateUserId, createRoomId } from './utils.js';
 import { fetchJson } from './api';
 import './../css/ChatRoom.css';
 
@@ -18,6 +19,9 @@ const expertReplies = {};
 
 // 快速提示
 const quickPrompts = [];
+
+const user_id = getOrCreateUserId();
+const room_id = createRoomId();
 
 function ChatRoom({news}) {
   const [selectedExperts, setSelectedExperts] = useState([1, 2, 3]);
@@ -112,8 +116,11 @@ function ChatRoom({news}) {
   
       // 呼叫後端 API
       const response = await fetchJson('chat', {
+        user_id: user_id,
+        room_id: room_id,
         prompt: inputMessage,
         category: categories,
+        article: news,
       });
   
       // 處理後端回傳的回覆
@@ -122,8 +129,14 @@ function ChatRoom({news}) {
           const expertId = selectedExperts[index]; // 根據順序匹配專家 ID
           const expertReply = makeExpertReply(expertId); // 使用 makeExpertReply 生成回覆
           expertReply.text = `${experts.find((e) => e.id === expertId).name}：${reply.chat_response}`; // 更新回覆內容
+          expertReply.text = expertReply.text.replace(/\*+/g, "");
 
           setMessages((prev) => [...prev, expertReply]);
+
+          // const relatedNews = reply.related_news || [];
+          // relatedNews.forEach((newsItem) => {
+          //   setMessages((prev) => [...prev, { id: Date.now(), text: `相關新聞：${newsItem}`, isOwn: false }]);
+          // });
         }, 1000 + index * 500); // 模擬延遲
       });
     } catch (error) {

@@ -187,6 +187,8 @@
   gap: 1rem;
   background: #fafafa;
   scroll-behavior: smooth;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .message {

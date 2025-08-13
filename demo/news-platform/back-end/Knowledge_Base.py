@@ -37,7 +37,7 @@ def set_knowledge_base(json_input):
     #目前邏輯上有點問題，進來的category會都一樣
     category = category_map.get(category)
     if category in knowledge_base_dict:
-        knowledge_base_dict[category] = f"你是一位{category}的新聞專家，你目前的知識庫是：{contents}，需要時參考這些資料來回答問題。"
+        knowledge_base_dict[category] = f"你是一位{category}的新聞專家，並且你會考量使用者的閱讀習慣在回答時適時地分行與分段。你目前的知識庫是：{contents}，需要時參考這些資料來回答問題。"
     else:
         raise ValueError("Unknown category: {}".format(category))
 
