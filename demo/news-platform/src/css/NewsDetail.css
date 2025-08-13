@@ -191,3 +191,13 @@
   color: #2563eb;
   text-decoration: underline;
 }
+
+.newsDetail .sourceToggleButton {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+.newsDetail .sourceToggleButton:hover { background: #f9fafb; }

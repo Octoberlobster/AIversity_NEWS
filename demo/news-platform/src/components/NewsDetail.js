@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, replace } from 'react-router-dom';
+import React, { useState, useEffect, useMemo} from 'react';
+import { useParams, Link} from 'react-router-dom';
 import './../css/NewsDetail.css';
 import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
@@ -104,10 +104,12 @@ function NewsDetail() {
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [dragStartX, setDragStartX] = useState(0);
   const [dragStartWidth, setDragStartWidth] = useState(0);
+  const [showAllSources, setShowAllSources] = useState(false);
 
   // 確保頁面載入時滾動到頂部
   useEffect(() => {
     window.scrollTo(0, 0);
+    setShowAllSources(false);
   }, [id]); // 當 id 改變時執行
 
   const newsData = mockNewsData[id];
@@ -159,34 +161,40 @@ function NewsDetail() {
     setTooltipPosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
   };
 
-  const renderArticleText = (text) => {
+  const renderArticleText = (text, allowedFirstSet) => {
     if (!text) return null;
 
     // 以「空一行」分段；段內的單一換行會轉成 <br/>
     const paragraphs = String(text).split(/\r?\n\s*\r?\n/);
 
-    // 名詞高亮：保留你原本的點擊 tooltip 功能
-    const terms = Array.isArray(newsData.terms) ? newsData.terms : [];
+    const terms = sortedTerms; // 直接用 useMemo 的排序結果
     const escapeReg = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // 長的詞優先，避免「AI」先吃掉「生成式AI」這種重疊
-    const sortedTerms = terms.slice().sort((a, b) => b.length - a.length);
-    const termsPattern = sortedTerms.length
-      ? new RegExp(`(${sortedTerms.map(escapeReg).join('|')})`, 'g')
+    const termsPattern = terms.length
+      ? new RegExp(`(${terms.map(escapeReg).join('|')})`, 'g')
       : null;
+    const seenInThisBlock = new Map(); // term -> count
 
     const highlightTermsInLine = (line) => {
       if (!termsPattern) return line;
+
       return line.split(termsPattern).map((part, i) => {
         if (terms.includes(part)) {
-          return (
-            <strong
-              key={`term-${i}`}
-              className="term term--clickable"
-              onClick={(e) => handleTermClick(part, e)}
-            >
-              {part}
-            </strong>
-          );
+          const count = seenInThisBlock.get(part) || 0;
+          const canHighlight = allowedFirstSet?.has(part) && count === 0;
+          if (canHighlight) {
+            seenInThisBlock.set(part, 1);
+            return (
+              <strong
+                key={`term-${i}`}
+                className="term term--clickable"
+                onClick={(e) => handleTermClick(part, e)}
+              >
+                {part}
+              </strong>
+            );
+          }
+          // 之後出現：純文字，不高亮、不可點
+          return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
         }
         return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
       });
@@ -208,6 +216,39 @@ function NewsDetail() {
     });
   };
 
+  const { sortedTerms, firstInShort, firstInLong } = useMemo(() => {
+    const raw = Array.isArray(newsData?.terms) ? newsData.terms : [];
+    // 去重 + 長詞優先，避免短詞吃掉長詞
+    const termsArr = Array.from(new Set(raw)).sort((a, b) => b.length - a.length);
+
+    const shortStr = String(newsData?.short || '');
+    const longStr  = String(newsData?.long  || '');
+
+    const escapeReg = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const buildRe = (list) =>
+      list.length ? new RegExp(`(${list.map(escapeReg).join('|')})`, 'g') : null;
+
+    // 掃描某段文字，回傳「實際有出現過的 term」集合
+    const collectPresent = (text, list) => {
+      const set = new Set();
+      const re = buildRe(list);
+      if (!re) return set;
+      re.lastIndex = 0;
+      let m;
+      while ((m = re.exec(text)) !== null) {
+        // m[0] 就是匹配到的 term（因為 alternation 是整詞們）
+        set.add(m[0]);
+      }
+      return set;
+    };
+
+    const inShort = collectPresent(shortStr, termsArr); // 只要在 short 出現過，就允許 short 高亮一次
+    const inLong  = collectPresent(longStr,  termsArr); // 只要在 long 出現過，就允許 long 高亮一次
+
+    return { sortedTerms: termsArr, firstInShort: inShort, firstInLong: inLong };
+  }, [id, newsData]);
+
+
   if (!newsData) {
     return (
       <div className="newsDetail">
@@ -216,6 +257,8 @@ function NewsDetail() {
       </div>
     );
   }
+
+  
 
   return (
     <div className="newsDetail">
@@ -249,7 +292,7 @@ function NewsDetail() {
           )}
 
           <div className="articleText">
-            {renderArticleText(newsData.short)}
+            {renderArticleText(newsData.short, firstInShort)}
           </div>
 
           {!showLongContent && (
@@ -262,7 +305,7 @@ function NewsDetail() {
             <>
               <div className="longContent">
                 <div className="articleText">
-                  {renderArticleText(newsData.long)}
+                  {renderArticleText(newsData.long, firstInLong)}
                 </div>
               </div>
               <button className="readMoreButton" onClick={() => setShowLongContent(false)}>
@@ -320,26 +363,47 @@ function NewsDetail() {
       )}
 
       {/* 資料來源 */}
-      {newsData.source && (
-        <div className="sourceBlock">
-          <div className="sourceTitle">資料來源：</div>
-          {Array.isArray(newsData.source) ? (
-            <ul className="sourceList">
-              {newsData.source.map((url, index) => (
-                <li key={index}>
-                  <a href={url} target="_blank" rel="noopener noreferrer">
-                    {url}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <a href={newsData.source} target="_blank" rel="noopener noreferrer">
-              {newsData.source}
-            </a>
-          )}
-        </div>
-      )}
+      {newsData.source && (() => {
+        const MAX = 3;
+        const all = Array.isArray(newsData.source)
+          ? newsData.source.filter(Boolean)
+          : (newsData.source ? [newsData.source] : []);
+
+        // 去重，避免重複網址
+        const uniq = Array.from(new Set(all));
+        const total = uniq.length;
+        const visible = showAllSources ? uniq : uniq.slice(0, MAX);
+        const hasMore = total > MAX;
+
+        return (
+          <div className="sourceBlock">
+            <div className="sourceTitle">資料來源：</div>
+
+            {visible.length > 0 ? (
+              <ul className="sourceList">
+                {visible.map((url, i) => (
+                  <li key={i}>
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                      {url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="sourceEmpty">（無資料來源）</div>
+            )}
+
+            {hasMore && (
+              <button
+                className="sourceToggleButton"
+                onClick={() => setShowAllSources(s => !s)}
+              >
+                {showAllSources ? '收起' : `觀看更多（還有 ${total - MAX} 筆）`}
+              </button>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

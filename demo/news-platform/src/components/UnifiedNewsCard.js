@@ -119,32 +119,41 @@ function UnifiedNewsCard({ limit, keyword, customData }) {
 
   const renderHighlightedText = (text, newsTerms) => {
     if (!text) return '';
-    if (!newsTerms || !Array.isArray(newsTerms)) return text;
+    if (!newsTerms || !Array.isArray(newsTerms) || newsTerms.length === 0) return text;
 
-    // 建立正則表達式，匹配所有 terms（注意跳脫特殊字元）
-    const termsPattern = new RegExp(
-      `(${newsTerms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
-      'g'
-    );
+    // 去重、過濾空字串，並用「長詞優先」避免 AI 先吃掉 生成式AI
+    const terms = Array.from(new Set(newsTerms.filter(Boolean))).sort((a, b) => b.length - a.length);
+    if (terms.length === 0) return text;
 
-    // 將文字分割成片段
-    const parts = text.split(termsPattern);
-      return parts.map((part, index) => {
-      // 檢查這個片段是否是 term
-      const isTerm = newsTerms.includes(part);
+    const escapeReg = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');  //正則式轉義特殊字符
+    const pattern = new RegExp(`(${terms.map(escapeReg).join('|')})`, 'g'); // 匹配所有關鍵詞
 
-      if (isTerm) {
-        return (
-          <strong
-            key={index}
-            className="term term--clickable"
-            onClick={(e) => handleTermClick(part, e)}
-          >
-            {part}
-          </strong>
-        );
+    // 用 Set 記錄「此文字塊內」哪些 term 已經出現過
+    const seenOnce = new Set();
+    const termsSet = new Set(terms);
+
+    // 用 split + 捕獲群組的方式保留 term 本身
+    const parts = String(text).split(pattern);
+
+    return parts.map((part, index) => {
+      if (termsSet.has(part)) {
+        if (!seenOnce.has(part)) {
+          // 第一次出現：高亮＋可點
+          seenOnce.add(part);
+          return (
+            <strong
+              key={`term-${index}`}
+              className="term term--clickable"
+              onClick={(e) => handleTermClick(part, e)}
+            >
+              {part}
+            </strong>
+          );
+        }
+        // 之後出現：純文字（不高亮、不可點）
+        return <React.Fragment key={`txt-${index}`}>{part}</React.Fragment>;
       }
-      return part;
+      return <React.Fragment key={`txt-${index}`}>{part}</React.Fragment>;
     });
   };
 

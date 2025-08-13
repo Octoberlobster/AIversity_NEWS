@@ -8,7 +8,7 @@ model_flag = ["Science & Technology"] # 改前端的選擇結果
 #TODO : 修改model_dict只有9個領域，增加專題的model與首頁搜尋的model
 
 #這邊讀檔要改成database抓
-Knowledge_Base.set_knowledge_base("./demo/news-platform/chatroom/cleaned_final_new.json")
+Knowledge_Base.set_knowledge_base("./demo/news-platform/back-end/cleaned_final_new.json")
 model_dict = {
     "Politics": -1,
     "Taiwan News": -1,

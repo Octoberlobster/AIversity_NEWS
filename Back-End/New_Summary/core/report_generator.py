@@ -351,7 +351,7 @@ class ReportGenerator:
         content_ok = bool((comprehensive_report.get('content') or "").strip())
         result["processing_stats"]["comprehensive_report_success"] = (title_ok or content_ok)
 
-        result["processed_at"] = datetime.now().isoformat(timespec='minutes')
+        result["processed_at"] = datetime.now().isoformat(sep=' ', timespec='minutes')
         logger.info(f"Story {story_data.get('story_index')} 處理完成")
         return result
 

@@ -163,7 +163,7 @@ class NewsProcessor:
                         "original_title": article.get('article_title'),
                         "publish_date": article.get('publish_date') or article.get('crawl_date'),
                         "source_url": article.get('final_url'),
-                        "processed_at": datetime.now().isoformat()
+                        "processed_at": datetime.now().isoformat(sep=' ', timespec='minutes')
                     })
 
                     logger.info(f"成功處理文章: {article.get('article_title', '')[:50]}...")
@@ -218,7 +218,7 @@ class NewsProcessor:
             "failed_articles": len(failed_articles),
             "articles_analysis": processed_articles,
             "failed_list": failed_articles,
-            "processed_at": datetime.now().isoformat()
+            "processed_at": datetime.now().isoformat(sep=' ', timespec='minutes')
         }
 
         logger.info(f"Story {story_id} 處理完成: 成功 {len(processed_articles)}/{len(articles)} 篇")
