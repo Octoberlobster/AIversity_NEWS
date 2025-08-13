@@ -1,6 +1,6 @@
 {
   "total_images": 4,
-  "generated_at": "2025-08-12 17:27:12",
+  "generated_at": "2025-08-13 16:30:44",
   "images": [
     {
       "image_path": "ke-xue-yu-ke-ji-\\1.png",
@@ -8,7 +8,7 @@
       "article_title": "南極座ν逆行行星挑戰行星形成理論",
       "category": "科學與科技",
       "article_id": "1",
-      "generated": true
+      "generated": false
     },
     {
       "image_path": "ke-xue-yu-ke-ji-\\2.png",
@@ -16,7 +16,7 @@
       "article_title": "《超級機器人大戰Y》8月28日發售",
       "category": "科學與科技",
       "article_id": "2",
-      "generated": true
+      "generated": false
     },
     {
       "image_path": "ke-xue-yu-ke-ji-\\3.png",
@@ -24,7 +24,7 @@
       "article_title": "《忍者外傳4》10月21日發售，雙主角系統引爆期待",
       "category": "科學與科技",
       "article_id": "3",
-      "generated": true
+      "generated": false
     },
     {
       "image_path": "ke-xue-yu-ke-ji-\\4.png",

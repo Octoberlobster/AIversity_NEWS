@@ -99,7 +99,7 @@ def _prompt_photoreal_no_text(news_title: str, news_summary: str, category: str)
         "REMINDER: The image must be 100% text-free."
     )
     output_constraints = (
-        "Square aspect ratio, high clarity, realistic textures and materials, "
+        "Image size 1024x625 pixels, aspect ratio 5:3, high clarity, realistic textures and materials, "
         "no graphic overlays, no UI elements."
     )
     prompt = (

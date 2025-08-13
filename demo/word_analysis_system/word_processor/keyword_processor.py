@@ -11,7 +11,7 @@ from config import Config
 
 class KeywordProcessor:
     """處理新聞關鍵字提取與解釋的核心類別"""
-    
+
     def __init__(self):
         """初始化關鍵字處理器"""
         self.model = None
@@ -51,7 +51,9 @@ class KeywordProcessor:
             cleaned_text = cleaned_text[3:]
         
         # 檢查並移除結尾的 markdown 標籤
-        if cleaned_text.endswith("```"):
+        if cleaned_text.endswith("```json"):
+            cleaned_text = cleaned_text[:-7]
+        elif cleaned_text.endswith("```"):
             cleaned_text = cleaned_text[:-3]
             
         return cleaned_text.strip()
@@ -75,8 +77,8 @@ class KeywordProcessor:
         prompt = f"""
         你是一位專業的知識編輯，擅長為大眾讀者解釋複雜概念。
         請從以下新聞內容中，提取 {self.proc_config['keywords_to_extract']} 個對一般大眾而言，最具專業性、技術性或較為艱深難懂的關鍵字。
-
         目標是篩選出讀者可能需要額外查詢才能完全理解文意的詞彙。
+
         這些關鍵字應優先考慮：
         - 專業術語 (例如：經濟學、科技、法律領域的術語)
         - 特定的事件或協議名稱
@@ -89,29 +91,33 @@ class KeywordProcessor:
         請嚴格以 JSON 格式回傳，格式如下：
         {{"keywords": ["關鍵字1", "關鍵字2", "..."]}}
         """
-
         result = self._call_gemini(prompt)
         time.sleep(self.api_config['call_delay_seconds'])
         return result.get('keywords', [])
 
     def get_word_explanation(self, word: str) -> Dict[str, Any]:
-        """為單一詞彙產生解釋和範例"""
+        """為單一詞彙產生解釋和實際應用實例"""
         prompt = f"""
-        你是一位知識淵博的詞典編纂專家。
-        針對以下詞彙，請提供約 {self.proc_config['explanation_word_limit']} 字的「名詞解釋」和「應用範例」。
+        你是一位知識淵博的詞典編纂專家，擅長用具體實例說明概念。
+        針對以下詞彙，請提供約 {self.proc_config['explanation_word_limit']} 字的「名詞解釋」和「應用實例」。
 
         要解釋的詞彙是：「{word}」
 
+        「應用實例」部分，請不要用完整的句子造句。請直接列出該詞彙會被使用到的具體場景、技術或產品。
+        格式請像這樣，列舉幾個實際例子：
+        - **範例輸入：** 人工智慧
+        - **期望的應用實例輸出：** 語音助手（如 Siri、Alexa）、推薦系統、自動駕駛汽車、醫療影像分析。
+
         請嚴格依照以下 JSON 格式回傳，不要有任何 markdown 標籤或說明文字：
         {{
-          "term": "{word}",
-          "definition": "（在此填寫簡潔的名詞解釋）",
-          "examples": [
-            {{
-              "title": "應用例子",
-              "text": "（在此填寫應用範例，可包含換行\\n）"
-            }}
-          ]
+            "term": "{word}",
+            "definition": "（在此填寫簡潔的名詞解釋）",
+            "examples": [
+                {{
+                    "title": "應用實例",
+                    "text": "（在此條列式填寫具體的應用場景或產品，而非造句）"
+                }}
+            ]
         }}
         """
         result = self._call_gemini(prompt)
@@ -127,7 +133,7 @@ class KeywordProcessor:
         except FileNotFoundError:
             print(f"✗ 錯誤：找不到輸入檔案 {input_file}")
             return
-        
+
         # 2. 提取所有關鍵字，並根據 story_index 組織
         print("\n=== 階段一：從新聞中提取關鍵字 ===")
         # 建立以 story_index 為鍵的字典
@@ -139,7 +145,7 @@ class KeywordProcessor:
             story_index = story_info.get('story_index')
             if story_index is None:
                 continue
-                
+
             report = story.get('comprehensive_report', {})
             title = report.get('title', '未知標題')
             versions = report.get('versions', {})
@@ -156,11 +162,11 @@ class KeywordProcessor:
             if story_index not in story_keywords:
                 story_keywords[story_index] = {"keywords": []}
             story_keywords[story_index]["keywords"].extend(keywords)
-        
+
         # 移除重複的關鍵字
         for idx in story_keywords:
             story_keywords[idx]["keywords"] = list(set(story_keywords[idx]["keywords"]))
-        
+
         unique_keywords = sorted(list(all_keywords))
         print(f"✓ 階段一完成：共提取 {len(unique_keywords)} 個不重複關鍵字。")
 
@@ -176,7 +182,7 @@ class KeywordProcessor:
                 print(f"⚠ 未能成功解釋詞彙：'{word}'")
         
         print(f"✓ 階段二完成：共成功解釋 {len(word_explanations)} 個詞彙。")
-        
+
         # 4. 整理並儲存最終結果
         # 將解釋加入到每個 story 的關鍵字中
         final_stories = {}
@@ -188,9 +194,10 @@ class KeywordProcessor:
             final_stories[story_idx] = {
                 "keywords": keywords_with_explanations
             }
-        
+
         # 儲存最終結果
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(final_stories, f, ensure_ascii=False, indent=2)
-        
+
         print(f"\n✓ 處理完成！結果已儲存至：{output_file}")
+
