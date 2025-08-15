@@ -1,23 +1,23 @@
-from google import genai
 from pydantic import BaseModel
 from functools import lru_cache
+from google import genai
+from env import gemini_client
 import os
-
-api_key = os.getenv("API_KEY_Gemini")
-gemini_client = genai.Client(api_key=api_key)
 
 class HintPromptResponse(BaseModel):
     Hint_Prompt: list[str]
+
+#TODO:之後要再加一般和深入mode
 
 @lru_cache(maxsize=128)
 def genernate_hint_prompt(option,article):
     response = gemini_client.models.generate_content(
         model="gemini-2.0-flash",
-        contents= f"請根據{article}，生成 4 個最合適且能幫助使用者開始聊天的提示詞。",
+        contents= f"使用者當前想跟{option}領域的專家(們)聊天，請根據{article}，生成 4 個最合適且能幫助使用者開始聊天的提示詞。",
         config=genai.types.GenerateContentConfig(
             system_instruction=(
                 "你是一位給予提示詞的助手，主要目的是幫助使用者開始聊天。"
-                f"使用者當前想跟{option}領域的專家(們)聊天，"
+                "並且為了減輕使用者負擔，每個提示詞都不應該超過10個字"
             ),
             response_mime_type="application/json",
             response_schema=HintPromptResponse,

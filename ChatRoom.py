@@ -1,169 +1,58 @@
-from google import genai
-from google.genai import types
 from pydantic import BaseModel
-from supabase import create_client, Client
-from flask import jsonify
-import os
+from google.genai import types
+from env import gemini_client
+import Knowledge_Base
 
-# 設定環境變數
-api_key = os.getenv("API_KEY_Gemini")
-gemini_client = genai.Client(api_key=api_key)
-api_key_supabase = os.getenv("API_KEY_Supabase")
-supabase_url = os.getenv("Supabase_URL")
-supabase: Client = create_client(supabase_url, api_key_supabase)
-
-model_flag = ["Politics","Science","Technology"] # 改前端的選擇結果
-
-#Todo : 修改model_dict只有9個領域，增加專題的model與首頁搜尋的model，並且將system_instruction的prompt用別的py或yaml或json來進行管理
-
-model_dict = {
-    "Politics": -1,
-    "Social News": -1,
-    "Science": -1,
-    "Technology": -1,
-    "International News": -1,
-    "Lifestyle & Consumer News": -1,
-    "Sports": -1,
-    "Entertainment": -1,
-    "Business & Finance": -1,
-    "Health & Wellness": -1,
-}
-
+#TODO : 修改model_dict只有9個領域，增加專題的model與首頁搜尋的model
 
 class ChatInfo(BaseModel):
     name: str
     chat_response: str
     related_news: list[str]
 
-def create_model(category):
-    # 要設定json格式的話再參考https://ai.google.dev/gemini-api/docs/migrate?hl=zh-tw
 
-    # 這部份確定再加
-    # like_RAG_data = (
-    #     supabase.table("generated_news")
-    #     .select("content")
-    #     .eq("category", category)
-    #     .execute()
-    # )
+class ChatRoom:
+    def __init__(self):
+        # 每個 ChatRoom 實例各自維護一份 category → model 的映射
+        self.model_dict = {
+            "Politics": -1,
+            "Taiwan News": -1,
+            "Science & Technology": -1,
+            "International News": -1,
+            "Lifestyle & Consumer News": -1,
+            "Sports": -1,
+            "Entertainment": -1,
+            "Business & Finance": -1,
+            "Health & Wellness": -1,
+        }
 
-    model = "gemini-2.0-flash"
+    def create_model(self, category: str):
+        """如果該分類還沒建立過模型，就初始化一個"""
+        model_name = "gemini-2.0-flash"
 
-    if category == "Politics":
-        system_instruction = "你是政治專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    elif category == "Social News":
-        system_instruction = "你是社會新聞專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    elif category == "Science":
-        system_instruction = "你是科學專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    elif category == "Technology":
-        system_instruction = "你是科技專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    elif category == "International News":
-        system_instruction = "你是國際新聞專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    elif category == "Lifestyle & Consumer News":
-        system_instruction = "你是生活與消費新聞專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    elif category == "Sports":
-        system_instruction = "你是體育專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    elif category == "Entertainment":
-        system_instruction = "你是娛樂專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    elif category == "Business & Finance":
-        system_instruction = "你是商業與金融專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    elif category == "Health & Wellness":
-        system_instruction = "你是健康與福祉專家"
-        return gemini_client.chats.create(
-            model=model,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=ChatInfo,
-            ),
-        )
-    else:
-        raise ValueError("Unknown category: {}".format(category))
+        if category not in self.model_dict:
+            raise ValueError(f"Unknown category: {category}")
 
-def chat(prompt, categories):
-    responses = []
-    for category in categories:
-        if model_dict[category] == -1:
-            model_dict[category] = create_model(category)
-        
-        response = model_dict[category].send_message(message=prompt)
-        responses.append(dict(response.parsed))  # 將回應加入列表
-    return responses
+        # 已存在則直接回傳
+        if self.model_dict[category] != -1:
+            return self.model_dict[category]
 
-# prompt = "你好"
-# category_response = chat(prompt, model_flag)
-# print(category_response)
+        # 初始化新模型
+        self.model_dict[category] = gemini_client.chats.create(
+            model=model_name,
+            config=types.GenerateContentConfig(
+                system_instruction=Knowledge_Base.get_knowledge_base(category),
+                response_mime_type="application/json",
+                response_schema=ChatInfo,
+            ),
+        )
+        return self.model_dict[category]
 
-    
-
+    def chat(self, prompt: str, categories: list[str]):
+        """對指定分類的模型發送訊息"""
+        responses = []
+        for category in categories:
+            model = self.create_model(category)
+            response = model.send_message(message=prompt)
+            responses.append(dict(response.parsed))  # 轉成 dict 加入回應列表
+        return responses
