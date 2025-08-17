@@ -22,11 +22,6 @@ class ReportGeneratorConfig:
     
     GEMINI_MODEL = "gemini-2.0-flash"
     
-    # 檔案路徑 - 相對於 core 模組的位置
-    INPUT_DIR = os.path.join(os.path.dirname(__file__), "../outputs/processed/")
-    OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "../outputs/reports/")
-    LOG_DIR = os.path.join(os.path.dirname(__file__), "../outputs/logs/")
-    
     # 處理參數
     API_DELAY = 1.5  # API 調用間隔秒數（報導生成需要更多時間）
     BATCH_SAVE_SIZE = 2  # 每處理幾個 stories 後保存進度
@@ -60,24 +55,6 @@ class ReportGeneratorConfig:
     
     # Gemini 生成參數
     GENERATION_CONFIGS = {
-        "short_summary": {
-            "temperature": 0.2,
-            "max_output_tokens": 150,
-            "top_p": 0.7,
-            "top_k": 20
-        },
-        "medium_summary": {
-            "temperature": 0.3,
-            "max_output_tokens": 400,
-            "top_p": 0.8,
-            "top_k": 25
-        },
-        "long_summary": {
-            "temperature": 0.4,
-            "max_output_tokens": 800,
-            "top_p": 0.9,
-            "top_k": 30
-        },
         # 綜合報導三種版本的生成參數（可依需求調整）
         "comprehensive_ultra_short": {
             "temperature": 0.2,
@@ -128,45 +105,12 @@ class ReportGeneratorConfig:
     }
     
     @classmethod
-    def ensure_directories(cls):
-        """確保必要的目錄存在"""
-        os.makedirs(cls.OUTPUT_DIR, exist_ok=True)
-        os.makedirs(cls.LOG_DIR, exist_ok=True)
-    
-    @classmethod
     def validate_config(cls) -> bool:
         """驗證配置是否正確"""
         if not cls.get_gemini_api_key():
             print("錯誤: GEMINI_API_KEY 未設定")
-            return False
-        
-        if not os.path.exists(cls.INPUT_DIR):
-            print(f"錯誤: 輸入目錄不存在 - {cls.INPUT_DIR}")
-            return False
-        
+            return False  
         return True
-    
-    @classmethod
-    def get_output_filename(cls, prefix: str = "generated_reports") -> str:
-        """生成帶時間戳的輸出檔名"""
-        from datetime import datetime
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return f"{cls.OUTPUT_DIR}{prefix}_{timestamp}.json"
-    
-    @classmethod
-    def find_latest_processed_file(cls) -> str:
-        """尋找最新的處理檔案"""
-        import glob
-        
-        pattern = f"{cls.INPUT_DIR}processed_articles_*.json"
-        files = glob.glob(pattern)
-        
-        if not files:
-            raise FileNotFoundError(f"在 {cls.INPUT_DIR} 中找不到已處理的新聞檔案")
-        
-        # 按修改時間排序，取最新的
-        latest_file = max(files, key=os.path.getmtime)
-        return latest_file
     
     @classmethod
     def should_process_article(cls, article_data: Dict) -> bool:

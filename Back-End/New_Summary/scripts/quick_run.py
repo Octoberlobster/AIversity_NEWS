@@ -4,6 +4,7 @@
 
 import os
 import sys
+import json
 from datetime import datetime
 
 # 確保載入 .env 檔案
@@ -30,27 +31,14 @@ def quick_run():
         print("❌ 請先設定 GEMINI_API_KEY 環境變數")
         return
     
-    if not os.path.exists("../data/cleaned_final_news.json"):
-        print("❌ 找不到 cleaned_final_news.json")
-        return
-    
     print("✅ 環境檢查通過")
     print("📝 開始處理...")
     
     try:
         # 創建並執行流水線
         pipeline = CompletePipeline(api_key=api_key)
-        
-        final_output = pipeline.run_complete_pipeline(
-            input_file="../data/cleaned_final_news.json",
-            output_prefix="final_comprehensive_reports"
-        )
-        
-        if final_output:
-            print(f"\n🎉 執行完成！最終檔案：{final_output}")
-        else:
-            print("\n❌ 執行失敗")
-            
+        pipeline.run_complete_pipeline()
+
     except Exception as e:
         print(f"\n❌ 執行失敗：{e}")
 

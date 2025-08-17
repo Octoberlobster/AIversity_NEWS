@@ -7,4 +7,5 @@ jieba>=0.42.1
 pandas>=2.2.2
 jsonschema>=4.23.0
 tqdm>=4.66.4
+supabase>=2.0.0
 

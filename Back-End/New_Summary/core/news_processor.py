@@ -8,18 +8,13 @@ import logging
 from google import genai
 from google.genai import types  # 新版 SDK 的型別
 from core.config import NewsProcessorConfig
-
-# 設置日誌
-try:
-    os.makedirs(NewsProcessorConfig.LOG_DIR, exist_ok=True)
-except Exception:
-    pass
+from core.db_client import SupabaseClient
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(os.path.join(NewsProcessorConfig.LOG_DIR, 'news_processing.log'), encoding='utf-8'),
+        logging.FileHandler(os.path.join('outputs/logs/news_processor.log'), encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
@@ -88,7 +83,6 @@ class NewsProcessor:
 
             【新聞資料】
             標題：{article.get('article_title', '無標題')}
-            發布時間：{article.get('publish_date') or article.get('crawl_date', '未知時間')}
             內容：{(article.get('content') or '無內容')[:max_chars]}
 
             【任務要求】
@@ -99,8 +93,8 @@ class NewsProcessor:
             3. 重要人物（提及的重要人物姓名）
             4. 重要機構組織（提及的公司、政府部門、學術機構等）
             5. 地點資訊（涉及的地理位置）
-            6. 時間線（重要的時間點）
-            7. 事件分類（政治、經濟、科技、社會等）
+            6. 事件分類（政治、經濟、科技、社會等）
+            7. 時間線(重要的時間點)
 
             【輸出格式】
             請嚴格按照以下 JSON 格式輸出，不要包含其他文字：
@@ -159,10 +153,9 @@ class NewsProcessor:
 
                     # 添加原始文章資訊
                     result.update({
-                        "original_article_id": article.get('id'),
+                        "original_article_id": article.get('article_id'),
                         "original_title": article.get('article_title'),
-                        "publish_date": article.get('publish_date') or article.get('crawl_date'),
-                        "source_url": article.get('final_url'),
+                        "article_url": article.get('article_url'),
                         "processed_at": datetime.now().isoformat(sep=' ', timespec='minutes')
                     })
 
@@ -186,8 +179,8 @@ class NewsProcessor:
         """
         處理單個 story 中的所有 articles
         """
-        story_id = story.get('story_index', 'unknown')
-        logger.info(f"開始處理 Story {story_id}: {story.get('story_title', '')}")
+        story_id = story.get('story_id', 'unknown')
+        logger.info(f"開始處理 Story {story_id}")
 
         articles = story.get('articles', [])
         processed_articles = []
@@ -201,7 +194,7 @@ class NewsProcessor:
                 processed_articles.append(result)
             else:
                 failed_articles.append({
-                    "article_id": article.get('id'),
+                    "article_id": article.get('article_id'),
                     "article_title": article.get('article_title'),
                     "reason": "處理失敗"
                 })
@@ -210,8 +203,7 @@ class NewsProcessor:
             time.sleep(NewsProcessorConfig.API_DELAY)
 
         story_result = {
-            "story_index": story_id,
-            "story_title": story.get('story_title'),
+            "story_id": story_id,
             "category": story.get('category'),
             "total_articles": len(articles),
             "processed_articles": len(processed_articles),
@@ -224,39 +216,15 @@ class NewsProcessor:
         logger.info(f"Story {story_id} 處理完成: 成功 {len(processed_articles)}/{len(articles)} 篇")
         return story_result
 
-    def load_news_data(self, file_path: str) -> List[Dict]:
-        """
-        載入新聞數據檔案
-        """
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            logger.info(f"成功載入 {len(data)} 個 stories")
-            return data
-        except Exception as e:
-            logger.error(f"載入檔案失敗: {e}")
-            return []
-
-    def save_processed_data(self, data: List[Dict], output_path: str):
-        """
-        保存處理結果
-        """
-        try:
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            logger.info(f"處理結果已保存至: {output_path}")
-        except Exception as e:
-            logger.error(f"保存檔案失敗: {e}")
-
-    def process_all_stories(self, input_file: str, output_file: str, start_index: int = 0, max_stories: Optional[int] = None):
+    def process_all_stories(self, start_index: int = 0, max_stories: Optional[int] = None):
         """
         處理所有 stories
         """
         logger.info("=== 開始新聞處理流程 ===")
 
-        input_file = input_file or NewsProcessorConfig.INPUT_FILE
-        stories = self.load_news_data(input_file)
+        db_client = SupabaseClient()
+        stories = db_client.get_stories_with_articles()
+        
         if not stories:
             logger.error("無法載入新聞數據")
             return
@@ -276,67 +244,19 @@ class NewsProcessor:
                 result = self.process_story_articles(story)
                 processed_stories.append(result)
 
-                # 定期保存進度
-                if (i - start_index + 1) % 5 == 0:
-                    temp_output = output_file.replace('.json', f'_progress_{i+1}.json')
-                    self.save_processed_data(processed_stories, temp_output)
-                    logger.info(f"進度已保存: {temp_output}")
-
             except Exception as e:
                 logger.error(f"處理 Story {i} 時發生嚴重錯誤: {e}")
                 continue
-
-        output_file = output_file or NewsProcessorConfig.get_output_filename(prefix="processed_articles")
-        self.save_processed_data(processed_stories, output_file)
-        self.generate_processing_report(processed_stories, output_file.replace('.json', '_report.txt'))
+            
         logger.info("=== 新聞處理流程完成 ===")
-
-    def generate_processing_report(self, processed_data: List[Dict], report_path: str):
-        """
-        生成處理報告
-        """
-        total_stories = len(processed_data)
-        total_articles = sum(story.get('total_articles', 0) for story in processed_data)
-        successful_articles = sum(story.get('processed_articles', 0) for story in processed_data)
-
-        report = f"""
-新聞處理報告
-====================
-處理時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
-統計資訊:
-- 處理 Stories 總數: {total_stories}
-- 文章總數: {total_articles}
-- 成功處理文章數: {successful_articles}
-- 成功率: {successful_articles/total_articles*100:.1f}%
-
-各 Story 處理詳情:
-"""
-
-        for story in processed_data:
-            report += f"\nStory {story.get('story_index')}: {story.get('story_title')}"
-            report += f"\n  - 文章數: {story.get('total_articles')}"
-            report += f"\n  - 成功: {story.get('processed_articles')}"
-            report += f"\n  - 失敗: {story.get('failed_articles')}"
-
-        try:
-            os.makedirs(os.path.dirname(report_path), exist_ok=True)
-            with open(report_path, 'w', encoding='utf-8') as f:
-                f.write(report)
-            logger.info(f"處理報告已生成: {report_path}")
-        except Exception as e:
-            logger.error(f"生成報告失敗: {e}")
+        return processed_stories
 
 def main():
     """主函數 - 簡易測試，讀取 Config"""
     api_key = NewsProcessorConfig.get_gemini_api_key()
     processor = NewsProcessor(api_key=api_key, model_name=NewsProcessorConfig.GEMINI_MODEL)
-    processor.process_all_stories(
-        input_file=NewsProcessorConfig.INPUT_FILE,
-        output_file=NewsProcessorConfig.get_output_filename(prefix="processed_articles"),
-        start_index=0,
-        max_stories=2
-    )
+    processed_stories = processor.process_all_stories()
+    print(processed_stories)
 
 if __name__ == "__main__":
     main()
