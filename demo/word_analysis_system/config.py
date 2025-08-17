@@ -59,3 +59,18 @@ class Config:
         """確保輸出資料夾存在"""
         os.makedirs(cls.BASE_FOLDER, exist_ok=True)
 
+    # --- Supabase 設定 (可選) ---
+    USE_SUPABASE = False
+    # Supabase tables mapping (可修改為您資料庫中的實際表格名稱)
+    SUPABASE_TABLES = {
+        'comprehensive_reports': 'comprehensive_reports',
+        'keyword_explanations': 'keyword_explanations'
+    }
+
+    @classmethod
+    def get_supabase_table(cls, key: str) -> str:
+        name = cls.SUPABASE_TABLES.get(key)
+        if not name:
+            raise ValueError(f"找不到 Supabase table 設定: {key}")
+        return name
+

@@ -8,6 +8,11 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 import google.generativeai as genai
 from config import Config
+# 可選的 Supabase 支援
+try:
+    from supabase_client import SupabaseClient
+except Exception:
+    SupabaseClient = None
 
 class KeywordProcessor:
     """處理新聞關鍵字提取與解釋的核心類別"""
@@ -126,13 +131,21 @@ class KeywordProcessor:
 
     def run(self, input_file: str, output_file: str):
         """執行完整的處理流程"""
-        # 1. 讀取資料
-        try:
-            with open(input_file, 'r', encoding='utf-8') as f:
-                news_data = json.load(f)
-        except FileNotFoundError:
-            print(f"✗ 錯誤：找不到輸入檔案 {input_file}")
-            return
+        # 1. 讀取資料（支援本地檔案或 Supabase）
+        if Config.USE_SUPABASE:
+            if SupabaseClient is None:
+                print("✗ Supabase 支援尚未安裝或 supabase_client 無法導入")
+                return
+            client = SupabaseClient()
+            table = Config.get_supabase_table('comprehensive_reports')
+            news_data = client.fetch_table(table)
+        else:
+            try:
+                with open(input_file, 'r', encoding='utf-8') as f:
+                    news_data = json.load(f)
+            except FileNotFoundError:
+                print(f"✗ 錯誤：找不到輸入檔案 {input_file}")
+                return
 
         # 2. 提取所有關鍵字，並根據 story_index 組織
         print("\n=== 階段一：從新聞中提取關鍵字 ===")
@@ -196,8 +209,23 @@ class KeywordProcessor:
             }
 
         # 儲存最終結果
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(final_stories, f, ensure_ascii=False, indent=2)
-
-        print(f"\n✓ 處理完成！結果已儲存至：{output_file}")
+        if Config.USE_SUPABASE:
+            # 回寫到 Supabase
+            table = Config.get_supabase_table('keyword_explanations')
+            if SupabaseClient is None:
+                print("✗ Supabase 支援尚未安裝或 supabase_client 無法導入")
+                return
+            client = SupabaseClient()
+            # 將每個 story 的結果 upsert 回資料庫（假設以 story_index 為 key）
+            for story_idx, data in final_stories.items():
+                row = { 'story_index': story_idx, 'keywords': data['keywords'] }
+                try:
+                    client.upsert_row(table, row, on_conflict='story_index')
+                except Exception as e:
+                    print(f"⚠ 回寫 Supabase 時發生錯誤（story_index={story_idx}）: {e}")
+            print(f"\n✓ 處理完成！結果已回寫到 Supabase 表：{table}")
+        else:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(final_stories, f, ensure_ascii=False, indent=2)
+            print(f"\n✓ 處理完成！結果已儲存至：{output_file}")
 
