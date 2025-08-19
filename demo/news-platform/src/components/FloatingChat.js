@@ -1,62 +1,92 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './../css/FloatingChat.css';
 import { useLocation } from 'react-router-dom';
-
-const quickPrompts = [
-  '搜尋最新科技新聞',
-  '分析今日股市趨勢',
-  '推薦熱門話題',
-  '查找相關報導',
-  '總結新聞重點',
-];
+import { getOrCreateUserId, createRoomId } from './utils.js';
+import { fetchJson } from './api';
 
 function FloatingChat() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [quickPrompts, setQuickPrompts] = useState([]);
   const messagesEndRef = useRef(null);
   const location = useLocation();
+  const user_id = getOrCreateUserId();
+  const roomIdRef = useRef(createRoomId());
+  const room_id = roomIdRef.current;
 
   // 滾動到底
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+    // Fetch quickPrompts 從後端獲取資料
+  useEffect(() => {
+    const fetchQuickPrompts = async () => {
+      try {
+        const response = await fetchJson('/hint_prompt/search', {});
+        setQuickPrompts(response.Hint_Prompt || []);
+      } catch (error) {
+        console.error('Error fetching quick prompts:', error);
+      }
+    };
+
+    fetchQuickPrompts();
+  }, []);
+
   // 詳情頁不顯示
   const isSpecialReportPage = location.pathname.includes('/special-report/');
   const isNewsDetailPage = location.pathname.startsWith('/news/');
   if (isSpecialReportPage || isNewsDetailPage) return null;
 
-  
-
   const toggleChat = () => setIsExpanded((v) => !v);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     const text = newMessage.trim();
     if (!text) return;
 
     const now = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
 
+    // 新增使用者訊息
     setMessages((prev) => [
       ...prev,
       { id: Date.now(), text, isOwn: true, time: now },
     ]);
     setNewMessage('');
 
-    // 模擬 AI 回覆
-    setTimeout(() => {
+    try {
+      // 呼叫後端 API
+      const response = await fetchJson('/chat/search', {
+        user_id: user_id,
+        room_id: room_id,
+        prompt: text,
+        category: ['search'], // 假設這裡的分類是固定的
+      });
+
+      // 處理後端回應
+      const reply = response.response || '抱歉，我無法處理您的請求。';
+      console.log('後端回應:', reply);
+      setMessages((prev) => [
+        ...prev,
+        ...reply.map((item) => ({
+          id: Date.now() + Math.random(), // 確保唯一 ID
+          text: item.chat_response, // 提取 chat_response
+          isOwn: false,
+          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+        })),
+      ]);
+    } catch (error) {
+      console.error('Error fetching chat response:', error);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
-          text:
-            `我是您的智慧搜尋助手！我正在為您搜尋相關資訊...\n\n` +
-            `根據我的分析，${text} 相關的最新報導包括：\n• 相關新聞1\n• 相關新聞2\n• 相關新聞3\n\n需要我為您深入分析某個特定主題嗎？`,
+          text: '抱歉，伺服器發生錯誤，請稍後再試。',
           isOwn: false,
           time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
-    }, 1000);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -171,4 +201,4 @@ function FloatingChat() {
   );
 }
 
-export default FloatingChat; 
+export default FloatingChat;

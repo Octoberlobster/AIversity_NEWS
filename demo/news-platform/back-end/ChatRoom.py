@@ -8,7 +8,6 @@ import Knowledge_Base
 class ChatInfo(BaseModel):
     name: str
     chat_response: str
-    related_news: list[str]
 
 
 class ChatRoom:
@@ -24,6 +23,22 @@ class ChatRoom:
             "Entertainment": -1,
             "Business & Finance": -1,
             "Health & Wellness": -1,
+            "search": -1,
+            "Special Topics": -1,
+        }
+
+        self.model_history = {
+            "Politics": [],
+            "Taiwan News": [],
+            "Science & Technology": [],
+            "International News": [],
+            "Lifestyle & Consumer News": [],
+            "Sports": [],
+            "Entertainment": [],
+            "Business & Finance": [],
+            "Health & Wellness": [],
+            "search": [],
+            "Special Topics": [],
         }
 
     def create_model(self, category: str):
@@ -35,7 +50,7 @@ class ChatRoom:
 
         # 已存在則直接回傳
         if self.model_dict[category] != -1:
-            return self.model_dict[category]
+            self.model_history[category] = self.model_dict[category]._comprehensive_history
 
         # 初始化新模型
         self.model_dict[category] = gemini_client.chats.create(
@@ -45,6 +60,7 @@ class ChatRoom:
                 response_mime_type="application/json",
                 response_schema=ChatInfo,
             ),
+            history=self.model_history[category]
         )
         return self.model_dict[category]
 
@@ -52,6 +68,7 @@ class ChatRoom:
         """對指定分類的模型發送訊息"""
         responses = []
         for category in categories:
+            Knowledge_Base.set_knowledge_base(prompt, category)
             model = self.create_model(category)
             response = model.send_message(message=prompt)
             responses.append(dict(response.parsed))  # 轉成 dict 加入回應列表

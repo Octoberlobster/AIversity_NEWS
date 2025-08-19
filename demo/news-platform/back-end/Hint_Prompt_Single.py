@@ -18,6 +18,7 @@ def genernate_hint_prompt(option,article):
             system_instruction=(
                 "你是一位給予提示詞的助手，主要目的是幫助使用者開始聊天。"
                 "並且為了減輕使用者負擔，每個提示詞都不應該超過10個字"
+                "每個提示字請務必確保與文章內容相關，並且能夠引導使用者進行深入的討論。"
             ),
             response_mime_type="application/json",
             response_schema=HintPromptResponse,

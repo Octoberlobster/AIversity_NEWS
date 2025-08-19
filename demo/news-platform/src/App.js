@@ -7,6 +7,7 @@ import UnifiedNewsCard from './components/UnifiedNewsCard';
 import NewsDetail from './components/NewsDetail';
 import FloatingChat from './components/FloatingChat';
 import KeywordNewsPage from './components/KeywordNewsPage';
+import SearchResultsPage from './components/SearchResultsPage';
 import SpecialReportPage from './components/SpecialReportPage';
 import SpecialReportDetail from './components/SpecialReportDetail';
 import { SupabaseProvider } from './components/supabase';
@@ -83,6 +84,7 @@ function App() {
               />
               <Route path="/news/:id" element={<NewsDetail />} />
               <Route path="/keyword/:keyword" element={<KeywordNewsPage />} />
+              <Route path="/search/:query" element={<SearchResultsPage />} />
               <Route path="/category/Politics" element={<CategorySection category="政治" />} />
               <Route path="/category/Taiwan News" element={<CategorySection category="台灣" />} />
               <Route path="/category/International News" element={<CategorySection category="國際" />} />

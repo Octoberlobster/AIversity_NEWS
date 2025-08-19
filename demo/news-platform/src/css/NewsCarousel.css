@@ -37,11 +37,13 @@
   width: 100%;
   height: 100%;
   opacity: 0;
+  pointer-events: none; /* 非活動卡片不可點擊 */
   transition: opacity 0.5s ease-in-out;
 }
 
 .carousel-slide.active {
   opacity: 1;
+  pointer-events: auto; /* 活動卡片可以點擊 */
 }
 
 /* 圖片容器 */
@@ -51,10 +53,29 @@
   height: 100%;
 }
 
+/* 可點擊的圖片和標題連結 */
+.slide-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.slide-link:hover {
+  text-decoration: none;
+}
+
 .slide-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.slide-link:hover img {
+  transform: scale(1.05);
 }
 
 /* 文字覆蓋層 */
@@ -71,6 +92,16 @@
   );
   padding: 3rem 2rem 2rem;
   color: white;
+}
+
+/* 標題連結 */
+.slide-title-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.slide-title-link:hover {
+  text-decoration: none;
 }
 
 .slide-title {

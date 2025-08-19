@@ -5,23 +5,20 @@ import './../css/ChatRoom.css';
 
 const experts = [
   { id: 1, name: "政治專家", category: "Politics" },
-  { id: 2, name: "台灣專家", category: "Taiwan News" },
+  { id: 2, name: "台灣議題分析師", category: "Taiwan News" },
   { id: 3, name: "國際專家", category: "International News" },
   { id: 4, name: "科技專家", category: "Science & Technology" },
-  { id: 5, name: "生活專家", category: "Lifestyle & Consumer News" },
+  { id: 5, name: "生活達人", category: "Lifestyle & Consumer News" },
   { id: 6, name: "體育專家", category: "Sports" },
   { id: 7, name: "娛樂專家", category: "Entertainment" },
   { id: 8, name: "財經專家", category: "Business & Finance" },
-  { id: 9, name: "健康專家", category: "Health & Wellness" },
+  { id: 9, name: "健康顧問", category: "Health & Wellness" },
 ];
 
 const expertReplies = {};
 
 // 快速提示
 const quickPrompts = [];
-
-const user_id = getOrCreateUserId();
-const room_id = createRoomId();
 
 function ChatRoom({news}) {
   const [selectedExperts, setSelectedExperts] = useState([1, 2, 3]);
@@ -33,6 +30,10 @@ function ChatRoom({news}) {
   const messagesEndRef = useRef(null);
   const dropdownRef = useRef(null);
   const promptDropdownRef = useRef(null);
+
+  const user_id = getOrCreateUserId();
+  const roomIdRef = useRef(createRoomId());
+  const room_id = roomIdRef.current;
 
   // 自動滾到最底
   useEffect(() => {
@@ -74,7 +75,7 @@ function ChatRoom({news}) {
         (expertId) => experts.find((e) => e.id === expertId).category
       );
 
-      const response = await fetchJson('hint_prompt', {
+      const response = await fetchJson('/hint_prompt/single', {
         option : options,
         article: news,
       });
@@ -115,7 +116,7 @@ function ChatRoom({news}) {
       );
   
       // 呼叫後端 API
-      const response = await fetchJson('chat', {
+      const response = await fetchJson('/chat/single', {
         user_id: user_id,
         room_id: room_id,
         prompt: inputMessage,

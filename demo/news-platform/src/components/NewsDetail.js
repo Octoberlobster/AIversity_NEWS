@@ -491,8 +491,8 @@ function NewsDetail() {
               <div className="relatedItem" key={item.id}>
                 <Link to={`/news/${item.id}`}>
                   {item.title}
-                  <span className="relatedBadge">相關</span>
                 </Link>
+                <br></br>
                 <div className="relevanceText">{item.relevance}</div>
               </div>
             ))}

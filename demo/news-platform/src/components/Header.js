@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './../css/Header.css';
 
 const domains = [
@@ -20,6 +20,15 @@ function Header() {
   const [activeDomain, setActiveDomain] = useState(domains[0].id);
   const [search, setSearch] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // 處理搜尋功能
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter' && search.trim() !== '') {
+      // 導航到搜尋結果頁面
+      navigate(`/search/${encodeURIComponent(search.trim())}`);
+    }
+  };
 
   // 依路徑設定目前 active 的類別
   useEffect(() => {
@@ -56,6 +65,7 @@ function Header() {
               placeholder="搜尋新聞/關鍵字..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyPress={handleSearchKeyPress}
             />
           </div>
         </div>
