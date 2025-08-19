@@ -20,7 +20,7 @@ class ReportGeneratorConfig:
     def get_gemini_api_key(cls):
         return os.getenv('GEMINI_API_KEY', '')
     
-    GEMINI_MODEL = "gemini-2.0-flash"
+    GEMINI_MODEL = "gemini-2.5-flash-lite"
     
     # 處理參數
     API_DELAY = 1.5  # API 調用間隔秒數（報導生成需要更多時間）

@@ -21,7 +21,11 @@ function KeywordNewsPage() {
           <div className="keywordPage__mainCol">
             <h2 className="keywordPage__sectionTitle">{keyword}</h2>
 
-            <UnifiedNewsCard limit={showAllNews ? undefined : 6} keyword={keyword} />
+            <UnifiedNewsCard 
+              limit={showAllNews ? undefined : 6} 
+              keyword={keyword} 
+              instanceId={`keyword_${keyword}`}
+            />
 
             {(() => {
               // 取得該關鍵字新聞數量（沿用你原本的 require 寫法）

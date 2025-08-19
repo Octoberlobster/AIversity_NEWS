@@ -3,98 +3,36 @@ import { useParams, Link} from 'react-router-dom';
 import './../css/NewsDetail.css';
 import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
+import { useSupabase } from './supabase';
 
-// --- 導入後端新聞資料 ---
-import rawBackendData from './../final_comprehensive_reports_20250812_013357.json';
-import keywordExplanations from './../keyword_explanations.json'
-import imageMatadata from './../image_metadata.json';
+// 從資料庫動態載入術語定義的函數
+const loadTermDefinitions = async (supabase) => {
+  try {
+    const { data, error } = await supabase
+      .from('term')
+      .select('term, definition, example');
+    
+    if (error) {
+      console.error('載入術語定義時發生錯誤:', error);
+    }
 
-// 將後端資料轉換為前端詳細頁面格式
-const convertBackendToDetailFormat = (backendData) => {
-  const result = {};
-  backendData.forEach((story, index) => {
-    const story_index = (index + 1).toString();
-    const keywords = keywordExplanations[story_index]?.keywords || [];
-    const terms = keywords.map(item => item.term);
-    const description = imageMatadata.images[index].description || "";
-    result[index + 2] = {
-      title: story.comprehensive_report.title || "無標題",
-      date: story.processed_at || new Date().toISOString(),
-      author: "Gemini",
-      image: `/ke-xue-yu-ke-ji-/${story_index}.png`,
-      imageCaption: description,
-      short: story.comprehensive_report.versions.short || "",
-      long: story.comprehensive_report.versions.long || "",
-      keywords: [],
-      terms: terms,
-      related: [],
-      source: story.comprehensive_report.source_urls || []
-    };
-  });
-  return result;
-};
-
-// --- mock data ---
-const mockNewsData = {
-  1: {
-    title: "人工智慧在醫療領域的突破性進展",
-    date: "2024-01-15 14:30",
-    author: "張明華",
-    image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=500&fit=crop",
-    imageCaption: "AI 技術在醫療影像識別中的應用示意圖",
-    short: `最新研究顯示，人工智慧技術在疾病診斷和治療方案制定方面取得了重大突破。研究團隊利用機器學習算法分析了數千個病例，成功提高了診斷準確率達95%以上。\n\n這項技術特別在影像識別方面表現出色，能夠快速識別X光片、CT掃描等醫學影像中的異常情況。專家表示，這將大大減輕醫護人員的工作負擔，並提高醫療效率。\n\n然而，這項技術的應用也面臨著倫理考量和隱私保護等挑戰。如何在提高醫療效率的同時保護患者隱私，成為業界關注的焦點。`,
-    long: `最新研究顯示，人工智慧技術在疾病診斷和治療方案制定方面取得了重大突破。這項由國際頂尖醫療機構聯合進行的研究，歷時三年，投入資金超過數千萬美元，最終在機器學習和深度學習技術的結合下，成功開發出了新一代醫療AI系統。\n\n研究團隊利用機器學習算法分析了數千個病例，涵蓋了從常見疾病到罕見病症的各種情況。通過對大量數據的深度學習，AI系統能夠識別出人類醫生可能忽略的細微症狀，成功提高了診斷準確率達95%以上，遠超傳統診斷方法的準確率。\n\n這項技術特別在影像識別方面表現出色，能夠快速識別X光片、CT掃描、核磁共振等各種醫學影像中的異常情況。AI系統不僅能夠識別腫瘤、骨折等明顯病變，還能夠發現早期癌症的微小徵兆，為早期治療提供了寶貴的時間窗口。\n\n專家表示，這將大大減輕醫護人員的工作負擔，並提高醫療效率。在資源緊張的醫療環境中，AI助手可以幫助醫生快速篩選病例，讓醫生能夠將更多時間投入到需要專業判斷的複雜病例中。\n\n然而，這項技術的應用也面臨著倫理考量和隱私保護等挑戰。如何在提高醫療效率的同時保護患者隱私，成為業界關注的焦點。此外，AI診斷結果的責任歸屬問題也需要法律和倫理框架的完善。\n\n未來，這項技術有望在全球範圍內推廣應用，為更多患者提供更準確、更快速的醫療服務。同時，研究團隊也正在開發針對不同地區和人群的個性化AI模型，以確保技術的普適性和有效性。`,
-    keywords: ["AI", "醫療", "影像識別"],
-    terms: ["人工智慧", "機器學習", "影像識別", "倫理考量", "隱私保護", "深度學習"],
-    related: [
-      { id: 2, title: "AI助力癌症早期診斷", relevance: "本篇新聞介紹的 AI 技術在醫療領域的應用，與延伸閱讀中 AI 協助癌症早期診斷的主題密切相關，皆強調 AI 如何提升診斷準確率。" },
-      { id: 3, title: "醫療影像新技術", relevance: "本篇強調 AI 在影像識別的突破，延伸閱讀則深入介紹醫療影像技術的最新發展，兩者皆聚焦於醫療影像的創新。" }
-    ],
-    source: "https://www.healthai-news.com/article/ai-medical-breakthrough"
-  },
-  ...convertBackendToDetailFormat(rawBackendData)
-};
-
-console.log(mockNewsData);
-
-const buildTermDefinitions = () => {
-  const definitions = {};
-  
-  // 遍歷所有新聞的關鍵字
-  Object.values(keywordExplanations).forEach(story => {
-    story.keywords.forEach(keyword => {
-      if (keyword.term && keyword.definition) {
-        definitions[keyword.term] = keyword.definition;
+    // 轉換為物件格式
+    const definitions = {};
+    data.forEach(item => {
+      if (item.term && item.definition) {
+        definitions[item.term] = {
+          definition: item.definition,
+          example: item.example || null
+        };
       }
     });
-  });
 
-  // 合併原有的通用定義
-  return {
-      ...definitions,
-      "人工智慧": "人工智慧（AI）是模擬人類智能的計算機系統，能夠學習、推理、感知和解決問題。",
-      "機器學習": "機器學習是AI的一個子集，通過算法讓計算機從數據中學習模式，無需明確編程。",
-      "深度學習": "深度學習使用多層神經網絡來處理複雜的數據模式，是機器學習的先進技術。",
-      "量子計算": "量子計算利用量子力學原理進行信息處理，具有超越傳統計算機的潛力。",
-      "區塊鏈": "區塊鏈是一種分散式數據庫技術，用於安全記錄和驗證交易信息。",
-      "加密貨幣": "加密貨幣是基於區塊鏈技術的數字貨幣，如比特幣、以太坊等。",
-      "氣候變遷": "氣候變遷指地球氣候系統的長期變化，主要由人類活動和自然因素引起。",
-      "碳中和": "碳中和指通過減少碳排放和增加碳吸收，實現淨零碳排放的目標。",
-      "精準醫療": "精準醫療根據個人的基因、環境和生活方式制定個性化治療方案。",
-      "基因編輯": "基因編輯技術可以精確修改生物體的DNA序列，用於治療疾病和改良作物。",
-      "太空探索": "太空探索是人類對宇宙的科學研究和探索活動，包括行星探測和載人航天。",
-      "火星殖民": "火星殖民計劃旨在在火星建立人類永久居住地，是人類太空探索的重要目標。",
-      "數位貨幣": "數位貨幣是中央銀行發行的電子形式法定貨幣，具有法定地位。",
-      "金融科技": "金融科技（FinTech）結合金融服務和技術創新，改變傳統金融業態。",
-      "永續發展": "永續發展指在滿足當代需求的同時，不損害後代滿足其需求的能力。",
-      "三級三審": "指案件經過地方法院、高等法院、最高法院三級法院，以及各級法院三次審判程序的制度。確保司法審查的嚴謹性與公正性。",
-      "IRB" : "在台灣，IRB 通常指「人體試驗委員會」（Institutional Review Board），負責審查和監督涉及人體的研究，以確保研究的倫理性和參與者的安全與權益。",
-      "SDGs": "可持續發展目標（Sustainable Development Goals），是聯合國在2015年制定的17個全球發展目標，旨在2030年前消除貧窮、保護地球並確保所有人享有和平與繁榮。"
-  };
+    return definitions
+  } catch (error) {
+    console.error('載入術語定義時發生錯誤:', error);
+  }
 };
-const termDefinitions = buildTermDefinitions();
 
-// --- NewsDetail 元件 ---
 function NewsDetail() {
   const { id } = useParams();
   const [showLongContent, setShowLongContent] = useState(false);
@@ -105,6 +43,13 @@ function NewsDetail() {
   const [dragStartX, setDragStartX] = useState(0);
   const [dragStartWidth, setDragStartWidth] = useState(0);
   const [showAllSources, setShowAllSources] = useState(false);
+  const [newsData, setNewsData] = useState(null);
+  const [newsImage, setNewsImage] = useState(null);
+  const [newsUrl, setNewsUrl] = useState(null);
+  const [newsKeywords, setNewsKeywords] = useState([]);
+  const [termDefinitions, setTermDefinitions] = useState({});
+  const [newsTerms, setNewsTerms] = useState([]);
+  const [relatedNews, setRelatedNews] = useState([]);
 
   // 確保頁面載入時滾動到頂部
   useEffect(() => {
@@ -112,7 +57,214 @@ function NewsDetail() {
     setShowAllSources(false);
   }, [id]); // 當 id 改變時執行
 
-  const newsData = mockNewsData[id];
+  // 使用 Supabase 客戶端獲取新聞數據
+  const supabaseClient = useSupabase();
+
+  // 載入術語定義
+  useEffect(() => {
+    const initTermDefinitions = async () => {
+      const definitions = await loadTermDefinitions(supabaseClient);
+      setTermDefinitions(definitions);
+    };
+    initTermDefinitions();
+  }, [supabaseClient]);
+
+  // 載入特定新聞的術語
+  useEffect(() => {
+    const fetchNewsTerms = async () => {
+      if (!id || !supabaseClient) return;
+      
+      try {
+        const { data, error } = await supabaseClient
+          .from('term_map')
+          .select('term')
+          .eq('story_id', id);
+        
+        if (error) {
+          console.error(`Error fetching terms for story ${id}:`, error);
+          setNewsTerms([]);
+          return;
+        }
+        const terms = data?.map(item => item.term) || [];
+        setNewsTerms(terms);
+      } catch (error) {
+        console.error(`Error fetching terms for story ${id}:`, error);
+        setNewsTerms([]);
+      }
+    };
+
+    fetchNewsTerms();
+  }, [id, supabaseClient]);
+
+  useEffect(() => {
+    const fetchNewsData = async () => {
+      const { data, error } = await supabaseClient
+        .from('single_news')
+        .select('*')
+        .eq('story_id', id);
+      if (error) {
+        console.error('Error fetching news data:', error);
+      } else {
+        console.log("Fetched news data:", data);
+        const row = data?.[0];
+        setNewsData(row ? {
+          title: row.news_title,
+          date: row.generated_date,
+          author: 'Gemini',
+          short: row.short,
+          long: row.long,
+          terms: [],
+          keywords: [],
+          source: []
+        } : null);
+      }
+    };
+
+    fetchNewsData();
+  }, [id, supabaseClient]);
+
+  useEffect(() => {
+    const fetchNewsImage = async () => {
+      const { data, error } = await supabaseClient
+        .from('generated_image')
+        .select('*')
+        .eq('story_id', id);
+
+      if (error) {
+        console.error('Error fetching news image:', error);
+        setNewsImage([]);
+        return;
+      }
+
+      const processed = (data || []).map(item => {
+        const mime =
+          item.mime_type || item.image_mime || 'image/jpeg'; // 若表有存 mime，就用它
+        const b64 = (item.image || '').replace(/\s/g, '');   // 清掉換行/空白
+        const src = b64.startsWith('data:')
+          ? b64
+          : `data:${mime};base64,${b64}`;
+        console.log(src);
+        return {
+          src,                               // 給 <img src={x} />
+          description: item.description || '',
+        };
+      });
+
+      setNewsImage(processed);
+    };
+
+    fetchNewsImage();
+  }, [id, supabaseClient]);
+
+  useEffect(() => {
+    const fetchNewsImage = async () => {
+      const { data, error } = await supabaseClient
+        .from('cleaned_news')
+        .select('article_title, article_url, media')
+        .eq('story_id', id);
+
+      if (error) {
+        console.error('Error fetching news url:', error);
+        setNewsUrl(null);
+        return;
+      }
+      setNewsUrl(data);
+    };
+
+    fetchNewsImage();
+  }, [id, supabaseClient]);
+
+  useEffect(() => {
+    const fetchNewsKeywords = async () => {
+      const { data, error } = await supabaseClient
+        .from('keywords_map')
+        .select('keyword')
+        .eq('story_id', id);
+
+      if (error) {
+        console.error('Error fetching news keywords:', error);
+        setNewsKeywords([]);
+        return;
+      }
+      setNewsKeywords(data);
+    };
+
+    fetchNewsKeywords();
+  }, [id, supabaseClient]);
+
+  // 載入相關新聞
+  useEffect(() => {
+    const fetchRelatedNews = async () => {
+      if (!id || !supabaseClient) return;
+      
+      try {
+        // 查詢相關新聞 - 找出以當前新聞為 src_story_id 的相關新聞
+        const { data: relatedData, error: relatedError } = await supabaseClient
+          .from('relative_news')
+          .select(`
+            dst_story_id,
+            reason
+          `)
+          .eq('src_story_id', id);
+
+        if (relatedError) {
+          console.error('Error fetching related news:', relatedError);
+          setRelatedNews([]);
+          return;
+        }
+
+        // 如果有相關新聞，再查詢對應的新聞標題
+        if (!relatedData || relatedData.length === 0) {
+          setRelatedNews([]);
+          return;
+        }
+
+        // 獲取所有目標新聞的 story_id
+        const targetStoryIds = relatedData.map(item => item.dst_story_id);
+        
+        // 查詢目標新聞的詳細資料
+        const { data: newsData, error: newsError } = await supabaseClient
+          .from('single_news')
+          .select('story_id, news_title')
+          .in('story_id', targetStoryIds);
+
+        if (newsError) {
+          console.error('Error fetching related news titles:', newsError);
+          setRelatedNews([]);
+          return;
+        }
+
+        // 合併資料並進行資料清理
+        const related = relatedData.map(relatedItem => {
+          const newsItem = newsData?.find(n => n.story_id === relatedItem.dst_story_id);
+          
+          // 資料清理：如果 reason 過長，可能是錯誤的內容，截短它
+          let reason = relatedItem.reason || '無相關性說明';
+          if (reason.length > 200) {
+            reason = reason.substring(0, 200) + '...';
+          }
+          
+          // 確保有有效的標題
+          let title = newsItem?.news_title || `新聞 ID: ${relatedItem.dst_story_id}`;
+          if (!title.trim()) {
+            title = `新聞 ID: ${relatedItem.dst_story_id}`;
+          }
+          
+          return {
+            id: relatedItem.dst_story_id,
+            title: title.trim(),
+            relevance: reason.trim()
+          };
+        });
+        setRelatedNews(related);
+      } catch (error) {
+        console.error('Error fetching related news:', error);
+        setRelatedNews([]);
+      }
+    };
+
+    fetchRelatedNews();
+  }, [id, supabaseClient]);
 
   useEffect(() => {
     if (!isResizing) return;
@@ -217,7 +369,8 @@ function NewsDetail() {
   };
 
   const { sortedTerms, firstInShort, firstInLong } = useMemo(() => {
-    const raw = Array.isArray(newsData?.terms) ? newsData.terms : [];
+    // 使用從資料庫載入的術語，如果沒有則使用 newsData.terms 作為後備
+    const raw = newsTerms.length > 0 ? newsTerms : (Array.isArray(newsData?.terms) ? newsData.terms : []);
     // 去重 + 長詞優先，避免短詞吃掉長詞
     const termsArr = Array.from(new Set(raw)).sort((a, b) => b.length - a.length);
 
@@ -246,7 +399,7 @@ function NewsDetail() {
     const inLong  = collectPresent(longStr,  termsArr); // 只要在 long 出現過，就允許 long 高亮一次
 
     return { sortedTerms: termsArr, firstInShort: inShort, firstInLong: inLong };
-  }, [id, newsData]);
+  }, [newsData, newsTerms]);
 
 
   if (!newsData) {
@@ -262,34 +415,29 @@ function NewsDetail() {
 
   return (
     <div className="newsDetail">
-      {/* chips */}
-      {newsData.keywords && (
-        <div className="chipsRow">
-          {newsData.keywords.map(kw => (
-            <span className="keywordChip" key={kw}>{kw}</span>
-          ))}
-        </div>
-      )}
-
       <div className="article-container articleContainer">
-        <div
-          className={`articleContent ${isResizing ? 'is-resizing' : ''}`}
-          style={{ '--width': articleWidth }}  /* CSS 變數用 var() 讀取 */
-        >
+        <div className={`articleContent ${isResizing ? 'is-resizing' : ''}`}>
           <h2 className="articleTitle">{newsData.title}</h2>
           <div className="articleInfo">
             <span className="articleDate">{newsData.date}</span>
-            <span className="articleAuthor">記者 {newsData.author}</span>
+            <span className="articleAuthor">作者 {newsData.author}</span>
+            {newsKeywords && newsKeywords.length > 0 && (
+              <div className="articleKeywords">
+                {newsKeywords.map((kw, index) => (
+                  <span className="keywordChip" key={index}>{kw.keyword}</span>
+                ))}
+              </div>
+            )}
           </div>
 
-          {newsData.image && (
-            <div className="articleImage">
-              <img src={newsData.image} alt={newsData.imageCaption} />
-              {newsData.imageCaption && (
-                <div className="imageCaption">{newsData.imageCaption}</div>
+          {newsImage?.map((img, i) => (
+            <div className="articleImage" key={i}>
+              <img src={img.src} alt={img.description} />
+              {img.description && (
+                <div className="imageCaption">{img.description}</div>
               )}
             </div>
-          )}
+          ))}
 
           <div className="articleText">
             {renderArticleText(newsData.short, firstInShort)}
@@ -331,15 +479,15 @@ function NewsDetail() {
           </div>
         </div>
 
-        <ChatRoom news={mockNewsData[id].long} />
+        <ChatRoom news={newsData.long} />
       </div>
 
       {/* 延伸閱讀 */}
-      {newsData.related && newsData.related.length > 0 && (
+      {relatedNews && relatedNews.length > 0 && (
         <div className="relatedSection">
           <h4 className="sectionTitle">相關報導</h4>
           <div className="relatedGrid">
-            {newsData.related.map(item => (
+            {relatedNews.map(item => (
               <div className="relatedItem" key={item.id}>
                 <Link to={`/news/${item.id}`}>
                   {item.title}
@@ -356,21 +504,44 @@ function NewsDetail() {
       {tooltipTerm && (
         <TermTooltip
           term={tooltipTerm}
-          definition={termDefinitions[tooltipTerm]}
+          definition={termDefinitions[tooltipTerm]?.definition || `未找到「${tooltipTerm}」的定義`}
+          example={termDefinitions[tooltipTerm]?.example}
+          exampleFromDB={termDefinitions[tooltipTerm]?.example}
           position={tooltipPosition}
           onClose={() => setTooltipTerm(null)}
         />
       )}
 
       {/* 資料來源 */}
-      {newsData.source && (() => {
+      {(newsUrl || newsData.source) && (() => {
         const MAX = 3;
-        const all = Array.isArray(newsData.source)
-          ? newsData.source.filter(Boolean)
-          : (newsData.source ? [newsData.source] : []);
+        
+        // 處理從 Supabase 來的資料 (包含媒體、標題、URL)
+        let sources = [];
+        if (newsUrl && Array.isArray(newsUrl)) {
+          sources = newsUrl.filter(item => item.article_url && item.article_title).map(item => ({
+            url: item.article_url,
+            title: item.article_title,
+            media: item.media || '未知媒體'
+          }));
+        }
+        
+        // 如果沒有 Supabase 資料，使用原本的 source 資料
+        if (sources.length === 0 && newsData.source) {
+          const all = Array.isArray(newsData.source)
+            ? newsData.source.filter(Boolean)
+            : (newsData.source ? [newsData.source] : []);
+          sources = all.map(url => ({
+            url: url,
+            title: url,
+            media: '未知媒體'
+          }));
+        }
 
         // 去重，避免重複網址
-        const uniq = Array.from(new Set(all));
+        const uniq = sources.filter((source, index, self) => 
+          index === self.findIndex(s => s.url === source.url)
+        );
         const total = uniq.length;
         const visible = showAllSources ? uniq : uniq.slice(0, MAX);
         const hasMore = total > MAX;
@@ -381,10 +552,12 @@ function NewsDetail() {
 
             {visible.length > 0 ? (
               <ul className="sourceList">
-                {visible.map((url, i) => (
+                {visible.map((source, i) => (
                   <li key={i}>
-                    <a href={url} target="_blank" rel="noopener noreferrer">
-                      {url}
+                    <span className="sourceMedia">{source.media}</span>
+                    <span className="sourceSeparator">：</span>
+                    <a href={source.url} target="_blank" rel="noopener noreferrer" className="sourceLink">
+                      {source.title}
                     </a>
                   </li>
                 ))}

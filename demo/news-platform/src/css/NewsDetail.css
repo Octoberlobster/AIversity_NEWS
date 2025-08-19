@@ -37,6 +37,19 @@
 .newsDetail .articleDate,
 .newsDetail .articleAuthor { color: #6b7280; font-size: 0.9rem; }
 
+/* Keywords 樣式 */
+.newsDetail .articleKeywords { 
+  display: flex; align-items: center; gap: 1.0rem; flex-wrap: wrap;
+}
+.newsDetail .keywordChip {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 10px;
+  padding: .15rem .7rem;
+  font-size: .8rem;
+  font-weight: 500;
+}
+
 /* 文章文字內容（名詞可點擊） */
 .newsDetail .articleText { line-height: 1.8; color: #444; font-size: 1.1rem; }
 .newsDetail .term { position: relative; }
@@ -168,6 +181,9 @@
   word-break: break-all;
   padding-left: 16px;
   position: relative;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .newsDetail .sourceList li::before {
@@ -175,21 +191,35 @@
   position: absolute;
   left: 0;
   color: #9ca3af;
+  top: 0;
+}
+
+.newsDetail .sourceMedia {
+  font-weight: 600;
+  color: #4b5563;
+  margin-right: 2px;
+}
+
+.newsDetail .sourceSeparator {
+  color: #6b7280;
+  margin-right: 4px;
+}
+
+.newsDetail .sourceLink {
+  color: #3b82f6 !important;
+  text-decoration: none;
+  transition: color 0.2s;
+  flex: 1;
+  min-width: 0;
+}
+
+.newsDetail .sourceLink:hover {
+  color: #2563eb !important;
+  text-decoration: underline;
 }
 
 .newsDetail .sourceList li:last-child {
   margin-bottom: 0;
-}
-
-.newsDetail .sourceBlock a {
-  color: #3b82f6;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.newsDetail .sourceBlock a:hover {
-  color: #2563eb;
-  text-decoration: underline;
 }
 
 .newsDetail .sourceToggleButton {

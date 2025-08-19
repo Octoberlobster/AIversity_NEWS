@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import './../css/TermTooltip.css';
 import keywordExplanations from './../keyword_explanations.json';
 
-function TermTooltip({ term, definition, position, onClose }) {
+function TermTooltip({ term, definition, example: exampleFromDB, position, onClose }) {
   const contentRef = useRef(null);
 
   // Esc 關閉 + 初始聚焦到對話框
@@ -43,7 +43,25 @@ function TermTooltip({ term, definition, position, onClose }) {
     "三級三審": { title: "使用情境", text: "這起殺人案因為案情複雜，經過三級三審，歷時多年才最終定讞。\n\n由於證據不足，高等法院發回更審，這個案件可能要走完三級三審的程序。" },
     "IRB": { title: "使用情境", text: "這個研究計畫必須先通過 IRB 審查才能開始執行。\n\n因為 IRB 的要求，我們需要修改受試者同意書。\n\nIRB 委員仔細審閱了研究方案，並提出了一些建議。" }
   };
-  const example = findExample();
+  
+  // 優先使用資料庫的範例，如果沒有則使用其他來源
+  const getFinalExample = () => {
+    // 首先檢查是否有資料庫提供的範例
+    if (exampleFromDB) {
+      return { title: "使用情境", text: exampleFromDB };
+    }
+    
+    // 然後檢查 keywordExplanations 中的範例
+    const keywordExample = findExample();
+    if (keywordExample) {
+      return keywordExample;
+    }
+    
+    // 最後使用預設範例
+    return examples[term] || null;
+  };
+
+  const example = getFinalExample();
 
   return (
     <div className="tooltipOverlay" onClick={handleOverlayClick}>

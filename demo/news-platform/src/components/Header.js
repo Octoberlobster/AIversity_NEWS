@@ -4,15 +4,15 @@ import './../css/Header.css';
 
 const domains = [
   { id: '/', label: '首頁', path: '/'},
-  { id: 'politics', label: '政治', path: '/category/politics' },
-  { id: 'taiwan', label: '台灣', path: '/category/taiwan' },
-  { id: 'international', label: '國際', path: '/category/international' },
-  { id: 'scienceandtech', label: '科學與科技', path: '/category/scienceandtech' },
-  { id: 'life', label: '生活', path: '/category/life' },
-  { id: 'sports', label: '體育', path: '/category/sports' },
-  { id: 'entertainment', label: '娛樂', path: '/category/entertainment' },
-  { id: 'finance', label: '商業財經', path: '/category/finance' },
-  { id: 'health', label: '健康', path: '/category/health' },
+  { id: 'politics', label: '政治', path: '/category/Politics' },
+  { id: 'taiwan', label: '台灣', path: '/category/Taiwan News' },
+  { id: 'international', label: '國際', path: '/category/International News' },
+  { id: 'scienceandtech', label: '科學與科技', path: '/category/Science & Technology' },
+  { id: 'life', label: '生活', path: '/category/Lifestyle & Consumer' },
+  { id: 'sports', label: '體育', path: '/category/Sports' },
+  { id: 'entertainment', label: '娛樂', path: '/category/Entertainment' },
+  { id: 'finance', label: '商業財經', path: '/category/Business & Finance' },
+  { id: 'health', label: '健康', path: '/category/Health & Wellness' },
   { id: 'project', label: '專題報導', path: '/special-reports'}
 ];
 
@@ -28,8 +28,11 @@ function Header() {
     } else if (location.pathname.startsWith('/special-reports')) {
       setActiveDomain('project');
     } else if (location.pathname.startsWith('/category/')) {
-      const category = location.pathname.split('/')[2];
-      const domain = domains.find((d) => d.path === `/category/${category}`);
+      const categoryFromPath = decodeURIComponent(location.pathname.substring(10)); // 移除 '/category/' 前綴
+      const domain = domains.find((d) => {
+        const categoryFromDomain = d.path.substring(10); // 移除 '/category/' 前綴
+        return categoryFromDomain === categoryFromPath;
+      });
       if (domain) setActiveDomain(domain.id);
     }
   }, [location.pathname]);

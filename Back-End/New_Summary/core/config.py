@@ -19,7 +19,7 @@ class NewsProcessorConfig:
     @classmethod
     def get_gemini_api_key(cls):
         return os.getenv('GEMINI_API_KEY', '')
-    GEMINI_MODEL = "gemini-2.0-flash"
+    GEMINI_MODEL = "gemini-2.5-flash-lite"
     
     # Supabase 設定
     @classmethod
