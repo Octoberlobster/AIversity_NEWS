@@ -1,299 +1,175 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-
-const CarouselContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 400px;
-  border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionTitle = styled.h2`
-  color: #1e3a8a;
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  &::before {
-    content: "🔥";
-    font-size: 1.5rem;
-  }
-`;
-
-const CarouselSlide = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: ${props => props.active ? 1 : 0};
-  transition: opacity 0.8s ease-in-out;
-  background: linear-gradient(135deg, ${props => props.gradientStart} 0%, ${props => props.gradientEnd} 100%);
-  display: flex;
-  align-items: center;
-  padding: 2rem;
-`;
-
-const SlideContent = styled.div`
-  color: white;
-  max-width: 50%;
-  z-index: 2;
-  padding-right: 2rem;
-  padding-left: 2rem;
-  margin-left: 2rem;
-  transform: translateY(-20%);
-`;
-
-const SlideCategory = styled.span`
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  display: inline-block;
-`;
-
-const SlideTitle = styled.h2`
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  line-height: 1.2;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-`;
-
-const SlideDescription = styled.p`
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin: 0 0 1.5rem 0;
-  opacity: 0.9;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-`;
-
-const SlideButton = styled(Link)`
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  text-decoration: none;
-  padding: 0.75rem 2rem;
-  border-radius: 25px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-`;
-
-const SlideImage = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 45%;
-  height: 100%;
-  background: linear-gradient(45deg, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: ${props => props.imageUrl ? `url(${props.imageUrl})` : 'none'};
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.8;
-  }
-`;
-
-const CarouselIndicators = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 0.5rem;
-  z-index: 3;
-`;
-
-const Indicator = styled.button`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: none;
-  background: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.4)'};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.6)'};
-    transform: scale(1.2);
-  }
-`;
-
-const CarouselControls = styled.div`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 1rem;
-  z-index: 3;
-  pointer-events: none;
-  max-width: 100%;
-  box-sizing: border-box;
-`;
-
-const ControlButton = styled.button`
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.3rem;
-  transition: all 0.3s ease;
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.1);
-  }
-`;
-
-// 模擬輪播新聞資料
-const carouselNews = [
-  {
-    id: 1,
-    title: "AI 技術突破：量子計算與人工智慧的融合",
-    description: "最新研究顯示，量子計算技術與人工智慧的結合將為科技發展帶來革命性突破，預計在未來五年內實現商業化應用。",
-    category: "科技",
-    gradientStart: "#667eea",
-    gradientEnd: "#764ba2",
-    imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop"
-  },
-  {
-    id: 2,
-    title: "全球氣候變遷：各國積極應對的新政策",
-    description: "面對日益嚴峻的氣候挑戰，各國政府紛紛推出新的環保政策，致力於實現碳中和目標。",
-    category: "環境",
-    gradientStart: "#11998e",
-    gradientEnd: "#38ef7d",
-    imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop"
-  },
-  {
-    id: 3,
-    title: "數位貨幣革命：央行數位貨幣的全球趨勢",
-    description: "各國央行加速推進數位貨幣研發，這將重塑全球金融體系和支付方式。",
-    category: "金融",
-    gradientStart: "#f093fb",
-    gradientEnd: "#f5576c",
-    imageUrl: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=600&fit=crop"
-  },
-  {
-    id: 4,
-    title: "太空探索新紀元：火星殖民計劃進展",
-    description: "NASA 和 SpaceX 等機構在火星探索方面取得重大進展，人類登陸火星的夢想即將實現。",
-    category: "太空",
-    gradientStart: "#4facfe",
-    gradientEnd: "#00f2fe",
-    imageUrl: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=800&h=600&fit=crop"
-  },
-  {
-    id: 5,
-    title: "醫療科技創新：精準醫療的未來發展",
-    description: "基因編輯和精準醫療技術的發展，為治療罕見疾病和癌症帶來新的希望。",
-    category: "醫療",
-    gradientStart: "#fa709a",
-    gradientEnd: "#fee140",
-    imageUrl: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop"
-  }
-];
+import './../css/NewsCarousel.css';
+import { useSupabase } from './supabase';
 
 function NewsCarousel() {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [newsData, setNewsData] = useState([]);
+  const [newsWithImages, setNewsWithImages] = useState([]);
+  const supabaseClient = useSupabase();
 
   useEffect(() => {
+    const fetchNewsData = async () => {
+      const { data, error } = await supabaseClient
+          .from('single_news')
+          .select('story_id, news_title')
+          .limit(5);
+   
+        if (error) {
+          console.error(`Error fetching news data:`, error);
+          setNewsData([]);
+          return;
+        }
+        
+        console.log('獲取到的新聞資料:', data);
+        setNewsData(data || []);
+    };
+
+    fetchNewsData();
+  }, [supabaseClient]);
+
+  // 根據 newsData 抓取對應的圖片
+  useEffect(() => {
+    const fetchNewsImages = async () => {
+      if (!newsData || newsData.length === 0) {
+        return;
+      }
+
+      try {
+        const newsWithImagePromises = newsData.map(async (news) => {
+          // 參考 NewsDetail.js 的圖片抓取方式
+          const { data: imageData, error } = await supabaseClient
+            .from('generated_image')
+            .select('*')
+            .eq('story_id', news.story_id)
+            .limit(1);
+
+          if (error) {
+            console.error(`Error fetching image for story_id ${news.story_id}:`, error);
+            return {
+              id: news.story_id,
+              title: news.news_title,
+              imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop" // 預設圖片
+            };
+          }
+
+          let imageUrl = "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop"; // 預設圖片
+
+          if (imageData && imageData.length > 0) {
+            const imageItem = imageData[0];
+            const mime = imageItem.mime_type || imageItem.image_mime || 'image/jpeg';
+            const b64 = (imageItem.image || '').replace(/\s/g, '');
+            imageUrl = b64.startsWith('data:') ? b64 : `data:${mime};base64,${b64}`;
+          }
+
+          return {
+            id: news.story_id,
+            title: news.news_title,
+            imageUrl: imageUrl
+          };
+        });
+
+        const results = await Promise.all(newsWithImagePromises);
+        console.log('處理完成的新聞與圖片資料:', results);
+        setNewsWithImages(results);
+      } catch (error) {
+        console.error('Error fetching news images:', error);
+        // 如果出錯，使用沒有圖片的版本
+        const fallbackData = newsData.map(news => ({
+          id: news.story_id,
+          title: news.news_title,
+          imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop"
+        }));
+        setNewsWithImages(fallbackData);
+      }
+    };
+
+    fetchNewsImages();
+  }, [newsData, supabaseClient]);
+
+  // 自動輪播 - 每5秒切換
+  useEffect(() => {
+    if (newsWithImages.length === 0) return;
+    
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselNews.length);
+      setCurrentIndex((prev) => (prev + 1) % newsWithImages.length);
     }, 5000);
-
     return () => clearInterval(timer);
-  }, []);
-
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
+  }, [newsWithImages.length]);
 
   const goToPrevious = () => {
-    setCurrentSlide((prev) => (prev - 1 + carouselNews.length) % carouselNews.length);
+    setCurrentIndex((prev) => (prev - 1 + newsWithImages.length) % newsWithImages.length);
   };
 
   const goToNext = () => {
-    setCurrentSlide((prev) => (prev + 1) % carouselNews.length);
+    setCurrentIndex((prev) => (prev + 1) % newsWithImages.length);
   };
 
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+  };
+
+  // 如果還沒載入完成，顯示載入中
+  if (newsWithImages.length === 0) {
+    return (
+      <div className="news-carousel">
+        <div className="carousel-container">
+          <div className="loading">載入中...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <SectionTitle>熱門新聞</SectionTitle>
-      <CarouselContainer>
-        {carouselNews.map((news, index) => (
-          <CarouselSlide
-            key={news.id}
-            active={index === currentSlide}
-            gradientStart={news.gradientStart}
-            gradientEnd={news.gradientEnd}
-          >
-            <SlideContent>
-              <SlideCategory>{news.category}</SlideCategory>
-              <SlideTitle>{news.title}</SlideTitle>
-              <SlideDescription>{news.description}</SlideDescription>
-              <SlideButton to={`/news/${news.id}`}>
-                閱讀全文 →
-              </SlideButton>
-            </SlideContent>
-            <SlideImage imageUrl={news.imageUrl} />
-          </CarouselSlide>
-        ))}
+    <div className="news-carousel">
+      <div className="carousel-container">
+        <div className="carousel-wrapper">
+          {newsWithImages.map((news, index) => (
+            <div
+              key={news.id}
+              className={`carousel-slide ${index === currentIndex ? 'active' : ''}`}
+            >
+              <div className="slide-image">
+                {/* 圖片可點擊 */}
+                <Link to={`/news/${news.id}`} className="slide-link">
+                  <img src={news.imageUrl} alt={news.title} />
+                </Link>
+                {/* 標題和按鈕在覆蓋層 */}
+                <div className="slide-overlay">
+                  <Link to={`/news/${news.id}`} className="slide-title-link">
+                    <h3 className="slide-title">{news.title}</h3>
+                  </Link>
+                  <Link to={`/news/${news.id}`} className="read-more-btn">
+                    閱讀全文
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
-        <CarouselControls>
-          <ControlButton onClick={goToPrevious}>‹</ControlButton>
-          <ControlButton onClick={goToNext}>›</ControlButton>
-        </CarouselControls>
+        {/* 左右控制按鈕 */}
+        <button className="carousel-btn prev" onClick={goToPrevious}>
+          ‹
+        </button>
+        <button className="carousel-btn next" onClick={goToNext}>
+          ›
+        </button>
 
-        <CarouselIndicators>
-          {carouselNews.map((_, index) => (
-            <Indicator
+        {/* 底部指示點 */}
+        <div className="carousel-indicators">
+          {newsWithImages.map((_, index) => (
+            <button
               key={index}
-              active={index === currentSlide}
+              className={`indicator ${index === currentIndex ? 'active' : ''}`}
               onClick={() => goToSlide(index)}
             />
           ))}
-        </CarouselIndicators>
-      </CarouselContainer>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default NewsCarousel; 
+export default NewsCarousel;

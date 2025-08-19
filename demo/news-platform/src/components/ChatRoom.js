@@ -1,567 +1,213 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled, { css } from 'styled-components';
+import { getOrCreateUserId, createRoomId } from './utils.js';
+import { fetchJson } from './api';
+import './../css/ChatRoom.css';
 
-const ChatContainer = styled.div`
-  flex: 1;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  display: flex;
-  flex-direction: column;
-  height: 700px;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-`;
-
-const ChatHeader = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1.2rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-`;
-
-const HeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-`;
-
-const ChatIcon = styled.div`
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-`;
-
-const ChatTitle = styled.h3`
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-`;
-
-const ChatSubtitle = styled.p`
-  margin: 0;
-  font-size: 0.85rem;
-  opacity: 0.9;
-`;
-
-const ExpertSelector = styled.div`
-  padding: 0.8rem 1.5rem;
-  background: #f8fafc;
-  border-bottom: 1px solid #e5e7eb;
-  position: relative;
-`;
-
-const DropdownContainer = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
-const DropdownButton = styled.button`
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 0.6rem 1rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  min-width: 200px;
-  
-  &:hover {
-    border-color: #667eea;
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-`;
-
-const DropdownIcon = styled.span`
-  font-size: 0.8rem;
-  transition: transform 0.2s ease;
-  transform: ${props => props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
-`;
-
-const DropdownMenu = styled.div`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  max-height: 300px;
-  overflow-y: auto;
-  margin-top: 0.5rem;
-  
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-`;
-
-const DropdownItem = styled.div`
-  padding: 0.8rem 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: background 0.2s ease;
-  border-bottom: 1px solid #f3f4f6;
-  
-  &:hover {
-    background: #f8fafc;
-  }
-  
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const Checkbox = styled.div`
-  width: 16px;
-  height: 16px;
-  border: 2px solid ${props => props.checked ? '#667eea' : '#d1d5db'};
-  border-radius: 3px;
-  background: ${props => props.checked ? '#667eea' : 'transparent'};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  
-  &::after {
-    content: '✓';
-    color: white;
-    font-size: 0.7rem;
-    font-weight: bold;
-    opacity: ${props => props.checked ? 1 : 0};
-    transition: opacity 0.2s ease;
-  }
-`;
-
-const SelectedCount = styled.span`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 0.2rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-left: 0.5rem;
-`;
-
-const MessagesContainer = styled.div`
-  flex: 1;
-  padding: 1.2rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background: #fafafa;
-  scroll-behavior: smooth;
-  
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-`;
-
-const Message = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: ${props => props.isOwn ? 'flex-end' : 'flex-start'};
-`;
-
-const MessageBubble = styled.div`
-  background: ${props => props.isOwn ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'white'};
-  color: ${props => props.isOwn ? 'white' : '#374151'};
-  padding: 0.8rem 1.2rem;
-  border-radius: 18px;
-  max-width: 85%;
-  word-wrap: break-word;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  line-height: 1.5;
-  font-size: 0.95rem;
-`;
-
-const MessageTime = styled.span`
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-top: 0.3rem;
-  font-weight: 500;
-`;
-
-const PromptContainer = styled.div`
-  padding: 0.8rem 1.5rem;
-  background: #f8fafc;
-  border-top: 1px solid #e5e7eb;
-  position: relative;
-`;
-
-const PromptDropdownContainer = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
-const PromptDropdownButton = styled.button`
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 0.6rem 1rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  min-width: 180px;
-  
-  &:hover {
-    border-color: #667eea;
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-`;
-
-const PromptDropdownIcon = styled.span`
-  font-size: 0.8rem;
-  transition: transform 0.2s ease;
-  transform: ${props => props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
-`;
-
-const PromptDropdownMenu = styled.div`
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  max-height: 250px;
-  overflow-y: auto;
-  margin-bottom: 0.5rem;
-  
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-`;
-
-const PromptDropdownItem = styled.div`
-  padding: 0.8rem 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  transition: background 0.2s ease;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 0.9rem;
-  color: #374151;
-  
-  &:hover {
-    background: #f8fafc;
-    color: #667eea;
-  }
-  
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const InputContainer = styled.div`
-  padding: 1.2rem 1.5rem;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  gap: 0.8rem;
-  background: white;
-`;
-
-const MessageInput = styled.input`
-  flex: 1;
-  padding: 0.8rem 1.2rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 25px;
-  outline: none;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  
-  &:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-  
-  &::placeholder {
-    color: #9ca3af;
-  }
-`;
-
-const SendButton = styled.button`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
-  
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  }
-  
-  &:disabled {
-    background: #d1d5db;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-`;
-
-// 10大類別專家
 const experts = [
-  { id: 1, name: "科技專家", category: "科技", prompt: "你是科技領域的專家..." },
-  { id: 2, name: "金融專家", category: "金融", prompt: "你是金融領域的專家..." },
-  { id: 3, name: "環境專家", category: "環境", prompt: "你是環境領域的專家..." },
-  { id: 4, name: "醫療專家", category: "醫療", prompt: "你是醫療領域的專家..." },
-  { id: 5, name: "教育專家", category: "教育", prompt: "你是教育領域的專家..." },
-  { id: 6, name: "體育專家", category: "體育", prompt: "你是體育領域的專家..." },
-  { id: 7, name: "政治專家", category: "政治", prompt: "你是政治領域的專家..." },
-  { id: 8, name: "國際專家", category: "國際", prompt: "你是國際事務專家..." },
-  { id: 9, name: "文化專家", category: "文化", prompt: "你是文化領域的專家..." },
-  { id: 10, name: "生活專家", category: "生活", prompt: "你是生活領域的專家..." },
+  { id: 1, name: "政治專家", category: "Politics" },
+  { id: 2, name: "台灣議題分析師", category: "Taiwan News" },
+  { id: 3, name: "國際專家", category: "International News" },
+  { id: 4, name: "科技專家", category: "Science & Technology" },
+  { id: 5, name: "生活達人", category: "Lifestyle & Consumer News" },
+  { id: 6, name: "體育專家", category: "Sports" },
+  { id: 7, name: "娛樂專家", category: "Entertainment" },
+  { id: 8, name: "財經專家", category: "Business & Finance" },
+  { id: 9, name: "健康顧問", category: "Health & Wellness" },
 ];
 
-// 專家預設回覆
-const expertReplies = {
-  1: "根據最新科技趨勢，AI 將持續改變我們的生活。",
-  2: "金融市場近期波動，建議多元分散投資。",
-  3: "環境保護需全民參與，減碳是關鍵。",
-  4: "醫療科技進步有助於提升全民健康。",
-  5: "教育創新是未來人才培育的核心。",
-  6: "體育運動有助於身心健康，建議多參與。",
-  7: "政治穩定對國家發展至關重要。",
-  8: "國際局勢變化快速，需持續關注。",
-  9: "文化多元是社會進步的象徵。",
-  10: "生活品質提升需從日常做起。"
-};
+const expertReplies = {};
 
 // 快速提示
-const quickPrompts = [
-  "這則新聞的重點是什麼？",
-  "對社會有什麼影響？",
-  "未來發展趨勢如何？",
-  "有什麼爭議點？",
-  "專家怎麼看？"
-];
+const quickPrompts = [];
 
-function ChatRoom() {
+function ChatRoom({news}) {
   const [selectedExperts, setSelectedExperts] = useState([1, 2, 3]);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isPromptDropdownOpen, setIsPromptDropdownOpen] = useState(false);
+
   const messagesEndRef = useRef(null);
   const dropdownRef = useRef(null);
   const promptDropdownRef = useRef(null);
 
+  const user_id = getOrCreateUserId();
+  const roomIdRef = useRef(createRoomId());
+  const room_id = roomIdRef.current;
+
+  // 自動滾到最底
   useEffect(() => {
     if (messagesEndRef.current) {
-      const messagesContainer = messagesEndRef.current.closest('[data-messages-container]');
-      if (messagesContainer) {
-        messagesContainer.scrollTo({
-          top: messagesContainer.scrollHeight,
-          behavior: 'smooth'
-        });
+      const container = messagesEndRef.current.closest('[data-messages-container]');
+      if (container) {
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
       }
     }
   }, [messages]);
 
-  // 點擊外部關閉下拉選單
+  // 點擊外部關閉下拉
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-      if (promptDropdownRef.current && !promptDropdownRef.current.contains(event.target)) {
-        setIsPromptDropdownOpen(false);
-      }
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsDropdownOpen(false);
+      if (promptDropdownRef.current && !promptDropdownRef.current.contains(e.target)) setIsPromptDropdownOpen(false);
     };
-
     if (isDropdownOpen || isPromptDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isDropdownOpen, isPromptDropdownOpen]);
 
+  //讓一開始就有提示字可以用
+  useEffect(() => {
+    changeQuickPrompt();
+  }, [selectedExperts]);
+
   const toggleExpert = (id) => {
-    setSelectedExperts(prev =>
-      prev.includes(id) ? prev.filter(expertId => expertId !== id) : [...prev, id]
+    setSelectedExperts((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+    changeQuickPrompt();
   };
 
-  const handlePromptSend = (promptText) => {
-    if (selectedExperts.length === 0) return;
+  const changeQuickPrompt = async () => {
+    try{
+      const options = selectedExperts.map(
+        (expertId) => experts.find((e) => e.id === expertId).category
+      );
 
-    const userMsg = {
-      id: Date.now(),
-      text: promptText,
-      isOwn: true,
-      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
-    };
-    setMessages(prev => [...prev, userMsg]);
-
-    // 模擬專家回覆
-    selectedExperts.forEach((expertId, index) => {
-      setTimeout(() => {
-        const expert = experts.find(e => e.id === expertId);
-        const reply = {
-          id: Date.now() + expertId,
-          text: `${expert.name}：${expertReplies[expertId]}`,
-          isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
-        };
-        setMessages(prev => [...prev, reply]);
-      }, 1000 + index * 500);
-    });
+      const response = await fetchJson('/hint_prompt/single', {
+        option : options,
+        article: news,
+      });
+      quickPrompts.length = 0; // 清空之前的提示
+      console.log('Fetched quick prompts:', response);
+      response.Hint_Prompt.forEach((prompt) => {
+        quickPrompts.push(prompt);
+      });      
+      console.log('Updated quick prompts:', quickPrompts);
+    } catch (error) {
+      console.error('Error updating quick prompts:', error);
+    }
     
-    // 關閉提示下拉選單
+  };
+
+  const makeUserMsg = (text) => ({
+    id: Date.now(),
+    text,
+    isOwn: true,
+    time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+  });
+
+  const makeExpertReply = (expertId) => {
+    const expert = experts.find((e) => e.id === expertId);
+    return {
+      id: Date.now() + expertId,
+      text: `${expert.name}：${expertReplies[expertId]}`,
+      isOwn: false,
+      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    };
+  };
+
+  const simulateReplies = async () => {
+    try {
+      // 構建請求的資料
+      const categories = selectedExperts.map(
+        (expertId) => experts.find((e) => e.id === expertId).category
+      );
+  
+      // 呼叫後端 API
+      const response = await fetchJson('/chat/single', {
+        user_id: user_id,
+        room_id: room_id,
+        prompt: inputMessage,
+        category: categories,
+        article: news,
+      });
+  
+      // 處理後端回傳的回覆
+      response.response.forEach((reply, index) => {
+        setTimeout(() => {
+          const expertId = selectedExperts[index]; // 根據順序匹配專家 ID
+          const expertReply = makeExpertReply(expertId); // 使用 makeExpertReply 生成回覆
+          expertReply.text = `${experts.find((e) => e.id === expertId).name}：${reply.chat_response}`; // 更新回覆內容
+          expertReply.text = expertReply.text.replace(/\*+/g, "");
+
+          setMessages((prev) => [...prev, expertReply]);
+
+          // const relatedNews = reply.related_news || [];
+          // relatedNews.forEach((newsItem) => {
+          //   setMessages((prev) => [...prev, { id: Date.now(), text: `相關新聞：${newsItem}`, isOwn: false }]);
+          // });
+        }, 1000 + index * 500); // 模擬延遲
+      });
+    } catch (error) {
+      console.error('Error fetching expert replies:', error);
+    }
+  };
+
+  //這邊運作邏輯要改
+  const handlePromptSend = (promptText) => {
+    setInputMessage(promptText);
+    handleSendMessage();
     setIsPromptDropdownOpen(false);
   };
 
   const handleSendMessage = () => {
-    if (inputMessage.trim() && selectedExperts.length > 0) {
-      const userMsg = {
-        id: Date.now(),
-        text: inputMessage,
-        isOwn: true,
-        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, userMsg]);
-      setInputMessage('');
-
-      // 模擬專家回覆
-      selectedExperts.forEach((expertId, index) => {
-        setTimeout(() => {
-          const expert = experts.find(e => e.id === expertId);
-          const reply = {
-            id: Date.now() + expertId,
-            text: `${expert.name}：${expertReplies[expertId]}`,
-            isOwn: false,
-            time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
-          };
-          setMessages(prev => [...prev, reply]);
-        }, 1000 + index * 500);
-      });
-    }
+    if (!inputMessage.trim() || selectedExperts.length === 0) return;
+    setMessages((prev) => [...prev, makeUserMsg(inputMessage)]);
+    setInputMessage('');
+    simulateReplies();
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
+    if (e.key === 'Enter') handleSendMessage();
   };
 
   return (
-    <ChatContainer>
-      <ChatHeader>
-        <HeaderLeft>
-          <ChatIcon>🤖</ChatIcon>
+    <div className="chat">
+      <div className="chat__header">
+        <div className="chat__headerLeft">
+          <div className="chat__icon">🤖</div>
           <div>
-            <ChatTitle>AI 專家討論室</ChatTitle>
-            <ChatSubtitle>{selectedExperts.length} 位專家在線</ChatSubtitle>
+            <h3 className="chat__title">AI 專家討論室</h3>
+            <p className="chat__subtitle">{selectedExperts.length} 位專家在線</p>
           </div>
-        </HeaderLeft>
-      </ChatHeader>
+        </div>
+      </div>
 
-      <ExpertSelector>
-        <DropdownContainer ref={dropdownRef}>
-          <DropdownButton 
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+      <div className="chat__expertSelector">
+        <div className="dropdown" ref={dropdownRef}>
+          <button
             type="button"
+            className="dropdown__btn"
+            onClick={() => setIsDropdownOpen((v) => !v)}
           >
             <span>選擇專家</span>
-            {selectedExperts.length > 0 && (
-              <SelectedCount>{selectedExperts.length}</SelectedCount>
-            )}
-            <DropdownIcon isOpen={isDropdownOpen}>▼</DropdownIcon>
-          </DropdownButton>
-          
-          {isDropdownOpen && (
-            <DropdownMenu>
-              {experts.map(expert => (
-                <DropdownItem
-                  key={expert.id}
-                  onClick={() => toggleExpert(expert.id)}
-                >
-                  <span>{expert.name}</span>
-                  <Checkbox checked={selectedExperts.includes(expert.id)} />
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          )}
-        </DropdownContainer>
-      </ExpertSelector>
+            {selectedExperts.length > 0 && <span className="selectedCount">{selectedExperts.length}</span>}
+            <span className={`dropdown__icon ${isDropdownOpen ? 'is-open' : ''}`}>▼</span>
+          </button>
 
-      <MessagesContainer data-messages-container>
+          {isDropdownOpen && (
+            <div className="dropdown__menu">
+              {experts.map((expert) => {
+                const checked = selectedExperts.includes(expert.id);
+                return (
+                  <div
+                    key={expert.id}
+                    className="dropdown__item"
+                    onClick={() => toggleExpert(expert.id)}
+                  >
+                    <span>{expert.name}</span>
+                    <span className={`checkbox ${checked ? 'is-checked' : ''}`} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="messages" data-messages-container>
         {messages.length === 0 && (
           <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💬</div>
@@ -569,61 +215,62 @@ function ChatRoom() {
             <p>選擇專家並開始討論吧！</p>
           </div>
         )}
-        {messages.map(message => (
-          <Message key={message.id} isOwn={message.isOwn}>
-            <MessageBubble isOwn={message.isOwn}>
-              {message.text}
-            </MessageBubble>
-            <MessageTime>{message.time}</MessageTime>
-          </Message>
+
+        {messages.map((m) => (
+          <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''}`}>
+            <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>{m.text}</div>
+            <span className="time">{m.time}</span>
+          </div>
         ))}
         <div ref={messagesEndRef} />
-      </MessagesContainer>
+      </div>
 
-      <PromptContainer>
-        <PromptDropdownContainer ref={promptDropdownRef}>
-          <PromptDropdownButton 
-            onClick={() => setIsPromptDropdownOpen(!isPromptDropdownOpen)}
+      <div className="prompt">
+        <div className="prompt__wrap" ref={promptDropdownRef}>
+          <button
             type="button"
+            className="prompt__btn"
+            onClick={() => setIsPromptDropdownOpen((v) => !v)}
             disabled={selectedExperts.length === 0}
           >
             <span>💡 快速提示</span>
-            <PromptDropdownIcon isOpen={isPromptDropdownOpen}>▼</PromptDropdownIcon>
-          </PromptDropdownButton>
-          
-          {isPromptDropdownOpen && (
-            <PromptDropdownMenu>
-              {quickPrompts.map((prompt, index) => (
-                <PromptDropdownItem
-                  key={index}
-                  onClick={() => handlePromptSend(prompt)}
-                >
-                  {prompt}
-                </PromptDropdownItem>
-              ))}
-            </PromptDropdownMenu>
-          )}
-        </PromptDropdownContainer>
-      </PromptContainer>
+            <span className={`prompt__icon ${isPromptDropdownOpen ? 'is-open' : ''}`}>▼</span>
+          </button>
 
-      <InputContainer>
-        <MessageInput
+          {isPromptDropdownOpen && (
+            <div className="prompt__menu">
+              {quickPrompts.map((p, i) => (
+                <div key={i} className="prompt__item" onClick={() => handlePromptSend(p)}>
+                  {p}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="input">
+        <input
           type="text"
+          className="input__text"
           placeholder={selectedExperts.length === 0 ? "請先選擇專家..." : "輸入您的問題..."}
           value={inputMessage}
-          onChange={e => setInputMessage(e.target.value)}
+          onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
           disabled={selectedExperts.length === 0}
         />
-        <SendButton
+        <button
+          className="input__send"
           onClick={handleSendMessage}
           disabled={!inputMessage.trim() || selectedExperts.length === 0}
         >
           ➤
-        </SendButton>
-      </InputContainer>
-    </ChatContainer>
+        </button>
+      </div>
+    </div>
   );
 }
 
-export default ChatRoom; 
+
+// quickPrompts
+export default ChatRoom;

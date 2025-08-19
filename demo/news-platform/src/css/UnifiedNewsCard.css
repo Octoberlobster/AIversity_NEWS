@@ -1,0 +1,256 @@
+/* 網格容器 */
+.unifiedNewsCard .newsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+@media (max-width: 1200px) {
+  .unifiedNewsCard .newsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+}
+@media (max-width: 768px) {
+  .unifiedNewsCard .newsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 卡片 */
+.unifiedNewsCard .card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,.08);
+  transition: all .3s ease;
+  border-left: 4px solid #667eea;
+  position: relative;
+  min-height: 225px; /* 改為最小高度，允許展開時變高 */
+  display: flex;
+  flex-direction: column;
+}
+.unifiedNewsCard .card.expanded {
+  min-height: auto; /* 展開時取消最小高度限制 */
+}
+.unifiedNewsCard .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,.12);
+  border-left-color: #7c3aed;
+}
+
+/* Header / Title */
+.unifiedNewsCard .card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: .8rem;
+}
+.unifiedNewsCard .card__title {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.3;
+  flex: 1;
+  text-decoration: none;
+  transition: color .3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;            /* 2 行截斷 */
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.unifiedNewsCard .card__title:hover { color: #667eea; }
+
+/* Meta / Info */
+.unifiedNewsCard .card__meta,
+.unifiedNewsCard .card__info {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin-bottom: .8rem;
+  flex-wrap: wrap;
+}
+.unifiedNewsCard .card__info {
+  font-size: .8rem;
+  color: #6b7280;
+}
+.unifiedNewsCard .dateText,
+.unifiedNewsCard .authorText {
+  color: #6b7280;
+  font-size: .8rem;
+}
+
+/* 標籤與來源數 */
+.unifiedNewsCard .tag--category {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: .2rem .6rem;
+  border-radius: 10px;
+  font-size: .75rem;
+  font-weight: 500;
+}
+.unifiedNewsCard .sourceCount {
+  background: #f3f4f6;
+  color: #4b5563;
+  padding: .2rem .6rem;
+  border-radius: 10px;
+  font-size: .75rem;
+  font-weight: 500;
+}
+.unifiedNewsCard .keywordChip {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 10px;
+  padding: .15rem .7rem;
+  font-size: .8rem;
+  font-weight: 500;
+  margin-left: .2rem;
+}
+
+/* 內文 */
+.unifiedNewsCard .card__content { 
+  margin-bottom: .8rem; 
+  flex: 1; /* 彈性填滿剩餘空間 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 摘要：預設三行截斷，展開後取消 */
+.unifiedNewsCard .summaryText {
+  color: #4b5563;
+  line-height: 1.5;
+  margin: 0;
+  font-size: .85rem;
+  transition: all .3s ease;
+  flex: 1; /* 填滿可用空間 */
+
+  /* 多行截斷（支援舊前綴寫法） */
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* 增加到4行，因為卡片變高了 */
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.unifiedNewsCard .summaryText.is-expanded {
+  font-size: .9rem;
+  display: block;            /* 解除舊前綴需求 */
+  -webkit-line-clamp: initial;
+  line-clamp: none;
+  -webkit-box-orient: initial;
+  overflow: visible;
+}
+
+/* 展開區塊動畫 */
+@keyframes cardSlideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.unifiedNewsCard .expandedContent {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  animation: cardSlideDown .3s ease;
+  background: #f8fafc;
+  margin: 1rem -1.2rem 0 -1.2rem; /* 擴展到卡片邊緣 */
+  padding: 1rem 1.2rem;
+  border-radius: 0 0 12px 12px;
+}
+
+/* 相關報導 */
+.unifiedNewsCard .relatedNews { margin-top: 0; }
+.unifiedNewsCard .relatedNews__title {
+  color: #374151;
+  font-size: .95rem;
+  margin: 0 0 .8rem 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+.unifiedNewsCard .relatedNews__title:before {
+  content: "📄";
+  margin-right: .5rem;
+}
+.unifiedNewsCard .relatedNews__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.unifiedNewsCard .relatedNews__item {
+  padding: .4rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-style: italic;
+  color: #6b7280;
+}
+.unifiedNewsCard .relatedNews__item:last-child { border-bottom: none; }
+.unifiedNewsCard .relatedNews__link {
+  color: #4b5563;
+  text-decoration: none;
+  font-size: .85rem;
+  transition: color .3s ease;
+  font-style: normal;
+}
+.unifiedNewsCard .relatedNews__link:hover { color: #667eea; }
+
+/* 動作區 */
+.unifiedNewsCard .card__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto; /* 推到底部 */
+  padding-top: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.unifiedNewsCard .actionButtons {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+.unifiedNewsCard .actionButton {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .3s ease;
+}
+.unifiedNewsCard .actionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.unifiedNewsCard .actionButton.is-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+/* 統計 */
+.unifiedNewsCard .stats {
+  display: flex;
+  gap: 1rem;
+  font-size: .8rem;
+  color: #6b7280;
+  flex-wrap: wrap;
+}
+.unifiedNewsCard .stat {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
+/* 文字高亮（可點擊名詞） */
+.unifiedNewsCard .term {
+  color: #667eea;
+  font-weight: 600;
+  transition: all .2s ease;
+}
+.unifiedNewsCard .term--clickable {
+  cursor: pointer;
+  text-decoration: underline;
+}
+.unifiedNewsCard .term--clickable:hover {
+  color: #5a67d8;
+}

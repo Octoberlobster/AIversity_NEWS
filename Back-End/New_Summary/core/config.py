@@ -19,12 +19,16 @@ class NewsProcessorConfig:
     @classmethod
     def get_gemini_api_key(cls):
         return os.getenv('GEMINI_API_KEY', '')
-    GEMINI_MODEL = "gemini-1.5-flash"  # 或 "gemini-1.5-pro" 用於更高品質
+    GEMINI_MODEL = "gemini-2.5-flash-lite"
     
-    # 檔案路徑 - 相對於 core 模組的位置
-    INPUT_FILE = os.path.join(os.path.dirname(__file__), "../data/cleaned_final_news.json")
-    OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "../outputs/processed/")
-    LOG_DIR = os.path.join(os.path.dirname(__file__), "../outputs/logs/")
+    # Supabase 設定
+    @classmethod
+    def get_supabase_url(cls):
+        return os.getenv('SUPABASE_URL', '')
+    
+    @classmethod
+    def get_supabase_key(cls):
+        return os.getenv('SUPABASE_KEY', '')
     
     # 處理參數
     BATCH_SIZE = 5  # 每次處理幾個 stories 後保存進度
@@ -78,13 +82,7 @@ class NewsProcessorConfig:
             "threshold": "BLOCK_MEDIUM_AND_ABOVE" # 中度及更高
         }
     ]
-    
-    @classmethod
-    def ensure_directories(cls):
-        """確保必要的目錄存在"""
-        os.makedirs(cls.OUTPUT_DIR, exist_ok=True)
-        os.makedirs(cls.LOG_DIR, exist_ok=True)
-    
+
     @classmethod
     def validate_config(cls) -> bool:
         """驗證配置是否正確"""
@@ -93,15 +91,8 @@ class NewsProcessorConfig:
             print("請設定環境變數或在 config.py 中直接設定")
             return False
         
-        if not os.path.exists(cls.INPUT_FILE):
-            print(f"錯誤: 輸入檔案不存在 - {cls.INPUT_FILE}")
+        if not cls.get_supabase_url() or not cls.get_supabase_key():
+            print("錯誤: SUPABASE_URL 或 SUPABASE_KEY 未設定")
+            print("請設定環境變數")
             return False
-        
         return True
-    
-    @classmethod
-    def get_output_filename(cls, prefix: str = "processed_articles") -> str:
-        """生成帶時間戳的輸出檔名"""
-        from datetime import datetime
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return f"{cls.OUTPUT_DIR}{prefix}_{timestamp}.json"

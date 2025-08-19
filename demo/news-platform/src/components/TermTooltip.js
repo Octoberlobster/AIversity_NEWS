@@ -1,183 +1,97 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef } from 'react';
+import './../css/TermTooltip.css';
+import keywordExplanations from './../keyword_explanations.json';
 
-const TooltipOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
+function TermTooltip({ term, definition, example: exampleFromDB, position, onClose }) {
+  const contentRef = useRef(null);
 
-const TooltipContent = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  max-width: 400px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  position: relative;
-  animation: slideIn 0.3s ease;
-  
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-
-const TooltipHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #667eea;
-`;
-
-const TermTitle = styled.h3`
-  margin: 0;
-  color: #667eea;
-  font-size: 1.2rem;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #f1f5f9;
-    color: #333;
-  }
-`;
-
-const Definition = styled.p`
-  color: #444;
-  line-height: 1.6;
-  margin: 0;
-  font-size: 1rem;
-`;
-
-const Example = styled.div`
-  margin-top: 1rem;
-  padding: 1rem;
-  background: #f8fafc;
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
-`;
-
-const ExampleTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  color: #333;
-  font-size: 0.9rem;
-  font-weight: 600;
-`;
-
-const ExampleText = styled.p`
-  margin: 0;
-  color: #666;
-  font-size: 0.9rem;
-  line-height: 1.5;
-`;
-
-function TermTooltip({ term, definition, position, onClose }) {
+  // Esc 關閉 + 初始聚焦到對話框
   useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
+    const handleEscape = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleEscape);
+    // 聚焦到對話框本體（方便鍵盤使用者）
+    contentRef.current?.focus();
     return () => document.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
-  // 根據術語提供額外的例子
-  const getExample = (term) => {
-    const examples = {
-      "人工智慧": {
-        title: "應用例子",
-        text: "例如：語音助手（如 Siri、Alexa）、推薦系統、自動駕駛汽車等"
-      },
-      "機器學習": {
-        title: "應用例子", 
-        text: "例如：垃圾郵件過濾、產品推薦、股票預測等"
-      },
-      "影像識別": {
-        title: "應用例子",
-        text: "例如：人臉識別、物體檢測、醫學影像分析等"
-      },
-      "倫理考量": {
-        title: "相關議題",
-        text: "例如：AI 偏見、自動化對就業的影響、決策透明度等"
-      },
-      "隱私保護": {
-        title: "保護措施",
-        text: "例如：數據加密、匿名化處理、用戶同意機制等"
-      },
-      "深度學習": {
-        title: "應用例子",
-        text: "例如：自然語言處理、圖像生成、語音合成等"
-      },
-      "三級三審":{
-        title: "應用例子",
-        text: "這起殺人案因為案情複雜，經過三級三審，歷時多年才最終定讞。\n\n由於證據不足，高等法院發回更審，這個案件可能要走完三級三審的程序。"
-      },
-      "IRB":{
-        title: "應用例子",
-        text: "這個研究計畫必須先通過 IRB 審查才能開始執行。\n\n因為 IRB 的要求，我們需要修改受試者同意書。\n\nIRB 委員仔細審閱了研究方案，並提出了一些建議。"
+  // 尋找該 term 在 keywordExplanations 中的 examples
+  const findExample = () => {
+    for (const storyKey in keywordExplanations) {
+      const keywords = keywordExplanations[storyKey].keywords;
+      const keyword = keywords.find(k => k.term === term);
+      if (keyword && keyword.examples && keyword.examples.length > 0) {
+        return keyword.examples[0];
       }
-    };
+    }
+    // 如果在 keywordExplanations 中找不到，使用預設範例
     return examples[term] || null;
   };
 
-  const example = getExample(term);
+  // 範例內容
+  const examples = {
+    "人工智慧": { title: "使用情境", text: "例如：語音助手（如 Siri、Alexa）、推薦系統、自動駕駛汽車等" },
+    "機器學習": { title: "使用情境", text: "例如：垃圾郵件過濾、產品推薦、股票預測等" },
+    "影像識別": { title: "使用情境", text: "例如：人臉識別、物體檢測、醫學影像分析等" },
+    "倫理考量": { title: "使用情境", text: "例如：AI 偏見、自動化對就業的影響、決策透明度等" },
+    "隱私保護": { title: "使用情境", text: "例如：數據加密、匿名化處理、用戶同意機制等" },
+    "深度學習": { title: "使用情境", text: "例如：自然語言處理、圖像生成、語音合成等" },
+    "精準醫療": { title: "使用情境", text: "你好" },
+    "三級三審": { title: "使用情境", text: "這起殺人案因為案情複雜，經過三級三審，歷時多年才最終定讞。\n\n由於證據不足，高等法院發回更審，這個案件可能要走完三級三審的程序。" },
+    "IRB": { title: "使用情境", text: "這個研究計畫必須先通過 IRB 審查才能開始執行。\n\n因為 IRB 的要求，我們需要修改受試者同意書。\n\nIRB 委員仔細審閱了研究方案，並提出了一些建議。" }
+  };
+  
+  // 優先使用資料庫的範例，如果沒有則使用其他來源
+  const getFinalExample = () => {
+    // 首先檢查是否有資料庫提供的範例
+    if (exampleFromDB) {
+      return { title: "使用情境", text: exampleFromDB };
+    }
+    
+    // 然後檢查 keywordExplanations 中的範例
+    const keywordExample = findExample();
+    if (keywordExample) {
+      return keywordExample;
+    }
+    
+    // 最後使用預設範例
+    return examples[term] || null;
+  };
+
+  const example = getFinalExample();
 
   return (
-    <TooltipOverlay onClick={handleOverlayClick}>
-      <TooltipContent>
-        <TooltipHeader>
-          <TermTitle>{term}</TermTitle>
-          <CloseButton onClick={onClose}>×</CloseButton>
-        </TooltipHeader>
-        
-        <Definition>{definition}</Definition>
-        
+    <div className="tooltipOverlay" onClick={handleOverlayClick}>
+      <div
+        className="tooltipContent"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="term-tooltip-title"
+        aria-describedby="term-tooltip-definition"
+        tabIndex={-1}
+        ref={contentRef}
+      >
+        <div className="tooltipHeader">
+          <h3 className="termTitle" id="term-tooltip-title">{term}</h3>
+          <button type="button" className="closeButton" onClick={onClose} aria-label="關閉">
+            ×
+          </button>
+        </div>
+
+        <p className="definition" id="term-tooltip-definition">{definition}</p>
+
         {example && (
-          <Example>
-            <ExampleTitle>{example.title}</ExampleTitle>
-            <ExampleText>{example.text}</ExampleText>
-          </Example>
+          <div className="example">
+            <h4 className="exampleTitle">{example.title}</h4>
+            <p className="exampleText" style={{ whiteSpace: 'pre-line' }}>{example.text}</p>
+          </div>
         )}
-      </TooltipContent>
-    </TooltipOverlay>
+      </div>
+    </div>
   );
 }
 
-export default TermTooltip; 
+export default TermTooltip;

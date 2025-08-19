@@ -1,572 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import styled from 'styled-components';
-
-const PageContainer = styled.div`
-  min-height: 100vh;
-  background-color: #f8fafc;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-`;
-
-const MainContent = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-`;
-
-const ReportHeader = styled.div`
-  background: white;
-  border-radius: 16px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 2rem;
-  align-items: center;
-  
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const ReportTitle = styled.h1`
-  color: #1e3a8a;
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.3;
-`;
-
-const ReportSummary = styled.p`
-  color: #4b5563;
-  font-size: 1rem;
-  line-height: 1.6;
-  margin: 0;
-`;
-
-const ReportMeta = styled.div`
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-top: 1rem;
-`;
-
-const MetaItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #6b7280;
-  font-size: 0.9rem;
-`;
-
-const ConnectionImage = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.1rem;
-  font-weight: 500;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: "關聯圖";
-    z-index: 1;
-  }
-  
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%), 
-                linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%), 
-                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%);
-    background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-  }
-`;
-
-// 完全獨立的布局
-const ContentLayout = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 2rem;
-  
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const MainColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-const Sidebar = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  position: sticky;
-  top: 2rem;
-  height: fit-content;
-  max-height: calc(100vh - 4rem);
-  overflow-y: auto;
-`;
-
-const SidebarCard = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
-`;
-
-const SidebarTitle = styled.h3`
-  color: #1e3a8a;
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
-  border-bottom: 2px solid #e0e7ff;
-  padding-bottom: 0.5rem;
-`;
-
-const NavigationMenu = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const NavItem = styled.div`
-  padding: 0.8rem 1rem;
-  background: ${props => props.active ? '#e0e7ff' : 'transparent'};
-  color: ${props => props.active ? '#1e3a8a' : '#4b5563'};
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
-  font-weight: ${props => props.active ? '600' : '500'};
-  border-left: 3px solid ${props => props.active ? '#667eea' : 'transparent'};
-  
-  &:hover {
-    background: ${props => props.active ? '#e0e7ff' : '#f8fafc'};
-    color: #1e3a8a;
-  }
-`;
-
-const ContentSection = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
-  scroll-margin-top: 8rem;
-`;
-
-const SectionTitle = styled.h2`
-  color: #1e3a8a;
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  &::before {
-    content: "📰";
-    font-size: 1.2rem;
-  }
-`;
-
-const SectionSummary = styled.p`
-  color: #4b5563;
-  font-size: 1rem;
-  line-height: 1.6;
-  margin: 0 0 1.5rem 0;
-  padding: 1rem;
-  background: #f8fafc;
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
-`;
-
-// 完全按照UnifiedNewsCard的樣式
-const NewsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const CardContainer = styled.div`
-  background: white;
-  border-radius: 16px;
-  padding: 1.2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  border-left: 4px solid #667eea;
-  position: relative;
-  height: fit-content;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    border-left-color: #7c3aed;
-  }
-`;
-
-const CardHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.8rem;
-`;
-
-const CardTitle = styled(Link)`
-  margin: 0;
-  color: #1e3a8a;
-  font-size: 1.2rem;
-  font-weight: 600;
-  line-height: 1.3;
-  flex: 1;
-  text-decoration: none;
-  transition: color 0.3s ease;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  
-  &:hover {
-    color: #667eea;
-  }
-`;
-
-const CardMeta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 0.8rem;
-  flex-wrap: wrap;
-`;
-
-const CardInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 0.8rem;
-  flex-wrap: wrap;
-  font-size: 0.8rem;
-  color: #6b7280;
-`;
-
-const CategoryTag = styled.span`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 0.2rem 0.6rem;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 500;
-`;
-
-const DateText = styled.span`
-  color: #6b7280;
-  font-size: 0.8rem;
-`;
-
-const AuthorText = styled.span`
-  color: #6b7280;
-  font-size: 0.8rem;
-`;
-
-const SourceCount = styled.span`
-  background: #f3f4f6;
-  color: #4b5563;
-  padding: 0.2rem 0.6rem;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 500;
-`;
-
-const KeywordChip = styled.span`
-  background: #e0e7ff;
-  color: #3730a3;
-  border-radius: 10px;
-  padding: 0.15rem 0.7rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-left: 0.2rem;
-`;
-
-const CardContent = styled.div`
-  margin-bottom: 0.8rem;
-`;
-
-const SummaryText = styled.p`
-  color: #4b5563;
-  line-height: 1.5;
-  margin: 0;
-  font-size: ${props => props.isExpanded ? '0.9rem' : '0.85rem'};
-  transition: all 0.3s ease;
-  display: -webkit-box;
-  -webkit-line-clamp: ${props => props.isExpanded ? 'none' : '3'};
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-`;
-
-const ExpandedContent = styled.div`
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
-  animation: slideDown 0.3s ease;
-  
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-
-const RelatedNews = styled.div`
-  margin-top: 1rem;
-`;
-
-const RelatedNewsTitle = styled.h4`
-  color: #374151;
-  font-size: 1rem;
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
-`;
-
-const RelatedNewsList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`;
-
-const RelatedNewsItem = styled.li`
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f3f4f6;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const RelatedNewsLink = styled(Link)`
-  color: #4b5563;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.3s ease;
-  
-  &:hover {
-    color: #667eea;
-  }
-`;
-
-const CardActions = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-`;
-
-const ActionButton = styled.button`
-  background: ${props => props.primary ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f3f4f6'};
-  color: ${props => props.primary ? 'white' : '#4b5563'};
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const StatsContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  font-size: 0.8rem;
-  color: #6b7280;
-  flex-wrap: wrap;
-`;
-
-const StatItem = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-`;
-
-// 專題聊天室組件 - 整合到邊欄
-const TopicChatCard = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
-  margin-top: 1.5rem;
-`;
-
-const ChatHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 2px solid #e0e7ff;
-`;
-
-const ChatIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.2rem;
-`;
-
-const ChatTitle = styled.h4`
-  margin: 0;
-  color: #1e3a8a;
-  font-size: 1.1rem;
-  font-weight: 600;
-`;
-
-const ChatDescription = styled.p`
-  margin: 0.3rem 0 0 0;
-  color: #6b7280;
-  font-size: 0.85rem;
-  line-height: 1.4;
-`;
-
-const ChatMessages = styled.div`
-  max-height: 200px;
-  overflow-y: auto;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-`;
-
-const Message = styled.div`
-  margin-bottom: 0.8rem;
-  padding: 0.8rem;
-  border-radius: 8px;
-  background: ${props => props.isOwn ? '#667eea' : 'white'};
-  color: ${props => props.isOwn ? 'white' : '#374151'};
-  font-size: 0.9rem;
-  line-height: 1.4;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const QuickPrompts = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-`;
-
-const PromptButton = styled.button`
-  background: #f3f4f6;
-  color: #4b5563;
-  border: 1px solid #d1d5db;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #e5e7eb;
-    transform: translateY(-1px);
-  }
-`;
-
-const ChatInput = styled.input`
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  margin-bottom: 0.8rem;
-  
-  &:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-`;
-
-const SendButton = styled.button`
-  width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 0.8rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
+import './../css/SpecialReportDetail.css';
 
 // 模擬專題報導詳細資料
 const specialReportData = {
@@ -830,15 +264,17 @@ function SpecialReportDetail() {
 
   if (!report) {
     return (
-      <PageContainer>
-        <MainContent>
+      <div className="srdPage">
+        <div className="srdMain">
           <div style={{ textAlign: 'center', padding: '3rem' }}>
             <h2>專題報導不存在</h2>
             <p>請返回專題報導列表</p>
-            <Link to="/special-reports" style={{ color: '#667eea' }}>返回專題報導</Link>
+            <Link to="/special-reports" style={{ color: '#667eea' }}>
+              返回專題報導
+            </Link>
           </div>
-        </MainContent>
-      </PageContainer>
+        </div>
+      </div>
     );
   }
 
@@ -846,228 +282,230 @@ function SpecialReportDetail() {
     setActiveEvent(event);
     const targetRef = sectionRefs.current[event];
     if (targetRef) {
-      targetRef.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
+      targetRef.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
   const toggleExpanded = (cardId) => {
-    setExpandedCards(prev => ({
-      ...prev,
-      [cardId]: !prev[cardId]
-    }));
+    setExpandedCards((prev) => ({ ...prev, [cardId]: !prev[cardId] }));
   };
 
   const handleSendMessage = () => {
-    if (chatInput.trim()) {
-      const userMsg = {
-        id: Date.now(),
-        text: chatInput,
-        isOwn: true,
+    if (!chatInput.trim()) return;
+    const userMsg = {
+      id: Date.now(),
+      text: chatInput,
+      isOwn: true,
+      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+    };
+    setChatMessages((prev) => [...prev, userMsg]);
+    setChatInput('');
+
+    setTimeout(() => {
+      const reply = {
+        id: Date.now() + 1,
+        text: `關於「${report.title}」這個專題，我可以為您提供深入分析。您提到的內容與專題中的「${activeEvent}」部分相關。需要我為您詳細解釋某個特定觀點嗎？`,
+        isOwn: false,
         time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
       };
-      setChatMessages(prev => [...prev, userMsg]);
-      setChatInput('');
-      
-      // 模擬AI助手回覆
-      setTimeout(() => {
-        const reply = {
-          id: Date.now() + 1,
-          text: `關於「${report.title}」這個專題，我可以為您提供深入分析。您提到的內容與專題中的「${activeEvent}」部分相關。需要我為您詳細解釋某個特定觀點嗎？`,
-          isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
-        };
-        setChatMessages(prev => [...prev, reply]);
-      }, 1000);
-    }
-  };
-
-  const handleQuickPrompt = (prompt) => {
-    setChatInput(prompt);
+      setChatMessages((prev) => [...prev, reply]);
+    }, 1000);
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
+    if (e.key === 'Enter') handleSendMessage();
   };
 
-  const quickPrompts = [
-    "分析這個專題",
-    "相關背景資訊",
-    "專家觀點",
-    "未來發展趨勢"
-  ];
+  const quickPrompts = ["分析這個專題", "相關背景資訊", "專家觀點", "未來發展趨勢"];
 
   return (
-    <PageContainer>
-      <MainContent>
-        <ReportHeader>
-          <HeaderContent>
-            <ReportTitle>{report.title}</ReportTitle>
-            <ReportSummary>{report.summary}</ReportSummary>
-            <ReportMeta>
-              <MetaItem>
+    <div className="srdPage">
+      <div className="srdMain">
+        {/* Header */}
+        <div className="srdHeader">
+          <div className="srdHeader__content">
+            <h1 className="srdHeader__title">{report.title}</h1>
+            <p className="srdHeader__summary">{report.summary}</p>
+            <div className="srdHeader__meta">
+              <div className="srdHeader__metaItem">
                 <span>📅</span>
                 <span>{report.lastUpdate}</span>
-              </MetaItem>
-              <MetaItem>
+              </div>
+              <div className="srdHeader__metaItem">
                 <span>📄</span>
                 <span>{report.articles} 篇文章</span>
-              </MetaItem>
-              <MetaItem>
+              </div>
+              <div className="srdHeader__metaItem">
                 <span>👁️</span>
                 <span>{report.views}</span>
-              </MetaItem>
-            </ReportMeta>
-          </HeaderContent>
-          
-          <ConnectionImage />
-        </ReportHeader>
+              </div>
+            </div>
+          </div>
+          <div className="srdHeader__image" />
+        </div>
 
-        <ContentLayout>
-          <MainColumn>
-            {report.events.map((event, index) => {
+        {/* Layout */}
+        <div className="srdLayout">
+          <div className="srdMainCol">
+            {report.events.map((event) => {
               const eventDetail = report.eventDetails[event];
               return (
-                <ContentSection 
-                  key={index}
+                <section
+                  key={event}
+                  className="srdSection"
                   ref={(el) => {
                     sectionRefs.current[event] = el;
                   }}
                 >
-                  <SectionTitle>{event}</SectionTitle>
-                  <SectionSummary>{eventDetail?.summary}</SectionSummary>
-                  
-                  <NewsGrid>
-                    {eventDetail?.articles.map(news => {
-                      const isExpanded = expandedCards[news.id] || false;
+                  <h2 className="srdSection__title">{event}</h2>
+                  <p className="srdSection__summary">{eventDetail?.summary}</p>
+
+                  <div className="srdGrid">
+                    {eventDetail?.articles.map((news) => {
+                      const isExpanded = !!expandedCards[news.id];
                       return (
-                        <CardContainer key={news.id}>
-                          <CardHeader>
-                            <CardTitle to={`/news/${news.id}`}>{news.title}</CardTitle>
-                          </CardHeader>
-                          <CardInfo>
-                            <DateText>{news.date}</DateText>
-                            <AuthorText>記者 {news.author}</AuthorText>
-                          </CardInfo>
-                          <CardMeta>
-                            <CategoryTag>{news.category}</CategoryTag>
-                            <SourceCount>{news.sourceCount} 個來源</SourceCount>
-                            {news.keywords && news.keywords.map(kw => (
-                              <KeywordChip key={kw}>{kw}</KeywordChip>
+                        <article key={news.id} className="srdCard">
+                          <div className="srdCard__header">
+                            <Link to={`/news/${news.id}`} className="srdCard__title">
+                              {news.title}
+                            </Link>
+                          </div>
+
+                          <div className="srdCard__info">
+                            <span className="srdDateText">{news.date}</span>
+                            <span className="srdAuthorText">記者 {news.author}</span>
+                          </div>
+
+                          <div className="srdCard__meta">
+                            <span className="srdCategoryTag">{news.category}</span>
+                            <span className="srdSourceCount">{news.sourceCount} 個來源</span>
+                            {news.keywords?.map((kw) => (
+                              <span key={kw} className="srdKeywordChip">{kw}</span>
                             ))}
-                          </CardMeta>
-                          <CardContent>
-                            <SummaryText isExpanded={isExpanded}>
+                          </div>
+
+                          <div className="srdCard__content">
+                            <p className={`srdCard__summary ${isExpanded ? 'is-expanded' : ''}`}>
                               {isExpanded ? news.shortSummary : news.shortSummary.substring(0, 150)}
-                            </SummaryText>
+                            </p>
+
                             {isExpanded && (
-                              <ExpandedContent>
-                                <RelatedNews>
-                                  <RelatedNewsTitle>相關報導</RelatedNewsTitle>
-                                  <RelatedNewsList>
-                                    {news.relatedNews.map(relatedNews => (
-                                      <RelatedNewsItem key={relatedNews.id}>
-                                        <RelatedNewsLink to={`/news/${relatedNews.id}`}>
-                                          {relatedNews.title}
-                                        </RelatedNewsLink>
-                                      </RelatedNewsItem>
+                              <div className="srdExpanded">
+                                <div className="srdRelatedNews">
+                                  <h4 className="srdRelatedNews__title">相關報導</h4>
+                                  <ul className="srdRelatedNews__list">
+                                    {news.relatedNews.map((rn) => (
+                                      <li key={rn.id} className="srdRelatedNews__item">
+                                        <Link to={`/news/${rn.id}`} className="srdRelatedNews__link">
+                                          {rn.title}
+                                        </Link>
+                                      </li>
                                     ))}
-                                  </RelatedNewsList>
-                                </RelatedNews>
-                              </ExpandedContent>
+                                  </ul>
+                                </div>
+                              </div>
                             )}
-                          </CardContent>
-                          <CardActions>
-                            <ActionButtons>
-                              <ActionButton onClick={() => toggleExpanded(news.id)}>
+                          </div>
+
+                          <div className="srdCard__actions">
+                            <div className="srdActionButtons">
+                              <button
+                                type="button"
+                                className="srdActionButton"
+                                onClick={() => toggleExpanded(news.id)}
+                              >
                                 {isExpanded ? '收起' : '展開'}
-                              </ActionButton>
-                            </ActionButtons>
-                            <StatsContainer>
-                              <StatItem>👁️ {news.views}</StatItem>
-                            </StatsContainer>
-                          </CardActions>
-                        </CardContainer>
+                              </button>
+                            </div>
+                            <div className="srdStats">
+                              <span className="srdStatItem">👁️ {news.views}</span>
+                            </div>
+                          </div>
+                        </article>
                       );
                     })}
-                  </NewsGrid>
-                </ContentSection>
+                  </div>
+                </section>
               );
             })}
-          </MainColumn>
-          
-          <Sidebar>
-            <SidebarCard>
-              <SidebarTitle>專題導覽</SidebarTitle>
-              <NavigationMenu>
-                {report.events.map((event, index) => (
-                  <NavItem
-                    key={index}
-                    active={activeEvent === event}
+          </div>
+
+          {/* Sidebar */}
+          <aside className="srdSidebar">
+            <div className="srdSidebarCard">
+              <h3 className="srdSidebarTitle">專題導覽</h3>
+              <nav className="srdNav">
+                {report.events.map((event) => (
+                  <button
+                    key={event}
+                    className={`srdNavItem ${activeEvent === event ? 'is-active' : ''}`}
                     onClick={() => handleNavClick(event)}
+                    type="button"
                   >
                     {event}
-                  </NavItem>
+                  </button>
                 ))}
-              </NavigationMenu>
-            </SidebarCard>
+              </nav>
+            </div>
 
-            <TopicChatCard>
-              <ChatHeader>
-                <ChatIcon>💬</ChatIcon>
+            {/* 專題聊天室 */}
+            <div className="srdTopicChat">
+              <div className="srdChatHeader">
+                <div className="srdChatIcon">💬</div>
                 <div>
-                  <ChatTitle>專題討論</ChatTitle>
-                  <ChatDescription>與AI助手討論這個專題的相關議題</ChatDescription>
+                  <h4 className="srdChatTitle">專題討論</h4>
+                  <p className="srdChatDesc">與AI助手討論這個專題的相關議題</p>
                 </div>
-              </ChatHeader>
+              </div>
 
-              <QuickPrompts>
-                {quickPrompts.map((prompt, index) => (
-                  <PromptButton
-                    key={index}
-                    onClick={() => handleQuickPrompt(prompt)}
+              <div className="srdQuickPrompts">
+                {quickPrompts.map((p) => (
+                  <button
+                    key={p}
+                    className="srdPromptBtn"
+                    type="button"
+                    onClick={() => setChatInput(p)}
                   >
-                    {prompt}
-                  </PromptButton>
+                    {p}
+                  </button>
                 ))}
-              </QuickPrompts>
+              </div>
 
-              <ChatMessages>
+              <div className="srdChatMessages">
                 {chatMessages.length === 0 && (
-                  <Message isOwn={false}>
+                  <div className="srdMsg">
                     歡迎討論「{report.title}」這個專題！您可以詢問任何相關問題。
-                  </Message>
+                  </div>
                 )}
-                {chatMessages.map(message => (
-                  <Message key={message.id} isOwn={message.isOwn}>
-                    {message.text}
-                  </Message>
+                {chatMessages.map((m) => (
+                  <div key={m.id} className={`srdMsg ${m.isOwn ? 'is-own' : ''}`}>
+                    {m.text}
+                  </div>
                 ))}
-              </ChatMessages>
+              </div>
 
-              <ChatInput
+              <input
                 type="text"
+                className="srdChatInput"
                 placeholder="輸入您的問題或觀點..."
                 value={chatInput}
-                onChange={e => setChatInput(e.target.value)}
+                onChange={(e) => setChatInput(e.target.value)}
                 onKeyPress={handleKeyPress}
               />
-              <SendButton
+              <button
+                className="srdSendBtn"
+                type="button"
                 onClick={handleSendMessage}
                 disabled={!chatInput.trim()}
               >
                 發送訊息
-              </SendButton>
-            </TopicChatCard>
-          </Sidebar>
-        </ContentLayout>
-      </MainContent>
-    </PageContainer>
+              </button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
   );
 }
 
-export default SpecialReportDetail; 
+export default SpecialReportDetail;
