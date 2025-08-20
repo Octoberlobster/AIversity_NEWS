@@ -10,14 +10,12 @@ from google.genai import types  # 新版 SDK 的型別
 from core.config import NewsProcessorConfig
 from core.db_client import SupabaseClient
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(os.path.join('outputs/logs/news_processor.log'), encoding='utf-8'),
-        logging.StreamHandler()
-    ]
-)
+# 設置日誌
+try:
+    os.makedirs(NewsProcessorConfig.LOG_DIR, exist_ok=True)
+except Exception:
+    pass
+
 logger = logging.getLogger(__name__)
 
 class NewsProcessor:
@@ -83,6 +81,7 @@ class NewsProcessor:
 
             【新聞資料】
             標題：{article.get('article_title', '無標題')}
+            發布時間：{article.get('publish_date') or article.get('crawl_date', '未知時間')}
             內容：{(article.get('content') or '無內容')[:max_chars]}
 
             【任務要求】
@@ -93,8 +92,8 @@ class NewsProcessor:
             3. 重要人物（提及的重要人物姓名）
             4. 重要機構組織（提及的公司、政府部門、學術機構等）
             5. 地點資訊（涉及的地理位置）
-            6. 事件分類（政治、經濟、科技、社會等）
-            7. 時間線(重要的時間點)
+            6. 時間線（重要的時間點）
+            7. 事件分類（政治、經濟、科技、社會等）
 
             【輸出格式】
             請嚴格按照以下 JSON 格式輸出，不要包含其他文字：
@@ -117,10 +116,6 @@ class NewsProcessor:
         處理單篇文章
         """
         try:
-            # 檢查文章內容
-            if not article.get('content') or len(article['content'].strip()) < 50:
-                logger.warning(f"文章 {article.get('id', 'unknown')} 內容太短或為空")
-                return None
 
             # 構造 prompt 與生成參數
             prompt = self.create_article_summary_prompt(article)
@@ -153,9 +148,10 @@ class NewsProcessor:
 
                     # 添加原始文章資訊
                     result.update({
-                        "original_article_id": article.get('article_id'),
+                        "original_article_id": article.get('id'),
                         "original_title": article.get('article_title'),
-                        "article_url": article.get('article_url'),
+                        "publish_date": article.get('publish_date') or article.get('crawl_date'),
+                        "source_url": article.get('final_url'),
                         "processed_at": datetime.now().isoformat(sep=' ', timespec='minutes')
                     })
 
@@ -180,7 +176,7 @@ class NewsProcessor:
         處理單個 story 中的所有 articles
         """
         story_id = story.get('story_id', 'unknown')
-        logger.info(f"開始處理 Story {story_id}")
+        logger.info(f"開始處理 Story {story_id}: {story.get('story_title', '')}")
 
         articles = story.get('articles', [])
         processed_articles = []
@@ -194,7 +190,7 @@ class NewsProcessor:
                 processed_articles.append(result)
             else:
                 failed_articles.append({
-                    "article_id": article.get('article_id'),
+                    "article_id": article.get('id'),
                     "article_title": article.get('article_title'),
                     "reason": "處理失敗"
                 })
@@ -204,6 +200,7 @@ class NewsProcessor:
 
         story_result = {
             "story_id": story_id,
+            "story_title": story.get('story_title'),
             "category": story.get('category'),
             "total_articles": len(articles),
             "processed_articles": len(processed_articles),
@@ -221,13 +218,22 @@ class NewsProcessor:
         處理所有 stories
         """
         logger.info("=== 開始新聞處理流程 ===")
-
         db_client = SupabaseClient()
-        stories = db_client.get_stories_with_articles()
+        stories = db_client.get_stories_with_articles(filter_processed=True)  # 使用智慧篩選
         
-        if not stories:
+        if stories is None:
             logger.error("無法載入新聞數據")
-            return
+            return None
+        elif len(stories) == 0:
+            logger.info("沒有需要處理的新資料")
+            return []
+
+        return self._process_stories_data(stories, start_index, max_stories)
+
+    def _process_stories_data(self, stories: List[Dict[str, Any]], start_index: int = 0, max_stories: Optional[int] = None) -> List[Dict[str, Any]]:
+        """
+        處理 stories 資料的核心邏輯
+        """
 
         end_index = len(stories)
         if max_stories:
@@ -247,7 +253,8 @@ class NewsProcessor:
             except Exception as e:
                 logger.error(f"處理 Story {i} 時發生嚴重錯誤: {e}")
                 continue
-            
+
+        
         logger.info("=== 新聞處理流程完成 ===")
         return processed_stories
 
@@ -255,8 +262,7 @@ def main():
     """主函數 - 簡易測試，讀取 Config"""
     api_key = NewsProcessorConfig.get_gemini_api_key()
     processor = NewsProcessor(api_key=api_key, model_name=NewsProcessorConfig.GEMINI_MODEL)
-    processed_stories = processor.process_all_stories()
-    print(processed_stories)
+    processor.process_all_stories()
 
 if __name__ == "__main__":
     main()

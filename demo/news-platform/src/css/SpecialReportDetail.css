@@ -28,7 +28,7 @@
 
 .srdHeader__content { display: flex; flex-direction: column; gap: 1rem; }
 .srdHeader__title { color: #1e3a8a; font-size: 2rem; font-weight: 700; margin: 0; line-height: 1.3; }
-.srdHeader__summary { color: #4b5563; font-size: 1rem; line-height: 1.6; margin: 0; }
+.srdHeader__summary { color: #4b5563; font-size: 1.2rem; line-height: 1.6; margin: 0; }
 .srdHeader__meta { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; }
 .srdHeader__metaItem { display: flex; align-items: center; gap: .5rem; color: #6b7280; font-size: .9rem; }
 
