@@ -11,14 +11,6 @@ from google.genai import types  # 新版 SDK 型別
 from core.report_config import ReportGeneratorConfig
 from core.db_client import SupabaseClient
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(os.path.join('outputs/logs/report_generation.log'), encoding='utf-8'),
-        logging.StreamHandler()
-    ]
-)
 logger = logging.getLogger(__name__)
 
 class HintPromptResponse(BaseModel):
