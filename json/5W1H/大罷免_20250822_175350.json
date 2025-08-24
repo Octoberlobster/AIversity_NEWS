@@ -1,0 +1,5 @@
+{
+  "topic": "大罷免",
+  "error": "API 呼叫失敗: 404 models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",
+  "timestamp": "2025-08-22T17:53:50.712932"
+}
