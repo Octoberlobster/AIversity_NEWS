@@ -26,8 +26,8 @@ CREATE TABLE public.keywords_map (
   story_id uuid NOT NULL DEFAULT gen_random_uuid(),
   keyword text NOT NULL,
   CONSTRAINT keywords_map_pkey PRIMARY KEY (story_id, keyword),
-  CONSTRAINT keywords_map_keyword_fkey FOREIGN KEY (keyword) REFERENCES public.keywords(keyword),
-  CONSTRAINT keywords_map_story_id_fkey FOREIGN KEY (story_id) REFERENCES public.single_news(story_id)
+  CONSTRAINT keywords_map_story_id_fkey FOREIGN KEY (story_id) REFERENCES public.single_news(story_id),
+  CONSTRAINT keywords_map_keyword_fkey FOREIGN KEY (keyword) REFERENCES public.keywords(keyword)
 );
 CREATE TABLE public.relative_news (
   id uuid NOT NULL,
@@ -35,8 +35,8 @@ CREATE TABLE public.relative_news (
   src_story_id uuid,
   dst_story_id uuid,
   CONSTRAINT relative_news_pkey PRIMARY KEY (id),
-  CONSTRAINT relative_news_src_story_id_fkey FOREIGN KEY (src_story_id) REFERENCES public.single_news(story_id),
-  CONSTRAINT relative_news_dst_story_id_fkey FOREIGN KEY (dst_story_id) REFERENCES public.single_news(story_id)
+  CONSTRAINT relative_news_dst_story_id_fkey FOREIGN KEY (dst_story_id) REFERENCES public.single_news(story_id),
+  CONSTRAINT relative_news_src_story_id_fkey FOREIGN KEY (src_story_id) REFERENCES public.single_news(story_id)
 );
 CREATE TABLE public.single_news (
   story_id uuid NOT NULL,
@@ -95,8 +95,8 @@ CREATE TABLE public.topic_branch_news_map (
   topic_branch_id uuid NOT NULL,
   story_id uuid NOT NULL,
   CONSTRAINT topic_branch_news_map_pkey PRIMARY KEY (topic_branch_id, story_id),
-  CONSTRAINT topic_news_map_topic_branch_id_fkey FOREIGN KEY (topic_branch_id) REFERENCES public.topic_branch(topic_branch_id),
-  CONSTRAINT topic_news_map_story_id_fkey FOREIGN KEY (story_id) REFERENCES public.single_news(story_id)
+  CONSTRAINT topic_news_map_story_id_fkey FOREIGN KEY (story_id) REFERENCES public.single_news(story_id),
+  CONSTRAINT topic_news_map_topic_branch_id_fkey FOREIGN KEY (topic_branch_id) REFERENCES public.topic_branch(topic_branch_id)
 );
 CREATE TABLE public.topic_news_map (
   topic_id uuid NOT NULL DEFAULT gen_random_uuid(),
