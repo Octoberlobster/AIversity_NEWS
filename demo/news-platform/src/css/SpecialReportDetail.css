@@ -33,24 +33,81 @@
 .srdHeader__metaItem { display: flex; align-items: center; gap: .5rem; color: #6b7280; font-size: .9rem; }
 
 .srdHeader__image {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 2px solid #e0e6ed;
   border-radius: 12px;
   height: 300px;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-size: 1.1rem; font-weight: 500;
-  position: relative; overflow: hidden;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
 }
-.srdHeader__image::before { content: "關聯圖"; z-index: 1; }
-.srdHeader__image::after {
-  content: "";
-  position: absolute; inset: 0;
-  background:
-    linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+
+/* Header 內的 5W1H 視覺化樣式 */
+#header-mindmap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+#header-mindmap .fivew1h-container {
+  background: transparent;
+  border-radius: 0;
+  padding: 8px;
+  box-shadow: none;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 隱藏不需要的元素 */
+#header-mindmap .fivew1h-title,
+#header-mindmap .fivew1h-subtitle,
+#header-mindmap .fivew1h-instructions,
+#header-mindmap .fivew1h-legend,
+#header-mindmap .fivew1h-controls {
+  display: none;
+}
+
+#header-mindmap .fivew1h-graph {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  margin: 0;
+}
+
+/* 調整節點樣式以適配 header */
+#header-mindmap .node {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+#header-mindmap .node:hover {
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25));
+  transform: scale(1.03);
+}
+
+#header-mindmap .text {
+  font-size: 9px !important;
+  font-weight: 600;
+}
+
+#header-mindmap .text-center { 
+  font-size: 11px !important; 
+  font-weight: bold;
+}
+
+#header-mindmap .text-5w1h { 
+  font-size: 8px !important; 
+  font-weight: 600;
+}
+
+/* 工具提示樣式調整 */
+#header-mindmap .fivew1h-tooltip {
+  font-size: 11px;
+  padding: 8px 10px;
+  max-width: 180px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 /* ===== Layout ===== */
@@ -230,3 +287,213 @@
 }
 .srdSendBtn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,.3); }
 .srdSendBtn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ===== 5W1H關聯圖放大模態框 ===== */
+.srd5W1HModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: srdModalFadeIn 0.3s ease;
+}
+
+@keyframes srdModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.srd5W1HModal__content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 1200px;
+  height: 90%;
+  max-height: 800px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: srdModalSlideIn 0.3s ease;
+}
+
+@keyframes srdModalSlideIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.9) translateY(-20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+.srd5W1HModal__closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.srd5W1HModal__closeBtn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+.srd5W1HModal__title {
+  padding: 30px 30px 20px 30px;
+  border-bottom: 2px solid #e5e7eb;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.srd5W1HModal__title h2 {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.srd5W1HModal__visualization {
+  flex: 1;
+  padding: 20px;
+  height: calc(100% - 120px);
+  background: #f8fafc;
+}
+
+.srd5W1HModal__visualization #expanded-mindmap {
+  width: 100%;
+  height: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 放大後的5W1H視覺化樣式 */
+#expanded-mindmap .fivew1h-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#expanded-mindmap .fivew1h-title,
+#expanded-mindmap .fivew1h-subtitle,
+#expanded-mindmap .fivew1h-instructions,
+#expanded-mindmap .fivew1h-legend,
+#expanded-mindmap .fivew1h-controls {
+  display: block;
+}
+
+#expanded-mindmap .fivew1h-graph {
+  flex: 1;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+#expanded-mindmap .node {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+#expanded-mindmap .node:hover {
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+  transform: scale(1.05);
+}
+
+#expanded-mindmap .text {
+  font-size: 12px !important;
+  font-weight: 600;
+}
+
+#expanded-mindmap .text-center { 
+  font-size: 14px !important; 
+  font-weight: bold;
+}
+
+#expanded-mindmap .text-5w1h { 
+  font-size: 11px !important; 
+  font-weight: 600;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .srd5W1HModal__content {
+    width: 95%;
+    height: 95%;
+    max-height: none;
+  }
+  
+  .srd5W1HModal__title {
+    padding: 20px 20px 15px 20px;
+  }
+  
+  .srd5W1HModal__title h2 {
+    font-size: 1.2rem;
+  }
+  
+  .srd5W1HModal__visualization {
+    padding: 15px;
+  }
+  
+  .srd5W1HModal__closeBtn {
+    top: 15px;
+    right: 15px;
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+}
+
+/* 添加點擊提示樣式 */
+.srdHeader__imageOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.srdHeader__image:hover .srdHeader__imageOverlay {
+  opacity: 1;
+}
+
+.srdHeader__imageHint {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}

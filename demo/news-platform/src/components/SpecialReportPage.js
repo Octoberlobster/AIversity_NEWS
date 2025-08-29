@@ -6,7 +6,7 @@ import './../css/SpecialReportPage.css';
 const specialReports = [
   {
     id: 1,
-    title: "2025罷免案",
+    title: "2025大罷免",
     summary: "國民黨與民眾黨自2024年合作以來，因立法改革引發不滿，民間團體於2025年開始發起罷免國民黨立委。7月26日24位國民黨立委及新竹市長高虹安面臨罷免投票，25案全數被否決。第二波7案罷免投票將於8月23日舉行。",
     icon: "🗳️",
     articles: 15,

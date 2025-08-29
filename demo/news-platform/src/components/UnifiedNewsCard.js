@@ -212,6 +212,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, instan
           const { data, error } = await supabaseClient
             .from('single_news')
             .select('*')       
+            .order('generated_date', { ascending: false });  // false = 由新到舊
 
           if (error) throw error;
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './../css/SpecialReportDetail.css';
+import { createHeaderVisualization } from './FiveW1HVisualization';
 
 // 模擬專題報導詳細資料
 const specialReportData = {
@@ -253,6 +254,8 @@ const specialReportData = {
   }
 };
 
+
+
 function SpecialReportDetail() {
   const { id } = useParams();
   const report = specialReportData[id];
@@ -261,6 +264,67 @@ function SpecialReportDetail() {
   const sectionRefs = useRef({});
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
+  const headerImageRef = useRef(null); // 新增
+  const vizInstanceRef = useRef(null);
+  // 新增：5W1H關聯圖放大狀態
+  const [is5W1HExpanded, setIs5W1HExpanded] = useState(false);
+  const expanded5W1HRef = useRef(null);
+  const expandedVizInstanceRef = useRef(null);
+
+  useEffect(() => {
+    const initializeHeaderVisualization = () => {
+      if (headerImageRef.current && !vizInstanceRef.current) {
+        // 使用新的 createHeaderVisualization 函數
+        vizInstanceRef.current = createHeaderVisualization(
+          headerImageRef, 
+          report?.title || "專題分析"
+        );
+      }
+    };
+
+    // 延遲初始化確保 DOM 就緒
+    const timer = setTimeout(initializeHeaderVisualization, 100);
+    
+    return () => {
+      clearTimeout(timer);
+      // 清理實例
+      if (vizInstanceRef.current) {
+        vizInstanceRef.current = null;
+      }
+    };
+  }, [report?.title]);
+
+  // 新增：處理5W1H關聯圖點擊放大
+  useEffect(() => {
+    if (is5W1HExpanded && expanded5W1HRef.current && !expandedVizInstanceRef.current) {
+      // 延遲初始化確保模態框DOM就緒
+      const timer = setTimeout(() => {
+        if (expanded5W1HRef.current) {
+          expandedVizInstanceRef.current = createHeaderVisualization(
+            expanded5W1HRef, 
+            report?.title || "專題分析",
+            true // 標記為模態框模式
+          );
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [is5W1HExpanded, report?.title]);
+
+  // 新增：關閉5W1H關聯圖放大視窗
+  const close5W1HExpanded = () => {
+    setIs5W1HExpanded(false);
+    // 清理放大的視覺化實例
+    if (expandedVizInstanceRef.current) {
+      expandedVizInstanceRef.current = null;
+    }
+  };
+
+  // 新增：點擊5W1H關聯圖放大
+  const handle5W1HClick = () => {
+    setIs5W1HExpanded(true);
+  };
 
   if (!report) {
     return (
@@ -321,7 +385,7 @@ function SpecialReportDetail() {
   return (
     <div className="srdPage">
       <div className="srdMain">
-        {/* Header */}
+        {/* Header - 修改部分 */}
         <div className="srdHeader">
           <div className="srdHeader__content">
             <h1 className="srdHeader__title">{report.title}</h1>
@@ -341,7 +405,13 @@ function SpecialReportDetail() {
               </div>
             </div>
           </div>
-          <div className="srdHeader__image" />
+          {/* 修改：將5W1H關聯圖直接放入header image區域 */}
+          <div className="srdHeader__image" ref={headerImageRef} onClick={handle5W1HClick} style={{ cursor: 'pointer' }}>
+            <div id="header-mindmap" style={{ width: '100%', height: '100%' }}></div>
+            <div className="srdHeader__imageOverlay">
+              <span className="srdHeader__imageHint">點擊放大</span>
+            </div>
+          </div>
         </div>
 
         {/* Layout */}
@@ -504,6 +574,27 @@ function SpecialReportDetail() {
           </aside>
         </div>
       </div>
+
+      {/* 新增：5W1H關聯圖放大模態框 */}
+      {is5W1HExpanded && (
+        <div className="srd5W1HModal" onClick={close5W1HExpanded}>
+          <div className="srd5W1HModal__content" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="srd5W1HModal__closeBtn" 
+              onClick={close5W1HExpanded}
+              aria-label="關閉"
+            >
+              ✕
+            </button>
+            <div className="srd5W1HModal__title">
+              <h2>{report.title} - 5W1H關聯分析</h2>
+            </div>
+            <div className="srd5W1HModal__visualization" ref={expanded5W1HRef}>
+              <div id="expanded-mindmap" style={{ width: '100%', height: '100%' }}></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
