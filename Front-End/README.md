@@ -1,70 +1,160 @@
-# Getting Started with Create React App
+# AIversity 新聞平台
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+一個智能化的新聞閱讀平台，結合人工智慧技術，為用戶提供深度、個性化的新聞體驗。
 
-## Available Scripts
+## 🌟 核心特色
 
-In the project directory, you can run:
+### 1. 統一智能新聞系統
+- **智能摘要功能**：多篇新聞綜合報導，支援長篇/短篇模式切換
+- **關鍵字註釋系統**：專業術語高亮標記，點擊查看詳細解釋
+- **相關新聞推薦**：基於內容相似度智能推薦相關報導
+- **互動統計數據**：實時顯示閱讀量、評論數、收藏數
 
-### `npm start`
+### 3. 全域 AI 聊天室
+- **十位專家模組**：涵蓋科技、金融、環境、醫療等領域
+- **即時問答**：支援文字輸入和快速提示
+- **多專家協作**：可同時諮詢多位專家
+- **浮動設計**：頁面右下角常駐，不影響閱讀體驗
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🎨 設計亮點
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 視覺設計
+- **現代化 UI**：採用漸變色彩和圓角設計
+- **響應式布局**：完美適配各種設備尺寸
+- **微動畫效果**：滑動、懸停、展開等流暢動畫
+- **品牌一致性**：統一的色彩系統和設計語言
 
-### `npm test`
+### 用戶體驗
+- **直觀導航**：清晰的頁面結構和導航系統
+- **快速載入**：優化的性能表現
+- **無障礙設計**：支援鍵盤導航和螢幕閱讀器
+- **個性化設置**：可自定義閱讀偏好
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 功能模組
 
-### `npm run build`
+### 頂部導航 (Header)
+- 品牌標識和標語
+- 主要導航菜單
+- 搜尋和通知功能
+- 用戶登入/註冊
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 焦點輪播 (NewsCarousel)
+- 自動輪播重要新聞
+- 手動控制按鈕
+- 輪播指示器
+- 響應式設計
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 統一新聞卡片 (UnifiedNewsCard)
+- **智能摘要系統**：多來源新聞整合，長短篇模式切換
+- **關鍵字註釋**：專業術語高亮標記，即時工具提示
+- **相關新聞推薦**：智能推薦相關報導
+- **互動統計數據**：閱讀量、評論數、收藏數
+- **展開/收起功能**：靈活的內容展示方式
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 分類精選 (CategorySection)
+- 八大分類標籤
+- 即時內容篩選
+- 分類專屬配色
+- 熱門內容展示
 
-### `npm run eject`
+### 浮動聊天室 (FloatingChat)
+- 收縮/展開功能
+- 專家選擇系統
+- 快速提示按鈕
+- 未讀訊息提醒
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🛠️ 技術架構
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 前端技術
+- **React 18**：現代化前端框架
+- **Styled Components**：CSS-in-JS 樣式解決方案
+- **React Router**：單頁應用路由
+- **Hooks**：函數式組件狀態管理
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 設計系統
+- **色彩方案**：
+  - 主色調：深藍色 (#1e3a8a)
+  - 輔助色：紫色 (#7c3aed)
+  - 強調色：橙色 (#fbbf24)
+- **字體系統**：Segoe UI 字體家族
+- **間距系統**：8px 基礎單位
+- **圓角系統**：8px, 12px, 16px, 25px
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 📱 響應式設計
 
-## Learn More
+### 斷點設置
+- **桌面端**：1200px 以上
+- **平板端**：768px - 1199px
+- **手機端**：767px 以下
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 適配策略
+- 網格布局自動調整
+- 側邊欄在小螢幕上隱藏
+- 字體大小動態縮放
+- 觸控友好的互動元素
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🎯 用戶價值
 
-### Code Splitting
+### 閱讀效率提升
+- 減少重複閱讀時間
+- 快速獲取核心信息
+- 智能內容推薦
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 深度學習支持
+- 專業術語解釋
+- 多專家觀點整合
+- 知識脈絡梳理
 
-### Analyzing the Bundle Size
+### 個性化體驗
+- 自定義閱讀偏好
+- 智能內容篩選
+- 互動式學習
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🔮 未來規劃
 
-### Making a Progressive Web App
+### 短期目標
+- [ ] 用戶註冊和登入系統
+- [ ] 個人化推薦算法
+- [ ] 社交分享功能
+- [ ] 離線閱讀支持
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### 長期願景
+- [ ] AI 語音播報
+- [ ] 多語言支持
+- [ ] 專家直播功能
+- [ ] 知識圖譜整合
 
-### Advanced Configuration
+## 🚀 快速開始
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### 安裝依賴
+```bash
+npm install
+```
 
-### Deployment
+### 啟動開發服務器
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### 構建生產版本
+```bash
+npm run build
+```
 
-### `npm run build` fails to minify
+## 📄 授權協議
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+本項目採用 MIT 授權協議，詳見 [LICENSE](LICENSE) 文件。
+
+## 🤝 貢獻指南
+
+歡迎提交 Issue 和 Pull Request 來幫助改進這個項目！
+
+### 開發規範
+- 使用 ESLint 進行代碼檢查
+- 遵循 React 最佳實踐
+- 保持組件可重用性
+- 編寫清晰的文檔和註釋
+
+---
+
+**AIversity 新聞平台** - 讓新聞閱讀更智能，讓知識獲取更高效！ 

@@ -1,148 +1,214 @@
+/* 外層 Header（固定在頂端） */
+.header {
+  background: #f8fafc;
+  color: #1e3a8a;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
 
-.header-bar {
-  height: 70px;
-  background-color: #7DD1D1;
-  width: 100%;
+/* 第一列：品牌 + 搜尋 */
+.mainBar {
+  max-width: 1400px;
+  margin: 0 auto;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-  box-sizing: border-box;
+  padding: 1rem 2rem 0.5rem 2rem;
+  background: #f8fafc;
+}
+@media (max-width: 700px) {
+  .mainBar {
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1rem 1rem 0.5rem 1rem;
+  }
 }
 
-.platform-name {
-  font-family: 'Montserrat', sans-serif; /* 使用現代感強的字體 */
-  font-size: 28px;
-  font-weight: 700;
-  color: white;
-  letter-spacing: 1px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+.brandSection {
   display: flex;
   align-items: center;
+  gap: 1.1rem;
+}
+@media (max-width: 700px) {
+  .brandSection {
+    justify-content: center;
+    width: 100%;
+  }
+}
+.brandLink {
+  text-decoration: none;
+  color: inherit;
 }
 
-.platform-logo {
-  display: inline-block;
-  background-color: white;
-  color: #7DD1D1;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  text-align: center;
-  line-height: 36px;
-  margin-right: 5px;
+.logo {
+  font-size: 2.1rem;
   font-weight: 800;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  background-clip: text;
+  -webkit-background-clip: text;      /* 需要這行來支援文字裁切 */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
 }
 
-.search-bar-container {
-  display: flex;
-  justify-content: center;
-  flex-grow: 1; /* 允許此容器填滿中間的剩餘空間 */
-  padding: 0 20px; /* 與左右元件保持間距 */
+.tagline {
+  font-size: 1.05rem;
+  opacity: 0.95;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: #1e3a8a;
+}
+@media (max-width: 700px) {
+  .tagline { display: none; }
 }
 
-.search-form {
+/* 搜尋列 */
+.searchSection {
   display: flex;
   align-items: center;
+  gap: 0.7rem;
+}
+@media (max-width: 700px) {
+  .searchSection {
+    width: 100%;
+    justify-content: center;
+  }
+}
+.searchInputWrapper {
   position: relative;
-  width: 100%;
-  max-width: 500px; /* 限制搜尋列最大寬度 */
+  display: flex;
+  align-items: center;
 }
-
-.search-input {
-  width: 100%;
-  padding: 10px 40px 10px 20px;
-  border-radius: 25px;
-  border: 1px solid transparent;
-  font-size: 16px;
-  background-color: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #7DD1D1;
-  background-color: white;
-  box-shadow: 0 0 0 3px rgba(125, 209, 209, 0.4);
-}
-
-.search-button {
+.searchIcon {
   position: absolute;
-  right: 5px;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  background-color: transparent;
+  color: #667eea;
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+.searchInput {
+  padding: 0.5rem 1.2rem 0.5rem 2.5rem;
+  border-radius: 25px;
   border: none;
-  padding: 8px;
-  cursor: pointer;
-  color: #555;
-  font-size: 18px;
-  transition: color 0.3s ease;
-}
-
-.search-button:hover {
-  color: #7DD1D1;
-}
-
-.language-selector {
-position: relative;
-display: flex;
-align-items: center;
-flex-shrink: 0; /* 防止被壓縮 */
-}
-
-.translate-icon {
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-.translate-icon:hover {
-  transform: scale(1.1);
-}
-
-.language-dropdown {
-  appearance: none;
-  background-color: transparent;
-  border: none;
-  color: #000000; /* 改為黑色文字，增加對比度 */
-  font-weight: 700; /* 加粗字體 */
-  font-size: 16px; /* 增加字體大小 */
-  padding: 8px 12px;
-  padding-right: 25px;
-  margin-left: 8px;
-  cursor: pointer;
-  border-radius: 20px;
-  background-color: rgba(255, 255, 255, 0.8); /* 改為半透明白色背景，增加對比 */
-  transition: all 0.3s ease;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 5px center;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7); /* 添加文字陰影增加可讀性 */
-  letter-spacing: 0.5px; /* 增加字母間距 */
-}
-
-.language-dropdown:hover {
-  background-color: rgba(255, 255, 255, 0.9); /* 懸停時背景更不透明 */
-}
-
-.language-dropdown:focus {
+  font-size: 1rem;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3); /* 更改聚焦時的陰影顏色 */
+  min-width: 220px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+  transition: box-shadow 0.2s, border 0.2s;
+  color: #1e3a8a;
+  border: 2px solid transparent;
+}
+.searchInput:focus {
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+  border: 2px solid #667eea;
 }
 
-.language-dropdown option {
-  background-color: white;
-  color: black; /* 選項文字改為黑色 */
-  font-weight: 600; /* 選項文字加粗 */
-  font-size: 16px; /* 保持一致的字體大小 */
+/* 第二列：類別標籤列 */
+.tagBarWrapper {
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(30,58,138,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0 0 18px 18px;
+}
+@media (max-width: 700px) {
+  .tagBarWrapper {
+    border-radius: 0;
+    padding: 0.2rem;
+  }
 }
 
+.domainTagBar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  overflow-x: auto;
+  scrollbar-width: thin;              /* 支援 Firefox 簡單細捲軸 */
+}
+@media (max-width: 700px) {
+  .domainTagBar { gap: 0.5rem; }
+}
 
-.language-selector:hover .language-dropdown {
-  animation: fadeIn 0.3s ease forwards;
+/* 類別標籤（Link） */
+.tagLink {
+  background: transparent;
+  color: #1e3a8a;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
+}
+.tagLink:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+.tagLink.is-active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+.tagLink.is-active:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+/* 搜尋表單樣式 */
+.searchForm {
+  display: flex;
+  align-items: center;
+}
+
+.searchInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: all 0.2s;
+}
+
+.searchButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.searchButton:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .searchForm {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .searchButton {
+    margin-left: 0;
+    align-self: stretch;
+  }
 }
