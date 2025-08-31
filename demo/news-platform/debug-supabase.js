@@ -100,3 +100,4 @@ if (typeof window !== 'undefined') {
   console.log('🌐 Supabase 除錯腳本已載入到全域範圍');
   console.log('使用方法: testSupabaseDataLoading()');
 }
+
