@@ -1,3 +1,4 @@
+# import tiktoken
 from env import supabase,gemini_client
 from typing import List, Dict, Any
 from google.genai import types
@@ -16,19 +17,30 @@ knowledge_base_dict = {
     "Business & Finance": -1,
     "Health & Wellness": -1,
     "search": -1,
-    "Special Topics": -1
+    "topic": -1
 }
 
-def set_knowledge_base(prompt,category):
+def set_knowledge_base(prompt,category,topic_id = None):
     if category == "search":
-        response = supabase.table("single_news").select("news_title,short,category,generated_date").execute()
+        response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").execute()
         base=navigate_to_paragraphs(response.data, prompt)
-        knowledge_base_dict["search"]= f"你是一位新聞搜尋助手，你目前的知識庫是：{base}，需要時參考這些資料來回答問題。並且為了考量閱讀者的閱讀喜好，請盡量回答簡短且精確的內容。"
+        knowledge_base_dict["search"]= f"你是一位新聞搜尋助手，你目前的知識庫是：{base}，需要時參考這些資料來回答問題。並且為了考量閱讀者的閱讀喜好，請盡量回答簡短且精確的內容。此外如果你有想秀給使用者的新聞請使用news_id這個欄位填上知識庫中所屬的新聞號碼(例如:1,2,3,4...)，在推薦時不要超過五則新聞。"
         return
-    response = supabase.table("single_news").select("news_title,short,category,generated_date").eq("category", category).execute()
+    elif category == "topic":
+       # 先執行內部查詢，獲取 story_id 列表
+        topic_news_response = supabase.table("topic_news_map").select("story_id").eq("topic_id", topic_id).execute()
+        story_ids = [item["story_id"] for item in topic_news_response.data]  # 提取 story_id 列表
+
+        # 使用提取的 story_id 列表進行查詢
+        response = supabase.table("single_news").select("short").in_("story_id", story_ids).execute()
+
+        knowledge_base_dict["topic"] = f"你是一位專家，並且你會考量使用者的閱讀習慣在回答時適時地分行與分段。你目前的知識庫是：{response.data}，需要時參考這些資料來回答問題。"
+        return
+    
+    response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").eq("category", category).execute()
     base = navigate_to_paragraphs(response.data, prompt)
     if category in knowledge_base_dict:
-        knowledge_base_dict[category] = f"你是一位{category}的新聞專家，並且你會考量使用者的閱讀習慣在回答時適時地分行與分段。你目前的知識庫是：{base}，需要時參考這些資料來回答問題。"
+        knowledge_base_dict[category] = f"你是一位{category}的新聞專家，並且你會考量使用者的閱讀習慣在回答時適時地分行與分段。你目前的知識庫是：{base}，需要時參考這些資料來回答問題。此外如果你有想秀給使用者的新聞請使用news_id這個欄位，在推薦時不要超過五則新聞。"
     else:
         raise ValueError("Unknown category: {}".format(category))
 
@@ -41,6 +53,8 @@ def get_knowledge_base(category):
 
 class SelectedNews(BaseModel):
     news_ids: List[int]
+class StoryMap:
+    story_map = {}
 
 def update_scratchpad(scratchpad: str, reasoning: str) -> str:
     """記錄選擇哪些新聞的推理原因
@@ -85,11 +99,15 @@ def route_news(question: str, news_list: List[Dict[str, Any]],
         user_message += f"CURRENT SCRATCHPAD:\n{scratchpad}\n\n"
 
     user_message += "NEWS ARTICLES:\n\n"
+    StoryMap.story_map = {}
     for i, news in enumerate(news_list):
         user_message += f"NEWS {i}:\n"
         user_message += f"TITLE: {news['news_title']}\n"
         user_message += f"SUMMARY: {news['short']}\n"
-        user_message += f"CATEGORY: {news['category']}\n\n"
+        user_message += f"CATEGORY: {news['category']}\n"
+        user_message += f"DATE: {news['generated_date']}\n\n"
+        # do a enum map to story_id
+        StoryMap.story_map[str(i)] = news['story_id']
 
     # Step 1: scratchpad reasoning
     messages = user_message + "\nFirst, record your reasoning with update_scratchpad."
@@ -158,23 +176,23 @@ def navigate_to_paragraphs(news_list: List[Dict[str, Any]],
 
     scratchpad = result["scratchpad"]
     selected_ids = result["selected_ids"]
-    selected_news = [n for i, n in enumerate(news_list) if i in selected_ids]
+    selected_news = {i: n for i, n in enumerate(news_list) if i in selected_ids}
 
     if not selected_news:
         print("\nNo relevant news found.")
         return {"paragraphs": [], "scratchpad": scratchpad}
 
-    # 如果只需要一層，就直接回傳
-    if max_depth == 1:
-        print(f"\nReturning {len(selected_news)} relevant news at depth 0")
-        return {"paragraphs": selected_news, "scratchpad": scratchpad}
 
-    # 如果要更深層（例如將一篇新聞再拆成更小的單位），
-    # 可以在這裡進一步實作（但新聞通常不需要）
+
     return {"paragraphs": selected_news, "scratchpad": scratchpad}
 
 
-# response = supabase.table("single_news").select("news_title,short,category,generated_date").execute()
+# response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").execute()
+# # tokenizer = tiktoken.get_encoding("o200k_base")
+# # token_count = len(tokenizer.encode(str(response.data)))
 # print(type(response.data))
 # result = navigate_to_paragraphs(response.data, "我想看體育新聞")
 # print(result)
+
+
+set_knowledge_base("有什麼新聞嗎？","topic","1e0dcbe6-36c5-4c37-bb16-55cbe7abdfa7")

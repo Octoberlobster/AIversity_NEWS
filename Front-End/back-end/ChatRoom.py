@@ -2,11 +2,10 @@ from pydantic import BaseModel
 from google.genai import types
 from env import gemini_client
 import Knowledge_Base
-
-#TODO : 修改model_dict只有9個領域，增加專題的model與首頁搜尋的model
+from Knowledge_Base import StoryMap
 
 class ChatInfo(BaseModel):
-    name: str
+    news_id: list[str]
     chat_response: str
 
 
@@ -24,7 +23,7 @@ class ChatRoom:
             "Business & Finance": -1,
             "Health & Wellness": -1,
             "search": -1,
-            "Special Topics": -1,
+            "topic": -1,
         }
 
         self.model_history = {
@@ -38,7 +37,7 @@ class ChatRoom:
             "Business & Finance": [],
             "Health & Wellness": [],
             "search": [],
-            "Special Topics": [],
+            "topic": [],
         }
 
     def create_model(self, category: str):
@@ -64,12 +63,30 @@ class ChatRoom:
         )
         return self.model_dict[category]
 
-    def chat(self, prompt: str, categories: list[str]):
+    def chat(self, prompt: str, categories: list[str], topic_id = None) -> list[dict]:
         """對指定分類的模型發送訊息"""
         responses = []
         for category in categories:
-            Knowledge_Base.set_knowledge_base(prompt, category)
+            Knowledge_Base.set_knowledge_base(prompt, category, topic_id)
             model = self.create_model(category)
             response = model.send_message(message=prompt)
+            # loop response.parsed.news_id and change the news_id with StoryMap
+            for i, news_id in enumerate(response.parsed.news_id):
+                print(type(news_id))
+                print(news_id)
+                response.parsed.news_id[i] = StoryMap.story_map.get(news_id,news_id)
             responses.append(dict(response.parsed))  # 轉成 dict 加入回應列表
         return responses
+    
+# category = ["search"]
+# prompt = "我想看體育新聞"
+# Room = ChatRoom()
+# responses = Room.chat(prompt, category)
+# print(responses)
+
+
+# category = ["topic"]
+# prompt = "有什麼新聞看"
+# Room = ChatRoom()
+# response = Room.chat(prompt, category,"1e0dcbe6-36c5-4c37-bb16-55cbe7abdfa7")
+# print(Room.model_dict["topic"]._comprehensive_history)

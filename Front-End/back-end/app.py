@@ -1,5 +1,6 @@
 import Hint_Prompt_Single
 import Hint_Prompt_Search
+import Hint_Prompt_Topic
 import Advanced_Search_Service
 from flask_cors import CORS
 from flask import Flask, request, jsonify
@@ -41,7 +42,7 @@ def hint_Prompt():
     if not option or not article:
         return jsonify({"error": "Missing 'option' or 'article'"}), 400
     try:
-        response = Hint_Prompt_Single.genernate_hint_prompt(tuple(option), article)
+        response = Hint_Prompt_Single.generate_hint_prompt(tuple(option), article)
         return jsonify(response)
     except Exception as e:
         print(f"Error: {e}")
@@ -78,11 +79,47 @@ def chat_search():
 def hint_Prompt_search():
     data = request.json    
     try:
-        response = Hint_Prompt_Search.genernate_hint_prompt()
+        response = Hint_Prompt_Search.generate_hint_prompt()
         return jsonify(response)
     except Exception as e:
         print(f"Error: {e}")
         print("fuck me right now")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/chat/topic", methods=["POST"])
+def chat_topic():
+    data = request.json
+    user_id = data.get("user_id")
+    room_id = data.get("room_id")
+    topic_id = data.get("topic_id")
+    prompt = data.get("prompt")
+
+    if not user_id or not room_id or not topic_id or not prompt:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    key = (user_id, room_id)
+    if key not in user_sessions:
+        user_sessions[key] = ChatRoom()
+    room = user_sessions[key]
+
+    try:
+        response = room.chat(prompt, ["topic"],topic_id)
+        return jsonify({"response": response})
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/hint_prompt/topic", methods=["POST"])
+def hint_prompt_topic():
+    data = request.json
+    topic_id = data.get("topic_id")
+    if not topic_id:
+        return jsonify({"error": "Missing 'topic_id'"}), 400
+    try:
+        response = Hint_Prompt_Topic.generate_hint_prompt(topic_id)
+        return jsonify(response)
+    except Exception as e:
+        print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route("/Advanced_Search_Service/search",methods=["POST"])

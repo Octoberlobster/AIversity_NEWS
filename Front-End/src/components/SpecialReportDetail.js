@@ -1,96 +1,211 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import TopicChatRoom from './TopicChatRoom';
+import UnifiedNewsCard from './UnifiedNewsCard';
+import { useSupabase } from './supabase';
+import { createHeaderVisualization } from './FiveW1HVisualization';
 import './../css/SpecialReportDetail.css';
-
-// 模擬專題報導詳細資料
-const specialReportData = {
-  1: {
-    id: 1,
-    title: "2025罷免案",
-    summary: "國民黨與民眾黨2024年起聯手以人數優勢陸續通過國會職權等修法引發不滿，民團2025年起陸續鎖定國民黨立委發動罷免連署。24位藍委及新竹市長高虹安罷免案7月26日投開票，25案全數遭到否決。第二波共7案罷免投票將在8月23日登場，包括國民黨立委馬文君、游顥、羅明才、江啟臣、楊瓊瓔、顏寬恒、林思銘。",
-    icon: "🗳️",
-    events: [
-      "即時開票",
-    ],
-    articles: 15,
-    views: "25.3k",
-    lastUpdate: "2025/7/30 18:10",
-    eventDetails: {
-      "即時開票": {
-        title: "即時開票結果",
-        summary: "最新罷免投票開票結果，包含各選區投票率、同意票與不同意票統計。",
-        articles: [
-          { 
-            id: 101, 
-            title: "大罷免投票率平均破5成5 傅崐萁案破6成創紀錄", 
-            views: "12.5k", 
-            date: "2025/7/26 22:55", 
-            author: "中央社",
-            category: "專題報導",
-            sourceCount: 3,
-            shortSummary: "2025年7月26日舉行的罷免投票中，整體投票率平均突破55%，其中傅崐萁案的投票率更突破60%，創下歷史新高。各選區的投票情況顯示民眾對罷免案的高度關注。",
-            relatedNews: [
-              { id: 1011, title: "傅崐萁罷免案詳細分析" },
-              { id: 1012, title: "各選區投票率統計" },
-              { id: 1013, title: "罷免案投票結果影響" }
-            ],
-            keywords: ["投票", "罷免", "統計"]
-          },
-          { 
-            id: 102, 
-            title: "2025立委罷免案開票結果一覽 7月26日24案全數不通過", 
-            views: "8.9k", 
-            date: "2025/7/26 16:00", 
-            author: "中央社",
-            category: "專題報導",
-            sourceCount: 4,
-            shortSummary: "7月26日舉行的24個立委罷免案全部未通過門檻，顯示選民對罷免制度的態度趨於保守。各案投票結果分析顯示，反對罷免的票數明顯高於支持罷免。",
-            relatedNews: [
-              { id: 1021, title: "罷免制度檢討聲浪" },
-              { id: 1022, title: "選民態度分析報告" },
-              { id: 1023, title: "政治影響評估" }
-            ],
-            keywords: ["罷免", "制度", "分析"]
-          },
-          { 
-            id: 103, 
-            title: "高虹安鄭正鈐罷免案即時開票 中央社圖表掌握實況", 
-            views: "15.2k", 
-            date: "2025/7/26 15:00", 
-            author: "中央社",
-            category: "專題報導",
-            sourceCount: 2,
-            shortSummary: "新竹市長高虹安與立委鄭正鈐的罷免案開票過程透過中央社即時圖表呈現，讓民眾能夠第一時間掌握投票進度與結果。",
-            relatedNews: [
-              { id: 1031, title: "高虹安罷免案背景" },
-              { id: 1032, title: "鄭正鈐政治立場" },
-              { id: 1033, title: "新竹市政治情勢" }
-            ],
-            keywords: ["高虹安", "鄭正鈐", "新竹"]
-          }
-        ]
-      },
-    }
-  }
-};
 
 function SpecialReportDetail() {
   const { id } = useParams();
-  const [activeEvent, setActiveEvent] = useState(null);
-  const [expandedCards, setExpandedCards] = useState({});
+  const [report, setReport] = useState(null);
+  const [branches, setBranches] = useState([]); // 專題分支列表
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeEvent, setActiveEvent] = useState(null); // 目前導覽中的分支 ID
   const [isChatOpen, setIsChatOpen] = useState(false);
   const sectionRefs = useRef({});
+  const supabase = useSupabase();
+  const headerImageRef = useRef(null);
+  const vizInstanceRef = useRef(null);
+  const [is5W1HExpanded, setIs5W1HExpanded] = useState(false);
+  const expanded5W1HRef = useRef(null);
+  const expandedVizInstanceRef = useRef(null);
 
-  const report = specialReportData[id];
+  useEffect(() => {
+    const initializeHeaderVisualization = () => {
+      if (headerImageRef.current && !vizInstanceRef.current) {
+        // 使用新的 createHeaderVisualization 函數
+        vizInstanceRef.current = createHeaderVisualization(
+          headerImageRef, 
+          report?.title || "專題分析"
+        );
+      }
+    };
 
-  if (!report) {
+    // 延遲初始化確保 DOM 就緒
+    const timer = setTimeout(initializeHeaderVisualization, 100);
+    
+    return () => {
+      clearTimeout(timer);
+      // 清理實例
+      if (vizInstanceRef.current) {
+        vizInstanceRef.current = null;
+      }
+    };
+  }, [report?.title]);
+
+  // 新增：處理5W1H關聯圖點擊放大
+  useEffect(() => {
+    if (is5W1HExpanded && expanded5W1HRef.current && !expandedVizInstanceRef.current) {
+      // 延遲初始化確保模態框DOM就緒
+      const timer = setTimeout(() => {
+        if (expanded5W1HRef.current) {
+          expandedVizInstanceRef.current = createHeaderVisualization(
+            expanded5W1HRef, 
+            report?.title || "專題分析",
+            true // 標記為模態框模式
+          );
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [is5W1HExpanded, report?.title]);
+
+  // 新增：關閉5W1H關聯圖放大視窗
+  const close5W1HExpanded = () => {
+    setIs5W1HExpanded(false);
+    // 清理放大的視覺化實例
+    if (expandedVizInstanceRef.current) {
+      expandedVizInstanceRef.current = null;
+    }
+  };
+
+  // 新增：點擊5W1H關聯圖放大
+  const handle5W1HClick = () => {
+    setIs5W1HExpanded(true);
+  };
+
+  // 獲取專題詳細資料
+  const fetchSpecialReportDetail = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 專題基本資訊
+      const { data: topicData, error: topicError } = await supabase
+        .from('topic')
+        .select('topic_id, topic_title, topic_short, topic_long, generated_date')
+        .eq('topic_id', id)
+        .single();
+      if (topicError) throw new Error(`無法獲取專題資訊: ${topicError.message}`);
+      if (!topicData) throw new Error('專題不存在');
+
+      // 專題新聞數量
+      const { data: newsCountData, error: countError } = await supabase
+        .from('topic_news_map')
+        .select('topic_id')
+        .eq('topic_id', id);
+      if (countError) console.warn('無法獲取新聞數量:', countError);
+
+      // 專題分支列表（topic_branch）
+      const { data: branchData, error: branchError } = await supabase
+        .from('topic_branch')
+        .select('topic_branch_id, topic_id, topic_branch_title, topic_branch_content')
+        .eq('topic_id', id);
+      if (branchError) console.warn('無法獲取分支列表:', branchError);
+
+      const normalizedBranches = (branchData || []).map((b, idx) => ({
+        id: b.topic_branch_id,
+        name: b.topic_branch_title || `分支 ${idx + 1}`,
+        summary: b.topic_branch_content || ''
+      }));
+
+      // 針對每個分支抓取對應新聞（topic_branch__map -> single_news），並轉為 UnifiedNewsCard 的 customData
+      const branchesWithNews = await Promise.all(
+        normalizedBranches.map(async (branch) => {
+          try {
+            const { data: mapRows, error: mapError } = await supabase
+              .from('topic_branch_news_map')
+              .select('story_id')
+              .eq('topic_branch_id', branch.id);
+            if (mapError) {
+              console.warn(`無法獲取分支 ${branch.id} 的故事映射:`, mapError);
+              return { ...branch, news: [] };
+            }
+            const storyIds = (mapRows || []).map(r => r.story_id).filter(Boolean);
+            if (!storyIds || storyIds.length === 0) {
+              return { ...branch, news: [] };
+            }
+
+            const { data: stories, error: storiesError } = await supabase
+              .from('single_news')
+              .select('story_id, news_title, category, generated_date, total_articles, ultra_short')
+              .in('story_id', storyIds);
+            if (storiesError) {
+              console.warn(`無法獲取分支 ${branch.id} 的新聞內容:`, storiesError);
+              return { ...branch, news: [] };
+            }
+
+            const customData = (stories || []).map(s => ({
+              story_id: s.story_id,
+              title: s.news_title,
+              category: s.category, // 若需中文化，可在這裡自行映射
+              date: s.generated_date,
+              author: 'Gemini',
+              sourceCount: s.total_articles,
+              shortSummary: s.ultra_short,
+              relatedNews: [],
+              views: 0,
+              keywords: [],
+              terms: []
+            }));
+
+            return { ...branch, news: customData };
+          } catch (e) {
+            console.warn(`分支 ${branch.id} 抓取新聞時發生錯誤:`, e);
+            return { ...branch, news: [] };
+          }
+        })
+      );
+
+      const reportData = {
+        topic_id: topicData.topic_id,
+        topic_title: topicData.topic_title,
+        description: topicData.topic_long || topicData.topic_short || '',
+        articles: newsCountData ? newsCountData.length : 0,
+        views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
+        lastUpdate: topicData.generated_date ? new Date(topicData.generated_date).toLocaleDateString('zh-TW') : ''
+      };
+
+  setReport(reportData);
+  setBranches(branchesWithNews);
+  if (branchesWithNews.length > 0) setActiveEvent(branchesWithNews[0].id);
+    } catch (err) {
+      setError(err.message);
+      console.error('獲取專題詳細資料失敗:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchSpecialReportDetail();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, supabase]);
+
+  if (loading) {
+    return (
+      <div className="srdPage">
+        <div className="srdMain">
+          <div style={{ textAlign: 'center', padding: '3rem' }}>
+            <h2>載入中...</h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !report) {
     return (
       <div className="srdPage">
         <div className="srdMain">
           <div style={{ textAlign: 'center', padding: '3rem' }}>
             <h2>專題報導不存在</h2>
-            <p>請返回專題報導列表</p>
+            <p>{error || '請返回專題報導列表'}</p>
             <Link to="/special-reports" style={{ color: '#667eea' }}>
               返回專題報導
             </Link>
@@ -100,19 +215,15 @@ function SpecialReportDetail() {
     );
   }
 
-  const handleNavClick = (event) => {
-    setActiveEvent(event);
-    const targetRef = sectionRefs.current[event];
+  const handleNavClick = (branchId) => {
+    setActiveEvent(branchId);
+    const targetRef = sectionRefs.current[branchId];
     if (targetRef) {
       targetRef.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
-  const toggleExpanded = (cardId) => {
-    setExpandedCards((prev) => ({ ...prev, [cardId]: !prev[cardId] }));
-  };
-
-  
+  // 無需本地卡片展開邏輯，UnifiedNewsCard 內建處理
 
   return (
     <div className="srdPage">
@@ -137,8 +248,8 @@ function SpecialReportDetail() {
         {/* Header */}
         <div className="srdHeader">
           <div className="srdHeader__content">
-            <h1 className="srdHeader__title">{report.title}</h1>
-            <p className="srdHeader__summary">{report.summary}</p>
+            <h1 className="srdHeader__title">{report.topic_title}</h1>
+            <p className="srdHeader__summary">{report.description}</p>
             <div className="srdHeader__meta">
               <div className="srdHeader__metaItem">
                 <span>📅</span>
@@ -154,93 +265,66 @@ function SpecialReportDetail() {
               </div>
             </div>
           </div>
-          <div className="srdHeader__image" />
+          <div className="srdHeader__image" ref={headerImageRef} onClick={handle5W1HClick} style={{ cursor: 'pointer' }}>
+            <div id="header-mindmap" style={{ width: '100%', height: '100%' }}></div>
+            <div className="srdHeader__imageOverlay">
+              <span className="srdHeader__imageHint">點擊放大</span>
+            </div>
+          </div>
         </div>
 
         {/* Layout */}
         <div className="srdLayout">
           <div className="srdMainCol">
-            {report.events.map((event) => {
-              const eventDetail = report.eventDetails[event];
-              return (
-                <section
-                  key={event}
-                  className="srdSection"
-                  ref={(el) => {
-                    sectionRefs.current[event] = el;
-                  }}
-                >
-                  <h2 className="srdSection__title">{event}</h2>
-                  <p className="srdSection__summary">{eventDetail?.summary}</p>
-
-                  <div className="srdGrid">
-                    {eventDetail?.articles.map((news) => {
-                      const isExpanded = !!expandedCards[news.id];
-                      return (
-                        <article key={news.id} className="srdCard">
-                          <div className="srdCard__header">
-                            <Link to={`/news/${news.id}`} className="srdCard__title">
-                              {news.title}
-                            </Link>
-                          </div>
-
-                          <div className="srdCard__info">
-                            <span className="srdDateText">{news.date}</span>
-                            <span className="srdAuthorText">記者 {news.author}</span>
-                          </div>
-
-                          <div className="srdCard__meta">
-                            <span className="srdCategoryTag">{news.category}</span>
-                            <span className="srdSourceCount">{news.sourceCount} 個來源</span>
-                            {news.keywords?.map((kw) => (
-                              <span key={kw} className="srdKeywordChip">{kw}</span>
-                            ))}
-                          </div>
-
-                          <div className="srdCard__content">
-                            <p className={`srdCard__summary ${isExpanded ? 'is-expanded' : ''}`}>
-                              {isExpanded ? news.shortSummary : news.shortSummary.substring(0, 150)}
-                            </p>
-
-                            {isExpanded && (
-                              <div className="srdExpanded">
-                                <div className="srdRelatedNews">
-                                  <h4 className="srdRelatedNews__title">相關報導</h4>
-                                  <ul className="srdRelatedNews__list">
-                                    {news.relatedNews.map((rn) => (
-                                      <li key={rn.id} className="srdRelatedNews__item">
-                                        <Link to={`/news/${rn.id}`} className="srdRelatedNews__link">
-                                          {rn.title}
-                                        </Link>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="srdCard__actions">
-                            <div className="srdActionButtons">
-                              <button
-                                type="button"
-                                className="srdActionButton"
-                                onClick={() => toggleExpanded(news.id)}
-                              >
-                                {isExpanded ? '收起' : '展開'}
-                              </button>
-                            </div>
-                            <div className="srdStats">
-                              <span className="srdStatItem">👁️ {news.views}</span>
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    })}
+            {branches.map((branch) => (
+              <section
+                key={branch.id}
+                className="srdSection"
+                ref={(el) => {
+                  sectionRefs.current[branch.id] = el;
+                }}
+              >
+                <div className="srdSection__header">
+                  <h2 className="srdSection__title">📰{branch.name}</h2>
+                  {branch.summary && (
+                    <div className="srdSection__summary">{branch.summary}</div>
+                  )}
+                  <div className="srdSection__meta">
+                    <div className="srdSection__metaItem">
+                      <span>📄</span>
+                      <span>{branch.news?.length || 0} 篇新聞</span>
+                    </div>
+                    {branch.news?.length > 0 && (
+                      <div className="srdSection__metaItem">
+                        <span>📊</span>
+                        <span>共 {branch.news.reduce((sum, n) => sum + (n.sourceCount || 0), 0)} 來源</span>
+                      </div>
+                    )}
                   </div>
-                </section>
-              );
-            })}
+                  <div className="srdSection__progress"></div>
+                </div>
+
+                <div className="srdSection__content">
+                  {/* 用 UnifiedNewsCard 呈現該分支的新聞：使用 customData 精準渲染 */}
+                  <div className="uncContainer">
+                    {branch.news && branch.news.length > 0 ? (
+                      <UnifiedNewsCard customData={branch.news} instanceId={`branch_${branch.id}`} />
+                    ) : (
+                      <div style={{ 
+                        textAlign: 'center', padding: '2rem', color: '#6b7280',
+                        backgroundColor: '#f8fafc', borderRadius: '12px', 
+                        border: '2px dashed #d1d5db',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        gap: '0.5rem', fontSize: '1.1rem'
+                      }}>
+                        <span>📭</span>
+                        <span>此分支暫無新聞內容</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ))}
           </div>
 
           {/* Sidebar */}
@@ -248,16 +332,20 @@ function SpecialReportDetail() {
             <div className="srdSidebarCard">
               <h3 className="srdSidebarTitle">專題導覽</h3>
               <nav className="srdNav">
-                {report.events.map((event) => (
-                  <button
-                    key={event}
-                    className={`srdNavItem ${activeEvent === event ? 'is-active' : ''}`}
-                    onClick={() => handleNavClick(event)}
-                    type="button"
-                  >
-                    {event}
-                  </button>
-                ))}
+                {branches.length === 0 ? (
+                  <div className="srdNavEmpty">尚無分支</div>
+                ) : (
+                  branches.map((b) => (
+                    <button
+                      key={b.id}
+                      className={`srdNavItem ${activeEvent === b.id ? 'is-active' : ''}`}
+                      onClick={() => handleNavClick(b.id)}
+                      type="button"
+                    >
+                      {b.name}
+                    </button>
+                  ))
+                )}
               </nav>
             </div>
           </aside>
@@ -276,9 +364,29 @@ function SpecialReportDetail() {
           </button>
         </div>
         <div className="chat-sidebar-content">
-          <TopicChatRoom />
+          <TopicChatRoom topic_id={id} topic_title={report.topic_title} />
         </div>
       </div>
+      {/* 新增：5W1H關聯圖放大模態框 */}
+      {is5W1HExpanded && (
+        <div className="srd5W1HModal" onClick={close5W1HExpanded}>
+          <div className="srd5W1HModal__content" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="srd5W1HModal__closeBtn" 
+              onClick={close5W1HExpanded}
+              aria-label="關閉"
+            >
+              ✕
+            </button>
+            <div className="srd5W1HModal__title">
+              <h2>{report.title} - 5W1H關聯分析</h2>
+            </div>
+            <div className="srd5W1HModal__visualization" ref={expanded5W1HRef}>
+              <div id="expanded-mindmap" style={{ width: '100%', height: '100%' }}></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
