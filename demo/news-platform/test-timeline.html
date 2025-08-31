@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時間軸功能測試</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .test-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background: #2980b9;
+        }
+        
+        .test-button:active {
+            transform: translateY(1px);
+        }
+        
+        .timeline-demo {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .timeline-container {
+            position: relative;
+            padding: 15px 0;
+            overflow-x: auto;
+            min-height: 160px;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3498db, #e74c3c);
+            border-radius: 1px;
+            transform: translateY(-50%);
+        }
+        
+        .timeline-item {
+            position: relative;
+            display: inline-block;
+            width: 160px;
+            margin: 0 15px;
+            text-align: center;
+            vertical-align: top;
+        }
+        
+        .time-point {
+            width: 16px;
+            height: 16px;
+            background: #e74c3c;
+            border: 3px solid white;
+            border-radius: 50%;
+            margin: 0 auto 12px auto;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .time-label {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 12px;
+            margin-bottom: 8px;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #ecf0f1;
+        }
+        
+        .time-description {
+            color: #555;
+            font-size: 11px;
+            line-height: 1.3;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .connector {
+            position: absolute;
+            top: 8px;
+            right: -15px;
+            width: 15px;
+            height: 2px;
+            background: #3498db;
+            z-index: 1;
+        }
+        
+        .info-box {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .info-box h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>時間軸功能測試</h1>
+        
+        <div class="test-section">
+            <h2>測試時間軸顯示</h2>
+            <p>點擊以下按鈕測試不同類型的節點詳情顯示：</p>
+            
+            <button class="test-button" onclick="testWhenNode()">測試 WHEN 節點（時間軸）</button>
+            <button class="test-button" onclick="testCenterNode()">測試中心節點</button>
+            <button class="test-button" onclick="testWhoNode()">測試 WHO 節點</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>時間軸功能說明</h2>
+            <div class="info-box">
+                <h3>新增功能</h3>
+                <p><strong>時間軸佈局:</strong> WHEN 節點現在使用橫向時間軸顯示</p>
+                <p><strong>視覺設計:</strong> 時間點上方顯示時間，下方顯示描述</p>
+                <p><strong>響應式:</strong> 支援水平滾動，適應不同螢幕寬度</p>
+                <p><strong>連接線:</strong> 時間點之間有漸變連接線</p>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>時間軸預覽</h2>
+            <div class="timeline-demo">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #34495e;">時間軸</h3>
+                <div class="timeline-container">
+                    <div class="timeline-line"></div>
+                    
+                    <div class="timeline-item">
+                        <div class="time-point"></div>
+                        <div class="time-label">2025年8月22日</div>
+                        <div class="time-description">罷免投票前夕，藍綠陣營加緊動員，蔣萬安南下輔選，罷免團體進行最後衝刺。</div>
+                        <div class="connector"></div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="time-point"></div>
+                        <div class="time-label">2025年8月23日</div>
+                        <div class="time-description">台灣舉行第二輪立委罷免投票，共有七名國民黨立委接受考驗，罷免案及核三重啟公投均未通過。</div>
+                        <div class="connector"></div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="time-point"></div>
+                        <div class="time-label">2025年8月26日</div>
+                        <div class="time-description">罷免公投落幕後，賴清德宣布內閣將改組，朱立倫呼籲釋放柯文哲，民進黨團幹部請辭。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>除錯資訊</h2>
+            <p>開啟瀏覽器開發者工具查看控制台輸出</p>
+            <button class="test-button" onclick="clearConsole()">清除控制台</button>
+        </div>
+    </div>
+
+    <script>
+        // 模擬 FiveW1HVisualization 的節點詳情顯示功能
+        function showNodeDetail(node) {
+            try {
+                console.log('🔍 開始顯示節點詳情:', node);
+                
+                // 移除現有的詳情視窗
+                const existingModal = document.getElementById('node-detail-modal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+                
+                // 創建詳情視窗
+                const modal = document.createElement('div');
+                modal.id = 'node-detail-modal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10000;
+                    cursor: pointer;
+                `;
+                
+                // 創建視窗內容
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: white;
+                    border-radius: 15px;
+                    padding: 25px;
+                    max-width: 800px;
+                    width: 90%;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                    cursor: default;
+                    position: relative;
+                `;
+                
+                // 關閉按鈕
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '×';
+                closeBtn.style.cssText = `
+                    position: absolute;
+                    top: 15px;
+                    right: 20px;
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #666;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    transition: background 0.3s ease;
+                `;
+                
+                closeBtn.onmouseover = () => {
+                    closeBtn.style.background = '#f0f0f0';
+                };
+                
+                closeBtn.onmouseout = () => {
+                    closeBtn.style.background = 'none';
+                };
+                
+                closeBtn.onclick = () => {
+                    modal.remove();
+                };
+                
+                // 節點標題
+                const title = document.createElement('h2');
+                title.textContent = node.label;
+                title.style.cssText = `
+                    margin: 0 0 15px 0;
+                    color: #2c3e50;
+                    font-size: 1.5em;
+                    font-weight: bold;
+                    text-align: center;
+                `;
+                
+                // 節點類型標籤
+                const typeLabel = document.createElement('div');
+                typeLabel.textContent = getNodeTypeLabel(node.type);
+                typeLabel.style.cssText = `
+                    display: inline-block;
+                    background: ${getNodeTypeColor(node.type)};
+                    color: white;
+                    padding: 5px 12px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    margin-bottom: 20px;
+                    text-align: center;
+                `;
+                
+                // 節點描述
+                const description = document.createElement('p');
+                description.textContent = node.description;
+                description.style.cssText = `
+                    margin: 15px 0;
+                    color: #555;
+                    line-height: 1.6;
+                    font-size: 14px;
+                `;
+                
+                // 組裝視窗內容
+                modalContent.appendChild(closeBtn);
+                modalContent.appendChild(title);
+                modalContent.appendChild(typeLabel);
+                modalContent.appendChild(description);
+                
+                // 如果是時間節點，添加時間軸
+                if (node.category === 'when') {
+                    const timelineContent = createTimelineContent();
+                    if (timelineContent) {
+                        modalContent.appendChild(timelineContent);
+                    }
+                }
+                
+                // 將內容添加到模態視窗
+                modal.appendChild(modalContent);
+                
+                // 點擊背景關閉視窗
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                };
+                
+                // 添加到頁面
+                document.body.appendChild(modal);
+                
+                console.log('✅ 節點詳情視窗創建成功');
+            } catch (error) {
+                console.error('❌ 創建節點詳情視窗失敗:', error);
+                alert(`顯示節點詳情失敗: ${node.label || '未知節點'}`);
+            }
+        }
+        
+        function createTimelineContent() {
+            const container = document.createElement('div');
+            container.style.cssText = `
+                margin-top: 20px;
+                border-top: 1px solid #eee;
+                padding-top: 20px;
+            `;
+            
+            const title = document.createElement('h3');
+            title.textContent = '時間軸';
+            title.style.cssText = `
+                margin: 0 0 20px 0;
+                color: #34495e;
+                font-size: 1.2em;
+                font-weight: bold;
+                text-align: center;
+            `;
+            
+            container.appendChild(title);
+            
+            // 創建時間軸容器
+            const timelineContainer = document.createElement('div');
+            timelineContainer.style.cssText = `
+                position: relative;
+                padding: 15px 0;
+                overflow-x: auto;
+            `;
+            
+            // 創建時間軸線
+            const timelineLine = document.createElement('div');
+            timelineLine.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #3498db, #e74c3c);
+                border-radius: 1px;
+                transform: translateY(-50%);
+            `;
+            
+            timelineContainer.appendChild(timelineLine);
+            
+            // 模擬時間節點資料
+            const timeNodes = [
+                {
+                    label: '2025年8月22日',
+                    description: '罷免投票前夕，藍綠陣營加緊動員，蔣萬安南下輔選，罷免團體進行最後衝刺。'
+                },
+                {
+                    label: '2025年8月23日',
+                    description: '台灣舉行第二輪立委罷免投票，共有七名國民黨立委接受考驗，罷免案及核三重啟公投均未通過。'
+                },
+                {
+                    label: '2025年8月26日',
+                    description: '罷免公投落幕後，賴清德宣布內閣將改組，朱立倫呼籲釋放柯文哲，民進黨團幹部請辭。'
+                }
+            ];
+            
+            // 創建時間點
+            timeNodes.forEach((timeNode, index) => {
+                const timelineItem = document.createElement('div');
+                timelineItem.style.cssText = `
+                    position: relative;
+                    display: inline-block;
+                    width: 160px;
+                    margin: 0 15px;
+                    text-align: center;
+                    vertical-align: top;
+                `;
+                
+                // 時間點圓圈
+                const timePoint = document.createElement('div');
+                timePoint.style.cssText = `
+                    width: 16px;
+                    height: 16px;
+                    background: #e74c3c;
+                    border: 3px solid white;
+                    border-radius: 50%;
+                    margin: 0 auto 12px auto;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                    position: relative;
+                    z-index: 2;
+                `;
+                
+                // 時間標籤
+                const timeLabel = document.createElement('div');
+                timeLabel.textContent = timeNode.label;
+                timeLabel.style.cssText = `
+                    font-weight: bold;
+                    color: #2c3e50;
+                    font-size: 12px;
+                    margin-bottom: 8px;
+                    background: white;
+                    padding: 4px 8px;
+                    border-radius: 12px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    border: 1px solid #ecf0f1;
+                `;
+                
+                // 描述內容
+                const description = document.createElement('div');
+                description.textContent = timeNode.description;
+                description.style.cssText = `
+                    color: #555;
+                    font-size: 11px;
+                    line-height: 1.3;
+                    background: #f8f9fa;
+                    padding: 10px;
+                    border-radius: 6px;
+                    border: 1px solid #e9ecef;
+                    min-height: 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                `;
+                
+                // 連接線（除了最後一個點）
+                if (index < timeNodes.length - 1) {
+                    const connector = document.createElement('div');
+                    connector.style.cssText = `
+                        position: absolute;
+                        top: 8px;
+                        right: -15px;
+                        width: 15px;
+                        height: 2px;
+                        background: #3498db;
+                        z-index: 1;
+                    `;
+                    timelineItem.appendChild(connector);
+                }
+                
+                timelineItem.appendChild(timePoint);
+                timelineItem.appendChild(timeLabel);
+                timelineItem.appendChild(description);
+                timelineContainer.appendChild(timelineItem);
+            });
+            
+            container.appendChild(timelineContainer);
+            
+            return container;
+        }
+        
+        function getNodeTypeLabel(type) {
+            const labels = {
+                'center': '核心議題',
+                '5w1h': '5W1H要素',
+                'detail': '詳細資訊'
+            };
+            return labels[type] || '未知類型';
+        }
+        
+        function getNodeTypeColor(type) {
+            const colors = {
+                'center': '#e74c3c',
+                '5w1h': '#3498db',
+                'detail': '#95a5a6'
+            };
+            return colors[type] || '#95a5a6';
+        }
+        
+        // 測試函數
+        function testWhenNode() {
+            const node = {
+                id: 'when',
+                label: '發生時間',
+                type: '5w1h',
+                category: 'when',
+                description: '主要發生在2025年8月，包括罷免投票日及前後的政治活動，以及公投的舉行時間。'
+            };
+            showNodeDetail(node);
+        }
+        
+        function testCenterNode() {
+            const node = {
+                id: 'center',
+                label: '大罷免事件概述',
+                type: 'center',
+                description: '2025年台灣發生了針對多位國民黨立委的罷免案，以及核三重啟公投。罷免案由公民團體發起，民進黨支持，但最終均未通過。事件反映台灣政治進入朝野勢均力敵的新局面，並引發內閣改組及政黨內部的檢討。'
+            };
+            showNodeDetail(node);
+        }
+        
+        function testWhoNode() {
+            const node = {
+                id: 'who',
+                label: '相關人物',
+                type: '5w1h',
+                category: 'who',
+                description: '包括被罷免的國民黨立委、發起罷免的公民團體、民進黨及國民黨的政治人物，以及受公投影響的民眾。'
+            };
+            showNodeDetail(node);
+        }
+        
+        function clearConsole() {
+            console.clear();
+            console.log('🧹 控制台已清除');
+        }
+        
+        // 頁面載入完成後的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ 時間軸測試頁面載入完成');
+            console.log('🔧 點擊「測試 WHEN 節點（時間軸）」按鈕來測試新的時間軸功能');
+        });
+    </script>
+</body>
+</html>
