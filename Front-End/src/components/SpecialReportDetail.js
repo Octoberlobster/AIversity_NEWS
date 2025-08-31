@@ -28,7 +28,9 @@ function SpecialReportDetail() {
         // 使用新的 createHeaderVisualization 函數
         vizInstanceRef.current = createHeaderVisualization(
           headerImageRef, 
-          report?.title || "專題分析"
+          report?.topic_title || "專題分析",
+          false, // isModal
+          report?.topic_id || id // 傳遞 topic_id，如果沒有就用 URL 的 id
         );
       }
     };
@@ -43,7 +45,7 @@ function SpecialReportDetail() {
         vizInstanceRef.current = null;
       }
     };
-  }, [report?.title]);
+  }, [report?.topic_title, report?.topic_id, id]);
 
   // 新增：處理5W1H關聯圖點擊放大
   useEffect(() => {
@@ -53,15 +55,16 @@ function SpecialReportDetail() {
         if (expanded5W1HRef.current) {
           expandedVizInstanceRef.current = createHeaderVisualization(
             expanded5W1HRef, 
-            report?.title || "專題分析",
-            true // 標記為模態框模式
+            report?.topic_title || "專題分析",
+            true, // 標記為模態框模式
+            report?.topic_id || id // 傳遞 topic_id
           );
         }
       }, 100);
       
       return () => clearTimeout(timer);
     }
-  }, [is5W1HExpanded, report?.title]);
+  }, [is5W1HExpanded, report?.topic_title, report?.topic_id, id]);
 
   // 新增：關閉5W1H關聯圖放大視窗
   const close5W1HExpanded = () => {
@@ -76,7 +79,6 @@ function SpecialReportDetail() {
   const handle5W1HClick = () => {
     setIs5W1HExpanded(true);
   };
-
   // 獲取專題詳細資料
   const fetchSpecialReportDetail = async () => {
     try {

@@ -3,6 +3,7 @@ import './../css/FloatingChat.css';
 import { useLocation } from 'react-router-dom';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { fetchJson } from './api';
+import { supabase } from './supabase.js';
 
 function FloatingChat() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -50,7 +51,7 @@ function FloatingChat() {
     // 新增使用者訊息
     setMessages((prev) => [
       ...prev,
-      { id: Date.now(), text, isOwn: true, time: now },
+      { id: Date.now(), text, isOwn: true, time: now,type: 'text'},
     ]);
     setNewMessage('');
 
@@ -66,15 +67,52 @@ function FloatingChat() {
       // 處理後端回應
       const reply = response.response || '抱歉，我無法處理您的請求。';
       console.log('後端回應:', reply);
-      setMessages((prev) => [
-        ...prev,
-        ...reply.map((item) => ({
-          id: Date.now() + Math.random(), // 確保唯一 ID
-          text: item.chat_response, // 提取 chat_response
-          isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-        })),
-      ]);
+
+      // 處理每篇新聞
+      const newsMessages = await Promise.all(
+        reply.map(async (item) => {
+          if (item.news_id && Array.isArray(item.news_id)) {
+            // 如果有 news_id，從資料庫抓取內容
+            const newsData = await Promise.all(
+              item.news_id.map(async (newsId) => {
+                const { data, error } = await supabase
+                  .from('single_news')
+                  .select('news_title, ultra_short,generated_image(image)')// generated_image(image)為base64字串
+                  .eq('story_id', newsId)
+                  .single();
+
+                if (error) {
+                  console.error('Error fetching news:', error);
+                  return null;
+                }
+                //console.log(data.generated_image.image);
+                return {
+                  id: Date.now() + Math.random(), // 確保唯一 ID
+                  type: 'news',
+                  title: data.news_title,
+                  image: data.generated_image.image,
+                  ultra_short: data.ultra_short,
+                  newsId, // 用於跳轉
+                  isOwn: false,
+                  time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+                };
+              })
+            );
+            return newsData.filter(Boolean); // 過濾掉 null 的結果
+          } else {
+            // 如果沒有 news_id，處理為普通訊息
+            return {
+              id: Date.now() + Math.random(),
+              type: 'text',
+              text: item.chat_response,
+              isOwn: false,
+              time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+            };
+          }
+        })
+      );
+
+      setMessages((prev) => [...prev, ...newsMessages.flat()]);
     } catch (error) {
       console.error('Error fetching chat response:', error);
       setMessages((prev) => [
@@ -149,17 +187,42 @@ function FloatingChat() {
                 </div>
               )}
 
-              {messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={`fchat__message ${m.isOwn ? 'fchat__message--own' : ''}`}
-                >
-                  <div className={`fchat__bubble ${m.isOwn ? 'fchat__bubble--own' : ''}`}>
-                    {m.text}
-                  </div>
-                  <span className="fchat__time">{m.time}</span>
-                </div>
-              ))}
+              {messages.map((m) => {
+                if (m.type === 'news') {
+                  return (
+                    <div key={m.id} className="fchat__message fchat__message--news">
+                      <div
+                        className="fchat__bubble fchat__bubble--news"
+                        onClick={() => window.location.href = `/news/${m.newsId}`}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <img
+                          src={`data:image/png;base64,${m.image}`}
+                          alt="新聞圖片"
+                          style={{ width: '100px', height: '100px', marginRight: '10px' }}
+                        />
+                        <div>
+                          <h4>{m.title}</h4>
+                          <p>{m.ultra_short}</p>
+                        </div>
+                      </div>
+                      <span className="fchat__time">{m.time}</span>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div
+                      key={m.id}
+                      className={`fchat__message ${m.isOwn ? 'fchat__message--own' : ''}`}
+                    >
+                      <div className={`fchat__bubble ${m.isOwn ? 'fchat__bubble--own' : ''}`}>
+                        {m.text}
+                      </div>
+                      <span className="fchat__time">{m.time}</span>
+                    </div>
+                  );
+                }
+              })}
               <div ref={messagesEndRef} />
             </div>
 
