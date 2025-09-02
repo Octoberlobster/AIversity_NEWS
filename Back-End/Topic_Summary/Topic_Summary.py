@@ -42,7 +42,7 @@ def fetch_data_from_database(supabase):
     return topic, topic_news_map, topic_to_stories_map
 
 def generate_topic_summary(gemini, topic_title, stories):
-    """使用 Gemini 生成專題摘要"""
+    """使用 Gemini 生成專題摘要，並透過多步驟確保字數符合要求"""
     if not stories:
         return {
             "topic_title": topic_title, 
@@ -50,79 +50,105 @@ def generate_topic_summary(gemini, topic_title, stories):
             "long_summary": "無相關新聞資料"
         }
     
-    # 建立 prompt
+    # 步驟 1: 建立初始 Prompt
     news_content = "\n".join([f"標題: {story['news_title']}\n摘要: {story['short']}" for story in stories])
-    prompt = f"""請根據以下新聞資料，為專題「{topic_title}」生成兩種長度的摘要：
-        **撰寫要求：**
-        1. 短摘要（60-70字）：
-        - 突出最核心的事件或發展
-        - 包含關鍵數據或結果
-        - 語調客觀中性，避免情緒性用詞
-        - 嚴格控制在70字以內
+    initial_prompt = f"""
+        請根據以下新聞資料，為專題「{topic_title}」生成兩種長度的摘要：
+        **重要：字數限制非常嚴格，請務必遵守**
 
-        2. 長摘要（約150字）：
-        - 提供事件背景與完整脈絡
-        - 說明各方立場或影響
-        - 包含時間軸和因果關係
-        - 嚴格控制在150字左右
+        **撰寫要求：**
+        1. 短摘要（約80字）：**絕對不可超過80字**。
+        2. 長摘要（約200字）：**絕對不可超過200字**。
 
         **內容原則：**
-        - 以事實為主，避免推測或評論
-        - 使用正式書面語，避免口語化表達
-        - 優先提及具體數字、日期、人物
-        - 保持時序邏輯清晰
-        - **重要：僅使用繁體中文，禁止使用任何其他語言文字**
-        - **嚴格限制：僅使用下方提供的新聞資料，不得添加資料外的資訊**
+        - 僅使用下方提供的新聞資料，不得添加資料外的資訊。
+        - 使用正式、客觀的繁體中文。
 
         **輸出格式：**
-        請嚴格按照 JSON 格式輸出，不要添加任何額外說明文字。
-        所有內容必須是繁體中文，不得包含英文、阿拉伯文、日文或其他語言字符。
-        摘要內容必須完全來自提供的新聞資料，不可加入外部知識。
-        
+        - 嚴格按照 JSON 格式輸出。
+
         **新聞資料：**
         {news_content}
-    """
+    """    
     
-    # 設定 config
-    config = types.GenerateContentConfig(
-        system_instruction="你是一個新聞摘要專家，請根據提供的新聞資料生成簡潔、客觀的專題摘要。短摘要應控制在60-70字內，突出最重要的信息；長摘要應控制在150字左右，提供更詳細的背景與發展。請嚴格按照指定的 JSON 格式輸出。重要：請只使用繁體中文，絕對不要使用其他語言文字（包括英文、阿拉伯文、日文等），確保所有文字都是正確的中文字符。請僅根據提供的新聞資料內容進行摘要，不要添加資料中沒有的資訊或背景知識。",
-        response_mime_type="application/json",
-        response_schema=TopicSummaryResponse.model_json_schema()
-    )
-    
+    # 步驟 2: 第一次嘗試 (寬鬆生成，確保JSON完整)
     try:
+        config = types.GenerateContentConfig(
+            system_instruction="你是一個新聞摘要專家，專注於生成指定字數的摘要。字數控制是最高優先級。",
+            response_mime_type="application/json",
+            response_schema=TopicSummaryResponse.model_json_schema(),
+            max_output_tokens=450,
+            temperature=0.5
+        )
+        
+        print(f"--- 第一次嘗試生成 '{topic_title}' 摘要 ---")
         response = gemini.models.generate_content(
             model="gemini-2.5-flash-lite",
-            contents=prompt,
+            contents=initial_prompt,
             config=config
         )
-        response_text = response.text.strip()
-        
-        # 移除可能的 markdown 代碼塊格式
-        if response_text.startswith("```json") and response_text.endswith("```"):
-            response_text = response_text[7:-3].strip()
-        elif response_text.startswith("```") and response_text.endswith("```"):
-            # 處理沒有 json 標記的情況
-            response_text = response_text[3:-3].strip()
-        
+        response_text = response.text.strip().removeprefix("```json").removesuffix("```").strip()
         result = json.loads(response_text)
-        return {
-            "topic_title": topic_title, 
-            "short_summary": result["short_summary"],
-            "long_summary": result["long_summary"]
-        }
-    except json.JSONDecodeError as e:
-        return {
-            "topic_title": topic_title, 
-            "short_summary": "生成摘要失敗: JSON解析錯誤",
-            "long_summary": "生成摘要失敗: JSON解析錯誤"
-        }
-    except Exception as e:
+        
+        short_summary = result.get("short_summary", "")
+        long_summary = result.get("long_summary", "")
+        short_len, long_len = len(short_summary), len(long_summary)
+        print(f"第一次生成長度：短摘要 {short_len} 字，長摘要 {long_len} 字")
+
+        # 步驟 3: 驗證與第二次嘗試 (如果字數超標)
+        if short_len > 80 or long_len > 200:
+            print(f"--- 字數超標，進行第二次嚴格修正 ---")
+            refine_prompt = f"""你上次為「{topic_title}」生成的摘要太長了。請根據以下原文，嚴格縮減到指定字數內：
+
+            **你的目標：**
+            1.  **短摘要**：從 {short_len} 字縮減到 **80字以內**。
+            2.  **長摘要**：從 {long_len} 字縮減到 **200字以內**。
+
+            **你的原文：**
+            短摘要：「{short_summary}」
+            長摘要：「{long_summary}」
+
+            請重新提煉，只保留最核心的資訊，確保輸出是完整的 JSON 格式。
+            """
+            strict_config = types.GenerateContentConfig(
+                system_instruction="你是一個文字精煉專家。你的唯一任務是縮減文字長度，同時保持核心意思。字數限制是絕對的！",
+                response_mime_type="application/json",
+                response_schema=TopicSummaryResponse.model_json_schema(),
+                max_output_tokens=400,
+                temperature=0.2
+            )
+            
+            retry_response = gemini.models.generate_content(
+                model="gemini-2.5-flash-lite", contents=refine_prompt, config=strict_config
+            )
+            retry_text = retry_response.text.strip().removeprefix("```json").removesuffix("```").strip()
+            retry_result = json.loads(retry_text)
+
+            short_summary = retry_result.get("short_summary", short_summary)
+            long_summary = retry_result.get("long_summary", long_summary)
+            print(f"第二次生成長度：短摘要 {len(short_summary)} 字，長摘要 {len(long_summary)} 字")
+
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"生成摘要時發生錯誤: {e}")
         return {
             "topic_title": topic_title, 
             "short_summary": f"生成摘要失敗: {str(e)}",
             "long_summary": f"生成摘要失敗: {str(e)}"
         }
+
+    # 步驟 4: 最終保障 (強制截斷)
+    if len(short_summary) > 80:
+        print(f"短摘要 ({len(short_summary)}字) 仍超標，強制截斷。")
+        short_summary = short_summary[:80]
+    if len(long_summary) > 200:
+        print(f"長摘要 ({len(long_summary)}字) 仍超標，強制截斷。")
+        long_summary = long_summary[:200]
+
+    return {
+        "topic_title": topic_title, 
+        "short_summary": short_summary,
+        "long_summary": long_summary
+    }
 
 def update_topic_summaries_to_database(supabase, topic_summaries):
     """將生成的摘要存入資料庫"""
