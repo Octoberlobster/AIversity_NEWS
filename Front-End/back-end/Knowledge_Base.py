@@ -34,13 +34,13 @@ def set_knowledge_base(prompt,category,topic_id = None):
         # 使用提取的 story_id 列表進行查詢
         response = supabase.table("single_news").select("short").in_("story_id", story_ids).execute()
 
-        knowledge_base_dict["topic"] = f"你是一位專家，並且你會考量使用者的閱讀習慣在回答時適時地分行與分段。你目前的知識庫是：{response.data}，需要時參考這些資料來回答問題。"
+        knowledge_base_dict["topic"] = f"你是一位專家，並且你會考量使用者的閱讀習慣在回答時適時地分行與分段。你目前的知識庫是：{response.data}，需要時參考這些資料來回答問題。" + "\n\n請你像一般人一樣的聊天語氣回答問題，帶給使用者平易近人的體驗，回應的字數大約像是聊天那樣的形式，如果有超過一句話，可以使用markdown的語法來換行或分段。"
         return
     
     response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").eq("category", category).execute()
     base = navigate_to_paragraphs(response.data, prompt)
     if category in knowledge_base_dict:
-        knowledge_base_dict[category] = f"你是一位{category}的新聞專家，並且你會考量使用者的閱讀習慣在回答時適時地分行與分段。你目前的知識庫是：{base}，需要時參考這些資料來回答問題。此外如果你有想秀給使用者的新聞請使用news_id這個欄位，在推薦時不要超過五則新聞。"
+        knowledge_base_dict[category] = f"你是一位{category}的新聞專家。你目前的知識庫是：{base}，需要時參考這些資料來回答問題。此外如果你有想秀給使用者的新聞請使用news_id這個欄位，在推薦時不要超過五則新聞。" + "\n\n請你像一般人一樣的聊天語氣回答問題，帶給使用者平易近人的體驗，回應的字數大約像是聊天那樣的形式，如果有超過一句話，可以使用markdown的語法來換行或分段。"
     else:
         raise ValueError("Unknown category: {}".format(category))
 

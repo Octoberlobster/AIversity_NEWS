@@ -1,10 +1,10 @@
-import Hint_Prompt_Single
 import Hint_Prompt_Search
-import Hint_Prompt_Topic
 import Advanced_Search_Service
 from flask_cors import CORS
 from flask import Flask, request, jsonify
 from ChatRoom import ChatRoom
+from Hint_Prompt_Single import Hint_Prompt_Single
+from Hint_Prompt_Topic import Hint_Prompt_Topic
 
 app = Flask(__name__)
 CORS(app)
@@ -18,15 +18,17 @@ def chat():
     prompt = data.get("prompt")
     categories = data.get("category")
     article = data.get("article")
-    Hint_Prompt_Single.refresh_hint_prompt()
 
     if not user_id or not room_id or not prompt or not categories:
         return jsonify({"error": "Missing required fields"}), 400
-    
-    key = (user_id, room_id)
+
+    key = (user_id, room_id,"chat")
     if key not in user_sessions:
         user_sessions[key] = ChatRoom()
     room = user_sessions[key]
+
+    if user_sessions[(user_id,room_id,"hint_prompt")]:
+        user_sessions[(user_id,room_id,"hint_prompt")].refresh_hint_prompt()
 
     prompt = f"目前正在閱讀的文章是：{article}，請根據這篇文章回答使用者。以下是使用者的提問：{prompt}"
 
@@ -37,16 +39,31 @@ def chat():
 @app.route("/hint_prompt/single", methods=["POST"])
 def hint_Prompt():
     data = request.json
+    user_id = data.get("user_id")
+    room_id = data.get("room_id")
     option = data.get("option")
     article = data.get("article")
-    if not option or not article:
-        return jsonify({"error": "Missing 'option' or 'article'"}), 400
+    chat_content = data.get("chat_content")
+
+    if not user_id or not room_id or not option or not article:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # 確保每個 user_id 和 room_id 的組合都有一個 Hint_Prompt_Single 實例
+    key = (user_id, room_id,"hint_prompt")
+    if key not in user_sessions:
+        user_sessions[key] = Hint_Prompt_Single(chat_content or "")
+    else:
+        # 如果實例已存在，追加新的聊天內容
+        user_sessions[key].append_to_chat_content(chat_content or "")
+
+    generator = user_sessions[key]
+
     try:
-        response = Hint_Prompt_Single.generate_hint_prompt(tuple(option), article)
+        # 調用 generate_hint_prompt 方法
+        response = generator.generate_hint_prompt(tuple(option), article, generator.chat_content)
         return jsonify(response)
     except Exception as e:
         print(f"Error: {e}")
-        print("fuck myself")
         return jsonify({"error": str(e)}), 500
     
 @app.route("/chat/search", methods=["POST"])
@@ -62,7 +79,7 @@ def chat_search():
     
     print("yews")
 
-    key = (user_id, room_id)
+    key = (user_id, room_id,"chat")
     if key not in user_sessions:
         user_sessions[key] = ChatRoom()
     room = user_sessions[key]
@@ -77,7 +94,6 @@ def chat_search():
 
 @app.route("/hint_prompt/search", methods=["POST"])
 def hint_Prompt_search():
-    data = request.json    
     try:
         response = Hint_Prompt_Search.generate_hint_prompt()
         return jsonify(response)
@@ -97,7 +113,7 @@ def chat_topic():
     if not user_id or not room_id or not topic_id or not prompt:
         return jsonify({"error": "Missing required fields"}), 400
 
-    key = (user_id, room_id)
+    key = (user_id, room_id,"chat")
     if key not in user_sessions:
         user_sessions[key] = ChatRoom()
     room = user_sessions[key]
@@ -113,10 +129,25 @@ def chat_topic():
 def hint_prompt_topic():
     data = request.json
     topic_id = data.get("topic_id")
-    if not topic_id:
-        return jsonify({"error": "Missing 'topic_id'"}), 400
+    user_id = data.get("user_id")
+    room_id = data.get("room_id")
+    chat_content = data.get("chat_content")
+    if not topic_id or not user_id or not room_id:
+        return jsonify({"error": "Missing 'topic_id', 'user_id' or 'room_id'"}), 400
+
+    key = (user_id, room_id,"hint_prompt")
+    if key not in user_sessions:
+        user_sessions[key] = Hint_Prompt_Topic()
+    generator = user_sessions[key]
+    generator.topic_id = topic_id
+
+    if not chat_content:
+        prompt = "幫助使用者開始聊天"
+    else:
+        prompt = chat_content
+
     try:
-        response = Hint_Prompt_Topic.generate_hint_prompt(topic_id)
+        response = generator.generate_hint_prompt(prompt)
         return jsonify(response)
     except Exception as e:
         print(f"Error: {e}")

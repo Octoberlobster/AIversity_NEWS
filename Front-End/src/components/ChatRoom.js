@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getOrCreateUserId, createRoomId } from './utils.js';
+import ReactMarkdown from 'react-markdown';
 import { fetchJson } from './api';
 import './../css/ChatRoom.css';
 
@@ -21,7 +22,7 @@ const expertReplies = {};
 const quickPrompts = [];
 
 function ChatRoom({news}) {
-  const [selectedExperts, setSelectedExperts] = useState([1, 2, 3]);
+  const [selectedExperts, setSelectedExperts] = useState([]);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -69,7 +70,7 @@ function ChatRoom({news}) {
     changeQuickPrompt();
   };
 
-  const changeQuickPrompt = async () => {
+  const changeQuickPrompt = async (chat_content = '') => {
     try{
       const options = selectedExperts.map(
         (expertId) => experts.find((e) => e.id === expertId).category
@@ -77,7 +78,10 @@ function ChatRoom({news}) {
 
       const response = await fetchJson('/hint_prompt/single', {
         option : options,
+        user_id: user_id,
+        room_id: room_id,
         article: news,
+        chat_content: chat_content,
       });
       quickPrompts.length = 0; // 清空之前的提示
       console.log('Fetched quick prompts:', response);
@@ -130,22 +134,25 @@ function ChatRoom({news}) {
           const expertId = selectedExperts[index]; // 根據順序匹配專家 ID
           const expertReply = makeExpertReply(expertId); // 使用 makeExpertReply 生成回覆
           expertReply.text = `${experts.find((e) => e.id === expertId).name}：${reply.chat_response}`; // 更新回覆內容
-          expertReply.text = expertReply.text.replace(/\*+/g, "");
 
           setMessages((prev) => [...prev, expertReply]);
-
-          // const relatedNews = reply.related_news || [];
-          // relatedNews.forEach((newsItem) => {
-          //   setMessages((prev) => [...prev, { id: Date.now(), text: `相關新聞：${newsItem}`, isOwn: false }]);
-          // });
         }, 1000 + index * 500); // 模擬延遲
       });
+
+      // 格式化專家回覆為 "類別:回答"
+      const formattedReplies = response.response.map((reply, index) => {
+        const category = categories[index];
+        return `${category}: ${reply.chat_response}`;
+      });
+
+      // 呼叫 changeQuickPrompt，傳入格式化的回覆
+      changeQuickPrompt(`user:${inputMessage} ${formattedReplies.join(" ")}`);
     } catch (error) {
       console.error('Error fetching expert replies:', error);
     }
   };
 
-  //這邊運作邏輯要改
+
   const handlePromptSend = (promptText) => {
     setInputMessage(promptText);
     handleSendMessage();
@@ -218,7 +225,9 @@ function ChatRoom({news}) {
 
         {messages.map((m) => (
           <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''}`}>
-            <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>{m.text}</div>
+            <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>
+              <ReactMarkdown>{m.text}</ReactMarkdown>
+            </div>
             <span className="time">{m.time}</span>
           </div>
         ))}

@@ -120,7 +120,7 @@
 /* 熱門關鍵字雲 */
 .keywordCloud {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 0.8rem;
   padding: 0.5rem 0.2rem;
   align-items: stretch; /* 讓所有項目高度一致 */
@@ -128,7 +128,7 @@
 
 @media (max-width: 768px) {
   .keywordCloud {
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
     gap: 0.6rem;
   }
 }
@@ -141,23 +141,26 @@
   background: linear-gradient(135deg, #f3f4f6 0%, #e0e7ef 100%);
   color: #667eea;
   font-weight: 600;
-  font-size: clamp(0.8rem, var(--size, 1rem), 1.2rem); /* 限制字體大小範圍 */
+  font-size: clamp(0.75rem, var(--size, 0.9rem), 1.1rem); /* 稍微調小字體範圍 */
   border-radius: 18px;
-  padding: 0.5rem 0.8rem;
-  min-height: 40px; /* 統一最小高度 */
+  padding: 0.6rem 0.8rem; /* 增加垂直 padding */
+  min-height: 50px; /* 增加最小高度以容納換行文字 */
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(102, 126, 234, 0.04);
-  white-space: nowrap; /* 防止換行 */
-  overflow: hidden; /* 隱藏溢出文字 */
-  text-overflow: ellipsis; /* 用省略號顯示截斷 */
+  white-space: normal; /* 允許換行 */
+  overflow: visible; /* 顯示所有內容 */
+  word-break: break-word; /* 在需要時斷詞 */
+  hyphens: auto; /* 自動連字符 */
+  line-height: 1.3; /* 調整行高 */
 }
 
 @media (max-width: 768px) {
   .keyword {
-    min-height: 36px;
-    padding: 0.4rem 0.6rem;
-    font-size: clamp(0.7rem, var(--size, 0.9rem), 1rem);
+    min-height: 45px; /* 手機版也增加高度 */
+    padding: 0.5rem 0.6rem; /* 增加垂直 padding */
+    font-size: clamp(0.7rem, var(--size, 0.8rem), 0.95rem);
+    line-height: 1.2;
   }
 }
 .keyword:hover {

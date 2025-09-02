@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import './../css/FloatingChat.css';
 import { useLocation } from 'react-router-dom';
 import { getOrCreateUserId, createRoomId } from './utils.js';
@@ -16,24 +17,38 @@ function FloatingChat() {
   const roomIdRef = useRef(createRoomId());
   const room_id = roomIdRef.current;
 
+  const fixedPrompts = [
+    "近期有什麼重要的新聞？",
+  ];
+
   // 滾動到底
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-    // Fetch quickPrompts 從後端獲取資料
+  // Fetch quickPrompts 從後端獲取資料
   useEffect(() => {
+    let isMounted = true;
+    console.log("fuck fuck")
     const fetchQuickPrompts = async () => {
       try {
         const response = await fetchJson('/hint_prompt/search', {});
-        setQuickPrompts(response.Hint_Prompt || []);
+        if (isMounted) {
+          const dynamicPrompts = response.Hint_Prompt || [];
+          setQuickPrompts([...fixedPrompts, ...dynamicPrompts]);
+        }
       } catch (error) {
-        console.error('Error fetching quick prompts:', error);
+        if (isMounted) {
+          console.error('Error fetching quick prompts:', error);
+          setQuickPrompts([...fixedPrompts]);
+        }
       }
     };
-
     fetchQuickPrompts();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [user_id]);
 
   // 詳情頁不顯示
   const isSpecialReportPage = location.pathname.includes('/special-report/');
@@ -51,7 +66,7 @@ function FloatingChat() {
     // 新增使用者訊息
     setMessages((prev) => [
       ...prev,
-      { id: Date.now(), text, isOwn: true, time: now,type: 'text'},
+      { id: Date.now(), text, isOwn: true, time: now, type: 'text' },
     ]);
     setNewMessage('');
 
@@ -68,16 +83,28 @@ function FloatingChat() {
       const reply = response.response || '抱歉，我無法處理您的請求。';
       console.log('後端回應:', reply);
 
-      // 處理每篇新聞
+      // 先處理普通訊息
+      const textMessages = reply
+        .map((item) => ({
+          id: Date.now() + Math.random(),
+          type: 'text',
+          text: item.chat_response,
+          isOwn: false,
+          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+        }));
+
+      setMessages((prev) => [...prev, ...textMessages]);
+
+      // 延遲處理新聞訊息
       const newsMessages = await Promise.all(
-        reply.map(async (item) => {
-          if (item.news_id && Array.isArray(item.news_id)) {
-            // 如果有 news_id，從資料庫抓取內容
+        reply
+          .filter((item) => item.news_id && Array.isArray(item.news_id))
+          .map(async (item) => {
             const newsData = await Promise.all(
               item.news_id.map(async (newsId) => {
                 const { data, error } = await supabase
                   .from('single_news')
-                  .select('news_title, ultra_short,generated_image(image)')// generated_image(image)為base64字串
+                  .select('news_title, ultra_short,generated_image(image)')
                   .eq('story_id', newsId)
                   .single();
 
@@ -85,34 +112,27 @@ function FloatingChat() {
                   console.error('Error fetching news:', error);
                   return null;
                 }
-                //console.log(data.generated_image.image);
+
                 return {
-                  id: Date.now() + Math.random(), // 確保唯一 ID
+                  id: Date.now() + Math.random(),
                   type: 'news',
                   title: data.news_title,
                   image: data.generated_image.image,
                   ultra_short: data.ultra_short,
-                  newsId, // 用於跳轉
+                  newsId,
                   isOwn: false,
                   time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
                 };
               })
             );
             return newsData.filter(Boolean); // 過濾掉 null 的結果
-          } else {
-            // 如果沒有 news_id，處理為普通訊息
-            return {
-              id: Date.now() + Math.random(),
-              type: 'text',
-              text: item.chat_response,
-              isOwn: false,
-              time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-            };
-          }
-        })
+          })
       );
 
-      setMessages((prev) => [...prev, ...newsMessages.flat()]);
+      // 延遲顯示新聞訊息
+      setTimeout(() => {
+        setMessages((prev) => [...prev, ...newsMessages.flat()]);
+      }, 1000); // 延遲 1 秒顯示新聞
     } catch (error) {
       console.error('Error fetching chat response:', error);
       setMessages((prev) => [
@@ -216,7 +236,7 @@ function FloatingChat() {
                       className={`fchat__message ${m.isOwn ? 'fchat__message--own' : ''}`}
                     >
                       <div className={`fchat__bubble ${m.isOwn ? 'fchat__bubble--own' : ''}`}>
-                        {m.text}
+                        <ReactMarkdown>{m.text}</ReactMarkdown>
                       </div>
                       <span className="fchat__time">{m.time}</span>
                     </div>

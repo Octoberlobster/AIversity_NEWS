@@ -78,7 +78,7 @@
 .unifiedNewsCard .dateText,
 .unifiedNewsCard .authorText {
   color: #6b7280;
-  font-size: .8rem;
+  font-size: 0.8rem;
 }
 
 /* 標籤與來源數 */
@@ -121,7 +121,7 @@
   color: #4b5563;
   line-height: 1.5;
   margin: 0;
-  font-size: .85rem;
+  font-size: 0.9rem;
   transition: all .3s ease;
   flex: 1; /* 填滿可用空間 */
 

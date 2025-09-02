@@ -54,26 +54,6 @@ const categoryMapping = {
   'Health & Wellness': '健康'
 };
 
-// 組合預設資料和後端資料
-export const defaultNewsData = [
-  {
-    story_id: 1,
-    title: "人工智慧在醫療領域的突破性進展",
-    category: "科學與科技",
-    date: "2024-01-15 14:30",
-    author: "張明華",
-    sourceCount: 5,
-    shortSummary: "最新研究顯示，人工智慧技術在疾病診斷和治療方案制定方面取得了重大突破。通過機器學習算法，AI系統能夠分析大量醫療數據，為精準醫療提供支持。",
-    relatedNews: [
-      { story_id: 101, title: "AI 診斷系統獲 FDA 批准" },
-      { story_id: 102, title: "基因編輯技術與 AI 結合的新突破" },
-      { story_id: 103, title: "遠程醫療中的 AI 應用" }
-    ],
-    views: "2.3k",
-    keywords: ["AI", "醫療", "診斷"],
-    terms: ["人工智慧", "機器學習", "精準醫療"]
-  },
-];
 
 function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, instanceId: propInstanceId }) {
   const [newsData, setNewsData] = useState([]);
@@ -108,7 +88,8 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, instan
           const { data, error } = await supabaseClient
             .from('keywords_map')
             .select('keyword')
-            .eq('story_id', storyId);
+            .eq('story_id', storyId)
+            .limit(3);
           
           if (error) {
             console.error(`Error fetching keywords for story ${storyId}:`, error);
@@ -211,7 +192,8 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, instan
         try {
           const { data, error } = await supabaseClient
             .from('single_news')
-            .select('*')       
+            .select('*')
+            .order('generated_date', { ascending: false })     
 
           if (error) throw error;
 

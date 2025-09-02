@@ -381,7 +381,7 @@ function SpecialReportDetail() {
               ✕
             </button>
             <div className="srd5W1HModal__title">
-              <h2>{report.title} - 5W1H關聯分析</h2>
+               <h2>{report.topic_title} - 5W1H關聯分析</h2>
             </div>
             <div className="srd5W1HModal__visualization" ref={expanded5W1HRef}>
               <div id="expanded-mindmap" style={{ width: '100%', height: '100%' }}></div>

@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect,useCallback } from 'react';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { fetchJson } from './api';
 import './../css/TopicChatRoom.css';
+import ReactMarkdown from 'react-markdown';
 
 
 function TopicChatRoom({topic_id,topic_title}){
@@ -28,29 +29,39 @@ function TopicChatRoom({topic_id,topic_title}){
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isPromptDropdownOpen]);
 
-  // 載入快速提示
-  useEffect(() => {
-    const loadQuickPrompts = async () => {
-      try {
-        const response = await fetchJson('/hint_prompt/topic', {
-          topic_id: topic_id
-        });
-        console.log('Fetched quick prompts:', response);
-        setQuickPrompts(response.Hint_Prompt || []);
-      } catch (error) {
-        console.error('Error loading quick prompts:', error);
-        setQuickPrompts([
-          "分析這個專題的主要議題",
-          "提供相關背景資訊", 
-          "專家如何看待這個議題？",
-          "這個專題的未來發展趨勢",
-          "有什麼值得關注的重點？"
-        ]);
-      }
-    };
+  const loadQuickPrompts = useCallback(async (chat_content = '') => {
+    const fixedPrompts = [
+      "「" + topic_title + "」近期有什麼更新",
+      "「" + topic_title + "」提供甚麼內容？",
+      "你對於「" + topic_title + "」有什麼看法？"
+    ]; // 固定的 prompt
 
+    try {
+      const response = await fetchJson('/hint_prompt/topic', {
+        topic_id: topic_id,
+        room_id: room_id,
+        user_id: user_id,
+        chat_content: chat_content
+      });
+      console.log('Fetched quick prompts:', response);
+
+      // 合併固定 prompt 和後端返回的 prompt
+      setQuickPrompts([...(response.Hint_Prompt || []), ...fixedPrompts]);
+    } catch (error) {
+      console.error('Error loading quick prompts:', error);
+
+      // 如果發生錯誤，僅保留固定的 prompt
+      setQuickPrompts([
+        "專家如何看待這個議題？",
+        "這個專題的未來發展趨勢",
+        ...fixedPrompts,
+      ]);
+    }
+  }, [topic_id, topic_title]);
+
+  useEffect(() => {
     loadQuickPrompts();
-  }, [topic_id]); // 依賴陣列
+  }, [loadQuickPrompts]); // 現在可以安全地添加 loadQuickPrompts 作為依賴
 
   const handlePromptSend = (promptText) => {
     setChatInput(promptText);
@@ -98,6 +109,7 @@ function TopicChatRoom({topic_id,topic_title}){
         };
         setChatMessages((prev) => [...prev, reply]);
       }, 1000);
+      loadQuickPrompts("user:" + chatInput + " assistant:" + response.response[0].chat_response);
     });
   };
 
@@ -136,7 +148,7 @@ function TopicChatRoom({topic_id,topic_title}){
             chatMessages.map((message) => (
               <div key={message.id} className={`message ${message.isOwn ? 'user' : 'ai'}`}>
                 <div className="message-bubble">
-                  <p>{message.text}</p>
+                  <ReactMarkdown>{message.text}</ReactMarkdown>
                   <span className="message-time">{message.time}</span>
                 </div>
               </div>
