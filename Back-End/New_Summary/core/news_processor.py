@@ -77,7 +77,7 @@ class NewsProcessor:
         """
         max_chars = NewsProcessorConfig.MAX_CONTENT_LENGTH
         base_prompt = f"""
-            你是專業的新聞編輯，請分析以下新聞文章並提取關鍵資訊。
+            你是專業的新聞編輯，請分析以下新聞文章並提取關鍵資訊，必須完全基於下方提供的「新聞資料」，嚴禁添加任何外部資訊、個人推測或評論。
 
             【新聞資料】
             標題：{article.get('article_title', '無標題')}
