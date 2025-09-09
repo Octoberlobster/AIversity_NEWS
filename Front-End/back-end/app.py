@@ -1,5 +1,7 @@
 import Hint_Prompt_Search
 import Advanced_Search_Service
+import Proof_Single_News
+from check_real2 import NewsFactChecker
 from flask_cors import CORS
 from flask import Flask, request, jsonify
 from ChatRoom import ChatRoom
@@ -160,6 +162,36 @@ def advanced_search():
     try:
         response = Advanced_Search_Service.search(query)
         return jsonify(response)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/proof/single_news", methods=["POST"])
+def proof_single_news():
+    data = request.json
+    story_id = data.get("story_id")
+    if not story_id:
+        return jsonify({"error": "Missing 'story_id'"}), 400
+
+    try:
+        response = Proof_Single_News.generate_proof(story_id)
+        return jsonify(response)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/fact_check", methods=["POST"])
+def fact_check():
+    data = request.json
+    statement = data.get("statement")
+    story_id = data.get("story_id")
+    if not statement or not story_id:
+        return jsonify({"error": "Missing 'statement' or 'story_id'"}), 400
+
+    try:
+        fact_checker = NewsFactChecker()
+        result = fact_checker.fact_check_by_story_id(statement, story_id)
+        return jsonify({"result": result})
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500

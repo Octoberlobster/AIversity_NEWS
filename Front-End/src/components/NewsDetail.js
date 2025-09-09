@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo} from 'react';
+import React, { useState, useEffect, useMemo, useRef} from 'react';
 import { useParams, Link} from 'react-router-dom';
 import './../css/NewsDetail.css';
 import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
 import { useSupabase } from './supabase';
+import { fetchJson } from './api';
 
 // 從資料庫動態載入術語定義的函數
 const loadTermDefinitions = async (supabase) => {
@@ -50,6 +51,15 @@ function NewsDetail() {
   const [termDefinitions, setTermDefinitions] = useState({});
   const [newsTerms, setNewsTerms] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
+  const [relatedTopics, setRelatedTopics] = useState([]);
+  
+  // 文字選取和溯源驗證相關狀態
+  const [selectedText, setSelectedText] = useState('');
+  const [selectionPosition, setSelectionPosition] = useState({ x: 0, y: 0 });
+  const [showFactCheckButton, setShowFactCheckButton] = useState(false);
+  
+  // ChatRoom組件的ref
+  const chatRoomRef = useRef(null);
 
   // 確保頁面載入時滾動到頂部
   useEffect(() => {
@@ -105,7 +115,6 @@ function NewsDetail() {
       if (error) {
         console.error('Error fetching news data:', error);
       } else {
-        console.log("Fetched news data:", data);
         const row = data?.[0];
         setNewsData(row ? {
           title: row.news_title,
@@ -115,7 +124,9 @@ function NewsDetail() {
           long: row.long,
           terms: [],
           keywords: [],
-          source: []
+          source: [],
+          category: row.category,
+          story_id: row.story_id
         } : null);
       }
     };
@@ -143,7 +154,6 @@ function NewsDetail() {
         const src = b64.startsWith('data:')
           ? b64
           : `data:${mime};base64,${b64}`;
-        console.log(src);
         return {
           src,                               // 給 <img src={x} />
           description: item.description || '',
@@ -266,6 +276,80 @@ function NewsDetail() {
     fetchRelatedNews();
   }, [id, supabaseClient]);
 
+  // 載入相關專題
+  useEffect(() => {
+    const fetchRelatedTopics = async () => {
+      if (!id || !supabaseClient) return;
+      
+      try {
+        // 查詢相關專題 - 找出以當前新聞為 src_story_id 的相關專題
+        const { data: relatedData, error: relatedError } = await supabaseClient
+          .from('relative_topics')
+          .select(`
+            dst_topic_id,
+            reason
+          `)
+          .eq('src_story_id', id);
+
+        if (relatedError) {
+          console.error('Error fetching related topics:', relatedError);
+          setRelatedTopics([]);
+          return;
+        }
+
+        // 如果有相關專題，再查詢對應的專題標題
+        if (!relatedData || relatedData.length === 0) {
+          setRelatedTopics([]);
+          return;
+        }
+
+        // 獲取所有目標專題的 topic_id
+        const targetTopicIds = relatedData.map(item => item.dst_topic_id);
+        
+        // 查詢目標專題的詳細資料
+        const { data: topicData, error: topicError } = await supabaseClient
+          .from('topic')
+          .select('topic_id, topic_title')
+          .in('topic_id', targetTopicIds);
+
+        if (topicError) {
+          console.error('Error fetching related topic titles:', topicError);
+          setRelatedTopics([]);
+          return;
+        }
+
+        // 合併資料並進行資料清理
+        const related = relatedData.map(relatedItem => {
+          const topicItem = topicData?.find(t => t.topic_id === relatedItem.dst_topic_id);
+          
+          // 資料清理：如果 reason 過長，可能是錯誤的內容，截短它
+          let reason = relatedItem.reason || '無相關性說明';
+          if (reason.length > 200) {
+            reason = reason.substring(0, 200) + '...';
+          }
+          
+          // 確保有有效的標題
+          let title = topicItem?.topic_title || `專題 ID: ${relatedItem.dst_topic_id}`;
+          if (!title.trim()) {
+            title = `專題 ID: ${relatedItem.dst_topic_id}`;
+          }
+          
+          return {
+            id: relatedItem.dst_topic_id,
+            title: title.trim(),
+            relevance: reason.trim()
+          };
+        });
+        setRelatedTopics(related);
+      } catch (error) {
+        console.error('Error fetching related topics:', error);
+        setRelatedTopics([]);
+      }
+    };
+
+    fetchRelatedTopics();
+  }, [id, supabaseClient]);
+
   useEffect(() => {
     if (!isResizing) return;
     const handleMouseMove = (e) => {
@@ -312,6 +396,138 @@ function NewsDetail() {
     setTooltipTerm(term);
     setTooltipPosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
   };
+
+  // 處理文字選取
+  const handleTextSelection = () => {
+    // 延遲執行，確保selection已經完成
+    setTimeout(() => {
+      const selection = window.getSelection();
+      const selectedText = selection.toString().trim();
+      
+      if (selectedText.length > 0 && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
+        // 確保選取的是文章內容區域的文字
+        const container = range.commonAncestorContainer;
+        const articleElement = container.nodeType === Node.TEXT_NODE 
+          ? container.parentElement 
+          : container;
+        
+        if (articleElement.closest('.articleText')) {
+          setSelectedText(selectedText);
+          // 修復位置計算 - 使用相對於viewport的座標
+          const buttonY = Math.max(rect.top - 60, 10); // 不要加window.scrollY，因為position:fixed已經相對於viewport
+          const buttonX = Math.min(Math.max(rect.left + rect.width / 2, 60), window.innerWidth - 60); // 確保不超出螢幕邊界
+          
+          setSelectionPosition({
+            x: buttonX,
+            y: buttonY
+          });
+          setShowFactCheckButton(true);
+        }
+      } else {
+        setShowFactCheckButton(false);
+        setSelectedText('');
+      }
+    }, 100); // 增加延遲時間
+  };
+
+  // 處理溯源驗證API調用
+  const handleFactCheck = async () => {
+    if (!selectedText || !newsData?.story_id) return;
+    
+    try {
+      const response = await fetchJson('/fact_check', {
+        statement: selectedText,
+        story_id: newsData.story_id
+      });
+      
+      console.log('Fact check result:', response);
+      
+      // 創建溯源驗證訊息
+      const factCheckMessage = {
+        id: Date.now(),
+        text: response.result,
+        isOwn: false,
+        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+      };
+
+      // 通知ChatRoom組件添加溯源驗證結果
+      if (chatRoomRef.current) {
+        chatRoomRef.current.addFactCheckMessage(factCheckMessage);
+      }
+      
+      // 隱藏按鈕
+      setShowFactCheckButton(false);
+      setSelectedText('');
+    } catch (error) {
+      console.error('Error during fact check:', error);
+      
+      // 創建錯誤訊息
+      const errorMessage = {
+        id: Date.now(),
+        text: '❌ 溯源驗證失敗\n\n無法取得查核結果，請稍後再試。',
+        isOwn: false,
+        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+      };
+
+      // 通知ChatRoom組件添加錯誤訊息
+      if (chatRoomRef.current) {
+        chatRoomRef.current.addFactCheckMessage(errorMessage);
+      }
+      
+      // 隱藏按鈕
+      setShowFactCheckButton(false);
+      setSelectedText('');
+    }
+  };
+
+  // 點擊其他地方時隱藏按鈕
+  const handleDocumentClick = (e) => {
+    // 如果點擊的是溯源按鈕本身，不要隱藏
+    if (e.target.closest('.fact-check-button')) {
+      return;
+    }
+    
+    // 如果點擊的是文章內容區域，允許重新選取
+    if (e.target.closest('.articleText')) {
+      return;
+    }
+    
+    // 其他情況隱藏按鈕
+    setShowFactCheckButton(false);
+    setSelectedText('');
+    
+    // 清除選取
+    window.getSelection().removeAllRanges();
+  };
+
+  // 添加事件監聽器
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      handleTextSelection();
+    };
+
+    const handleMouseUp = () => {
+      handleTextSelection();
+    };
+
+    const handleDocumentClickEvent = (e) => {
+      handleDocumentClick(e);
+    };
+
+    // 監聽選取變化和滑鼠釋放
+    document.addEventListener('selectionchange', handleSelectionChange);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('click', handleDocumentClickEvent);
+    
+    return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('click', handleDocumentClickEvent);
+    };
+  }, []);
 
   const renderArticleText = (text, allowedFirstSet) => {
     if (!text) return null;
@@ -415,6 +631,49 @@ function NewsDetail() {
 
   return (
     <div className="newsDetail">
+      {/* 溯源驗證按鈕 */}
+      {showFactCheckButton && (
+        <div 
+          className="fact-check-button"
+          style={{
+            position: 'fixed',
+            left: selectionPosition.x,
+            top: selectionPosition.y,
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            background: '#ffffff',
+            color: '#374151',
+            border: '1px solid #d1d5db',
+            borderRadius: '12px',
+            padding: '8px 16px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            animation: 'fadeInUp 0.2s ease-out',
+            minWidth: '120px',
+            justifyContent: 'center',
+            whiteSpace: 'nowrap',
+            transition: 'all 0.2s ease'
+          }}
+          onClick={handleFactCheck}
+          onMouseEnter={(e) => {
+            e.target.style.background = '#f8f9fa';
+            e.target.style.transform = 'translateX(-50%) translateY(-2px)';
+            e.target.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.2)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = '#ffffff';
+            e.target.style.transform = 'translateX(-50%)';
+            e.target.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)';
+          }}
+        >
+          🔍 溯源驗證
+        </div>
+      )}
       <div className="article-container articleContainer">
         <div className={`articleContent ${isResizing ? 'is-resizing' : ''}`}>
           <h2 className="articleTitle">{newsData.title}</h2>
@@ -439,7 +698,7 @@ function NewsDetail() {
             </div>
           ))}
 
-          <div className="articleText">
+          <div className="articleText" style={{ userSelect: 'text' }}>
             {renderArticleText(newsData.short, firstInShort)}
           </div>
 
@@ -452,7 +711,7 @@ function NewsDetail() {
           {showLongContent && (
             <>
               <div className="longContent">
-                <div className="articleText">
+                <div className="articleText" style={{ userSelect: 'text' }}>
                   {renderArticleText(newsData.long, firstInLong)}
                 </div>
               </div>
@@ -479,10 +738,10 @@ function NewsDetail() {
           </div>
         </div>
 
-        <ChatRoom news={newsData.long} />
+        <ChatRoom ref={chatRoomRef} newsData={newsData} />
       </div>
 
-      {/* 延伸閱讀 */}
+      {/* 延伸閱讀 - 相關報導 */}
       {relatedNews && relatedNews.length > 0 && (
         <div className="relatedSection">
           <h4 className="sectionTitle">相關報導</h4>
@@ -490,6 +749,24 @@ function NewsDetail() {
             {relatedNews.map(item => (
               <div className="relatedItem" key={item.id}>
                 <Link to={`/news/${item.id}`}>
+                  {item.title}
+                </Link>
+                <br></br>
+                <div className="relevanceText">{item.relevance}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 延伸閱讀 - 相關專題 */}
+      {relatedTopics && relatedTopics.length > 0 && (
+        <div className="relatedSection relatedTopicsSection">
+          <h4 className="sectionTitle">相關專題</h4>
+          <div className="relatedGrid">
+            {relatedTopics.map(item => (
+              <div className="relatedItem" key={item.id}>
+                <Link to={`/special-report/${item.id}`}>
                   {item.title}
                 </Link>
                 <br></br>

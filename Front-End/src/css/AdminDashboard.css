@@ -1,0 +1,1096 @@
+/* 管理後台主樣式 */
+.admin-dashboard {
+  min-height: 100vh;
+  background: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* 載入動畫 */
+.admin-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: #6c757d;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e9ecef;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 頭部樣式 */
+.admin-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px;
+}
+
+.admin-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-icon {
+  font-size: 28px;
+}
+
+.back-to-site-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back-to-site-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 內容區域 */
+.admin-content {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 80px);
+}
+
+/* 側邊導航 */
+.admin-sidebar {
+  width: 280px;
+  background: white;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  padding: 24px 0;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 16px;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #495057;
+  width: 100%;
+}
+
+.admin-nav-item:hover {
+  background: #f8f9fa;
+  color: #007bff;
+}
+
+.admin-nav-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 500;
+}
+
+.nav-icon {
+  font-size: 18px;
+  min-width: 20px;
+}
+
+.nav-label {
+  flex: 1;
+}
+
+/* 主要內容區 */
+.admin-main {
+  flex: 1;
+  padding: 24px;
+}
+
+.admin-main-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* 管理模組共用樣式 */
+.management-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.management-header h2 {
+  margin: 0 0 8px;
+  color: #212529;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.management-description {
+  margin: 0;
+  color: #6c757d;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.management-controls {
+  padding: 20px 24px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.search-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-input,
+.filter-input,
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  min-width: 200px;
+}
+
+.search-input:focus,
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* 按鈕樣式 */
+.btn-create,
+.btn-batch-edit,
+.btn-batch-delete,
+.btn-recommend {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-create {
+  background: #28a745;
+  color: white;
+}
+
+.btn-create:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.btn-create:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn-batch-edit {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn-batch-edit:hover {
+  background: #e0a800;
+}
+
+.btn-batch-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-batch-delete:hover {
+  background: #c82333;
+}
+
+.btn-recommend {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-recommend:hover:not(:disabled) {
+  background: #138496;
+}
+
+.btn-recommend:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+/* 分支管理按鈕樣式 */
+.btn-add-branch {
+  background: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-add-branch:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.btn-add-branch:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-delete-branch {
+  background: #dc3545;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-delete-branch:hover:not(:disabled) {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.btn-delete-branch:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-edit-branch {
+  background: #ffc107;
+  color: #212529;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-edit-branch:hover:not(:disabled) {
+  background: #e0a800;
+  transform: translateY(-1px);
+}
+
+.btn-edit-branch:disabled {
+  background: #6c757d;
+  color: white;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.batch-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selected-count {
+  font-size: 14px;
+  color: #495057;
+  font-weight: 500;
+}
+
+/* 表格樣式 */
+.admin-table-container {
+  padding: 0;
+}
+
+.table-info {
+  padding: 16px 24px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.table-count {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-table th {
+  background: #f8f9fa;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.admin-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.admin-table th.sortable:hover {
+  background: #e9ecef;
+}
+
+.sort-icon {
+  margin-left: 6px;
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.admin-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e9ecef;
+  vertical-align: top;
+}
+
+.admin-table tr:hover {
+  background: #f8f9fa;
+}
+
+.admin-table tr.selected {
+  background: #e3f2fd;
+}
+
+.select-column {
+  width: 40px;
+  text-align: center;
+}
+
+/* 表格內容樣式 */
+.url-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.url-link:hover {
+  text-decoration: underline;
+}
+
+.missing-data {
+  color: #dc3545;
+  font-style: italic;
+}
+
+.null-value {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.article-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.issue-indicators {
+  display: flex;
+  gap: 4px;
+}
+
+.issue-tag {
+  font-size: 12px;
+  cursor: help;
+}
+
+.story-title {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.story-category {
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.content-preview {
+  max-width: 300px;
+  line-height: 1.4;
+  color: #495057;
+}
+
+.issues-status .no-issues {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.issues-status .has-issues {
+  color: #dc3545;
+}
+
+.issue-count {
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.issue-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.topic-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #495057;
+}
+
+.branch-title {
+  color: #6c757d;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.topic-description {
+  color: #6c757d;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+.topic-stats {
+  color: #17a2b8;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.news-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.news-category,
+.news-date {
+  color: #6c757d;
+  font-size: 12px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.news-summary {
+  color: #495057;
+  font-size: 12px;
+  line-height: 1.3;
+  margin-top: 6px;
+}
+
+/* 操作按鈕 */
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-view,
+.btn-edit,
+.btn-delete,
+.btn-transfer,
+.btn-add-recommendation {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+  min-width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-view {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-view:hover {
+  background: #138496;
+}
+
+.btn-edit {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn-edit:hover {
+  background: #e0a800;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+}
+
+.btn-transfer {
+  background: #6f42c1;
+  color: white;
+}
+
+.btn-transfer:hover {
+  background: #5a32a3;
+}
+
+.btn-add-recommendation {
+  background: #28a745;
+  color: white;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.btn-add-recommendation:hover {
+  background: #218838;
+}
+
+/* 分頁樣式 */
+.table-pagination {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.pagination-btn {
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #e9ecef;
+}
+
+.pagination-btn:disabled {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #495057;
+  margin: 0 16px;
+}
+
+/* 表格空狀態和載入狀態 */
+.table-loading,
+.table-empty {
+  padding: 60px 24px;
+  text-align: center;
+  color: #6c757d;
+}
+
+.table-loading .loading-spinner {
+  margin: 0 auto 16px;
+}
+
+/* 模態框樣式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 100%;
+  max-height: calc(100vh - 40px);
+  margin: 20px 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content.large-modal {
+  max-width: 1000px;
+  max-height: calc(100vh - 40px);
+  height: 80vh;
+  min-height: 600px;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #6c757d;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.modal-close:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.modal-body {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto !important;
+  min-height: 0;
+  max-height: 60vh;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+/* 強制顯示捲動條 */
+.modal-body {
+  overflow-y: scroll !important;
+}
+
+/* 自定義捲動條樣式 */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #495057;
+  font-size: 14px;
+}
+
+.required {
+  color: #dc3545;
+  margin-left: 2px;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.form-input.error,
+.form-textarea.error,
+.form-select.error {
+  border-color: #dc3545;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+  max-height: none;
+  height: auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* 檢視模式下的特殊樣式 */
+.form-textarea[readonly] {
+  background-color: #f8f9fa;
+  min-height: 200px;
+  height: auto;
+  max-height: none;
+  resize: none;
+  border: 1px solid #e9ecef;
+  padding: 15px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.form-checkbox {
+  width: auto;
+}
+
+.checkbox-text {
+  font-size: 14px;
+  color: #495057;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.help-text {
+  color: #6c757d;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+  line-height: 1.3;
+}
+
+.current-selection {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 12px;
+}
+
+.current-selection p {
+  margin: 0;
+  font-size: 14px;
+  color: #495057;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: #f8f9fa;
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+}
+
+.btn-save {
+  background: #007bff;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #0056b3;
+}
+
+/* 推薦樣式 */
+.recommendation-info {
+  margin-bottom: 20px;
+  color: #495057;
+  font-size: 14px;
+}
+
+.no-recommendations {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recommendation-item {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.recommendation-content {
+  flex: 1;
+}
+
+.recommendation-title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  line-height: 1.4;
+}
+
+.recommendation-summary {
+  margin: 0;
+  font-size: 13px;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+/* 響應式設計 */
+@media (max-width: 1200px) {
+  .admin-content {
+    flex-direction: column;
+  }
+  
+  .admin-sidebar {
+    width: 100%;
+    padding: 16px 0;
+  }
+  
+  .admin-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0 16px;
+  }
+  
+  .admin-nav-item {
+    white-space: nowrap;
+    min-width: 150px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-header-content {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .management-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-filters,
+  .filter-row {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .search-input,
+  .filter-input,
+  .filter-select {
+    min-width: 100%;
+  }
+  
+  .batch-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .modal-content {
+    margin: 10px;
+    max-height: calc(100vh - 20px);
+  }
+  
+  .admin-main {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-table th,
+  .admin-table td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .modal-body {
+    padding: 16px;
+  }
+  
+  .modal-header {
+    padding: 16px;
+  }
+  
+  .modal-footer {
+    padding: 12px 16px;
+  }
+}
+
+/* 強制捲動規則 - 確保模態框內容可以捲動 */
+.large-modal .modal-body {
+  overflow-y: scroll !important;
+  max-height: calc(80vh - 140px) !important;
+  min-height: 400px !important;
+}
+
+.modal-body .form-group:last-child {
+  margin-bottom: 40px;
+}
+
+/* 確保文字區域在檢視模式下正確顯示 */
+.form-textarea[readonly] {
+  background-color: #f8f9fa !important;
+  min-height: 200px !important;
+  height: auto !important;
+  max-height: none !important;
+  resize: none !important;
+  border: 1px solid #e9ecef !important;
+  padding: 15px !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+}

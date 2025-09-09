@@ -192,6 +192,41 @@
 }
 .unifiedNewsCard .relatedNews__link:hover { color: #667eea; }
 
+/* 相關專題 */
+.unifiedNewsCard .relatedTopics { margin-top: 1.2rem; }
+.unifiedNewsCard .relatedTopics__title {
+  color: #374151;
+  font-size: .95rem;
+  margin: 0 0 .8rem 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+.unifiedNewsCard .relatedTopics__title:before {
+  content: "🔗";
+  margin-right: .5rem;
+}
+.unifiedNewsCard .relatedTopics__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.unifiedNewsCard .relatedTopics__item {
+  padding: .4rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-style: italic;
+  color: #6b7280;
+}
+.unifiedNewsCard .relatedTopics__item:last-child { border-bottom: none; }
+.unifiedNewsCard .relatedTopics__link {
+  color: #4b5563;
+  text-decoration: none;
+  font-size: .85rem;
+  transition: color .3s ease;
+  font-style: normal;
+}
+.unifiedNewsCard .relatedTopics__link:hover { color: #7c3aed; }
+
 /* 動作區 */
 .unifiedNewsCard .card__actions {
   display: flex;

@@ -165,6 +165,50 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, instan
         }
       };
 
+      // 獲取單一新聞的相關專題
+      const fetchRelatedTopics = async (storyId) => {
+        try {
+          // 先查詢相關專題關係
+          const { data: relatedData, error: relatedError } = await supabaseClient
+            .from('relative_topics')
+            .select('dst_topic_id, reason')
+            .eq('src_story_id', storyId);
+          
+          if (relatedError) {
+            console.error(`Error fetching related topics for story ${storyId}:`, relatedError);
+            return [];
+          }
+
+          if (!relatedData || relatedData.length === 0) {
+            return [];
+          }
+
+          // 獲取目標專題的標題
+          const targetTopicIds = relatedData.map(item => item.dst_topic_id);
+          const { data: topicData, error: topicError } = await supabaseClient
+            .from('topic')
+            .select('topic_id, topic_title')
+            .in('topic_id', targetTopicIds);
+
+          if (topicError) {
+            console.error(`Error fetching related topic titles for story ${storyId}:`, topicError);
+            return [];
+          }
+
+          // 合併資料
+          return relatedData.map(relatedItem => {
+            const topicItem = topicData?.find(t => t.topic_id === relatedItem.dst_topic_id);
+            return {
+              id: relatedItem.dst_topic_id,
+              title: topicItem?.topic_title || `專題 ID: ${relatedItem.dst_topic_id}`
+            };
+          });
+        } catch (error) {
+          console.error(`Error fetching related topics for story ${storyId}:`, error);
+          return [];
+        }
+      };
+
       // 如果有傳入 customData，就使用 customData，不需要從資料庫抓取
       if (customData && customData.length > 0) {
         const fetchCustomDataWithKeywords = async () => {
@@ -173,11 +217,13 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, instan
                   const keywords = await fetchNewsKeywords(news.story_id);
                   const terms = await fetchNewsTerms(news.story_id);
                   const relatedNews = await fetchRelatedNews(news.story_id);
+                  const relatedTopics = await fetchRelatedTopics(news.story_id);
                   return {
                     ...news,
                     keywords: keywords,
                     terms: terms,
-                    relatedNews: relatedNews
+                    relatedNews: relatedNews,
+                    relatedTopics: relatedTopics
                   };
                 })
               );
@@ -209,22 +255,25 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, instan
               sourceCount: news.total_articles,
               shortSummary: news.ultra_short,
               relatedNews: [],
+              relatedTopics: [],
               views: 0,
               keywords: [], // 先設為空，稍後補齊
               terms: [],
             }));
 
-            // 為每個新聞獲取 keywords、terms 和 relatedNews
+            // 為每個新聞獲取 keywords、terms、relatedNews 和 relatedTopics
             const newsWithKeywords = await Promise.all(
               basicNewsData.map(async (news) => {
                 const keywords = await fetchNewsKeywords(news.story_id);
                 const terms = await fetchNewsTerms(news.story_id);
                 const relatedNews = await fetchRelatedNews(news.story_id);
+                const relatedTopics = await fetchRelatedTopics(news.story_id);
                 return {
                   ...news,
                   keywords: keywords,
                   terms: terms,
-                  relatedNews: relatedNews
+                  relatedNews: relatedNews,
+                  relatedTopics: relatedTopics
                 };
               })
             );
@@ -380,6 +429,23 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, instan
                           ))
                         ) : (
                           <li className="relatedNews__item">暫無相關報導</li>
+                        )}
+                      </ul>
+                    </div>
+                    
+                    <div className="relatedTopics">
+                      <h4 className="relatedTopics__title">相關專題</h4>
+                      <ul className="relatedTopics__list">
+                        {news.relatedTopics && news.relatedTopics.length > 0 ? (
+                          news.relatedTopics.map((t) => (
+                            <li className="relatedTopics__item" key={t.id}>
+                              <Link className="relatedTopics__link" to={`/special-report/${t.id}`}>
+                                {t.title}
+                              </Link>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="relatedTopics__item">暫無相關專題</li>
                         )}
                       </ul>
                     </div>
