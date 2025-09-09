@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import './../css/TermTooltip.css';
-import keywordExplanations from './../keyword_explanations.json';
 
 function TermTooltip({ term, definition, example: exampleFromDB, position, onClose }) {
   const contentRef = useRef(null);
@@ -18,19 +17,6 @@ function TermTooltip({ term, definition, example: exampleFromDB, position, onClo
     if (e.target === e.currentTarget) onClose();
   };
 
-  // 尋找該 term 在 keywordExplanations 中的 examples
-  const findExample = () => {
-    for (const storyKey in keywordExplanations) {
-      const keywords = keywordExplanations[storyKey].keywords;
-      const keyword = keywords.find(k => k.term === term);
-      if (keyword && keyword.examples && keyword.examples.length > 0) {
-        return keyword.examples[0];
-      }
-    }
-    // 如果在 keywordExplanations 中找不到，使用預設範例
-    return examples[term] || null;
-  };
-
   // 範例內容
   const examples = {
     "人工智慧": { title: "使用情境", text: "例如：語音助手（如 Siri、Alexa）、推薦系統、自動駕駛汽車等" },
@@ -44,20 +30,14 @@ function TermTooltip({ term, definition, example: exampleFromDB, position, onClo
     "IRB": { title: "使用情境", text: "這個研究計畫必須先通過 IRB 審查才能開始執行。\n\n因為 IRB 的要求，我們需要修改受試者同意書。\n\nIRB 委員仔細審閱了研究方案，並提出了一些建議。" }
   };
   
-  // 優先使用資料庫的範例，如果沒有則使用其他來源
+  // 優先使用資料庫的範例，如果沒有則使用預設範例
   const getFinalExample = () => {
     // 首先檢查是否有資料庫提供的範例
     if (exampleFromDB) {
       return { title: "使用情境", text: exampleFromDB };
     }
     
-    // 然後檢查 keywordExplanations 中的範例
-    const keywordExample = findExample();
-    if (keywordExample) {
-      return keywordExample;
-    }
-    
-    // 最後使用預設範例
+    // 使用預設範例
     return examples[term] || null;
   };
 
