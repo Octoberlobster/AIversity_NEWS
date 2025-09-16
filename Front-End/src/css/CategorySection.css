@@ -63,3 +63,41 @@
   padding: 2rem;
   color: #6b7280;
 }
+
+/* 閱讀更多按鈕容器 */
+.load-more-container {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem 0;
+}
+
+/* 閱讀更多按鈕 */
+.load-more-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 0.8rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.15);
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.load-more-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102,126,234,0.25);
+}
+
+.load-more-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 內容容器 */
+.catSec__content {
+  width: 100%;
+}

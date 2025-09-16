@@ -36,13 +36,9 @@ const loadTermDefinitions = async (supabase) => {
 
 function NewsDetail() {
   const { id } = useParams();
-  const [showLongContent, setShowLongContent] = useState(false);
-  const [articleWidth, setArticleWidth] = useState('2');
-  const [isResizing, setIsResizing] = useState(false);
+  // 移除了 showLongContent state，直接顯示完整內容
   const [tooltipTerm, setTooltipTerm] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-  const [dragStartX, setDragStartX] = useState(0);
-  const [dragStartWidth, setDragStartWidth] = useState(0);
   const [showAllSources, setShowAllSources] = useState(false);
   const [newsData, setNewsData] = useState(null);
   const [newsImage, setNewsImage] = useState(null);
@@ -52,6 +48,7 @@ function NewsDetail() {
   const [newsTerms, setNewsTerms] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
   const [relatedTopics, setRelatedTopics] = useState([]);
+  const [isChatOpen, setIsChatOpen] = useState(false); // 聊天室開關狀態
   
   // 文字選取和溯源驗證相關狀態
   const [selectedText, setSelectedText] = useState('');
@@ -148,12 +145,8 @@ function NewsDetail() {
       }
 
       const processed = (data || []).map(item => {
-        const mime =
-          item.mime_type || item.image_mime || 'image/jpeg'; // 若表有存 mime，就用它
-        const b64 = (item.image || '').replace(/\s/g, '');   // 清掉換行/空白
-        const src = b64.startsWith('data:')
-          ? b64
-          : `data:${mime};base64,${b64}`;
+        // 將純 base64 字串轉換為完整的 data URL
+        const src = item.image ? `data:image/png;base64,${item.image}` : '';
         return {
           src,                               // 給 <img src={x} />
           description: item.description || '',
@@ -189,7 +182,8 @@ function NewsDetail() {
       const { data, error } = await supabaseClient
         .from('keywords_map')
         .select('keyword')
-        .eq('story_id', id);
+        .eq('story_id', id)
+        .limit(3); // 限制為 3 個關鍵字
 
       if (error) {
         console.error('Error fetching news keywords:', error);
@@ -349,46 +343,6 @@ function NewsDetail() {
 
     fetchRelatedTopics();
   }, [id, supabaseClient]);
-
-  useEffect(() => {
-    if (!isResizing) return;
-    const handleMouseMove = (e) => {
-      const container = document.querySelector('.article-container');
-      if (!container) return;
-      const containerRect = container.getBoundingClientRect();
-      const currentMouseX = e.clientX - containerRect.left;
-      const deltaX = currentMouseX - dragStartX;
-      const widthChange = deltaX / 100;            // 100px -> flex 改變 1
-      const newWidth = Math.max(1, Math.min(4, dragStartWidth + widthChange));
-      setArticleWidth(newWidth.toFixed(1));
-    };
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isResizing, dragStartX, dragStartWidth]);
-
-  const handleMouseDown = (e) => {
-    e.preventDefault();
-    const container = document.querySelector('.article-container');
-    if (container) {
-      const rect = container.getBoundingClientRect();
-      setDragStartX(e.clientX - rect.left);
-      setDragStartWidth(parseFloat(articleWidth));
-    }
-    setIsResizing(true);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-  };
 
   // 名詞解釋 tooltip
   const handleTermClick = (term, e) => {
@@ -584,13 +538,13 @@ function NewsDetail() {
     });
   };
 
-  const { sortedTerms, firstInShort, firstInLong } = useMemo(() => {
+  const { sortedTerms, firstInLong } = useMemo(() => {
     // 使用從資料庫載入的術語，如果沒有則使用 newsData.terms 作為後備
     const raw = newsTerms.length > 0 ? newsTerms : (Array.isArray(newsData?.terms) ? newsData.terms : []);
     // 去重 + 長詞優先，避免短詞吃掉長詞
     const termsArr = Array.from(new Set(raw)).sort((a, b) => b.length - a.length);
 
-    const shortStr = String(newsData?.short || '');
+    // 只處理長內容
     const longStr  = String(newsData?.long  || '');
 
     const escapeReg = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -611,10 +565,10 @@ function NewsDetail() {
       return set;
     };
 
-    const inShort = collectPresent(shortStr, termsArr); // 只要在 short 出現過，就允許 short 高亮一次
+    // 現在只需要檢查 long 內容
     const inLong  = collectPresent(longStr,  termsArr); // 只要在 long 出現過，就允許 long 高亮一次
 
-    return { sortedTerms: termsArr, firstInShort: inShort, firstInLong: inLong };
+    return { sortedTerms: termsArr, firstInLong: inLong };
   }, [newsData, newsTerms]);
 
 
@@ -631,33 +585,29 @@ function NewsDetail() {
 
   return (
     <div className="newsDetail">
+      <button 
+        className={`chat-toggle-btn ${isChatOpen ? 'hidden' : ''}`}
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        title={isChatOpen ? '關閉聊天室' : '開啟聊天室'}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path 
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
       {/* 溯源驗證按鈕 */}
       {showFactCheckButton && (
         <div 
           className="fact-check-button"
           style={{
-            position: 'fixed',
             left: selectionPosition.x,
             top: selectionPosition.y,
-            transform: 'translateX(-50%)',
-            zIndex: 9999,
-            background: '#ffffff',
-            color: '#374151',
-            border: '1px solid #d1d5db',
-            borderRadius: '12px',
-            padding: '8px 16px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            animation: 'fadeInUp 0.2s ease-out',
-            minWidth: '120px',
-            justifyContent: 'center',
-            whiteSpace: 'nowrap',
-            transition: 'all 0.2s ease'
           }}
           onClick={handleFactCheck}
           onMouseEnter={(e) => {
@@ -674,122 +624,85 @@ function NewsDetail() {
           🔍 溯源驗證
         </div>
       )}
-      <div className="article-container articleContainer">
-        <div className={`articleContent ${isResizing ? 'is-resizing' : ''}`}>
-          <h2 className="articleTitle">{newsData.title}</h2>
-          <div className="articleInfo">
-            <span className="articleDate">{newsData.date}</span>
-            <span className="articleAuthor">作者 {newsData.author}</span>
-            {newsKeywords && newsKeywords.length > 0 && (
-              <div className="articleKeywords">
-                {newsKeywords.map((kw, index) => (
-                  <span className="keywordChip" key={index}>{kw.keyword}</span>
-                ))}
+
+      <div className={`article-container articleContainer ${isChatOpen ? 'chat-open' : ''}`}>
+        {/* 主要內容區域 - 左右佈局 */}
+        <div className="content-layout">
+          {/* 左側：新聞主要內容 */}
+          <div className="main-content">
+            <div className="articleContent">
+              <h2 className="articleTitle">{newsData.title}</h2>
+              <div className="articleInfo">
+                <span className="articleDate">{newsData.date}</span>
+                <span className="articleAuthor">作者 {newsData.author}</span>
+                {newsKeywords && newsKeywords.length > 0 && (
+                  <div className="articleKeywords">
+                    {newsKeywords.map((kw, index) => (
+                      <span className="keywordChip" key={index}>{kw.keyword}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {newsImage?.map((img, i) => (
+                <div className="articleImage" key={i}>
+                  <img src={img.src} alt={img.description} />
+                  {img.description && (
+                    <div className="imageCaption">{img.description}</div>
+                  )}
+                </div>
+              ))}
+              <div className="articleText" style={{ userSelect: 'text' }}>
+                {renderArticleText(newsData.long, firstInLong)}
+              </div>
+            </div>
+          </div>
+
+          {/* 右側：相關內容 */}
+          <div className="sidebar-content">
+            {/* 延伸閱讀 - 統一區塊 */}
+            {((relatedNews && relatedNews.length > 0) || (relatedTopics && relatedTopics.length > 0)) && (
+              <div className="relatedSection">
+                <div className="relatedGrid">
+                  {/* 相關報導 */}
+                  {relatedNews && relatedNews.length > 0 && (
+                    <>
+                      <h5 className="sectionTitle">相關新聞</h5>
+                      {relatedNews.map(item => (
+                        <div className="relatedItem" key={`news-${item.id}`}>
+                          <Link to={`/news/${item.id}`}>
+                            {item.title}
+                          </Link>
+                          <br></br>
+                          <div className="relevanceText">{item.relevance}</div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* 相關專題 */}
+                  {relatedTopics && relatedTopics.length > 0 && (
+                    <>
+                      <h5 className="sectionTitle">相關專題</h5>
+                      {relatedTopics.map(item => (
+                        <div className="relatedItem" key={`topic-${item.id}`}>
+                          <Link to={`/special-report/${item.id}`}>
+                            {item.title}
+                          </Link>
+                          <br></br>
+                          <div className="relevanceText">{item.relevance}</div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
               </div>
             )}
           </div>
-
-          {newsImage?.map((img, i) => (
-            <div className="articleImage" key={i}>
-              <img src={img.src} alt={img.description} />
-              {img.description && (
-                <div className="imageCaption">{img.description}</div>
-              )}
-            </div>
-          ))}
-
-          <div className="articleText" style={{ userSelect: 'text' }}>
-            {renderArticleText(newsData.short, firstInShort)}
-          </div>
-
-          {!showLongContent && (
-            <button className="readMoreButton" onClick={() => setShowLongContent(true)}>
-              閱讀更多 →
-            </button>
-          )}
-
-          {showLongContent && (
-            <>
-              <div className="longContent">
-                <div className="articleText" style={{ userSelect: 'text' }}>
-                  {renderArticleText(newsData.long, firstInLong)}
-                </div>
-              </div>
-              <button className="readMoreButton" onClick={() => setShowLongContent(false)}>
-                閱讀較少 ←
-              </button>
-            </>
-          )}
         </div>
-
-        <div className="resizeCol">
-          <div
-            className="resizeHandle"
-            onMouseDown={handleMouseDown}
-            style={{
-              '--bar': isResizing ? '#667eea' : '#e5e7eb',
-              '--dots-color': isResizing ? 'white' : '#6b7280',
-              '--dots-opacity': isResizing ? 1 : 0.4,
-              '--dots-bg': isResizing ? '#667eea' : '#f3f4f6',
-            }}
-          />
-          <div className="resizeHint" onMouseDown={handleMouseDown}>
-            拖動調整
-          </div>
-        </div>
-
-        <ChatRoom ref={chatRoomRef} newsData={newsData} />
       </div>
 
-      {/* 延伸閱讀 - 相關報導 */}
-      {relatedNews && relatedNews.length > 0 && (
-        <div className="relatedSection">
-          <h4 className="sectionTitle">相關報導</h4>
-          <div className="relatedGrid">
-            {relatedNews.map(item => (
-              <div className="relatedItem" key={item.id}>
-                <Link to={`/news/${item.id}`}>
-                  {item.title}
-                </Link>
-                <br></br>
-                <div className="relevanceText">{item.relevance}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 延伸閱讀 - 相關專題 */}
-      {relatedTopics && relatedTopics.length > 0 && (
-        <div className="relatedSection relatedTopicsSection">
-          <h4 className="sectionTitle">相關專題</h4>
-          <div className="relatedGrid">
-            {relatedTopics.map(item => (
-              <div className="relatedItem" key={item.id}>
-                <Link to={`/special-report/${item.id}`}>
-                  {item.title}
-                </Link>
-                <br></br>
-                <div className="relevanceText">{item.relevance}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Tooltip */}
-      {tooltipTerm && (
-        <TermTooltip
-          term={tooltipTerm}
-          definition={termDefinitions[tooltipTerm]?.definition || `未找到「${tooltipTerm}」的定義`}
-          example={termDefinitions[tooltipTerm]?.example}
-          exampleFromDB={termDefinitions[tooltipTerm]?.example}
-          position={tooltipPosition}
-          onClose={() => setTooltipTerm(null)}
-        />
-      )}
-
-      {/* 資料來源 */}
+      {/* 資料來源區塊 - 放在頁面底部 */}
       {(newsUrl || newsData.source) && (() => {
         const MAX = 3;
         
@@ -854,6 +767,34 @@ function NewsDetail() {
           </div>
         );
       })()}
+
+      {/* 側邊聊天室 */}
+      <div className={`chat-sidebar ${isChatOpen ? 'open' : ''}`}>
+        <div className="chat-sidebar-header">
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>新聞討論</h3>
+          <button 
+            className="chat-close-btn"
+            onClick={() => setIsChatOpen(false)}
+          >
+            ✕
+          </button>
+        </div>
+        <div className="chat-sidebar-content" style={{ flex: 1, overflow: 'hidden' }}>
+          <ChatRoom ref={chatRoomRef} newsData={newsData} />
+        </div>
+      </div>
+
+      {/* Tooltip */}
+      {tooltipTerm && (
+        <TermTooltip
+          term={tooltipTerm}
+          definition={termDefinitions[tooltipTerm]?.definition || `未找到「${tooltipTerm}」的定義`}
+          example={termDefinitions[tooltipTerm]?.example}
+          exampleFromDB={termDefinitions[tooltipTerm]?.example}
+          position={tooltipPosition}
+          onClose={() => setTooltipTerm(null)}
+        />
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@
   min-height: 100vh;
   background-color: #f8fafc;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden; /* 防止水平滾動 */
 }
 
 /* 主要內容容器 */
@@ -10,29 +11,59 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
+  padding-top: 16px;
+  overflow-x: hidden; /* 防止水平滾動 */
 }
 
 /* 主欄 + 側欄 */
 .contentGrid {
-  display: grid;
-  grid-template-columns: 1fr 350px;
+  display: flex; /* 改用 flex 而不是 grid */
   gap: 2rem;
   margin-top: 1rem;
 }
+
+/* 新聞區域重疊效果 */
+.news-section-overlap {
+  margin-top: -130px; /* 改回原來的重疊距離 */
+  position: relative;
+  z-index: 2;
+}
+
+.news-section-overlap .mainColumn {
+  background: #f8fafc; /* 與主背景色相同，不用漸層 */
+  /* 移除圓角，讓它看起來一體化 */
+  padding-top: 100px; /* 上方內邊距 */
+  padding-left: 2rem;
+  padding-right: 2rem;
+  margin-top: 0;
+  /* 移除陰影，避免看出重疊 */
+  /* 確保內容不會溢出 */
+  width: 100%;
+  max-width: 100%;
+}
+
 @media (max-width: 1200px) {
-  .contentGrid { grid-template-columns: 1fr; }
+  .contentGrid { 
+    flex-direction: column; /* 改為垂直排列 */
+  }
+  .sidebar {
+    width: 100%; /* 小螢幕時佔滿寬度 */
+  }
 }
 
 .mainColumn {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 1335px;
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 350px; /* 明確設定 sidebar 寬度 */
+  flex-shrink: 0; /* 防止縮小 */
   position: sticky;       /* 讓側欄在滾動時吸附 */
   top: 2rem;
   height: fit-content;
@@ -57,7 +88,6 @@
   color: #1e3a8a;
   font-size: 1.8rem;
   font-weight: 700;
-  margin: 2rem 0 1rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;

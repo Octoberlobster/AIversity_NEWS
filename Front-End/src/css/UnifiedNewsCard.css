@@ -1,18 +1,18 @@
 /* 網格容器 */
 .unifiedNewsCard .newsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(3, 1fr); /* 固定三欄 */
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 @media (max-width: 1200px) {
   .unifiedNewsCard .newsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(2, 1fr); /* 中等螢幕顯示兩欄 */
   }
 }
 @media (max-width: 768px) {
   .unifiedNewsCard .newsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* 小螢幕顯示一欄 */
   }
 }
 
@@ -20,22 +20,53 @@
 .unifiedNewsCard .card {
   background: #fff;
   border-radius: 16px;
-  padding: 1.2rem;
+  padding: 0; /* 移除 padding，因為圖片需要貼邊 */
   box-shadow: 0 4px 20px rgba(0,0,0,.08);
   transition: all .3s ease;
   border-left: 4px solid #667eea;
   position: relative;
-  min-height: 225px; /* 改為最小高度，允許展開時變高 */
+  min-height: 350px; /* 增加最小高度以容納圖片 */
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* 確保圓角效果 */
 }
-.unifiedNewsCard .card.expanded {
-  min-height: auto; /* 展開時取消最小高度限制 */
-}
+
 .unifiedNewsCard .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 30px rgba(0,0,0,.12);
   border-left-color: #7c3aed;
+}
+
+/* 圖片區域 */
+.unifiedNewsCard .card__image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0; /* 上方圓角 */
+}
+
+.unifiedNewsCard .newsImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.unifiedNewsCard .card:hover .newsImage {
+  transform: scale(1.05);
+}
+
+/* 卡片內容區域（除圖片外的部分） */
+.unifiedNewsCard .card__header,
+.unifiedNewsCard .card__content,
+.unifiedNewsCard .card__info,
+.unifiedNewsCard .card__meta {
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+}
+
+.unifiedNewsCard .card__header {
+  padding-top: 1rem;
 }
 
 /* Header / Title */
@@ -43,7 +74,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: .8rem;
+  margin-bottom: .4rem;
 }
 .unifiedNewsCard .card__title {
   margin: 0;
@@ -63,13 +94,23 @@
 .unifiedNewsCard .card__title:hover { color: #667eea; }
 
 /* Meta / Info */
-.unifiedNewsCard .card__meta,
+.unifiedNewsCard .card__meta {
+  padding-bottom: 1rem; /* 為最後一個元素添加底部間距 */
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin-bottom: .8rem;
+  flex-wrap: wrap;
+}
+
 .unifiedNewsCard .card__info {
   display: flex;
   align-items: center;
   gap: .8rem;
   margin-bottom: .8rem;
   flex-wrap: wrap;
+  font-size: .8rem;
+  color: #6b7280;
 }
 .unifiedNewsCard .card__info {
   font-size: .8rem;

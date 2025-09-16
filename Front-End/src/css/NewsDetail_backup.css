@@ -10,40 +10,61 @@
 .newsDetail .backButton:hover { color: #764ba2; }
 
 /* Flex 容器（文章 + 分隔 + ChatRoom） */
-.newsDetail .articleContainer { display: flex; gap: 2rem; align-items: flex-start; }
-
-/* 左右佈局 */
-.newsDetail .content-layout {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
-  width: 100%;
-}
-
-/* 左側主要內容 */
-.newsDetail .main-content {
-  flex: 2;
-  min-width: 0; /* 確保可以縮小 */
-}
-
-/* 右側邊欄內容 */
-.newsDetail .sidebar-content {
-  flex: 0.9;
-  min-width: 300px;
-  max-width: 400px;
-}
-
-/* 響應式設計 */
-@media (max-width: 1024px) {
-  .newsDetail .content-layout {
-    flex-direction: column;
+.newsDetail .articleContainer { display: flex; gap: 2rem; align-it/* 響應式設計 */
+@media (max-width: 768px) {
+  .chat-sidebar {
+    width: 100%;
+    right: -100%;
   }
   
-  .newsDetail .sidebar-content {
-    min-width: 100%;
-    max-width: 100%;
+  .chat-toggle-btn {
+    right: 16px;
+    bottom: 16px;
+    width: 50px;
+    height: 50px;
   }
 }
+
+/* ===== 事實查核按鈕 ===== */
+.fact-check-button {
+  position: fixed;
+  z-index: 9999;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: fadeInUp 0.2s ease-out;
+  min-width: 120px;
+  justify-content: center;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  transform: translateX(-50%);
+}
+
+.fact-check-button:hover {
+  background: #f8f9fa;
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}t; }
 
 /* 文章內容卡片（寬度動態，用 CSS 變數 --width 控制） */
 .newsDetail .articleContent {
@@ -132,14 +153,13 @@
 
 /* 延伸閱讀區 */
 .newsDetail .relatedSection {
-  padding: 1.0rem; border-top: 2px solid #e5e7eb;
+  margin-top: 2rem; padding: 1.5rem; border-top: 2px solid #e5e7eb;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 .newsDetail .sectionTitle {
   margin-bottom: 1.5rem; color: #1e293b; font-size: 1.2rem; font-weight: 700;
   display: flex; align-items: center; gap: 0.5rem;
-  margin-top : 20px;
 }
 .newsDetail .sectionTitle::before { content: '📰'; font-size: 1.1rem; }
 
@@ -199,15 +219,13 @@
 
 /* 資料來源 - 簡潔有設計感的版本 */
 .newsDetail .sourceBlock {
-  margin-top: 3rem;
-  margin-bottom: 2rem;
-  padding: 2rem;
-  background: #fafbfc;
+  margin-top: 2.5rem;
+  padding: 1.75rem;
+  background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   transition: box-shadow 0.3s ease;
-  position: relative;
 }
 
 .newsDetail .sourceBlock:hover {
@@ -403,89 +421,126 @@
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
+}/* ===== 浮�??�天系統 - 添�???NewsDetail.css ===== */
+
+/* 浮�??�天?��? */
+.chat-toggle-btn {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1001;
 }
 
-.newsDetail .fact-check-button{
-    position: fixed;
-    z-index: 9999;
-    background: #ffffff;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    animation: fadeInUp 0.2s ease-out;
-    min-width: 120px;
-    justify-content: center;
-    white-space: nowrap;
-    transition: all 0.2s ease;
+.chat-toggle-btn.hidden {
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
+  pointer-events: none;
 }
 
-.newsDetail .chat-toggle-btn{
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
+.chat-toggle-btn svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2;
 }
 
-.newsDetail .chat-sidebar{
-    position: fixed;
-    top: 0;
-    right: -400px;
-    width: 400px;
-    height: 100vh;
-    background: #ffffff;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
-    z-index: 1001;
-    transition: right 0.3s ease;
-    display: flex;
-    flex-direction: column;
+.chat-toggle-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 35px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
 }
 
-.newsDetail .chat-sidebar-header{
-    padding: 20px;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white
+/* 浮�??�天?��?�?*/
+.chat-sidebar {
+  position: fixed;
+  top: 0;
+  right: -420px;
+  width: 420px;
+  height: 100vh;
+  background: white;
+  border-left: 1px solid #e2e8f0;
+  box-shadow: -6px 0 30px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
 }
 
-.newsDetail .chat-sidebar-header h3{
-    color: white
+.chat-sidebar.open {
+  right: 0;
 }
 
-.newsDetail .chat-close-btn{
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.2s;
+.chat-sidebar-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.chat-sidebar-header h3 {
+  margin: 0;
+  color: #1a202c;
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-close-btn {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 16px;
+  color: #4a5568;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-close-btn:hover {
+  background: #edf2f7;
+  color: #2d3748;
+  border-color: #cbd5e0;
+  transform: scale(1.05);
+}
+
+.chat-sidebar-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ?��?式設�?*/
+@media (max-width: 768px) {
+  .chat-sidebar {
+    width: 100%;
+    right: -100%;
+  }
+  
+  .chat-toggle-btn {
+    right: 16px;
+    bottom: 16px;
+    width: 50px;
+    height: 50px;
+  }
 }

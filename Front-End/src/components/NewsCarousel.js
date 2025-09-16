@@ -58,9 +58,10 @@ function NewsCarousel() {
 
           if (imageData && imageData.length > 0) {
             const imageItem = imageData[0];
-            const mime = imageItem.mime_type || imageItem.image_mime || 'image/jpeg';
-            const b64 = (imageItem.image || '').replace(/\s/g, '');
-            imageUrl = b64.startsWith('data:') ? b64 : `data:${mime};base64,${b64}`;
+            if (imageItem.image) {
+              // 將純 base64 字串轉換為完整的 data URL
+              imageUrl = `data:image/png;base64,${imageItem.image}`;
+            }
           }
 
           return {
@@ -139,9 +140,6 @@ function NewsCarousel() {
                 <div className="slide-overlay">
                   <Link to={`/news/${news.id}`} className="slide-title-link">
                     <h3 className="slide-title">{news.title}</h3>
-                  </Link>
-                  <Link to={`/news/${news.id}`} className="read-more-btn">
-                    閱讀全文
                   </Link>
                 </div>
               </div>

@@ -128,7 +128,7 @@
 /* ===== Main Layout ===== */
 .srdLayout { 
   display: grid; 
-  grid-template-columns: 1fr 350px; 
+  grid-template-columns: 350px 1fr; /* 側邊欄在左，主內容在右 */
   gap: 2rem; 
 }
 
@@ -154,6 +154,18 @@
   height: fit-content;
   max-height: calc(100vh - 4rem); 
   overflow-y: auto;
+}
+
+/* 左側邊欄特定樣式 */
+.srdSidebar--left {
+  order: -1; /* 確保在 flexbox 中排在最前面 */
+}
+
+@media (max-width: 1200px) {
+  .srdSidebar--left {
+    order: 0; /* 在手機版中恢復正常順序 */
+    margin-bottom: 1.5rem;
+  }
 }
 
 .srdSidebarCard {
@@ -387,14 +399,14 @@
 
 .uncContainer .newsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  grid-template-columns: 1fr 1fr; /* 固定兩欄布局 */
   gap: 2rem;
   margin-bottom: 2rem;
 }
 
 @media (max-width: 1200px) {
   .uncContainer .newsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: 1fr; /* 平板以下改為單欄 */
   }
 }
 

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './../css/UnifiedNewsCard.css';
 import UnifiedNewsCard from './UnifiedNewsCard';
 import { useSupabase } from './supabase';
+import { imageCache } from './utils/cache';
 
 // 分類配置
 const categories = {
@@ -17,47 +18,166 @@ const categories = {
 };
 
 function CategorySection({ category }) {
-  const [showAllNews, setShowAllNews] = useState(false);
   const [newsData, setNewsData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
   const supabaseClient = useSupabase();
   
   const currentCategory = categories[category];
+  const ITEMS_PER_PAGE = 18;
 
-  // 從資料庫獲取該分類的新聞
-  useEffect(() => {
-    const fetchCategoryNews = async () => {
-      if (!currentCategory || !supabaseClient) return;
+  // 載入圖片的共用函數
+  const loadImagesForNews = useCallback(async (newsArray) => {
+    if (!newsArray || newsArray.length === 0) return [];
 
-      try {
-        setLoading(true);
-        setError(null);
-
-        const { data, error } = await supabaseClient
-          .from('single_news')
-          .select('*')
-          .eq('category', currentCategory.id)
-          .order('generated_date', { ascending: false });
-
-        if (error) {
-          console.error('Error fetching category news:', error);
-          setError('無法載入新聞資料');
-          setNewsData([]);
-        } else {
-          setNewsData(data || []);
-        }
-      } catch (err) {
-        console.error('Unexpected error:', err);
-        setError('載入新聞時發生錯誤');
-        setNewsData([]);
-      } finally {
-        setLoading(false);
+    const storyIds = newsArray.map(news => news.story_id);
+    console.log(`Loading images for ${storyIds.length} stories`);
+    
+    // 檢查快取
+    const uncachedStoryIds = [];
+    const cachedImages = {};
+    storyIds.forEach(storyId => {
+      const cached = imageCache.get(`image_${storyId}`);
+      if (cached) {
+        cachedImages[storyId] = cached;
+      } else {
+        uncachedStoryIds.push(storyId);
       }
-    };
+    });
 
-    fetchCategoryNews();
-  }, [currentCategory, supabaseClient]);
+    // 查詢未快取的圖片
+    let imageMap = { ...cachedImages };
+    if (uncachedStoryIds.length > 0) {
+      try {
+        const { data: imagesData, error: imagesError } = await supabaseClient
+          .from('generated_image')
+          .select('story_id, image')
+          .in('story_id', uncachedStoryIds);
+
+        if (!imagesError && imagesData) {
+          imagesData.forEach(imageItem => {
+            if (imageItem.image) {
+              const cleanBase64 = imageItem.image.replace(/\s/g, '');
+              const imageUrl = `data:image/png;base64,${cleanBase64}`;
+              
+              imageMap[imageItem.story_id] = imageUrl;
+              imageCache.set(`image_${imageItem.story_id}`, imageUrl);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error loading images:', error);
+      }
+    }
+
+    // 組合新聞資料與圖片
+    return newsArray.map(news => ({
+      ...news,
+      title: news.news_title,
+      shortSummary: news.ultra_short,
+      date: new Date(news.generated_date).toLocaleDateString("zh-TW"),
+      imageUrl: imageMap[news.story_id] || "/api/placeholder/300/200"
+    }));
+  }, [supabaseClient]);
+
+  // 載入第一頁新聞
+  const loadInitialNews = useCallback(async () => {
+    if (!currentCategory || !supabaseClient) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log('Loading initial news for category:', currentCategory.id);
+
+      // 查詢第一頁新聞
+      const { data: newsData, error: newsError } = await supabaseClient
+        .from('single_news')
+        .select('story_id, news_title, ultra_short, generated_date, category')
+        .eq('category', currentCategory.id)
+        .order('generated_date', { ascending: false })
+        .limit(ITEMS_PER_PAGE);
+
+      if (newsError) {
+        console.error('Error fetching news:', newsError);
+        setError('無法載入新聞資料');
+        return;
+      }
+
+      if (!newsData || newsData.length === 0) {
+        console.log('No news found for category:', currentCategory.id);
+        setNewsData([]);
+        setHasMore(false);
+        return;
+      }
+
+      // 載入這一頁的圖片
+      const enhancedData = await loadImagesForNews(newsData);
+      
+      setNewsData(enhancedData);
+      setCurrentPage(1);
+      setHasMore(newsData.length === ITEMS_PER_PAGE);
+      
+    } catch (err) {
+      console.error('Error in loadInitialNews:', err);
+      setError('載入新聞時發生錯誤');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentCategory, supabaseClient, loadImagesForNews]);
+
+  // 載入更多新聞
+  const loadMoreNews = useCallback(async () => {
+    if (!currentCategory || !supabaseClient || isLoadingMore || !hasMore) return;
+
+    try {
+      setIsLoadingMore(true);
+      
+      const nextPage = currentPage + 1;
+      const offset = (nextPage - 1) * ITEMS_PER_PAGE;
+
+      console.log(`Loading page ${nextPage} for category:`, currentCategory.id);
+
+      // 查詢下一頁新聞
+      const { data: newNewsData, error: newsError } = await supabaseClient
+        .from('single_news')
+        .select('story_id, news_title, ultra_short, generated_date, category')
+        .eq('category', currentCategory.id)
+        .order('generated_date', { ascending: false })
+        .range(offset, offset + ITEMS_PER_PAGE - 1);
+
+      if (newsError) {
+        console.error('Error fetching more news:', newsError);
+        return;
+      }
+
+      if (!newNewsData || newNewsData.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      // 載入這一頁的圖片
+      const enhancedNewData = await loadImagesForNews(newNewsData);
+      
+      // 合併到現有資料
+      setNewsData(prevData => [...prevData, ...enhancedNewData]);
+      setCurrentPage(nextPage);
+      setHasMore(newNewsData.length === ITEMS_PER_PAGE);
+
+    } catch (err) {
+      console.error('Error in loadMoreNews:', err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [currentCategory, supabaseClient, isLoadingMore, hasMore, currentPage, loadImagesForNews]);
+
+  // 初始載入效果
+  useEffect(() => {
+    loadInitialNews();
+  }, [loadInitialNews]);
 
   if (!currentCategory) {
     return (
@@ -92,22 +212,8 @@ function CategorySection({ category }) {
     );
   }
 
-  // 轉成 UnifiedNewsCard 所需格式
-  const convertedNewsData = newsData.map((news, index) => ({
-    story_id: news.story_id,
-    title: news.news_title,
-    category: currentCategory.name,
-    date: news.generated_date,
-    author: 'Gemini',
-    sourceCount: news.total_articles,
-    shortSummary: news.ultra_short,
-    relatedNews: [],
-    views: 0,
-    keywords: [],
-    terms: [],
-  }));
-
-  const displayLimit = showAllNews ? undefined : 12;
+  // 資料已經在 fetchCategoryNews 中處理完成，包含圖片
+  console.log('Final news data for UnifiedNewsCard:', newsData);
 
   return (
     <section className="catSec">
@@ -120,21 +226,12 @@ function CategorySection({ category }) {
       {newsData.length === 0 ? (
         <div className="catSec__empty">目前沒有 {category} 相關的新聞</div>
       ) : (
-        <>
+        <div className="catSec__content">
           <UnifiedNewsCard 
-            limit={displayLimit} 
-            customData={convertedNewsData}
-            instanceId={`category_${currentCategory?.id || 'unknown'}`}
+            customData={newsData}
+            limit={newsData.length} 
           />
-
-          {!showAllNews && newsData.length > 12 && (
-            <div className="catSec__moreWrap">
-              <button className="btnPrimary" onClick={() => setShowAllNews(true)}>
-                閱讀更多新聞 ({newsData.length - 12} 篇)
-              </button>
-            </div>
-          )}
-        </>
+        </div>
       )}
     </section>
   );

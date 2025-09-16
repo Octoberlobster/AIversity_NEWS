@@ -36,6 +36,7 @@ function ChatRoom({newsData}, ref) {
   const proofMessagesEndRef = useRef(null);
   const dropdownRef = useRef(null);
   const promptDropdownRef = useRef(null);
+  const inputRef = useRef(null);
 
   const user_id = getOrCreateUserId();
   const roomIdRef = useRef(createRoomId());
@@ -46,8 +47,16 @@ function ChatRoom({newsData}, ref) {
     addFactCheckMessage: (message) => {
       setProofMessages((prev) => [...prev, message]);
       setShowProofMode(true); // 自動切換到溯源驗證模式
+    },
+    resetToChat: () => {
+      setShowProofMode(false);
     }
   }), []);
+
+  // 當切換回專家聊天模式時的處理
+  useEffect(() => {
+    // 目前只是監聽模式切換，不做額外處理
+  }, [showProofMode]);
 
   // 自動滾到最底
   useEffect(() => {
@@ -79,7 +88,9 @@ function ChatRoom({newsData}, ref) {
 
   //讓一開始就有提示字可以用
   useEffect(() => {
-    changeQuickPrompt();
+    if (selectedExperts.length > 0) {
+      changeQuickPrompt();
+    }
   }, [selectedExperts]);
 
   // 等待 category 傳遞後初始化 selectedExperts
@@ -189,7 +200,14 @@ function ChatRoom({newsData}, ref) {
   };
 
   const handleSendMessage = () => {
-    if (!inputMessage.trim() || selectedExperts.length === 0) return;
+    if (!inputMessage.trim()) return;
+    
+    // 如果沒有選擇專家，提醒用戶
+    if (selectedExperts.length === 0) {
+      alert('請先選擇至少一位專家來回答您的問題');
+      return;
+    }
+    
     setMessages((prev) => [...prev, makeUserMsg(inputMessage)]);
     setInputMessage('');
     simulateReplies();
@@ -437,18 +455,34 @@ function ChatRoom({newsData}, ref) {
       {!showProofMode && (
         <div className="input">
           <input
+            ref={inputRef}
             type="text"
             className="input__text"
             placeholder={selectedExperts.length === 0 ? "請先選擇專家..." : "輸入您的問題..."}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            disabled={selectedExperts.length === 0}
+            onKeyDown={(e) => {
+              // 手動處理輸入，因為 onChange 在某些情況下不工作
+              if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                e.preventDefault();
+                const currentValue = e.target.value;
+                const newValue = currentValue + e.key;
+                setInputMessage(newValue);
+              } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                const currentValue = e.target.value;
+                const newValue = currentValue.slice(0, -1);
+                setInputMessage(newValue);
+              }
+            }}
+            autoComplete="off"
+            spellCheck="false"
           />
           <button
             className="input__send"
             onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || selectedExperts.length === 0}
+            disabled={!inputMessage.trim()}
           >
             ➤
           </button>
