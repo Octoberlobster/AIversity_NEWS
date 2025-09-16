@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import Header from './Header';
-// 引入更新後的組件
-// import NewsCategory from './News_category';
-import NewsProject from './NewsProject'; 
-import NonNewsProject from './NonNewsProject';
-import './css/EventList.css'; // 確保引入了樣式文件
-=======
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
@@ -22,7 +13,6 @@ import SpecialReportDetail from './components/SpecialReportDetail';
 import AdminDashboard from './components/admin/AdminDashboard';
 import { SupabaseProvider } from './components/supabase';
 import './css/App.css';
->>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5
 
 function App() {
   return (

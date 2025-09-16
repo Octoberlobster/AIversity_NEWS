@@ -7,11 +7,7 @@
     "d3": "^7.9.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-<<<<<<< HEAD
-    "react-icons": "^5.5.0",
-=======
     "react-markdown": "^10.1.0",
->>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5
     "react-router-dom": "^7.6.3",
     "react-scripts": "5.0.1",
     "remark-gfm": "^4.0.1",

@@ -17,23 +17,14 @@ export class FiveW1HVisualization {
     this.g = null;
     this.simulation = null;
     this.transform = { x: 0, y: 0, k: 1 };
-<<<<<<< HEAD:demo/news-platform/src/components/FiveW1HVisualization.js
-    this.topicTitle = options.topicTitle;
-    // this.topicTitle = "大罷免";
-=======
     this.topicTitle = options.topicTitle || "專題分析";
     this.topicId = options.topicId || null; // 接收 topic_id 參數
->>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5:Front-End/src/components/FiveW1HVisualization.js
   }
 
   async loadData() {
     try {
       // 優先從Supabase獲取資料
-<<<<<<< HEAD:demo/news-platform/src/components/FiveW1HVisualization.js
-      console.log('正在從Supabase載入資料，主題:', this.topicTitle);
-=======
       console.log('正在從Supabase載入資料，主題:', this.topicTitle, '，ID:', this.topicId);
->>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5:Front-End/src/components/FiveW1HVisualization.js
       
       // 檢查Supabase連接
       if (!supabase) {
@@ -43,12 +34,6 @@ export class FiveW1HVisualization {
       }
       
       console.log('🔍 開始Supabase查詢...');
-<<<<<<< HEAD:demo/news-platform/src/components/FiveW1HVisualization.js
-      const { data, error } = await supabase
-        .from("topic")
-        .select("mind_map_detail")
-        .eq("topic_title", this.topicTitle);
-=======
       let data, error;
       
       // 優先使用 topic_id 查詢，如果沒有則用 topic_title
@@ -65,7 +50,6 @@ export class FiveW1HVisualization {
           .select("mind_map_detail")
           .eq("topic_title", this.topicTitle));
       }
->>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5:Front-End/src/components/FiveW1HVisualization.js
 
       console.log('📊 Supabase查詢結果:', { data, error });
 
@@ -213,11 +197,6 @@ export class FiveW1HVisualization {
       center_node: mindMapData.center_node,
       main_nodes: mindMapData.main_nodes,
       detailed_nodes: mindMapData.detailed_nodes
-<<<<<<< HEAD:demo/news-platform/src/components/FiveW1HVisualization.js
-<<<<<<< Updated upstream:demo/news-platform/src/components/FiveW1HVisualization.js
-=======
-=======
->>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5:Front-End/src/components/FiveW1HVisualization.js
     };
   }
 
@@ -229,10 +208,7 @@ export class FiveW1HVisualization {
       'where': '哪裡',
       'why': '為什麼',
       'how': '如何'
-<<<<<<< HEAD:demo/news-platform/src/components/FiveW1HVisualization.js
->>>>>>> Stashed changes:Front-End/src/components/FiveW1HVisualization.js
     };
-=======
     };
     return chineseNames[category] || category;
   }
