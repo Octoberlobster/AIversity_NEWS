@@ -277,6 +277,32 @@ function SpecialReportDetail() {
 
         {/* Layout */}
         <div className="srdLayout">
+<<<<<<< HEAD
+=======
+          {/* Sidebar - 移到左邊 */}
+          <aside className="srdSidebar srdSidebar--left">
+            <div className="srdSidebarCard">
+              <h3 className="srdSidebarTitle">專題導覽</h3>
+              <nav className="srdNav">
+                {branches.length === 0 ? (
+                  <div className="srdNavEmpty">尚無分支</div>
+                ) : (
+                  branches.map((b) => (
+                    <button
+                      key={b.id}
+                      className={`srdNavItem ${activeEvent === b.id ? 'is-active' : ''}`}
+                      onClick={() => handleNavClick(b.id)}
+                      type="button"
+                    >
+                      {b.name}
+                    </button>
+                  ))
+                )}
+              </nav>
+            </div>
+          </aside>
+
+>>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5
           <div className="srdMainCol">
             {branches.map((branch) => (
               <section
@@ -328,6 +354,7 @@ function SpecialReportDetail() {
               </section>
             ))}
           </div>
+<<<<<<< HEAD
 
           {/* Sidebar */}
           <aside className="srdSidebar">
@@ -351,6 +378,8 @@ function SpecialReportDetail() {
               </nav>
             </div>
           </aside>
+=======
+>>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5
         </div>
       </div>
 
@@ -381,7 +410,11 @@ function SpecialReportDetail() {
               ✕
             </button>
             <div className="srd5W1HModal__title">
+<<<<<<< HEAD
               <h2>{report.topic_title} - 5W1H關聯分析</h2>
+=======
+               <h2>{report.topic_title} - 5W1H關聯分析</h2>
+>>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5
             </div>
             <div className="srd5W1HModal__visualization" ref={expanded5W1HRef}>
               <div id="expanded-mindmap" style={{ width: '100%', height: '100%' }}></div>

@@ -191,6 +191,12 @@ class ReportGenerator:
                 else:
                     # 備案：走文字或 dict
                     raw_text = (response.text or "").strip()   # 可能為 None
+                    # 移除可能的 markdown 代碼塊格式
+                    if raw_text.startswith("```json") and raw_text.endswith("```"):
+                        raw_text = raw_text[7:-3].strip()
+                    elif raw_text.startswith("```") and raw_text.endswith("```"):
+                        # 處理沒有 json 標記的情況
+                        raw_text = raw_text[3:-3].strip()
                     if raw_text:
                         try:
                             data = json.loads(raw_text)

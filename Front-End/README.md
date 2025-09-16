@@ -1,70 +1,109 @@
-# Getting Started with Create React App
+# AIversity NEWS - 前端與後端服務
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+歡迎來到 AIversity NEWS 專案！這是一個提供新聞閱讀、分析與互動功能的平台。此 README 檔案將專注於 `Front-End` 目錄下的前端應用程式與其相關的後端服務。
 
-## Available Scripts
+## 專案描述
 
-In the project directory, you can run:
+此專案包含一個使用 React 建立的現代化前端應用程式，以及一個使用 Python Flask 框架開發的後端 API 服務。使用者可以透過此平台瀏覽不同類別的新聞、進行深度搜尋、與 AI 助理互動，並取得新聞的摘要與事實查核。
 
-### `npm start`
+## 主要功能
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+根據後端服務的模組，此平台提供了以下功能：
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+*   **新聞聊天室 (`/chat/single`)**: 使用者可以針對單一新聞文章，與 AI 助理進行問答互動。
+*   **提示詞建議 (`/hint_prompt/*`)**: 系統會根據使用者正在瀏覽的新聞或主題，提供相關的提示詞建議，引導使用者進行更深入的探索。
+*   **進階搜尋 (`/advanced_search`)**: 提供比關鍵字搜尋更強大的進階搜尋功能。
+*   **單篇新聞證明 (`/proof/single_news`)**: 針對單一新聞，提供相關的佐證資料或摘要。
+*   **事實查核 (`/check_fact`)**: 提供新聞內容的事實查核功能。
 
-### `npm test`
+## 技術棧
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 前端
 
-### `npm run build`
+*   **框架**: [React](https://reactjs.org/)
+*   **路由**: [React Router](https://reactrouter.com/)
+*   **UI 元件**: [Styled Components](https://styled-components.com/)
+*   **資料視覺化**: [D3.js](https://d3js.org/)
+*   **後端整合**: [Supabase Client](https://supabase.io/)
+*   **Markdown 渲染**: [React Markdown](https://github.com/remarkjs/react-markdown)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 後端
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+*   **框架**: [Flask](https://flask.palletsprojects.com/)
+*   **CORS**: [Flask-Cors](https://flask-cors.readthedocs.io/)
+*   **語言**: Python
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 專案結構
 
-### `npm run eject`
+```
+Front-End/
+├── build/              # 前端應用程式的生產版本
+├── public/             # 公開靜態資源
+├── src/                # React 應用程式原始碼
+│   ├── components/     # React 元件
+│   ├── css/            # CSS 樣式表
+│   ├── App.js          # 主要應用程式元件
+│   └── index.js        # 應用程式進入點
+├── back-end/           # Python Flask 後端服務
+│   ├── app.py          # Flask 應用程式進入點
+│   ├── ChatRoom.py     # 聊天室功能模組
+│   ├── check_real2.py  # 事實查核模組
+│   └── ...             # 其他功能模組
+├── package.json        # 前端專案設定與依賴
+└── db.sql              # 資料庫結構 (可能)
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 安裝與啟動
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 前端
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1.  **進入前端目錄**:
+    ```bash
+    cd Front-End
+    ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2.  **安裝依賴套件**:
+    ```bash
+    npm install
+    ```
 
-## Learn More
+3.  **啟動開發伺服器**:
+    ```bash
+    npm start
+    ```
+    應用程式將會在 `http://localhost:3000` 上運行。
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 後端
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1.  **進入後端目錄**:
+    ```bash
+    cd Front-End/back-end
+    ```
 
-### Code Splitting
+2.  **安裝 Python 依賴**:
+    建議建立一個虛擬環境。後端依賴 `Flask` 和 `Flask-Cors`。
+    ```bash
+    pip install Flask Flask-Cors
+    # 可能還需要安裝其他 .py 檔案中 import 的套件
+    ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+3.  **啟動後端服務**:
+    ```bash
+    flask run
+    ```
+    後端服務預設將會在 `http://localhost:5000` 上運行。
 
-### Analyzing the Bundle Size
+## API 端點
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+後端服務 (`app.py`) 提供了以下主要的 API 端點：
 
-### Making a Progressive Web App
+*   `POST /chat/single`: 處理單篇新聞的聊天請求。
+*   `POST /hint_prompt/single`: 取得單篇新聞的提示詞建議。
+*   `POST /hint_prompt/topic`: 取得特定主題的提示詞建議。
+*   `POST /hint_prompt/search`: 取得搜尋頁面的提示詞建議。
+*   `POST /advanced_search`: 執行進階搜尋。
+*   `POST /proof/single_news`: 取得單篇新聞的佐證。
+*   `POST /check_fact`: 進行事實查核。
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+此 `README.md` 檔案是根據專案結構自動產生。如有需要，請進一步修改以符合實際情況。

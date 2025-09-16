@@ -1,23 +1,21 @@
 {
-  "name": "my-react-app",
+  "name": "news-platform",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.4",
-    "@syncfusion/ej2-base": "^29.1.33",
-    "@syncfusion/ej2-layouts": "^29.1.34",
-    "@syncfusion/ej2-react-base": "^29.1.33",
-    "@syncfusion/ej2-react-layouts": "^29.1.34",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@supabase/supabase-js": "^2.55.0",
+    "d3": "^7.9.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+<<<<<<< HEAD
     "react-icons": "^5.5.0",
+=======
+    "react-markdown": "^10.1.0",
+>>>>>>> 2c06b6e42beaa2bd32b913c8ed65b091ea1479b5
     "react-router-dom": "^7.6.3",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "remark-gfm": "^4.0.1",
+    "styled-components": "^6.1.19"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -26,10 +24,7 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "extends": "react-app"
   },
   "browserslist": {
     "production": [
