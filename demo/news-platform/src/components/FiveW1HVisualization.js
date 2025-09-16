@@ -140,7 +140,7 @@ export class FiveW1HVisualization {
         const category = node.id || node.category; // who, what, when, where, why, how
         nodes.push({
           id: node.id || category,
-          label: node.label || node.name || category.toUpperCase(),
+          label: node.id || node.label || node.name || category.toUpperCase(),
           type: '5w1h',
           category: category,
           description: node.description || `涉及${category}相關的內容`
@@ -185,6 +185,20 @@ export class FiveW1HVisualization {
       center_node: mindMapData.center_node,
       main_nodes: mindMapData.main_nodes,
       detailed_nodes: mindMapData.detailed_nodes
+<<<<<<< Updated upstream:demo/news-platform/src/components/FiveW1HVisualization.js
+=======
+    };
+  }
+
+  getCategoryChineseName(category) {
+    const chineseNames = {
+      'who': '誰',
+      'what': '什麼',
+      'when': '何時',
+      'where': '哪裡',
+      'why': '為什麼',
+      'how': '如何'
+>>>>>>> Stashed changes:Front-End/src/components/FiveW1HVisualization.js
     };
   }
 
@@ -538,10 +552,13 @@ export class FiveW1HVisualization {
     // 計算需要的平移量以保持中心節點在視覺中心
     const translateX = (width / 2) * (1 - defaultScale);
     const translateY = (height / 2) * (1 - defaultScale);
+     
+     // 如果不是 header 模式，整體往上移動 50 像素
+     const yOffset = this.options.isHeaderMode ? 0 : -90;
     
     // 應用縮放和平移變換
     const transform = d3.zoomIdentity
-      .translate(translateX, translateY)
+       .translate(translateX, translateY + yOffset)
       .scale(defaultScale);
     
     this.svg.call(zoom.transform, transform);
@@ -569,7 +586,7 @@ export class FiveW1HVisualization {
               this.simulation = d3.forceSimulation(this.data.nodes)
        .force('link', d3.forceLink(this.data.links).id(d => d.id).distance(d => {
          if (d.source.id === 'center' || (typeof d.source === 'object' && d.source.id === 'center')) {
-           return isHeaderMode ? 80 : 180; // 增加距離
+           return isHeaderMode ? 80 : 100; // 增加距離
          }
          if (d.source.type === '5w1h' || (typeof d.source === 'object' && d.source.type === '5w1h')) {
            return isHeaderMode ? 50 : 80; // 增加距離
@@ -614,12 +631,12 @@ export class FiveW1HVisualization {
       .attr('class', d => `node node-${d.type} node-${d.category || 'center'}`)
       .attr('r', d => {
         if (isHeaderMode) {
-          if (d.type === 'center') return 30; // 從16增加到25
-          if (d.type === '5w1h') return 22;  // 從14增加到22
+          if (d.type === 'center') return 40; // 從16增加到25
+          if (d.type === '5w1h') return 27;  // 從14增加到22
           return 18; // 從10增加到18
         } else {
-          if (d.type === 'center') return 40; // 從30增加到40
-          if (d.type === '5w1h') return 35;  // 從25增加到35
+          if (d.type === 'center') return 50; // 從30增加到40
+          if (d.type === '5w1h') return 30;  // 從25增加到35
           return 28; // 從18增加到28
         }
       })
@@ -680,7 +697,6 @@ export class FiveW1HVisualization {
          .style('opacity', 1); // 確保文字可見
     });
   }
-
   // 邊界限制
   applyBoundaryConstraints(width, height) {
     const isHeaderMode = this.options.isHeaderMode;
@@ -747,10 +763,57 @@ export class FiveW1HVisualization {
     this.render();
   }
 
+  // 重置 5W1H 節點到固定位置
+  resetFiveW1HPositions() {
+    if (!this.data || !this.data.nodes) return;
+    
+    const centerNode = this.data.nodes.find(node => node.type === 'center');
+    if (!centerNode) return;
+    
+    const fivew1hNodes = this.data.nodes.filter(node => node.type === '5w1h');
+    const isHeaderMode = this.options.isHeaderMode;
+    const radius = isHeaderMode ? 80 : 120;
+    
+    fivew1hNodes.forEach((node, index) => {
+      const angle = (index * 2 * Math.PI) / fivew1hNodes.length;
+      const targetX = centerNode.x + radius * Math.cos(angle);
+      const targetY = centerNode.y + radius * Math.sin(angle);
+      
+      node.x = targetX;
+      node.y = targetY;
+      node.fx = targetX;
+      node.fy = targetY;
+    });
+    
+    // 重新啟動力導向模擬
+    if (this.simulation) {
+      this.simulation.alphaTarget(0.1).restart();
+      setTimeout(() => {
+        if (this.simulation) {
+          this.simulation.alphaTarget(0);
+        }
+      }, 200);
+    }
+  }
+
+  // 清理資源
+  destroy() {
+    if (this.cleanupResize) {
+      this.cleanupResize();
+    }
+    if (this.svg) {
+      this.svg.selectAll("*").remove();
+    }
+    if (this.simulation) {
+      this.simulation.stop();
+    }
+  }
+
   showNodeDetail(node, event) {
     try {
       console.log('🔍 開始顯示節點詳情:', node);
       
+<<<<<<< Updated upstream:demo/news-platform/src/components/FiveW1HVisualization.js
       // 防止事件冒泡
       event.stopPropagation();
       
@@ -791,6 +854,48 @@ export class FiveW1HVisualization {
         cursor: default;
         position: relative;
       `;
+=======
+    // 防止事件冒泡
+    event.stopPropagation();
+    
+    // 移除現有的詳情視窗
+    const existingModal = document.getElementById('node-detail-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    // 創建詳情視窗
+    const modal = document.createElement('div');
+    modal.id = 'node-detail-modal';
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      cursor: pointer;
+    `;
+    
+    // 創建視窗內容
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+        max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      cursor: default;
+      position: relative;
+    `;
+>>>>>>> Stashed changes:Front-End/src/components/FiveW1HVisualization.js
     
     // 關閉按鈕
     const closeBtn = document.createElement('button');
@@ -837,19 +942,7 @@ export class FiveW1HVisualization {
     `;
     
     // 節點類型標籤
-    const typeLabel = document.createElement('div');
-    typeLabel.textContent = this.getNodeTypeLabel(node.type);
-    typeLabel.style.cssText = `
-      display: inline-block;
-      background: ${this.getNodeTypeColor(node.type)};
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      margin-bottom: 20px;
-      text-align: center;
-    `;
+
     
     // 節點描述
     const description = document.createElement('p');
@@ -858,7 +951,7 @@ export class FiveW1HVisualization {
       margin: 15px 0;
       color: #555;
       line-height: 1.6;
-      font-size: 14px;
+      font-size: 16px;
     `;
     
     // 根據節點類型顯示詳細資訊
@@ -878,8 +971,13 @@ export class FiveW1HVisualization {
     // 組裝視窗內容
     modalContent.appendChild(closeBtn);
     modalContent.appendChild(title);
-    modalContent.appendChild(typeLabel);
-    modalContent.appendChild(description);
+    if(node.type === '5w1h' && node.category !== 'why') {
+      modalContent.appendChild(description);
+    }
+
+    if (detailedContent) {
+      modalContent.appendChild(detailedContent);
+    }
     
     if (detailedContent) {
       modalContent.appendChild(detailedContent);
@@ -906,6 +1004,7 @@ export class FiveW1HVisualization {
   }
 }
   
+<<<<<<< Updated upstream:demo/news-platform/src/components/FiveW1HVisualization.js
   createDetailedContent(category, node) {
     // 檢查是否有詳細資料
     if (!this.data.detailed_nodes) return null;
@@ -1185,16 +1284,262 @@ export class FiveW1HVisualization {
     });
     
     return container;
+=======
+createDetailedContent(category, node) {
+  // 檢查是否有詳細資料
+  if (!this.data.detailed_nodes) return null;
+  
+  let detailedNodes = [];
+  
+  // 根據類別獲取對應的詳細節點
+  switch (category) {
+    case 'who':
+      detailedNodes = this.data.detailed_nodes.who_nodes || [];
+      break;
+    case 'what':
+      detailedNodes = this.data.detailed_nodes.what_nodes || [];
+      break;
+    case 'when':
+      detailedNodes = this.data.detailed_nodes.when_nodes || [];
+      break;
+    case 'where':
+      detailedNodes = this.data.detailed_nodes.where_nodes || [];
+      break;
+    case 'why':
+      detailedNodes = this.data.detailed_nodes.why_nodes || [];
+      break;
+    case 'how':
+      detailedNodes = this.data.detailed_nodes.how_nodes || [];
+      break;
+    case 'center_node':
+      // 中心節點顯示所有主要節點的概述
+      return this.createMainNodesOverview();
+    default:
+      return null;
+>>>>>>> Stashed changes:Front-End/src/components/FiveW1HVisualization.js
   }
   
-  getNodeTypeLabel(type) {
-    const labels = {
-      'center': '核心議題',
-      '5w1h': '5W1H要素',
-      'detail': '詳細資訊'
-    };
-    return labels[type] || '未知類型';
+  if (detailedNodes.length === 0) return null;
+  
+  // 如果是時間節點，使用時間軸佈局
+  if (category === 'when') {
+    return this.createTimelineLayout(detailedNodes);
   }
+  
+  // 如果是 why 類別，只顯示 main_node 的 description
+  if (category === 'why') {
+    const mainNode = this.data.main_nodes?.find(node => node.id === category);
+    if (!mainNode || !mainNode.description) {
+      return null; // 如果沒有 main_node 的 description，不顯示任何內容
+    }
+    
+    const container = document.createElement('div');
+    container.style.cssText = `
+      margin-top: 20px;
+      border-top: 1px solid #eee;
+      padding-top: 20px;
+    `;
+    
+    const description = document.createElement('p');
+    description.textContent = mainNode.description;
+    description.style.cssText = `
+      margin: 0;
+      color: #555;
+      line-height: 1.6;
+      font-size: 16px;
+    `;
+    
+    container.appendChild(description);
+    return container;
+  }
+  
+  // 其他類別使用原本的佈局
+  const container = document.createElement('div');
+  container.style.cssText = `
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+  `;
+  
+  // 創建詳細節點列表
+  
+  detailedNodes.forEach(detailNode => {
+    const detailItem = document.createElement('div');
+    detailItem.style.cssText = `
+      margin-bottom: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid ${this.getNodeTypeColor('detail')};
+    `;
+    
+    const detailTitle = document.createElement('h4');
+    detailTitle.textContent = detailNode.label;
+    detailTitle.style.cssText = `
+      margin: 0 0 8px 0;
+      color: #2c3e50;
+      font-size: 1em;
+      font-weight: bold;
+    `;
+    
+    const detailDesc = document.createElement('p');
+    detailDesc.textContent = detailNode.description;
+    detailDesc.style.cssText = `
+      margin: 0;
+      color: #555;
+      line-height: 1.5;
+      font-size: 16px;
+    `;
+    
+    detailItem.appendChild(detailTitle);
+    detailItem.appendChild(detailDesc);
+    container.appendChild(detailItem);
+  });
+  
+  return container;
+}
+
+createTimelineLayout(detailedNodes) {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+  `;
+  
+  // 創建時間軸容器
+  const timelineContainer = document.createElement('div');
+  timelineContainer.style.cssText = `
+    position: relative;
+    padding: 30px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 80px;
+  `;
+  
+  // 創建時間軸線
+  const timelineLine = document.createElement('div');
+  timelineLine.style.cssText = `
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    right: 20px;
+    height: 3px;
+    background: #3498db;
+    border-radius: 2px;
+    transform: translateY(-50%);
+    z-index: 1;
+  `;
+  
+  timelineContainer.appendChild(timelineLine);
+  
+  // 創建時間點
+  detailedNodes.forEach((detailNode, index) => {
+    const timelineItem = document.createElement('div');
+    timelineItem.style.cssText = `
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+      flex: 1;
+    `;
+    
+    // 時間標籤（點上面）
+    const timeLabel = document.createElement('div');
+    timeLabel.textContent = detailNode.label;
+    timeLabel.style.cssText = `
+      font-weight: bold;
+      color: #2c3e50;
+      font-size: 12px;
+      margin-bottom: 8px;
+      background: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    `;
+    
+    // 時間點圓圈
+    const timePoint = document.createElement('div');
+    timePoint.style.cssText = `
+      width: 12px;
+      height: 12px;
+      background: #e74c3c;
+      border: 2px solid white;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      margin-bottom: 8px;
+    `;
+    
+    // 標題（點下面）
+    const title = document.createElement('div');
+    title.textContent = detailNode.description;
+    title.style.cssText = `
+      color: #555;
+      font-size: 14px;
+      text-align: center;
+      max-width: 120px;
+      line-height: 1.3;
+    `;
+    
+    timelineItem.appendChild(timeLabel);
+    timelineItem.appendChild(timePoint);
+    timelineItem.appendChild(title);
+    timelineContainer.appendChild(timelineItem);
+  });
+  
+  container.appendChild(timelineContainer);
+  
+  return container;
+}
+
+createMainNodesOverview() {
+  if (!this.data.main_nodes) return null;
+  
+  const container = document.createElement('div');
+  container.style.cssText = `
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+  `;
+  
+  this.data.main_nodes.forEach(mainNode => {
+    const mainItem = document.createElement('div');
+    mainItem.style.cssText = `
+      margin-bottom: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid ${this.getNodeTypeColor('5w1h')};
+    `;
+    
+    const mainTitle = document.createElement('h4');
+    mainTitle.textContent = mainNode.label;
+    mainTitle.style.cssText = `
+      margin: 0 0 8px 0;
+      color: #2c3e50;
+      font-size: 1em;
+      font-weight: bold;
+    `;
+    
+    const mainDesc = document.createElement('p');
+    mainDesc.textContent = mainNode.description;
+    mainDesc.style.cssText = `
+      margin: 0;
+      color: #555;
+      line-height: 1.5;
+      font-size: 16px;
+    `;
+    
+    mainItem.appendChild(mainTitle);
+    mainItem.appendChild(mainDesc);
+    container.appendChild(mainItem);
+  });
+  
+  return container;
+}
+
   
   getNodeTypeColor(type) {
     const colors = {
@@ -1309,12 +1654,14 @@ export class FiveW1HVisualization {
         <style>
           .fivew1h-container {
             font-family: 'Arial', sans-serif;
+            width: 100%;
             max-width: 100%;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 20px;
+            padding: 15px 20px 20px 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-sizing: border-box;
           }
 
           .fivew1h-title {
@@ -1335,11 +1682,14 @@ export class FiveW1HVisualization {
           .fivew1h-graph {
             width: 100%;
             height: ${this.options.height}px;
+            min-height: 400px;
             border: 2px solid #e0e6ed;
             border-radius: 15px;
             background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%);
             overflow: hidden;
             cursor: grab;
+            box-sizing: border-box;
+            margin-top: 0;
           }
 
           .fivew1h-graph:active {
@@ -1442,23 +1792,36 @@ export class FiveW1HVisualization {
             background: #3498db;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 12px;
-            margin: 0 5px;
+            margin: 0;
             transition: background 0.3s ease;
+            white-space: nowrap;
+            min-width: 80px;
           }
 
           .fivew1h-btn:hover {
             background: #2980b9;
           }
 
+          .fivew1h-bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0px;
+            padding: 0 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+          }
+
           .fivew1h-instructions {
-            text-align: center;
-            margin-top: 10px;
             color: #7f8c8d;
             font-size: 11px;
+            margin: 0;
+            flex: 1;
+            line-height: 1.2;
           }
 
           .loading {
@@ -1469,13 +1832,9 @@ export class FiveW1HVisualization {
         </style>
 
                  <div class="fivew1h-container">
-           <p class="fivew1h-instructions">💡 可以拖動背景移動圖形、縮放以中心為基準，或拖動個別節點調整位置</p>
-           
            <div class="fivew1h-graph" id="fivew1h-graph-${this.containerId}"></div>
-
-           <div class="fivew1h-controls">
-             <button class="fivew1h-btn" onclick="window.fivew1hVizInstance?.resetView()">重置</button>
-             <button class="fivew1h-btn" onclick="window.fivew1hVizInstance?.centerView()">回中心</button>
+           <div class="fivew1h-bottom-row">
+             <p class="fivew1h-instructions">💡 可以拖動背景移動圖形、縮放以中心為基準，或拖動個別節點調整位置</p>
              <button class="fivew1h-btn" onclick="window.fivew1hVizInstance?.reloadData()">重新載入</button>
            </div>
          </div>
@@ -1484,13 +1843,42 @@ export class FiveW1HVisualization {
 
     // 設置全域變量以便按鈕訪問
     window.fivew1hVizInstance = this;
+    
+    // 添加響應式調整
+    if (!this.options.isHeaderMode) {
+      this.addResizeListener();
+    }
+  }
+
+  addResizeListener() {
+    // 監聽視窗大小變化
+    const resizeHandler = () => {
+      if (this.svg && this.data) {
+        this.setupD3();
+        this.render();
+      }
+    };
+    
+    window.addEventListener('resize', resizeHandler);
+    
+    // 保存清理函數
+    this.cleanupResize = () => {
+      window.removeEventListener('resize', resizeHandler);
+    };
   }
 
   async init() {
+    console.log('🚀 開始初始化 5W1H 視覺化');
     await this.loadData();
+    console.log('📊 資料載入完成，資料狀態:', {
+      hasData: !!this.data,
+      nodesCount: this.data?.nodes?.length || 0,
+      linksCount: this.data?.links?.length || 0
+    });
     this.createHTML();
     this.setupD3();
     this.render();
+    console.log('✅ 5W1H 視覺化初始化完成');
   }
 }
 
@@ -1522,13 +1910,22 @@ export const createHeaderVisualization = (containerRef, reportTitle, isModal = f
   });
   
   // 確保 D3.js 載入後再初始化
-  if (window.d3) {
+  if (typeof d3 !== 'undefined') {
+    console.log('✅ D3.js 已載入，開始初始化視覺化');
     vizInstance.init();
   } else {
+    console.log('⏳ D3.js 未載入，正在載入...');
     // 載入 D3.js
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js';
-    script.onload = () => vizInstance.init();
+    script.onload = () => {
+      console.log('✅ D3.js 載入完成，開始初始化視覺化');
+      // 直接調用初始化，因為 D3.js 現在在 window 上可用
+      vizInstance.init();
+    };
+    script.onerror = () => {
+      console.error('❌ D3.js 載入失敗');
+    };
     document.head.appendChild(script);
   }
   
