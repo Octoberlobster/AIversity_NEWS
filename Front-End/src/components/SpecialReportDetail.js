@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import TopicChatRoom from './TopicChatRoom';
 import UnifiedNewsCard from './UnifiedNewsCard';
 import { useSupabase } from './supabase';
@@ -21,6 +22,8 @@ function SpecialReportDetail() {
   const [is5W1HExpanded, setIs5W1HExpanded] = useState(false);
   const expanded5W1HRef = useRef(null);
   const expandedVizInstanceRef = useRef(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [integrationReport, setIntegrationReport] = useState('');
 
   useEffect(() => {
     const initializeHeaderVisualization = () => {
@@ -78,6 +81,58 @@ function SpecialReportDetail() {
   // 新增：點擊5W1H關聯圖放大
   const handle5W1HClick = () => {
     setIs5W1HExpanded(true);
+  };
+
+  // 生成專題報告功能
+  const generateIntegrationReport = async () => {
+    setIsReportModalOpen(true);
+    
+    // 模擬報告生成過程
+    setIntegrationReport('正在生成報告...');
+    
+    // 模擬API調用延遲
+    setTimeout(() => {
+      // 假資料報告內容
+      const fakeReport = `
+# ${report?.topic_title || '專題'} - 整合分析報告
+
+## 📊 專題概覽
+本專題涵蓋了近期相關議題的深度分析，透過多角度的新聞報導整合，為讀者提供全面性的資訊視角。
+
+## 🔍 關鍵發現
+
+### 主要議題分析
+- **核心議題**：${report?.topic_title || '專題內容'} 成為近期關注焦點
+- **影響範圍**：涉及多個層面的社會影響
+- **時間趨勢**：議題熱度持續上升
+
+### 輿論觀點
+1. **支持觀點**
+   - 政策方向正確，有助於長期發展
+   - 符合國際趨勢和最佳實踐
+   - 能夠帶來正面的社會效益
+
+2. **質疑聲音**
+   - 實施細節仍需完善
+   - 短期內可能面臨挑戰
+   - 需要更多配套措施支持
+
+## 📈 數據洞察
+- 相關新聞報導：${branches?.length || 0} 個分支議題
+- 媒體關注度：持續高漲
+- 社會討論熱度：★★★★☆
+
+## 💡 專家建議
+基於當前資訊分析，建議持續關注後續發展，並注意各方觀點的平衡報導。政策制定者應考慮多方意見，確保決策的全面性和可行性。
+
+## 🔮 未來展望
+預期此議題將持續發酵，建議讀者保持關注，並透過多元管道獲取資訊，形成獨立思考和判斷。
+
+---
+*本報告由AI助手基於現有資料生成，僅供參考。*
+      `;
+      setIntegrationReport(fakeReport);
+    }, 2000);
   };
   // 獲取專題詳細資料
   const fetchSpecialReportDetail = async () => {
@@ -246,7 +301,7 @@ function SpecialReportDetail() {
         </svg>
       </button>
 
-      <div className={`srdMain ${isChatOpen ? 'chat-open' : ''}`}>
+      <div className="srdMain">
         {/* Header */}
         <div className="srdHeader">
           <div className="srdHeader__content">
@@ -265,6 +320,13 @@ function SpecialReportDetail() {
                 <span>👁️</span>
                 <span>{report.views}</span>
               </div>
+              <button 
+                className="srdHeader__reportBtn"
+                onClick={generateIntegrationReport}
+                title="查看專題整合報告"
+              >
+                📊 專題報告
+              </button>
             </div>
           </div>
           <div className="srdHeader__image" ref={headerImageRef} onClick={handle5W1HClick} style={{ cursor: 'pointer' }}>
@@ -356,17 +418,8 @@ function SpecialReportDetail() {
 
       {/* 側邊聊天室 */}
       <div className={`chat-sidebar ${isChatOpen ? 'open' : ''}`}>
-        <div className="chat-sidebar-header">
-          <h3>專題討論</h3>
-          <button 
-            className="chat-close-btn"
-            onClick={() => setIsChatOpen(false)}
-          >
-            ✕
-          </button>
-        </div>
         <div className="chat-sidebar-content">
-          <TopicChatRoom topic_id={id} topic_title={report.topic_title} />
+          <TopicChatRoom topic_id={id} topic_title={report.topic_title} onClose={() => setIsChatOpen(false)} />
         </div>
       </div>
       {/* 新增：5W1H關聯圖放大模態框 */}
@@ -385,6 +438,36 @@ function SpecialReportDetail() {
             </div>
             <div className="srd5W1HModal__visualization" ref={expanded5W1HRef}>
               <div id="expanded-mindmap" style={{ width: '100%', height: '100%' }}></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 新增：專題報告彈出式視窗 */}
+      {isReportModalOpen && (
+        <div className="srdReportModal" onClick={() => setIsReportModalOpen(false)}>
+          <div className="srdReportModal__content" onClick={(e) => e.stopPropagation()}>
+            <div className="srdReportModal__header">
+              <h2 className="srdReportModal__title">📊 專題整合分析報告</h2>
+              <button 
+                className="srdReportModal__close"
+                onClick={() => setIsReportModalOpen(false)}
+                title="關閉報告"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="srdReportModal__body">
+              {integrationReport === '正在生成報告...' ? (
+                <div className="srdReportModal__loading">
+                  <div className="srdReportModal__spinner"></div>
+                  <p>正在生成專題分析報告，請稍候...</p>
+                </div>
+              ) : (
+                <div className="srdReportModal__report">
+                  <ReactMarkdown>{integrationReport}</ReactMarkdown>
+                </div>
+              )}
             </div>
           </div>
         </div>

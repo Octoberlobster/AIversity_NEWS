@@ -2,14 +2,16 @@
 .chat {
   flex: 1;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 0;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   display: flex;
   flex-direction: column;
   height: 700px;
+  width: 420px;
   border: 1px solid #e5e7eb;
   overflow: hidden;
 }
+
 
 /* Header */
 .chat__header {
@@ -20,7 +22,9 @@
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 2px 8px rgba(102,126,234,0.2);
+  border-radius: 0;
 }
+
 
 .chat__headerLeft {
   display: flex;
@@ -57,6 +61,9 @@
   background: #f8fafc;
   border-bottom: 1px solid #e5e7eb;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .dropdown {
@@ -64,8 +71,7 @@
   display: inline-block;
 }
 
-.dropdown__btn,
-.prompt__btn {
+.dropdown__btn {
   background: #fff;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
@@ -81,27 +87,21 @@
   min-width: 200px;
 }
 
-.prompt__btn { min-width: 180px; }
-
-.dropdown__btn:hover,
-.prompt__btn:hover {
+.dropdown__btn:hover {
   border-color: #667eea;
   box-shadow: 0 2px 4px rgba(102,126,234,0.1);
 }
-.dropdown__btn:focus,
-.prompt__btn:focus {
+.dropdown__btn:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
 }
 
-.dropdown__icon,
-.prompt__icon {
+.dropdown__icon {
   font-size: 0.8rem;
   transition: transform 0.2s ease;
 }
-.dropdown__icon.is-open,
-.prompt__icon.is-open { transform: rotate(180deg); }
+.dropdown__icon.is-open { transform: rotate(180deg); }
 
 .dropdown__menu {
   position: absolute;
@@ -119,22 +119,18 @@
 
 /* scrollbar（非標準的 webkit + 新標準屬性） */
 .dropdown__menu::-webkit-scrollbar,
-.messages::-webkit-scrollbar,
-.prompt__menu::-webkit-scrollbar { width: 6px; }
+.messages::-webkit-scrollbar { width: 6px; }
 .dropdown__menu::-webkit-scrollbar-track,
-.messages::-webkit-scrollbar-track,
-.prompt__menu::-webkit-scrollbar-track {
+.messages::-webkit-scrollbar-track {
   background: #f1f5f9; border-radius: 3px;
 }
 .dropdown__menu::-webkit-scrollbar-thumb,
-.messages::-webkit-scrollbar-thumb,
-.prompt__menu::-webkit-scrollbar-thumb {
+.messages::-webkit-scrollbar-thumb {
   background: #cbd5e1; border-radius: 3px;
 }
 /* Firefox（新屬性） */
 .dropdown__menu,
-.messages,
-.prompt__menu { scrollbar-width: thin; }
+.messages { scrollbar-width: thin; }
 
 .dropdown__item {
   padding: 0.8rem 1rem;
@@ -221,42 +217,98 @@
   font-weight: 500;
 }
 
-/* 快速提示（在訊息區上方） */
+/* 快速提示區 - 水平滾動設計 */
 .prompt {
-  padding: 0.8rem 1.5rem;
+  padding: 0.8rem 0;
   background: #f8fafc;
   border-top: 1px solid #e5e7eb;
   position: relative;
 }
 
-.prompt__wrap { position: relative; display: inline-block; }
+.prompt__container {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0 1.5rem;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
 
-.prompt__menu {
-  position: absolute;
-  bottom: 100%;
-  left: 0; right: 0;
-  background: #fff;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
-  z-index: 1000;
-  max-height: 250px;
-  overflow-y: auto;
-  margin-bottom: 0.5rem;
+/* 水平滾動條樣式 */
+.prompt__container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.prompt__container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.prompt__container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.prompt__container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .prompt__item {
-  padding: 0.8rem 1rem;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: -webkit-fill-available;
+  min-width: fit-content;
+}
+
+.prompt__item:hover {
+  border-color: #667eea;
+  background: #f8faff;
+  color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102,126,234,0.15);
+}
+
+.prompt__item:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(102,126,234,0.1);
+}
+
+/* 關閉按鈕區域 - 在header中 */
+.chat__headerRight {
+  display: flex;
+  align-items: center;
+}
+
+.chat__header .chat-close-btn {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition: background 0.2s ease;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 0.9rem;
-  color: #374151;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  font-weight: 600;
 }
-.prompt__item:hover { background: #f8fafc; color: #667eea; }
-.prompt__item:last-child { border-bottom: none; }
+
+.chat__header .chat-close-btn:hover {
+  background: rgba(255,255,255,0.3);
+  border-color: rgba(255,255,255,0.4);
+  transform: scale(1.05);
+}
 
 /* 底部輸入區 */
 .input {
@@ -334,6 +386,24 @@
 .proofButton::before {
   content: "🔍";
   font-size: 0.8rem;
+}
+
+/* 內聯溯源驗證按鈕樣式 */
+.proofButton--inline {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  border-radius: 20px;
+  margin: 0;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+.proofButton--inline::before {
+  content: "";
+}
+
+.proofButton--inline:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
 }
 
 /* 模式切換按鈕 */
@@ -545,4 +615,86 @@
   background: #fef2f2 !important;
   color: #dc2626 !important;
   border-color: #fecaca !important;
+}
+
+/* ===== FloatingChat 浮動窗口樣式 ===== */
+
+.fchat {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fchat__window {
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  overflow: hidden;
+  border: 2px solid #667eea;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fchat__window.is-expanded {
+  width: 420px;
+  height: 700px;
+  border-radius: 0 0 0 0;
+  border: 1px solid #e5e7eb;
+  border-right: none;
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  box-shadow: -6px 0 30px rgba(0, 0, 0, 0.12);
+}
+
+.fchat__collapsed {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform: translateY(-2px);
+  background: transparent;
+  border: 0;
+}
+
+.fchat__collapsed .fchat__icon {
+  font-size: 2rem;
+  color: #667eea;
+  transition: all 0.3s ease;
+}
+
+.fchat__collapsed:hover .fchat__icon {
+  transform: scale(1.1);
+  color: #5a67d8;
+}
+
+/* FloatingChat 在展開時內部聊天室使用標準的 .chat 樣式 */
+.fchat__window.is-expanded .chat {
+  width: 100%;
+  height: 100%;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .fchat__window.is-expanded {
+    width: 100vw;
+    height: 700px;
+    border-radius: 0;
+    border: none;
+    top: 50%;
+    right: 0;
+    left: 0;
+    transform: translateY(-50%);
+    max-height: 100vh;
+  }
 }

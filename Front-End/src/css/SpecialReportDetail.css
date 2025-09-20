@@ -17,11 +17,6 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
-  transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.srdMain.chat-open {
-  margin-right: 420px;
 }
 
 /* ===== Header ===== */
@@ -45,6 +40,29 @@
 .srdHeader__summary { color: #4b5563; font-size: 1.2rem; line-height: 1.6; margin: 0; }
 .srdHeader__meta { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; }
 .srdHeader__metaItem { display: flex; align-items: center; gap: .5rem; color: #6b7280; font-size: .9rem; }
+
+/* 專題報告按鈕 */
+.srdHeader__reportBtn {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem 1rem;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.srdHeader__reportBtn:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
 
 .srdHeader__image {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -128,7 +146,7 @@
 /* ===== Main Layout ===== */
 .srdLayout { 
   display: grid; 
-  grid-template-columns: 350px 1fr; /* 側邊欄在左，主內容在右 */
+  grid-template-columns: 280px 1fr; /* 側邊欄在左，主內容在右 - 調窄70px */
   gap: 2rem; 
 }
 
@@ -726,15 +744,12 @@
   position: fixed;
   top: 0;
   right: -420px;
-  width: 420px;
-  height: 100vh;
-  background: white;
-  border-left: 1px solid #e2e8f0;
-  box-shadow: -6px 0 30px rgba(0, 0, 0, 0.12);
   z-index: 1000;
   transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
 }
 
 .chat-sidebar.open {
@@ -784,10 +799,11 @@
 }
 
 .chat-sidebar-content {
-  flex: 1;
-  overflow: hidden;
+  width: 420px;
+  height: 700px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ===== Responsive Design ===== */
@@ -809,8 +825,12 @@
   }
   
   .chat-sidebar {
-    width: 100%;
     right: -100%;
+  }
+  
+  .chat-sidebar-content {
+    width: 100vw;
+    height: 100vh;
   }
   
   .srdMain.chat-open {
@@ -1042,4 +1062,190 @@
   font-size: 0.9rem;
   font-weight: 500;
   backdrop-filter: blur(10px);
+}
+
+/* ===== 專題報告彈出視窗 ===== */
+.srdReportModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.srdReportModal__content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 85vh;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.srdReportModal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.srdReportModal__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.srdReportModal__close {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.srdReportModal__close:hover {
+  background: #e5e7eb;
+  color: #374151;
+  transform: scale(1.05);
+}
+
+.srdReportModal__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.srdReportModal__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.srdReportModal__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.srdReportModal__report {
+  line-height: 1.7;
+  color: #374151;
+}
+
+.srdReportModal__report h1 {
+  color: #1e293b;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.srdReportModal__report h2 {
+  color: #1e293b;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.srdReportModal__report h3 {
+  color: #374151;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+
+.srdReportModal__report ul, 
+.srdReportModal__report ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.srdReportModal__report li {
+  margin-bottom: 0.5rem;
+}
+
+.srdReportModal__report strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.srdReportModal__report hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2rem 0;
+}
+
+.srdReportModal__report em {
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+  .srdReportModal__content {
+    width: 95%;
+    max-height: 90vh;
+  }
+  
+  .srdReportModal__header {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+  }
+  
+  .srdReportModal__title {
+    font-size: 1.3rem;
+  }
+  
+  .srdReportModal__body {
+    padding: 1.5rem;
+  }
 }

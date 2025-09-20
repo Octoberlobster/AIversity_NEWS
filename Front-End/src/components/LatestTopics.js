@@ -233,6 +233,7 @@ function LatestTopics() {
                             e.target.src = 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop';
                           }}
                         />
+                        <div className="slide-overlay"></div>
                       </div>
                     )}
                     
@@ -292,7 +293,7 @@ function LatestTopics() {
         {/* 右側：專題分支 - 仿照側欄卡片樣式 */}
         <div className="topic-sidebar">
           <div className="sidebar-card">
-            <h3 className="sidebar-title">專題分支</h3>
+            <h3 className="sidebar-title">專題預覽</h3>
             <div className="branches-list">
               {currentTopic.branches.length > 0 ? (
                 currentTopic.branches.map((branch, index) => (
@@ -307,7 +308,7 @@ function LatestTopics() {
                   </Link>
                 ))
               ) : (
-                <div className="no-branches">暫無分支專題</div>
+                <div className="no-branches">暫無專題預覽</div>
               )}
             </div>
           </div>

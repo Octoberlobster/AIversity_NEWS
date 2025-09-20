@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import ReactMarkdown from 'react-markdown';
 import { fetchJson } from './api';
@@ -21,12 +21,11 @@ const expertReplies = {};
 // 快速提示
 const quickPrompts = [];
 
-function ChatRoom({newsData}, ref) {
+function ChatRoom({newsData, onClose}, ref) {
   const [selectedExperts, setSelectedExperts] = useState([]);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isPromptDropdownOpen, setIsPromptDropdownOpen] = useState(false);
   
   // 溯源驗證相關狀態
   const [proofMessages, setProofMessages] = useState([]);
@@ -35,7 +34,6 @@ function ChatRoom({newsData}, ref) {
   const messagesEndRef = useRef(null);
   const proofMessagesEndRef = useRef(null);
   const dropdownRef = useRef(null);
-  const promptDropdownRef = useRef(null);
   const inputRef = useRef(null);
 
   const user_id = getOrCreateUserId();
@@ -74,43 +72,7 @@ function ChatRoom({newsData}, ref) {
     }
   }, [messages, proofMessages, showProofMode]);
 
-  // 點擊外部關閉下拉
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsDropdownOpen(false);
-      if (promptDropdownRef.current && !promptDropdownRef.current.contains(e.target)) setIsPromptDropdownOpen(false);
-    };
-    if (isDropdownOpen || isPromptDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isDropdownOpen, isPromptDropdownOpen]);
-
-  //讓一開始就有提示字可以用
-  useEffect(() => {
-    if (selectedExperts.length > 0) {
-      changeQuickPrompt();
-    }
-  }, [selectedExperts]);
-
-  // 等待 category 傳遞後初始化 selectedExperts
-  useEffect(() => {
-    if (newsData.category) {
-      const filteredExperts = experts
-        .filter((expert) => expert.category === newsData.category)
-        .map((expert) => expert.id);
-      setSelectedExperts(filteredExperts);
-    }
-  }, [newsData.category]);
-
-  const toggleExpert = (id) => {
-    setSelectedExperts((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-    changeQuickPrompt();
-  };
-
-  const changeQuickPrompt = async (chat_content = '') => {
+  const changeQuickPrompt = useCallback(async (chat_content = '') => {
     try{
       const options = selectedExperts.map(
         (expertId) => experts.find((e) => e.id === expertId).category
@@ -133,6 +95,41 @@ function ChatRoom({newsData}, ref) {
       console.error('Error updating quick prompts:', error);
     }
     
+  }, [selectedExperts, user_id, room_id, newsData.long]);
+
+  // 點擊外部關閉下拉
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsDropdownOpen(false);
+    };
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDropdownOpen]);
+
+  //讓一開始就有提示字可以用
+  useEffect(() => {
+    if (selectedExperts.length > 0) {
+      changeQuickPrompt();
+    }
+  }, [selectedExperts, changeQuickPrompt]);
+
+  // 等待 category 傳遞後初始化 selectedExperts
+  useEffect(() => {
+    if (newsData.category) {
+      const filteredExperts = experts
+        .filter((expert) => expert.category === newsData.category)
+        .map((expert) => expert.id);
+      setSelectedExperts(filteredExperts);
+    }
+  }, [newsData.category]);
+
+  const toggleExpert = (id) => {
+    setSelectedExperts((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+    changeQuickPrompt();
   };
 
   const makeUserMsg = (text) => ({
@@ -194,9 +191,63 @@ function ChatRoom({newsData}, ref) {
 
 
   const handlePromptSend = (promptText) => {
-    setInputMessage(promptText);
-    handleSendMessage();
-    setIsPromptDropdownOpen(false);
+    // 直接處理發送，不依賴狀態更新
+    if (!promptText.trim()) return;
+    
+    // 如果沒有選擇專家，提醒用戶
+    if (selectedExperts.length === 0) {
+      alert('請先選擇至少一位專家來回答您的問題');
+      return;
+    }
+    
+    // 添加用戶訊息
+    setMessages((prev) => [...prev, makeUserMsg(promptText)]);
+    
+    // 設置輸入框內容（顯示用）
+    setInputMessage('');
+    
+    // 模擬專家回覆
+    simulateRepliesWithPrompt(promptText);
+  };
+
+  const simulateRepliesWithPrompt = async (promptText) => {
+    try {
+      // 構建請求的資料
+      const categories = selectedExperts.map(
+        (expertId) => experts.find((e) => e.id === expertId).category
+      );
+  
+      // 呼叫後端 API
+      const response = await fetchJson('/chat/single', {
+        user_id: user_id,
+        room_id: room_id,
+        prompt: promptText,
+        category: categories,
+        article: newsData.long,
+      });
+  
+      // 處理後端回傳的回覆
+      response.response.forEach((reply, index) => {
+        setTimeout(() => {
+          const expertId = selectedExperts[index];
+          const expertReply = makeExpertReply(expertId);
+          expertReply.text = `${experts.find((e) => e.id === expertId).name}：${reply.chat_response}`;
+
+          setMessages((prev) => [...prev, expertReply]);
+        }, 1000 + index * 500);
+      });
+
+      // 格式化專家回覆為 "類別:回答"
+      const formattedReplies = response.response.map((reply, index) => {
+        const category = categories[index];
+        return `${category}: ${reply.chat_response}`;
+      });
+
+      // 呼叫 changeQuickPrompt，傳入格式化的回覆
+      changeQuickPrompt(`user:${promptText} ${formattedReplies.join(" ")}`);
+    } catch (error) {
+      console.error('Error fetching expert replies:', error);
+    }
   };
 
   const handleSendMessage = () => {
@@ -292,15 +343,19 @@ function ChatRoom({newsData}, ref) {
             <p className="chat__subtitle">
               {showProofMode ? "新聞內容溯源查核" : `${selectedExperts.length} 位專家在線`}
             </p>
-          </div>
+          </div>      
         </div>
         <div className="chat__headerRight">
-          <button
-            className={`mode-toggle ${showProofMode ? 'proof-mode' : 'chat-mode'}`}
-            onClick={() => setShowProofMode(!showProofMode)}
-          >
-            {showProofMode ? "📊 專家聊天" : "🔍 溯源驗證"}
-          </button>
+          {/* 關閉聊天室按鈕 - 採用FloatingChat樣式 */}
+          {onClose && (
+            <button 
+              className="chat-close-btn"
+              onClick={onClose}
+              title="關閉聊天室"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
@@ -335,6 +390,10 @@ function ChatRoom({newsData}, ref) {
               </div>
             )}
           </div>
+          
+          <button className="proofButton proofButton--inline" onClick={handleProofButtonClick}>
+            🔍 溯源驗證
+          </button>
         </div>
       )}
 
@@ -420,36 +479,22 @@ function ChatRoom({newsData}, ref) {
       )}
 
       <div className="prompt">
-        {!showProofMode && (
-          <div className="prompt__wrap" ref={promptDropdownRef}>
-            <button
-              type="button"
-              className="prompt__btn"
-              onClick={() => setIsPromptDropdownOpen((v) => !v)}
-              disabled={selectedExperts.length === 0}
-            >
-              <span>💡 快速提示</span>
-              <span className={`prompt__icon ${isPromptDropdownOpen ? 'is-open' : ''}`}>▼</span>
-            </button>
-
-            {isPromptDropdownOpen && (
-              <div className="prompt__menu">
-                {quickPrompts.map((p, i) => (
-                  <div key={i} className="prompt__item" onClick={() => handlePromptSend(p)}>
-                    {p}
-                  </div>
-                ))}
-              </div>
-            )}
+        {!showProofMode && quickPrompts.length > 0 && selectedExperts.length > 0 && (
+          <div className="prompt__container">
+            {quickPrompts.map((p, i) => (
+              <button
+                key={i}
+                type="button"
+                className="prompt__item"
+                onClick={() => handlePromptSend(p)}
+              >
+                {p}
+              </button>
+            ))}
           </div>
         )}
         
-        {/* 溯源驗證按鈕只在溯源驗證模式下顯示 */}
-        {showProofMode && (
-          <button className="proofButton" onClick={handleProofButtonClick}>
-            溯源驗證
-          </button>
-        )}
+        
       </div>
 
       {!showProofMode && (

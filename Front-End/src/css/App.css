@@ -10,7 +10,6 @@
 .mainContent {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
   padding-top: 16px;
   overflow-x: hidden; /* 防止水平滾動 */
 }
