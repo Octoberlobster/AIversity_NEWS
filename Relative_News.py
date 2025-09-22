@@ -93,16 +93,6 @@ def filter_related_news(current_story: dict, all_stories: list[dict]) -> list[di
 
     return results
 
-# print(data[0])
-# one = filter_related_news(data[0], data[1:])
-# print(one)
-# #insert database
-# response = (
-#     supabase.table("relative_news")
-#     .insert({"id": str(uuid.uuid4()),"reason":one[0]["reason"], "src_story_id": data[0]["story_id"], "dst_story_id": one[0]["story_id"]})
-#     .execute()
-# )
-
 for i, current_story in enumerate(data):
     #constraints is a list like [{src_story_id},....]
     if any(constraint["src_story_id"] == current_story["story_id"] for constraint in constraints):

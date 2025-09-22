@@ -23,7 +23,7 @@ from collections import defaultdict
 from dateutil import parser
 from google import genai
 from google.genai import types
-import shutil
+import shutil  
 
 # Supabase imports
 from supabase import create_client, Client
@@ -34,6 +34,69 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")  # 替換為你的 Supabase API Key
 
 # 初始化 Supabase 客戶端
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("請先設定你的 GEMINI_API_KEY 環境變數。")
+
+try:
+    gemini_client = genai.Client()
+except Exception as e:
+    raise ValueError(f"無法初始化 Gemini Client，請檢查 API 金鑰：{e}")
+
+def clean_data(data):
+    for i, article in enumerate(data):
+            print(f"➡️ 正在處理第 {i+1} 篇文章...")
+            if "articles" in article:
+                for j, sub_article in enumerate(article["articles"]):
+                    print(f"   ➡️ 正在處理第 {j+1} 篇子文章...")
+
+                    # (1) 去除 HTML
+                    raw_content = sub_article.get("content", "")
+                    soup = BeautifulSoup(raw_content, "html.parser")
+                    cleaned_text = soup.get_text(separator="\n", strip=True)
+                    print(cleaned_text)
+
+                    # (2) 使用 Gemini API 去除雜訊
+                    prompt = f"""
+                    請去除以下文章中的雜訊，例如多餘的標題、時間戳記、來源資訊等，並最大量的保留所有新聞內容：
+
+                    {cleaned_text}
+
+                    你只需要回覆經過處理的內容，不需要任何其他說明或標題。
+                    如果沒有文章內容，請回覆 "[清洗失敗]"。
+                    """
+                    
+                    max_retries = 3  # 設定最大重試次數
+                    retries = 0
+                    success = False
+                    
+                    while not success and retries < max_retries:
+                        try:
+                            # 統一使用 client 的 generate_content 方法
+                            response = gemini_client.models.generate_content(
+                                model="gemini-2.0-flash",
+                                contents=prompt
+                            )
+                            # 獲取回覆內容的方式
+                            sub_article["content"] = response.candidates[0].content.parts[0].text.strip()
+                            success = True  # 請求成功，跳出迴圈
+                            time.sleep(1) # 成功後還是禮貌性地稍等一下
+                        except Exception as e:
+                            if "503 UNAVAILABLE" in str(e):
+                                retries += 1
+                                print(f"⚠️ 偵測到模型過載，正在嘗試第 {retries} 次重試...")
+                                time.sleep(3 * retries) # 每次重試等待更久
+                            else:
+                                print(f"❌ 發生錯誤於文章：{filename}，錯誤訊息：{e}")
+                                sub_article["content"] = "[清洗失敗]"
+                                break # 其他錯誤直接跳出
+                    
+                    if not success:
+                        print(f"❌ 嘗試 {max_retries} 次後仍無法成功處理文章：{filename}")
+                        sub_article["content"] = "[清洗失敗]"
+
+    return data
 
 def create_robust_driver(headless: bool = False):
     """創建一個更穩健的 WebDriver"""
@@ -233,7 +296,7 @@ def get_article_links_from_story(story_info):
         
         for j, article in enumerate(article_elements, start=1):
             try:
-                if processed_count >= 10:
+                if processed_count >= 10 :
                     break
                 
                 h4_element = article.find("h4", class_="ipQwMb ekueJc RD0gLb")
@@ -249,7 +312,14 @@ def get_article_links_from_story(story_info):
                         media = media_element.text.strip() if media_element else "未知來源"
 
                         # 跳過特定媒體
-                        if media in ["MSN", "自由時報", "chinatimes.com", "中時電子報", "中時新聞網", "上報Up Media", "點新聞", "香港文匯網", "天下雜誌", "自由健康網", "知新聞", "SUPERMOTO8", "警政時報"]:
+                        if media in ["MSN", "自由時報", "chinatimes.com", "中時電子報", 
+                                     "中時新聞網", "上報Up Media", "點新聞", "香港文匯網", 
+                                     "天下雜誌", "自由健康網", "知新聞", "SUPERMOTO8", 
+                                     "警政時報", "大紀元", "新唐人電視台", "arch-web.com.tw",
+                                     "韓聯社", "公視新聞網PNN", "優分析UAnalyze", "AASTOCKS.com",
+                                     "KSD 韓星網", "商周", "自由財經", "鉅亨號",
+                                     "wownews.tw", "utravel.com.hk", "更生新聞網", "香港電台",
+                                     "citytimes.tw"]:
                             continue
 
                         time_element = article.find(class_="WW6dff uQIVzc Sksgp slhocf")
@@ -259,7 +329,7 @@ def get_article_links_from_story(story_info):
                             dt_str = time_element.get("datetime")
                             dt_obj = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
                             article_datetime_obj = dt_obj + timedelta(hours=8)
-                            article_datetime = article_datetime_obj.strftime("%Y-%m-%d %H:%M:%S")
+                            article_datetime = article_datetime_obj.strftime("%Y/%m/%d %H:%M:%S")
                             
                             # **重要：檢查文章時間是否在 cutoff_date 之後**
                             if cutoff_date and article_datetime_obj <= cutoff_date:
@@ -652,7 +722,7 @@ def save_story_to_supabase(story_data):
         }
         
         # 使用 upsert 來避免重複插入
-        # response = supabase.table("stories").upsert(story_record, on_conflict="story_id").execute()
+        response = supabase.table("stories").upsert(story_record, on_conflict="story_id").execute()
         print(f"   ✅ 故事已保存到資料庫: {story_data['story_id']}")
         return True
         
@@ -672,10 +742,18 @@ def save_article_to_supabase(article_data, story_id):
             "content": article_data["content"],
             "media": article_data["media"],
             "story_id": story_id
-        }
-        
+            }
+            
         # 使用 upsert 來避免重複插入
-        # response = supabase.table("cleaned_news").upsert(article_record, on_conflict="article_id").execute()
+        article_url = article_data["article_url"]
+        existing_article = supabase.table("cleaned_news").select("article_id").eq("article_url", article_url).execute()
+        if existing_article.data:
+            print(f"   ⚠️ 文章已存在，跳過保存: {article_data['article_id']}")
+            return True
+        elif not article_data["content"] or "[清洗失敗]" in article_data["content"] or "請提供" in article_data["content"]:
+            print(f"   ⚠️ 文章內容無效，跳過保存: {article_data['article_id']}")
+            return True
+        response = supabase.table("cleaned_news").upsert(article_record, on_conflict="article_id").execute()
         print(f"   ✅ 文章已保存到資料庫: {article_data['article_id']}")
         return True
         
@@ -957,11 +1035,11 @@ def save_stories_to_supabase(stories):
             action_type = story.get("action_type", "create_new_story")
             
             # 根據 action_type 決定如何處理故事
-            if action_type == "create_new_story":
+            if action_type.startswith("create_new_story"):
                 # 保存新故事
                 if save_story_to_supabase(story):
                     saved_stories += 1
-            elif action_type == "update_existing_story":
+            elif action_type.startswith("update_existing_story"):
                 # 更新現有故事的 crawl_date
                 try:
                     update_data = {
@@ -999,7 +1077,7 @@ def process_news_pipeline(main_url, category):
     
     # 步驟2: 處理每個故事，獲取所有文章連結
     all_article_links = []
-    for story_info in story_links[:3]:
+    for story_info in story_links[:10]:
         article_links = get_article_links_from_story(story_info)
         all_article_links.extend(article_links)
     
@@ -1018,7 +1096,7 @@ def process_news_pipeline(main_url, category):
     def create_fresh_driver():
         """創建新的 driver 實例"""
         try:
-            new_driver = create_robust_driver(headless=False)
+            new_driver = create_robust_driver(headless=True)
             initialize_driver_with_cookies(new_driver)
             return new_driver
         except Exception as e:
@@ -1180,8 +1258,8 @@ def main():
 
     
     # 可以選擇處理特定分類或全部分類
-    selected_categories = ["Taiwan News", "International News", "Politics", "Science & Technology", "Business & Finance"]  # "Health & Wellness", "Sports", "Entertainment", "Lifestyle & Consumer" 可以修改這裡來選擇要處理的分類
-    # selected_categories = list(news_categories.keys())  # 處理所有分類
+    # selected_categories = ["Politics"]#"Science & Technology"]#, "Business & Finance", "Health & Wellness", "Sports", "Entertainment", "Lifestyle & Consumer", ]#"Taiwan News", "International News", "Politics"]# 可以修改這裡來選擇要處理的分類
+    selected_categories = list(news_categories.keys())  # 處理所有分類
     
     all_final_stories = []
     start_time = time.time()
@@ -1244,15 +1322,18 @@ def main():
         # 保存數據
         if all_final_stories:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            
+
+            all_final_stories = clean_data(all_final_stories)
             # 保存到JSON文件
-            json_filename = f"json/google_news_stories_{timestamp}.json"
+            # json_filename = f"json/google_news_stories_{timestamp}.json"
+            
+            json_filename = f"json/final_news.json"
             if save_stories_to_json(all_final_stories, json_filename):
                 print(f"📁 本地JSON文件: {json_filename}")
             
             # 保存到數據庫（如果需要）
             try:
-                # save_stories_to_supabase(all_final_stories)
+                save_stories_to_supabase(all_final_stories)
                 print("💾 數據庫保存: 已跳過 (請根據需要實現)")
             except Exception as e:
                 print(f"❌ 數據庫保存失敗: {e}")

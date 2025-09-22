@@ -152,3 +152,238 @@
 2025-08-23 06:46:12,395 - INFO - ✓ 成功 插入 term 表: 35 個新關鍵字
 2025-08-23 06:46:12,395 - INFO - ✗ 失敗 插入 term_map 表: 40 筆新組合
 2025-08-23 06:46:12,395 - INFO - ================================================================================
+2025-08-24 20:36:20,322 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
+2025-08-24 20:36:20,640 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-08-24 20:36:20,640 - INFO - ================================================================================
+2025-08-24 20:36:20,641 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-08-24 20:36:20,641 - INFO - ================================================================================
+2025-08-24 20:36:20,641 - INFO - === 讀取合併資料 ===
+2025-08-24 20:36:20,641 - INFO - 讀取 single_news 資料...
+2025-08-24 20:36:21,001 - INFO - 讀取所有資料
+2025-08-24 20:36:21,603 - INFO - 成功讀取 60 筆新聞資料
+2025-08-24 20:36:21,603 - INFO - 讀取 term_map 資料...
+2025-08-24 20:36:21,899 - INFO - 成功讀取 1000 筆 term_map 資料
+2025-08-24 20:36:21,900 - INFO - 組織 term_map: 155 個不同的 story_id
+2025-08-24 20:36:21,900 - INFO - 合併完成: 60 筆新聞資料
+2025-08-24 20:36:21,900 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-08-24 20:46:25,631 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
+2025-08-24 20:46:25,941 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-08-24 20:46:25,941 - INFO - ================================================================================
+2025-08-24 20:46:25,942 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-08-24 20:46:25,942 - INFO - ================================================================================
+2025-08-24 20:46:25,942 - INFO - === 讀取合併資料 ===
+2025-08-24 20:46:25,942 - INFO - 讀取 single_news 資料...
+2025-08-24 20:46:26,287 - INFO - 讀取所有資料
+2025-08-24 20:46:26,753 - INFO - 成功讀取 15 筆新聞資料
+2025-08-24 20:46:26,753 - INFO - 讀取 term_map 資料...
+2025-08-24 20:46:27,060 - INFO - 成功讀取 1000 筆 term_map 資料
+2025-08-24 20:46:27,061 - INFO - 組織 term_map: 155 個不同的 story_id
+2025-08-24 20:46:27,061 - INFO - 合併完成: 15 筆新聞資料
+2025-08-24 20:46:27,062 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-08-24 20:46:53,550 - INFO - ✓ 階段一完成：共提取 98 個不重複關鍵字。
+2025-08-24 20:46:53,550 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-08-24 20:46:56,652 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-24 20:48:10,541 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-24 20:49:12,618 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-24 20:49:46,205 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-24 20:50:25,648 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-24 20:50:33,682 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-24 20:50:51,904 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-24 20:51:18,003 - INFO - ✓ 階段二完成：共成功解釋 98 個詞彙。
+2025-08-24 20:51:18,003 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-08-24 20:51:18,003 - INFO - === 檢查 term_map 重複性 ===
+2025-08-24 20:51:19,003 - INFO - === 階段四：執行資料庫插入 ===
+2025-08-24 20:51:19,003 - INFO - === 開始插入 term 資料 ===
+2025-08-24 20:51:19,004 - INFO - 準備插入 77 筆資料到 term 表
+2025-08-24 20:51:19,263 - INFO - ✓ 批次 1: 成功插入 50 筆
+2025-08-24 20:51:19,482 - INFO - ✓ 批次 2: 成功插入 27 筆
+2025-08-24 20:51:19,482 - INFO - term 插入結果:
+2025-08-24 20:51:19,482 - INFO -   成功: 77 筆
+2025-08-24 20:51:19,483 - INFO -   失敗: 0 筆
+2025-08-24 20:51:19,483 - INFO - === 開始插入 term_map 資料 ===
+2025-08-24 20:51:19,484 - INFO - 準備插入 101 筆資料到 term_map 表
+2025-08-24 20:51:19,735 - INFO - ✓ 批次 1: 成功插入 100 筆
+2025-08-24 20:51:19,935 - INFO - ✓ 批次 2: 成功插入 1 筆
+2025-08-24 20:51:19,936 - INFO - term_map 插入結果:
+2025-08-24 20:51:19,936 - INFO -   成功: 101 筆
+2025-08-24 20:51:19,937 - INFO -   失敗: 0 筆
+2025-08-24 20:51:19,939 - INFO - ================================================================================
+2025-08-24 20:51:19,941 - INFO -   執行完成摘要
+2025-08-24 20:51:19,942 - INFO - ================================================================================
+2025-08-24 20:51:19,942 - INFO - ✓ 處理新聞數量: 14
+2025-08-24 20:51:19,943 - INFO - ✓ 不重複關鍵字: 98
+2025-08-24 20:51:19,943 - INFO - ✓ 成功解釋詞彙: 98
+2025-08-24 20:51:19,943 - INFO - ✓ 成功 插入 term 表: 77 個新關鍵字
+2025-08-24 20:51:19,944 - INFO - ✓ 成功 插入 term_map 表: 101 筆新組合
+2025-08-24 20:51:19,944 - INFO - ================================================================================
+2025-08-26 08:51:55,017 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
+2025-08-26 08:51:55,499 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-08-26 08:51:55,499 - INFO - ================================================================================
+2025-08-26 08:51:55,500 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-08-26 08:51:55,500 - INFO - ================================================================================
+2025-08-26 08:51:55,500 - INFO - === 讀取合併資料 ===
+2025-08-26 08:51:55,500 - INFO - 讀取 single_news 資料...
+2025-08-26 08:51:56,091 - INFO - 讀取所有資料
+2025-08-26 08:51:56,776 - INFO - 成功讀取 112 筆新聞資料
+2025-08-26 08:51:56,776 - INFO - 讀取 term_map 資料...
+2025-08-26 08:51:56,975 - INFO - 成功讀取 1000 筆 term_map 資料
+2025-08-26 08:51:56,976 - INFO - 組織 term_map: 155 個不同的 story_id
+2025-08-26 08:51:56,976 - INFO - 合併完成: 112 筆新聞資料
+2025-08-26 08:51:56,976 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-08-26 08:55:21,513 - INFO - ✓ 階段一完成：共提取 573 個不重複關鍵字。
+2025-08-26 08:55:21,513 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-08-26 08:58:19,797 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:03:35,058 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:06:23,832 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:06:27,003 - WARNING - ✗ JSON 解析錯誤 (嘗試 2/3): Unterminated string starting at: line 7 column 21 (char 205)
+2025-08-26 09:08:24,753 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:09:39,329 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:14:50,500 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:17:01,368 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:17:19,574 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:17:27,173 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:17:31,241 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:17:34,823 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:17:35,824 - WARNING - ⚠ 未能成功解釋詞彙：'電子類股'
+2025-08-26 09:17:39,563 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:17:42,506 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:17:46,750 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:17:47,751 - WARNING - ⚠ 未能成功解釋詞彙：'震源深度'
+2025-08-26 09:18:00,043 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:18:22,833 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
+2025-08-26 09:18:50,882 - INFO - ✓ 階段二完成：共成功解釋 571 個詞彙。
+2025-08-26 09:18:50,882 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-08-26 09:18:50,882 - INFO - === 檢查 term_map 重複性 ===
+2025-08-26 09:18:52,821 - INFO - === 階段四：執行資料庫插入 ===
+2025-08-26 09:18:52,822 - INFO - === 開始插入 term 資料 ===
+2025-08-26 09:18:52,822 - INFO - 準備插入 485 筆資料到 term 表
+2025-08-26 09:18:53,461 - INFO - ✓ 批次 1: 成功插入 50 筆
+2025-08-26 09:18:53,692 - INFO - ✓ 批次 2: 成功插入 50 筆
+2025-08-26 09:18:54,086 - INFO - ✓ 批次 3: 成功插入 50 筆
+2025-08-26 09:18:54,314 - INFO - ✓ 批次 4: 成功插入 50 筆
+2025-08-26 09:18:54,555 - INFO - ✓ 批次 5: 成功插入 50 筆
+2025-08-26 09:18:54,772 - INFO - ✓ 批次 6: 成功插入 50 筆
+2025-08-26 09:18:54,989 - INFO - ✓ 批次 7: 成功插入 50 筆
+2025-08-26 09:18:55,191 - INFO - ✓ 批次 8: 成功插入 50 筆
+2025-08-26 09:18:55,412 - INFO - ✓ 批次 9: 成功插入 50 筆
+2025-08-26 09:18:55,644 - ERROR - ✗ 批次 10 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(黑水專案) already exists.'}
+2025-08-26 09:18:55,644 - INFO - term 插入結果:
+2025-08-26 09:18:55,645 - INFO -   成功: 450 筆
+2025-08-26 09:18:55,645 - INFO -   失敗: 35 筆
+2025-08-26 09:18:55,645 - INFO - === 開始插入 term_map 資料 ===
+2025-08-26 09:18:55,645 - INFO - 準備插入 666 筆資料到 term_map 表
+2025-08-26 09:18:56,328 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_map_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (story_id, term)=(adc9fbcf-9844-4267-8dd5-2e3cc6df0841, 黑水專案) already exists.'}
+2025-08-26 09:18:56,589 - ERROR - ✗ 批次 2 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(黑洞) is not present in table "term".'}
+2025-08-26 09:18:56,798 - ERROR - ✗ 批次 3 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(類魂遊戲) is not present in table "term".'}
+2025-08-26 09:18:57,007 - ERROR - ✗ 批次 4 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(鴿派訊號) is not present in table "term".'}
+2025-08-26 09:18:57,287 - ERROR - ✗ 批次 5 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_map_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (story_id, term)=(7cc78889-5a4a-4920-b9fd-817097379d03, 貨幣政策) already exists.'}
+2025-08-26 09:18:57,467 - ERROR - ✗ 批次 6 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(高EQ) is not present in table "term".'}
+2025-08-26 09:18:57,673 - ERROR - ✗ 批次 7 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(都市計畫) is not present in table "term".'}
+2025-08-26 09:18:57,673 - INFO - term_map 插入結果:
+2025-08-26 09:18:57,673 - INFO -   成功: 0 筆
+2025-08-26 09:18:57,674 - INFO -   失敗: 666 筆
+2025-08-26 09:18:57,674 - INFO - ================================================================================
+2025-08-26 09:18:57,674 - INFO -   執行完成摘要
+2025-08-26 09:18:57,674 - INFO - ================================================================================
+2025-08-26 09:18:57,674 - INFO - ✓ 處理新聞數量: 111
+2025-08-26 09:18:57,674 - INFO - ✓ 不重複關鍵字: 573
+2025-08-26 09:18:57,674 - INFO - ✓ 成功解釋詞彙: 571
+2025-08-26 09:18:57,675 - INFO - ✗ 失敗 插入 term 表: 485 個新關鍵字
+2025-08-26 09:18:57,675 - INFO - ✗ 失敗 插入 term_map 表: 666 筆新組合
+2025-08-26 09:18:57,675 - INFO - ================================================================================
+2025-08-26 12:54:37,704 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
+2025-08-26 12:54:38,059 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-08-26 12:54:38,059 - INFO - ================================================================================
+2025-08-26 12:54:38,060 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-08-26 12:54:38,060 - INFO - ================================================================================
+2025-08-26 12:54:38,061 - INFO - === 讀取合併資料 ===
+2025-08-26 12:54:38,061 - INFO - 讀取 single_news 資料...
+2025-08-26 12:54:38,377 - INFO - 讀取所有資料
+2025-08-26 12:54:38,923 - INFO - 成功讀取 69 筆新聞資料
+2025-08-26 12:54:38,924 - INFO - 讀取 term_map 資料...
+2025-08-26 12:54:39,288 - INFO - 成功讀取 1000 筆 term_map 資料
+2025-08-26 12:54:39,289 - INFO - 組織 term_map: 155 個不同的 story_id
+2025-08-26 12:54:39,289 - INFO - 合併完成: 69 筆新聞資料
+2025-08-26 12:54:39,289 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-08-26 13:01:49,631 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
+2025-08-26 13:01:49,892 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-08-26 13:01:49,893 - INFO - ================================================================================
+2025-08-26 13:01:49,893 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-08-26 13:01:49,893 - INFO - ================================================================================
+2025-08-26 13:01:49,893 - INFO - === 讀取合併資料 ===
+2025-08-26 13:01:49,894 - INFO - 讀取 single_news 資料...
+2025-08-26 13:01:50,183 - INFO - 讀取所有資料
+2025-08-26 13:01:50,464 - INFO - 成功讀取 7 筆新聞資料
+2025-08-26 13:01:50,464 - INFO - 讀取 term_map 資料...
+2025-08-26 13:01:50,702 - INFO - 成功讀取 1000 筆 term_map 資料
+2025-08-26 13:01:50,703 - INFO - 組織 term_map: 155 個不同的 story_id
+2025-08-26 13:01:50,703 - INFO - 合併完成: 7 筆新聞資料
+2025-08-26 13:01:50,703 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-08-26 13:02:03,510 - INFO - ✓ 階段一完成：共提取 31 個不重複關鍵字。
+2025-08-26 13:02:03,510 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-08-26 13:03:10,509 - INFO - ✓ 階段二完成：共成功解釋 31 個詞彙。
+2025-08-26 13:03:10,509 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-08-26 13:03:10,510 - INFO - === 檢查 term_map 重複性 ===
+2025-08-26 13:03:11,193 - INFO - === 階段四：執行資料庫插入 ===
+2025-08-26 13:03:11,193 - INFO - === 開始插入 term 資料 ===
+2025-08-26 13:03:11,194 - INFO - 準備插入 24 筆資料到 term 表
+2025-08-26 13:03:11,446 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(熱帶擾動) already exists.'}
+2025-08-26 13:03:11,447 - INFO - term 插入結果:
+2025-08-26 13:03:11,447 - INFO -   成功: 0 筆
+2025-08-26 13:03:11,447 - INFO -   失敗: 24 筆
+2025-08-26 13:03:11,447 - INFO - === 開始插入 term_map 資料 ===
+2025-08-26 13:03:11,447 - INFO - 準備插入 31 筆資料到 term_map 表
+2025-08-26 13:03:11,634 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_map_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (story_id, term)=(c996c828-0a40-4169-99d9-450aca409f1a, 聯準會) already exists.'}
+2025-08-26 13:03:11,635 - INFO - term_map 插入結果:
+2025-08-26 13:03:11,635 - INFO -   成功: 0 筆
+2025-08-26 13:03:11,635 - INFO -   失敗: 31 筆
+2025-08-26 13:03:11,635 - INFO - ================================================================================
+2025-08-26 13:03:11,635 - INFO -   執行完成摘要
+2025-08-26 13:03:11,636 - INFO - ================================================================================
+2025-08-26 13:03:11,636 - INFO - ✓ 處理新聞數量: 7
+2025-08-26 13:03:11,636 - INFO - ✓ 不重複關鍵字: 31
+2025-08-26 13:03:11,636 - INFO - ✓ 成功解釋詞彙: 31
+2025-08-26 13:03:11,636 - INFO - ✗ 失敗 插入 term 表: 24 個新關鍵字
+2025-08-26 13:03:11,637 - INFO - ✗ 失敗 插入 term_map 表: 31 筆新組合
+2025-08-26 13:03:11,637 - INFO - ================================================================================
+2025-08-26 22:41:06,892 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
+2025-08-26 22:41:07,148 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-08-26 22:41:07,148 - INFO - ================================================================================
+2025-08-26 22:41:07,148 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-08-26 22:41:07,148 - INFO - ================================================================================
+2025-08-26 22:41:07,148 - INFO - === 讀取合併資料 ===
+2025-08-26 22:41:07,148 - INFO - 讀取 single_news 資料...
+2025-08-26 22:41:07,455 - INFO - 讀取所有資料
+2025-08-26 22:41:07,977 - INFO - 成功讀取 1 筆新聞資料
+2025-08-26 22:41:07,977 - INFO - 讀取 term_map 資料...
+2025-08-26 22:41:08,244 - INFO - 成功讀取 1000 筆 term_map 資料
+2025-08-26 22:41:08,244 - INFO - 組織 term_map: 155 個不同的 story_id
+2025-08-26 22:41:08,244 - INFO - 合併完成: 1 筆新聞資料
+2025-08-26 22:41:08,244 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-08-26 22:41:10,309 - INFO - ✓ 階段一完成：共提取 5 個不重複關鍵字。
+2025-08-26 22:41:10,309 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-08-26 22:41:22,519 - INFO - ✓ 階段二完成：共成功解釋 5 個詞彙。
+2025-08-26 22:41:22,519 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-08-26 22:41:22,519 - INFO - === 檢查 term_map 重複性 ===
+2025-08-26 22:41:23,380 - INFO - === 階段四：執行資料庫插入 ===
+2025-08-26 22:41:23,380 - INFO - === 開始插入 term 資料 ===
+2025-08-26 22:41:23,380 - INFO - 準備插入 4 筆資料到 term 表
+2025-08-26 22:41:23,589 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(鋼絞線) already exists.'}
+2025-08-26 22:41:23,589 - INFO - term 插入結果:
+2025-08-26 22:41:23,590 - INFO -   成功: 0 筆
+2025-08-26 22:41:23,590 - INFO -   失敗: 4 筆
+2025-08-26 22:41:23,590 - INFO - === 開始插入 term_map 資料 ===
+2025-08-26 22:41:23,590 - INFO - 準備插入 5 筆資料到 term_map 表
+2025-08-26 22:41:23,781 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(錨梁) is not present in table "term".'}
+2025-08-26 22:41:23,781 - INFO - term_map 插入結果:
+2025-08-26 22:41:23,781 - INFO -   成功: 0 筆
+2025-08-26 22:41:23,781 - INFO -   失敗: 5 筆
+2025-08-26 22:41:23,781 - INFO - ================================================================================
+2025-08-26 22:41:23,781 - INFO -   執行完成摘要
+2025-08-26 22:41:23,782 - INFO - ================================================================================
+2025-08-26 22:41:23,782 - INFO - ✓ 處理新聞數量: 1
+2025-08-26 22:41:23,782 - INFO - ✓ 不重複關鍵字: 5
+2025-08-26 22:41:23,782 - INFO - ✓ 成功解釋詞彙: 5
+2025-08-26 22:41:23,782 - INFO - ✗ 失敗 插入 term 表: 4 個新關鍵字
+2025-08-26 22:41:23,782 - INFO - ✗ 失敗 插入 term_map 表: 5 筆新組合
+2025-08-26 22:41:23,782 - INFO - ================================================================================

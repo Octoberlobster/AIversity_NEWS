@@ -54,9 +54,8 @@ except Exception:
 
 # 建立 Supabase 與 Gemini client
 sb = create_client(SUPABASE_URL, SUPABASE_KEY)
-# gemini client will be created inside core._gen_image_bytes_with_retry expects genai.Client passed
 
-LIMIT = int(sys.argv[1]) if len(sys.argv) > 1 else 150
+LIMIT = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
 
 MODEL_ID = getattr(core, 'DEFAULT_MODEL_ID', None) or 'gemini-2.0-flash-preview-image-generation'
 RETRY_TIMES = 3
@@ -107,6 +106,13 @@ for i, r in enumerate(rows, start=1):
         # 從 content 取前段作為 title 的 fallback
         title = (content[:40] + '...') if len(content) > 40 else content
 
+    # 檢查是否已經生成過圖片
+    if story_id:
+        existing = sb.table('generated_image').select('story_id').eq('story_id', story_id).execute()
+        if existing.data:
+            print(f"第 {i} 筆（story_id={story_id}）已存在圖片，跳過")
+            continue
+
     prompt = core._prompt_photoreal_no_text(title or '', content or '', category='')
 
     img_bytes = core._gen_image_bytes_with_retry(gen_client, prompt, MODEL_ID, RETRY_TIMES, SLEEP_BETWEEN)
@@ -114,17 +120,6 @@ for i, r in enumerate(rows, start=1):
         print(f"第 {i} 筆（story_id={story_id}）生成失敗，跳過")
         fail_count += 1
         continue
-
-    # --- 同步儲存為本機 PNG（供後續解碼比對） ---
-    save_dir = os.path.join(os.path.dirname(__file__), 'saved_pngs')
-    os.makedirs(save_dir, exist_ok=True)
-    out_name = f"{story_id if story_id is not None else 'noid'}_{i}.png"
-    out_path = os.path.join(save_dir, out_name)
-    try:
-        core._save_png(img_bytes, out_path)
-        print(f"已在本機儲存 PNG: {out_path}")
-    except Exception as e:
-        print(f"儲存本機 PNG 失敗: {e}")
 
     # 產生描述（短）
     description = core._generate_image_description(title or '', content or '', '')

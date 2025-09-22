@@ -3,8 +3,8 @@ import subprocess
 import time
 
 scripts = ["test4.py", 
-           "clean_data.py",
-           # "supabase_upload.py", 
+        #    "clean_data.py",
+           "supabase_upload.py", 
            "/code/畢專test/New_Summary/scripts/quick_run.py",
            "/code/畢專test/demo/data_to_supabase/generate_categories_from_single_news.py",
            "/code/畢專test/demo/data_to_supabase/generate_picture_to_supabase/generate_from_supabase.py",

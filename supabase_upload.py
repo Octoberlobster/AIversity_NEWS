@@ -57,21 +57,6 @@ def check_story_exists(supabase: Client, story_url: str) -> Tuple[bool, str]:
         print(f"檢查故事是否存在時發生錯誤: {e}")
         return False, ""
 
-def should_update_story(existing_crawl_date: str, new_crawl_date: str) -> bool:
-    """判斷是否應該更新故事（新的 crawl_date 是否比既有的晚 3 天以上）"""
-    try:
-        existing_date = parse_crawl_date(existing_crawl_date)
-        new_date = parse_crawl_date(new_crawl_date)
-        
-        # 計算日期差異
-        date_diff = new_date - existing_date
-        
-        # 如果新日期比既有日期晚 3 天以上，則更新
-        return date_diff.days >= 3
-    except Exception as e:
-        print(f"比較日期時發生錯誤: {e}")
-        return False
-
 def upload_stories(supabase: Client, news_data: List[Dict[Any, Any]]) -> Tuple[bool, List[str]]:
     """上傳故事資料到 stories 表，回傳 (是否成功, 已上傳的story_ids)"""
     stories_to_upload = []
@@ -155,6 +140,9 @@ def upload_articles(supabase: Client, news_data: List[Dict[Any, Any]], uploaded_
                 print(f"檢查文章是否存在時發生錯誤: {e}")
                 continue
 
+            if("請提供" in article.get("content", "") or "[清洗失敗]" in article.get("content", "")):
+                continue
+
             article_record = {
                 "article_id": article.get("article_id"),
                 "article_title": article.get("article_title"),
@@ -190,7 +178,7 @@ def main():
     # JSON 檔案路徑
     json_file_path = "json/processed/cleaned_final_news.json"  # 請確認檔案路徑
     
-    print("開始處理新聞資料上傳...")
+    print("開始處理新聞資料上傳...") 
     
     # 1. 設置 Supabase 客戶端
     print("設置 Supabase 連接...")
