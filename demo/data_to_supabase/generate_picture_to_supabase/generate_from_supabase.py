@@ -15,11 +15,8 @@ from dotenv import load_dotenv
 
 print("開始執行腳本...")
 
-# 載入環境變數，指定 Picture_generate_system 目錄中的 .env 檔案
-picture_system_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'Picture_generate_system')
-env_path = os.path.join(picture_system_dir, '.env')
-print(f"載入環境變數檔案: {env_path}")
-load_dotenv(env_path)
+
+load_dotenv()
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')

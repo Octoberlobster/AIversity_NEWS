@@ -11,14 +11,14 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 # 載入環境變數
-picture_system_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'Picture_generate_system')
-env_path = os.path.join(picture_system_dir, '.env')
-print(f"載入環境變數檔案: {env_path}")
-load_dotenv(env_path)
+
+
+load_dotenv()
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+print(GEMINI_API_KEY)
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("請在 Picture_generate_system/.env 設定 SUPABASE_URL 與 SUPABASE_KEY")
@@ -59,7 +59,7 @@ class NewsEventGrouper:
     def fetch_topic_news_map_from_supabase(self):
         """從 Supabase 的 topic_news_map 表獲取主題新聞映射"""
         try:
-            print("開始從 topic_news_map 表獲取資料...")
+           
             response = self.supabase.table('topic_news_map').select(
                 'topic_id, story_id'
             ).execute()
@@ -144,7 +144,7 @@ class NewsEventGrouper:
                 print(f"✗ {i}/{len(story_ids)}: 獲取 story_id {story_id} 時發生錯誤: {e}")
                 
             # 避免請求過於頻繁
-            time.sleep(0.1)
+            time.sleep(3)
         
         print(f"成功獲取 {len(news_items)} 則新聞內容")
         return news_items
@@ -166,47 +166,50 @@ class NewsEventGrouper:
         
         # 構建提示語
         prompt = f"""
-請分析以下 {len(news_items)} 則新聞，將它們按照主要事件主題進行適中的分組。要求做合理的分類，避免過於細緻或過於粗糙。
+請分析以下 {len(news_items)} 則新聞，將它們按照**具體、精確**的事件主題進行分組。**極度重要：僅有真正高度相關的新聞才能分在同一組。絕不為了湊數而勉強歸類，寧可分成多個小組，或將單獨的新聞歸入「其他」，也不要創建包含不相關內容的龐雜分組。**
 
-重要分組要求：
-
-2. 按照主要事件主題來分組，但可以包含該主題的不同發展階段
-3. 每則新聞只能分配到一個分組，不可重複分配
-4. 尋找新聞間的主要關聯性，適度分組
+**嚴格分組準則：**
+1.  **絕對的共同主題或核心事件**：新聞內容必須圍繞同一核心事件或議題展開，才能歸為一組。
+2.  **高度的內容一致性**：同一組內的新聞應探討事件的相似面向、發展階段或關鍵細節。
+3.  **避免模糊與籠統**：分組標題必須極其具體，清晰指向該組新聞的核心內容。
+4.  **最小組規模**：每組至少需要 2-3 則高度相關的新聞。單獨一則無法找到明確配對的新聞，請歸入「其他相關新聞」。
+5.  **單一歸屬**：每則新聞只能屬於一個分組。
 
 新聞資料：
 {chr(1000).join(news_summaries)}
 
-請按照以下 JSON 格式輸出分組結果：
+請嚴格按照以下 JSON 格式輸出分組結果：
 {{
   "groups": [
     {{
-      "event_title": "主要事件的標題（18字以內）",
-      "event_summary": "該事件主題的概要說明（100字以內）",
+      "event_title": "**具體事件標題 (嚴格限制在10字以內)**",
+      "event_summary": "簡潔扼要說明該事件核心與關聯性 (80字以內)",
       "news_indices": [1, 2, 3]
     }},
     {{
-      "event_title": "另一個主要事件的標題",
-      "event_summary": "另一個事件主題的概要說明",
-      "news_indices": [4, 5, 6, 7]
+      "event_title": "**另一個具體事件標題 (嚴格限制在10字以內)**",
+      "event_summary": "另一個事件的具體說明",
+      "news_indices": [4, 5]
     }}
+    // ... 更多分組
   ]
 }}
 
-分組原則：
-1. 以主要事件或政策為核心分組
-2. 同一事件的不同發展階段可以放在同一組
+**評估標準：**
+* **主題的精確性與專一性**：分組必須聚焦於單一、明確的事件或議題。
+* **時間與內容的緊密關聯**：即使是事件的不同發展階段，其核心內容也必須高度重疊。
+* **排除「綜合新聞」類標題**：絕不使用寬泛、概括性的標題，必須是具體的事件指稱。
 
-4. 事件標題要能涵蓋組內所有新聞的共同主題
-5. news_indices 對應新聞的編號（從1開始）
-6. 確保所有新聞都被分配到某個分組
-7. 只回傳 JSON，不要其他說明文字
-
+**輸出要求：**
+* **僅回傳 JSON 格式的輸出**，不包含任何額外的解釋文字。
+* `event_title` 必須為**高度具體且精煉**的標題，長度嚴格控制在 10 字以內。
+* `news_indices` 為新聞列表中的編號，從 1 開始。
+* 若有新聞無法歸入任何明確、具體的主題組，請統一建立一個名為「**其他相關新聞**」的分組，並為其提供簡要說明。
 """
 
         try:
             response = self.genai_client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-2.5-flash-lite',
                 contents=prompt
             )
             result_text = response.text.strip()
