@@ -50,9 +50,13 @@ class NewsFactChecker:
             "is_correct": true或false,
             "confidence": 信心程度(0-100),
             "explanation": "詳細解釋原因",
-            "supporting_media": "如果正確，提及哪個媒體",
-            "supporting_title": "如果正確，提及哪個報導標題", 
-            "supporting_content": "如果正確，提及相關的具體敘述內容"
+            "supporting_sources": [
+                {{
+                    "media": "媒體名稱",
+                    "title": "報導標題",
+                    "content": "相關的具體敘述內容"
+                }}
+            ]
         }}
 
         只回傳 JSON，不要其他說明。
@@ -86,9 +90,7 @@ class NewsFactChecker:
                 "is_correct": False,
                 "confidence": 0,
                 "explanation": f"系統錯誤：回傳格式不是合法 JSON: {e}",
-                "supporting_media": "",
-                "supporting_title": "",
-                "supporting_content": ""
+                "supporting_sources": []
             }
         except Exception as e:
             print(f"Gemini 驗證時發生錯誤: {e}")
@@ -96,9 +98,7 @@ class NewsFactChecker:
                 "is_correct": False,
                 "confidence": 0,
                 "explanation": f"系統錯誤：驗證過程發生錯誤: {e}",
-                "supporting_media": "",
-                "supporting_title": "",
-                "supporting_content": ""
+                "supporting_sources": []
             }
 
     def fact_check_by_story_id(self, statement: str, story_id: str) -> str:
@@ -120,20 +120,25 @@ class NewsFactChecker:
         is_correct = verification_result.get('is_correct', False)
         confidence = verification_result.get('confidence', 0)
         explanation = verification_result.get('explanation', '')
-        supporting_media = verification_result.get('supporting_media', '')
-        supporting_title = verification_result.get('supporting_title', '')
-        supporting_content = verification_result.get('supporting_content', '')
+        supporting_sources = verification_result.get('supporting_sources', [])
 
         # 根據結果格式化回答
         result = "🔍針對 " + "{" + statement + "}\n查核結果:\n"
         if is_correct:
             result += f"✅ 正確：此陳述在知識庫中有相關資料支持\n"
-            if supporting_media:
-                result += f"📰 媒體來源：{supporting_media}\n"
-            if supporting_title:
-                result += f"📄 報導標題：{supporting_title}\n"
-            if supporting_content:
-                result += f"📝 相關敘述：{supporting_content}\n"
+            result += f"🎯 信心程度：{confidence}%\n"
+            
+            if supporting_sources:
+                result += "**📚 相關來源：**\n"
+                for i, source in enumerate(supporting_sources, 1):
+                    media = source.get('media', '未知媒體')
+                    title = source.get('title', '無標題')
+                    content = source.get('content', '')
+                    
+                    result += f"{i}. **{title}** \n*來源：{media}*\n"
+                    if content:
+                        result += f"   📝 相關敘述：{content}\n"
+                    result += "\n"
         else:
             result += f"❌ 錯誤：此陳述在知識庫中沒有相關報導提到\n"
             result += f"🔍 詳細說明：{explanation}\n"
@@ -156,8 +161,7 @@ class NewsFactChecker:
             title = news.get('article_title', '無標題')
             content_preview = news.get('content', '')[:100] + "..." if len(news.get('content', '')) > 100 else news.get('content', '')
             
-            print(f"{i}. 媒體：{media}")
-            print(f"   標題：{title}")
+            print(f"{i}. **{title}** *來源：{media}*")
             print(f"   內容預覽：{content_preview}")
             print()
 
