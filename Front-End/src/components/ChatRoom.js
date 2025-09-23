@@ -21,6 +21,35 @@ const expertReplies = {};
 // 快速提示
 const quickPrompts = [];
 
+// 輔助函數：安全地解析 who_talk
+const parseWhoTalk = (whoTalk) => {
+  if (!whoTalk) return [];
+  
+  if (Array.isArray(whoTalk)) {
+    return whoTalk;
+  }
+  
+  if (typeof whoTalk === 'string') {
+    try {
+      const parsed = JSON.parse(whoTalk);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error('Error parsing who_talk JSON:', error);
+      return [];
+    }
+  }
+  
+  // 如果是物件，可能有嵌套的結構
+  if (typeof whoTalk === 'object' && whoTalk !== null) {
+    // 如果是 {who_talk: [...]} 的格式
+    if (whoTalk.who_talk && Array.isArray(whoTalk.who_talk)) {
+      return whoTalk.who_talk;
+    }
+  }
+  
+  return [];
+};
+
 function ChatRoom({newsData, onClose}, ref) {
   const [selectedExperts, setSelectedExperts] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -55,6 +84,21 @@ function ChatRoom({newsData, onClose}, ref) {
   useEffect(() => {
     // 目前只是監聽模式切換，不做額外處理
   }, [showProofMode]);
+
+  // 當 newsData 改變時，清理不在 who_talk 範圍內的已選專家
+  useEffect(() => {
+    const whoTalkArray = parseWhoTalk(newsData?.who_talk);
+
+    if (whoTalkArray.length > 0) {
+      setSelectedExperts(prevSelected => {
+        const validExperts = prevSelected.filter(expertId => {
+          const expert = experts.find(e => e.id === expertId);
+          return expert && whoTalkArray.includes(expert.category);
+        });
+        return validExperts;
+      });
+    }
+  }, [newsData?.who_talk]);
 
   // 自動滾到最底
   useEffect(() => {
@@ -122,6 +166,12 @@ function ChatRoom({newsData, onClose}, ref) {
         .filter((expert) => expert.category === newsData.category)
         .map((expert) => expert.id);
       setSelectedExperts(filteredExperts);
+      setMessages(["歡迎使用新聞小幫手，在這你可以同時詢問多位不同領域的專家，利用快速提示幫助你展開第一個話題，運用溯源驗證來證實新聞內容並非虛言。"].map(text => ({
+        id: Date.now() + Math.random(),
+        text,
+        isOwn: false,
+        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+      }))); 
     }
   }, [newsData.category]);
 
@@ -374,19 +424,30 @@ function ChatRoom({newsData, onClose}, ref) {
 
             {isDropdownOpen && (
               <div className="dropdown__menu">
-                {experts.map((expert) => {
-                  const checked = selectedExperts.includes(expert.id);
-                  return (
-                    <div
-                      key={expert.id}
-                      className="dropdown__item"
-                      onClick={() => toggleExpert(expert.id)}
-                    >
-                      <span>{expert.name}</span>
-                      <span className={`checkbox ${checked ? 'is-checked' : ''}`} />
-                    </div>
-                  );
-                })}
+                {experts
+                  .filter(expert => {
+                    const whoTalkArray = parseWhoTalk(newsData?.who_talk);
+                    
+                    // 如果沒有有效的 who_talk 資料，顯示所有專家
+                    if (whoTalkArray.length === 0) {
+                      return true;
+                    }
+                    
+                    return whoTalkArray.includes(expert.category);
+                  })
+                  .map((expert) => {
+                    const checked = selectedExperts.includes(expert.id);
+                    return (
+                      <div
+                        key={expert.id}
+                        className="dropdown__item"
+                        onClick={() => toggleExpert(expert.id)}
+                      >
+                        <span>{expert.name}</span>
+                        <span className={`checkbox ${checked ? 'is-checked' : ''}`} />
+                      </div>
+                    );
+                  })}
               </div>
             )}
           </div>

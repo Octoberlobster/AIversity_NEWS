@@ -92,46 +92,7 @@ function SpecialReportDetail() {
     
     // 模擬API調用延遲
     setTimeout(() => {
-      // 假資料報告內容
-      const fakeReport = `
-# ${report?.topic_title || '專題'} - 整合分析報告
-
-## 📊 專題概覽
-本專題涵蓋了近期相關議題的深度分析，透過多角度的新聞報導整合，為讀者提供全面性的資訊視角。
-
-## 🔍 關鍵發現
-
-### 主要議題分析
-- **核心議題**：${report?.topic_title || '專題內容'} 成為近期關注焦點
-- **影響範圍**：涉及多個層面的社會影響
-- **時間趨勢**：議題熱度持續上升
-
-### 輿論觀點
-1. **支持觀點**
-   - 政策方向正確，有助於長期發展
-   - 符合國際趨勢和最佳實踐
-   - 能夠帶來正面的社會效益
-
-2. **質疑聲音**
-   - 實施細節仍需完善
-   - 短期內可能面臨挑戰
-   - 需要更多配套措施支持
-
-## 📈 數據洞察
-- 相關新聞報導：${branches?.length || 0} 個分支議題
-- 媒體關注度：持續高漲
-- 社會討論熱度：★★★★☆
-
-## 💡 專家建議
-基於當前資訊分析，建議持續關注後續發展，並注意各方觀點的平衡報導。政策制定者應考慮多方意見，確保決策的全面性和可行性。
-
-## 🔮 未來展望
-預期此議題將持續發酵，建議讀者保持關注，並透過多元管道獲取資訊，形成獨立思考和判斷。
-
----
-*本報告由AI助手基於現有資料生成，僅供參考。*
-      `;
-      setIntegrationReport(fakeReport);
+      setIntegrationReport(report.report || '');
     }, 2000);
   };
   // 獲取專題詳細資料
@@ -143,7 +104,7 @@ function SpecialReportDetail() {
       // 專題基本資訊
       const { data: topicData, error: topicError } = await supabase
         .from('topic')
-        .select('topic_id, topic_title, topic_short, topic_long, generated_date')
+        .select('topic_id, topic_title, topic_short, topic_long, generated_date, report')
         .eq('topic_id', id)
         .single();
       if (topicError) throw new Error(`無法獲取專題資訊: ${topicError.message}`);
@@ -223,7 +184,8 @@ function SpecialReportDetail() {
         description: topicData.topic_long || topicData.topic_short || '',
         articles: newsCountData ? newsCountData.length : 0,
         views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
-        lastUpdate: topicData.generated_date ? new Date(topicData.generated_date).toLocaleDateString('zh-TW') : ''
+        lastUpdate: topicData.generated_date ? new Date(topicData.generated_date).toLocaleDateString('zh-TW') : '',
+        report: topicData.report || ''
       };
 
   setReport(reportData);

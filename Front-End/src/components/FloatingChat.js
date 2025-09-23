@@ -4,6 +4,7 @@ import './../css/ChatRoom.css';
 import { useLocation } from 'react-router-dom';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { fetchJson } from './api';
+import { supabase } from './supabase.js';
 
 function FloatingChat() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -17,9 +18,9 @@ function FloatingChat() {
   const roomIdRef = useRef(createRoomId());
   const room_id = roomIdRef.current;
 
-  const fixedPrompts = React.useMemo(() => [
+  const fixedPrompts = [
     "近期有什麼重要的新聞？",
-  ], []);
+  ];
 
   // 滾動到底
   useEffect(() => {
@@ -47,8 +48,7 @@ function FloatingChat() {
     return () => {
       isMounted = false;
     };
-  }, [user_id, fixedPrompts]);
-
+  }, [user_id]);
 
   // 詳情頁不顯示
   const isSpecialReportPage = location.pathname.includes('/special-report/');
@@ -57,66 +57,93 @@ function FloatingChat() {
 
   const toggleChat = () => setIsExpanded((v) => !v);
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim()) return;
+  const handleSendMessage = async (customMessage = null) => {
+    const text = (customMessage ?? newMessage).trim();
+    if (!text) return;
 
-    // 添加用戶訊息
-    const userMsg = {
-      id: Date.now(),
-      text: newMessage,
-      isOwn: true,
-      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-    };
-    setMessages((prev) => [...prev, userMsg]);
+    const now = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
 
-    const currentMessage = newMessage;
+    // 新增使用者訊息
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now(), text, isOwn: true, time: now, type: 'text' },
+    ]);
     setNewMessage('');
 
     try {
-      // 調用後端搜尋API
-      const response = await fetchJson('/search/single', {
+      // 呼叫後端 API（舊版邏輯）
+      const response = await fetchJson('/chat/search', {
         user_id: user_id,
         room_id: room_id,
-        prompt: currentMessage,
+        prompt: text,
+        category: ['search'],
       });
 
-      // 處理AI回覆
-      if (response.ai_response) {
-        const aiMsg = {
-          id: Date.now() + 1,
-          text: response.ai_response,
+      // 處理後端回應
+      const reply = response.response || [];
+      console.log('後端回應:', reply);
+
+      // 先處理普通訊息
+      const textMessages = reply
+        .map((item) => ({
+          id: Date.now() + Math.random(),
+          type: 'text',
+          text: item.chat_response,
           isOwn: false,
           time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-        };
-        setMessages((prev) => [...prev, aiMsg]);
-      }
+        }));
 
-      // 處理新聞結果
-      if (response.news && response.news.length > 0) {
-        response.news.forEach((newsItem, index) => {
-          setTimeout(() => {
-            const newsMsg = {
-              id: Date.now() + 2 + index,
-              type: 'news',
-              newsId: newsItem.story_id,
-              title: newsItem.title,
-              ultra_short: newsItem.ultra_short,
-              image: newsItem.image,
-              time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-            };
-            setMessages((prev) => [...prev, newsMsg]);
-          }, 500 + index * 300);
-        });
-      }
+      setMessages((prev) => [...prev, ...textMessages]);
+
+      // 延遲處理新聞訊息
+      const newsMessages = await Promise.all(
+        reply
+          .filter((item) => item.news_id && Array.isArray(item.news_id))
+          .map(async (item) => {
+            const newsData = await Promise.all(
+              item.news_id.map(async (newsId) => {
+                const { data, error } = await supabase
+                  .from('single_news')
+                  .select('news_title, ultra_short,generated_image(image)')
+                  .eq('story_id', newsId)
+                  .single();
+
+                if (error) {
+                  console.error('Error fetching news:', error);
+                  return null;
+                }
+
+                return {
+                  id: Date.now() + Math.random(),
+                  type: 'news',
+                  title: data.news_title,
+                  image: data.generated_image.image,
+                  ultra_short: data.ultra_short,
+                  newsId,
+                  isOwn: false,
+                  time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+                };
+              })
+            );
+            return newsData.filter(Boolean);
+          })
+      );
+
+      // 延遲顯示新聞訊息
+      setTimeout(() => {
+        setMessages((prev) => [...prev, ...newsMessages.flat()]);
+      }, 1000);
     } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMsg = {
-        id: Date.now() + 999,
-        text: '抱歉，搜尋時發生錯誤，請稍後再試。',
-        isOwn: false,
-        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages((prev) => [...prev, errorMsg]);
+      console.error('Error fetching chat response:', error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          text: '抱歉，伺服器發生錯誤，請稍後再試。',
+          isOwn: false,
+          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+        },
+      ]);
     }
   };
 
@@ -124,73 +151,10 @@ function FloatingChat() {
     if (e.key === 'Enter') handleSendMessage();
   };
 
+  // 新版 handlePromptSend：直接送出，而不是塞進 input
   const handlePromptSend = (promptText) => {
-    // 直接處理發送，不依賴狀態更新
     if (!promptText.trim()) return;
-
-    // 添加用戶訊息
-    const userMsg = {
-      id: Date.now(),
-      text: promptText,
-      isOwn: true,
-      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-    };
-    setMessages((prev) => [...prev, userMsg]);
-
-    // 清空輸入框
-    setNewMessage('');
-
-    // 直接調用搜尋API
-    handleSearchWithPrompt(promptText);
-  };
-
-  const handleSearchWithPrompt = async (promptText) => {
-    try {
-      // 調用後端搜尋API
-      const response = await fetchJson('/search/single', {
-        user_id: user_id,
-        room_id: room_id,
-        prompt: promptText,
-      });
-
-      // 處理AI回覆
-      if (response.ai_response) {
-        const aiMsg = {
-          id: Date.now() + 1,
-          text: response.ai_response,
-          isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-        };
-        setMessages((prev) => [...prev, aiMsg]);
-      }
-
-      // 處理新聞結果
-      if (response.news && response.news.length > 0) {
-        response.news.forEach((newsItem, index) => {
-          setTimeout(() => {
-            const newsMsg = {
-              id: Date.now() + 2 + index,
-              type: 'news',
-              newsId: newsItem.story_id,
-              title: newsItem.title,
-              ultra_short: newsItem.ultra_short,
-              image: newsItem.image,
-              time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-            };
-            setMessages((prev) => [...prev, newsMsg]);
-          }, 500 + index * 300);
-        });
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMsg = {
-        id: Date.now() + 999,
-        text: '抱歉，搜尋時發生錯誤，請稍後再試。',
-        isOwn: false,
-        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages((prev) => [...prev, errorMsg]);
-    }
+    handleSendMessage(promptText);
   };
 
   return (
@@ -230,59 +194,59 @@ function FloatingChat() {
               </div>
             </div>
 
-            {/* 搜尋說明區 - 採用ChatRoom的expertSelector樣式 */}
+            {/* 搜尋說明區 */}
             <div className="chat__expertSelector">
               🔍 輸入任何關鍵字、問題或主題，我將為您搜尋相關新聞、提供分析見解，並推薦相關報導
             </div>
 
-            {/* 訊息區 - 完全採用ChatRoom樣式 */}
+            {/* 訊息區 */}
             <div className="messages">
-                {messages.length === 0 && (
-                  <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
-                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-                    <h3>歡迎使用智慧搜尋助手</h3>
-                    <p>請輸入您想搜尋的新聞主題或問題</p>
-                  </div>
-                )}
+              {messages.length === 0 && (
+                <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
+                  <h3>歡迎使用智慧搜尋助手</h3>
+                  <p>請輸入您想搜尋的新聞主題或問題</p>
+                </div>
+              )}
 
-                {messages.map((m) => {
-                  if (m.type === 'news') {
-                    return (
-                      <div key={m.id} className="message message--news">
-                        <div
-                          className="bubble bubble--news"
-                          onClick={() => window.location.href = `/news/${m.newsId}`}
-                        >
-                          <img
-                            src={`data:image/png;base64,${m.image}`}
-                            alt="新聞圖片"
-                          />
-                          <div>
-                            <h4>{m.title}</h4>
-                            <p>{m.ultra_short}</p>
-                          </div>
-                        </div>
-                        <span className="message__time">{m.time}</span>
-                      </div>
-                    );
-                  } else {
-                    return (
+              {messages.map((m) => {
+                if (m.type === 'news') {
+                  return (
+                    <div key={m.id} className="message message--news">
                       <div
-                        key={m.id}
-                        className={`message ${m.isOwn ? 'message--own' : ''}`}
+                        className="bubble bubble--news"
+                        onClick={() => window.location.href = `/news/${m.newsId}`}
                       >
-                        <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>
-                          <ReactMarkdown>{m.text}</ReactMarkdown>
+                        <img
+                          src={`data:image/png;base64,${m.image}`}
+                          alt="新聞圖片"
+                        />
+                        <div>
+                          <h4>{m.title}</h4>
+                          <p>{m.ultra_short}</p>
                         </div>
-                        <span className="message__time">{m.time}</span>
                       </div>
-                    );
-                  }
-                })}
-                <div ref={messagesEndRef} />
-              </div>
+                      <span className="message__time">{m.time}</span>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div
+                      key={m.id}
+                      className={`message ${m.isOwn ? 'message--own' : ''}`}
+                    >
+                      <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>
+                        <ReactMarkdown>{m.text}</ReactMarkdown>
+                      </div>
+                      <span className="message__time">{m.time}</span>
+                    </div>
+                  );
+                }
+              })}
+              <div ref={messagesEndRef} />
+            </div>
 
-            {/* 快速提示區 - 水平滾動設計 */}
+            {/* 快速提示區 */}
             {quickPrompts.length > 0 && (
               <div className="prompt">
                 <div className="prompt__container">
@@ -300,7 +264,7 @@ function FloatingChat() {
               </div>
             )}
 
-            {/* 底部輸入區 - 完全採用ChatRoom樣式 */}
+            {/* 輸入區 */}
             <div className="input">
               <input
                 ref={inputRef}
@@ -315,7 +279,7 @@ function FloatingChat() {
               />
               <button
                 className="input__send"
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 disabled={!newMessage.trim()}
               >
                 ➤

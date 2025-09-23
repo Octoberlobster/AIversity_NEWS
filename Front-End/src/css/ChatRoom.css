@@ -698,3 +698,12 @@
     max-height: 100vh;
   }
 }
+
+.bubble--news img {
+  max-width: 120px;
+  max-height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 1rem;
+  vertical-align: middle;
+}
