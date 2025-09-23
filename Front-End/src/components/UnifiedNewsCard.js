@@ -28,7 +28,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
         if (cachedData) {
           setNewsData(cachedData);
           setCurrentPage(1);
-          setHasMore(cachedData.length === ITEMS_PER_PAGE);
+          setHasMore(cachedData.length === ITEMS_PER_PAGE); // 從快取載入時，customData 一定是 undefined
           setIsLoading(false);
           return;
         }
@@ -103,7 +103,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
 
       setNewsData(enhancedData);
       setCurrentPage(1);
-      setHasMore(enhancedData.length === ITEMS_PER_PAGE);
+      setHasMore(enhancedData.length === ITEMS_PER_PAGE && !customData); // 如果使用 customData，不允許載入更多
       
       if (onNewsCountUpdate) {
         onNewsCountUpdate(enhancedData.length);
@@ -121,12 +121,16 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
   }, [loadInitialData, supabaseClient]);
 
   const loadMoreNews = async () => {
-    if (isLoading || !hasMore) return;
+    if (isLoading || !hasMore || customData) return; // 如果使用 customData，直接返回
+    
+    console.log(`[loadMoreNews] Starting - currentPage: ${currentPage}, newsData.length: ${newsData.length}`);
     
     setIsLoading(true);
     try {
       const nextPage = currentPage + 1;
-      const offset = currentPage * ITEMS_PER_PAGE;
+      const offset = (nextPage - 1) * ITEMS_PER_PAGE; // 修正 offset 計算
+      
+      console.log(`[loadMoreNews] Loading page ${nextPage}, offset: ${offset}`);
 
       const { data: fetchedData, error } = await supabaseClient
         .from("single_news")
@@ -170,6 +174,10 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
       }));
 
       // 合併新數據到現有數據
+      console.log(`[loadMoreNews] Merging ${newEnhancedData.length} new items to existing ${newsData.length} items`);
+      console.log(`[loadMoreNews] New story_ids:`, newEnhancedData.map(n => n.story_id));
+      console.log(`[loadMoreNews] Existing story_ids:`, newsData.map(n => n.story_id));
+      
       setNewsData(prevData => [...prevData, ...newEnhancedData]);
       setCurrentPage(nextPage);
       setHasMore(newEnhancedData.length === ITEMS_PER_PAGE);

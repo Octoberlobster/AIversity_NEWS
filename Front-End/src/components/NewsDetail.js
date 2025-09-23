@@ -11,7 +11,7 @@ const loadTermDefinitions = async (supabase) => {
   try {
     const { data, error } = await supabase
       .from('term')
-      .select('term, definition, example');
+      .select('term, term_id, definition, example');
     
     if (error) {
       console.error('載入術語定義時發生錯誤:', error);
@@ -21,7 +21,8 @@ const loadTermDefinitions = async (supabase) => {
     const definitions = {};
     data.forEach(item => {
       if (item.term && item.definition) {
-        definitions[item.term] = {
+        definitions[item.term_id] = {
+          term: item.term,
           definition: item.definition,
           example: item.example || null
         };
@@ -33,6 +34,18 @@ const loadTermDefinitions = async (supabase) => {
     console.error('載入術語定義時發生錯誤:', error);
   }
 };
+
+const experts = [
+  { id: 1, name: "政治專家", category: "Politics" },
+  { id: 2, name: "台灣議題分析師", category: "Taiwan News" },
+  { id: 3, name: "國際專家", category: "International News" },
+  { id: 4, name: "科技專家", category: "Science & Technology" },
+  { id: 5, name: "生活達人", category: "Lifestyle & Consumer News" },
+  { id: 6, name: "體育專家", category: "Sports" },
+  { id: 7, name: "娛樂專家", category: "Entertainment" },
+  { id: 8, name: "財經專家", category: "Business & Finance" },
+  { id: 9, name: "健康顧問", category: "Health & Wellness" },
+];
 
 function NewsDetail() {
   const { id } = useParams();
@@ -48,6 +61,11 @@ function NewsDetail() {
   const [newsTerms, setNewsTerms] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
   const [relatedTopics, setRelatedTopics] = useState([]);
+  const [positionData, setPositionData] = useState({ positive: [], negative: [] }); // 正反方立場資料
+  const [positionLoading, setPositionLoading] = useState(true); // 正反方立場載入狀態
+  const [expertAnalysis, setExpertAnalysis] = useState([]); // 專家分析資料
+  const [analysisLoading, setAnalysisLoading] = useState(true); // 專家分析載入狀態
+  const [showContent, setShowContent] = useState('loading'); // 'loading', 'position', 'expert', 'none'
   const [isChatOpen, setIsChatOpen] = useState(false); // 聊天室開關狀態
   
   // 文字選取和溯源驗證相關狀態
@@ -62,6 +80,9 @@ function NewsDetail() {
   useEffect(() => {
     window.scrollTo(0, 0);
     setShowAllSources(false);
+    setPositionLoading(true); // 重置載入狀態
+    setAnalysisLoading(true); // 重置專家分析載入狀態
+    setShowContent('loading'); // 重置顯示狀態
   }, [id]); // 當 id 改變時執行
 
   // 使用 Supabase 客戶端獲取新聞數據
@@ -82,17 +103,42 @@ function NewsDetail() {
       if (!id || !supabaseClient) return;
       
       try {
-        const { data, error } = await supabaseClient
+        // 先從 term_map 獲取 term_id 列表
+        const { data: termMapData, error: termMapError } = await supabaseClient
           .from('term_map')
-          .select('term')
+          .select('term_id')
           .eq('story_id', id);
         
-        if (error) {
-          console.error(`Error fetching terms for story ${id}:`, error);
+        if (termMapError) {
+          console.error(`Error fetching term mapping for story ${id}:`, termMapError);
           setNewsTerms([]);
           return;
         }
-        const terms = data?.map(item => item.term) || [];
+
+        const termIds = termMapData?.map(item => item.term_id) || [];
+        
+        if (termIds.length === 0) {
+          setNewsTerms([]);
+          return;
+        }
+
+        // 根據 term_id 獲取實際的術語文字
+        const { data: termsData, error: termsError } = await supabaseClient
+          .from('term')
+          .select('term_id, term, definition, example')
+          .in('term_id', termIds);
+        
+        if (termsError) {
+          console.error(`Error fetching terms for story ${id}:`, termsError);
+          setNewsTerms([]);
+          return;
+        }
+
+        const terms = termsData?.map(item => ({
+          term: item.term,
+          definition: item.definition,
+          example: item.example
+        })) || [];
         setNewsTerms(terms);
       } catch (error) {
         console.error(`Error fetching terms for story ${id}:`, error);
@@ -102,6 +148,105 @@ function NewsDetail() {
 
     fetchNewsTerms();
   }, [id, supabaseClient]);
+
+  // 載入正反方立場資料
+  useEffect(() => {
+    const fetchPositionData = async () => {
+      if (!id || !supabaseClient) {
+        setPositionLoading(false);
+        setShowContent('none');
+        return;
+      }
+      
+      setPositionLoading(true);
+      
+      try {
+        const { data, error } = await supabaseClient
+          .from('position')
+          .select('positive, negative')
+          .eq('story_id', id);
+        
+        if (error) {
+          console.error(`Error fetching position data for story ${id}:`, error);
+          setPositionData({ positive: [], negative: [] });
+          setPositionLoading(false);
+          // 如果正反方立場載入失敗，嘗試載入專家分析
+          setShowContent('loadExpert');
+          return;
+        }
+
+        const positionRow = data?.[0];
+        if (positionRow && ((positionRow.positive && positionRow.positive.length > 0) || (positionRow.negative && positionRow.negative.length > 0))) {
+          // 有正反方立場資料
+          setPositionData({
+            positive: positionRow.positive || [],
+            negative: positionRow.negative || []
+          });
+          setShowContent('position');
+        } else {
+          // 沒有正反方立場資料，需要載入專家分析
+          setPositionData({ positive: [], negative: [] });
+          setShowContent('loadExpert');
+        }
+      } catch (error) {
+        console.error(`Error fetching position data for story ${id}:`, error);
+        setPositionData({ positive: [], negative: [] });
+        setShowContent('loadExpert');
+      } finally {
+        setPositionLoading(false);
+      }
+    };
+
+    fetchPositionData();
+  }, [id, supabaseClient]);
+
+  // 載入專家分析資料 - 只在沒有正反方立場時載入
+  useEffect(() => {
+    const fetchExpertAnalysis = async () => {
+      if (!id || !supabaseClient || showContent !== 'loadExpert') {
+        if (showContent === 'loadExpert') {
+          setAnalysisLoading(false);
+          setShowContent('none');
+        }
+        return;
+      }
+      
+      setAnalysisLoading(true);
+      
+      try {
+        const { data, error } = await supabaseClient
+          .from('pro_analyze')
+          .select('analyze_id, category, analyze')
+          .eq('story_id', id);
+        
+        if (error) {
+          console.error(`Error fetching expert analysis for story ${id}:`, error);
+          setExpertAnalysis([]);
+          setAnalysisLoading(false);
+          setShowContent('none');
+          return;
+        }
+
+        // 處理分析資料
+        const analysisData = data || [];
+        if (analysisData.length > 0) {
+          setExpertAnalysis(analysisData);
+          setShowContent('expert');
+        } else {
+          setExpertAnalysis([]);
+          setShowContent('none');
+        }
+      } catch (error) {
+        console.error(`Error fetching expert analysis for story ${id}:`, error);
+        setExpertAnalysis([]);
+        setShowContent('none');
+      } finally {
+        setAnalysisLoading(false);
+      }
+    };
+
+    fetchExpertAnalysis();
+  }, [id, supabaseClient, showContent]);
 
   useEffect(() => {
     const fetchNewsData = async () => {
@@ -123,7 +268,8 @@ function NewsDetail() {
           keywords: [],
           source: [],
           category: row.category,
-          story_id: row.story_id
+          story_id: row.story_id,
+          who_talk: row.who_talk
         } : null);
       }
     };
@@ -483,7 +629,7 @@ function NewsDetail() {
     };
   }, []);
 
-  const renderArticleText = (text, allowedFirstSet) => {
+  const renderArticleText = (text) => {
     if (!text) return null;
 
     // 以「空一行」分段；段內的單一換行會轉成 <br/>
@@ -494,17 +640,16 @@ function NewsDetail() {
     const termsPattern = terms.length
       ? new RegExp(`(${terms.map(escapeReg).join('|')})`, 'g')
       : null;
-    const seenInThisBlock = new Map(); // term -> count
+    const seenTerms = new Set(); // 記錄已經高亮過的 terms
 
     const highlightTermsInLine = (line) => {
       if (!termsPattern) return line;
 
       return line.split(termsPattern).map((part, i) => {
         if (terms.includes(part)) {
-          const count = seenInThisBlock.get(part) || 0;
-          const canHighlight = allowedFirstSet?.has(part) && count === 0;
-          if (canHighlight) {
-            seenInThisBlock.set(part, 1);
+          // 只有第一次出現的 term 才高亮
+          if (!seenTerms.has(part)) {
+            seenTerms.add(part);
             return (
               <strong
                 key={`term-${i}`}
@@ -514,9 +659,10 @@ function NewsDetail() {
                 {part}
               </strong>
             );
+          } else {
+            // 已經出現過的 term 不高亮
+            return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
           }
-          // 之後出現：純文字，不高亮、不可點
-          return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
         }
         return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
       });
@@ -538,37 +684,33 @@ function NewsDetail() {
     });
   };
 
-  const { sortedTerms, firstInLong } = useMemo(() => {
+  const { sortedTerms, termDefinitionsFromDB } = useMemo(() => {
     // 使用從資料庫載入的術語，如果沒有則使用 newsData.terms 作為後備
     const raw = newsTerms.length > 0 ? newsTerms : (Array.isArray(newsData?.terms) ? newsData.terms : []);
-    // 去重 + 長詞優先，避免短詞吃掉長詞
-    const termsArr = Array.from(new Set(raw)).sort((a, b) => b.length - a.length);
-
-    // 只處理長內容
-    const longStr  = String(newsData?.long  || '');
-
-    const escapeReg = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const buildRe = (list) =>
-      list.length ? new RegExp(`(${list.map(escapeReg).join('|')})`, 'g') : null;
-
-    // 掃描某段文字，回傳「實際有出現過的 term」集合
-    const collectPresent = (text, list) => {
-      const set = new Set();
-      const re = buildRe(list);
-      if (!re) return set;
-      re.lastIndex = 0;
-      let m;
-      while ((m = re.exec(text)) !== null) {
-        // m[0] 就是匹配到的 term（因為 alternation 是整詞們）
-        set.add(m[0]);
-      }
-      return set;
+    
+    // 如果 newsTerms 是物件陣列（包含 definition 和 example）
+    if (newsTerms.length > 0 && typeof newsTerms[0] === 'object') {
+      const termStrings = newsTerms.map(item => item.term);
+      const definitions = {};
+      newsTerms.forEach(item => {
+        definitions[item.term] = {
+          definition: item.definition,
+          example: item.example
+        };
+      });
+      
+      return {
+        sortedTerms: Array.from(new Set(termStrings)).sort((a, b) => b.length - a.length),
+        termDefinitionsFromDB: definitions
+      };
+    }
+    
+    // 如果是字串陣列（舊格式或 newsData.terms）
+    const termStrings = Array.isArray(raw) ? raw : [];
+    return {
+      sortedTerms: Array.from(new Set(termStrings)).sort((a, b) => b.length - a.length),
+      termDefinitionsFromDB: {}
     };
-
-    // 現在只需要檢查 long 內容
-    const inLong  = collectPresent(longStr,  termsArr); // 只要在 long 出現過，就允許 long 高亮一次
-
-    return { sortedTerms: termsArr, firstInLong: inLong };
   }, [newsData, newsTerms]);
 
 
@@ -653,54 +795,147 @@ function NewsDetail() {
                 </div>
               ))}
               <div className="articleText" style={{ userSelect: 'text' }}>
-                {renderArticleText(newsData.long, firstInLong)}
+                {renderArticleText(newsData.long)}
               </div>
             </div>
           </div>
 
-          {/* 右側：相關內容 */}
+          {/* 右側：正反方立場 或 專家分析 */}
           <div className="sidebar-content">
-            {/* 延伸閱讀 - 統一區塊 */}
-            {((relatedNews && relatedNews.length > 0) || (relatedTopics && relatedTopics.length > 0)) && (
-              <div className="relatedSection">
-                <div className="relatedGrid">
-                  {/* 相關報導 */}
-                  {relatedNews && relatedNews.length > 0 && (
-                    <>
-                      <h5 className="sectionTitle">相關新聞</h5>
-                      {relatedNews.map(item => (
-                        <div className="relatedItem" key={`news-${item.id}`}>
-                          <Link to={`/news/${item.id}`}>
-                            {item.title}
-                          </Link>
-                          <br></br>
-                          <div className="relevanceText">{item.relevance}</div>
+            {showContent === 'loading' || positionLoading || (showContent === 'loadExpert' && analysisLoading) ? (
+              <div className="prosConsSection">
+                <h4 className="prosConsTitle">載入中...</h4>
+                <div className="loadingMessage">正在載入資料...</div>
+              </div>
+            ) : showContent === 'position' ? (
+              <div className="prosConsSection">
+                <h4 className="prosConsTitle">正反方立場</h4>
+                <div className="prosConsGrid">
+                  {/* 正方立場 */}
+                  <div className="prosColumn">
+                    <div className="prosHeader">
+                      <h5 className="prosTitle">正方</h5>
+                    </div>
+                    <div className="prosContent">
+                      {positionData.positive && positionData.positive.length > 0 ? (
+                        positionData.positive.map((point, index) => (
+                          <div className="prosPoint" key={index}>
+                            • {point}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="prosPoint">
+                          • 暫無正方觀點資料
                         </div>
-                      ))}
-                    </>
-                  )}
-                  
-                  {/* 相關專題 */}
-                  {relatedTopics && relatedTopics.length > 0 && (
-                    <>
-                      <h5 className="sectionTitle">相關專題</h5>
-                      {relatedTopics.map(item => (
-                        <div className="relatedItem" key={`topic-${item.id}`}>
-                          <Link to={`/special-report/${item.id}`}>
-                            {item.title}
-                          </Link>
-                          <br></br>
-                          <div className="relevanceText">{item.relevance}</div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 反方立場 */}
+                  <div className="consColumn">
+                    <div className="consHeader">
+                      <h5 className="consTitle">反方</h5>
+                    </div>
+                    <div className="consContent">
+                      {positionData.negative && positionData.negative.length > 0 ? (
+                        positionData.negative.map((point, index) => (
+                          <div className="consPoint" key={index}>
+                            • {point}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="consPoint">
+                          • 暫無反方觀點資料
                         </div>
-                      ))}
-                    </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : showContent === 'expert' ? (
+              <div className="expertAnalysisSection">
+                <h4 className="expertAnalysisTitle">專家分析</h4>
+                <div className="expertAnalysisContent">
+                  {expertAnalysis && expertAnalysis.length > 0 ? (
+                    expertAnalysis.map((analysis, index) => {
+                      // 根據 category 找到對應的專家名稱
+                      const expert = experts.find(exp => exp.category === analysis.category);
+                      const expertName = expert ? expert.name : analysis.category;
+                      
+                      return (
+                        <div className="analysisItem" key={analysis.analyze_id || index}>
+                          {expertName && (
+                            <div className="analysisCategory">
+                              <span className="categoryTag">{expertName}</span>
+                            </div>
+                          )}
+                          <div className="analysisText">
+                            {analysis.analyze}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="noAnalysisMessage">
+                      暫無專家分析資料
+                    </div>
                   )}
+                </div>
+              </div>
+            ) : (
+              <div className="prosConsSection">
+                <h4 className="prosConsTitle">暫無分析資料</h4>
+                <div className="noAnalysisMessage">
+                  目前沒有正反方立場或專家分析資料
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* 相關內容區塊 - 移動到資料來源上面 */}
+      {((relatedNews && relatedNews.length > 0) || (relatedTopics && relatedTopics.length > 0)) && (
+        <div className="relatedSection relatedSection--main">
+          <div className="container">
+            <div className="relatedGrid relatedGrid--horizontal">
+              {/* 相關新聞 */}
+              {relatedNews && relatedNews.length > 0 && (
+                <div className="relatedColumn">
+                  <h5 className="sectionTitle">相關新聞</h5>
+                  <div className="relatedItems">
+                    {relatedNews.map(item => (
+                      <div className="relatedItem" key={`news-${item.id}`}>
+                        <Link to={`/news/${item.id}`}>
+                          {item.title}
+                        </Link>
+                        <div className="relevanceText">{item.relevance}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* 相關專題 */}
+              {relatedTopics && relatedTopics.length > 0 && (
+                <div className="relatedColumn">
+                  <h5 className="sectionTitle">相關專題</h5>
+                  <div className="relatedItems">
+                    {relatedTopics.map(item => (
+                      <div className="relatedItem" key={`topic-${item.id}`}>
+                        <Link to={`/special-report/${item.id}`}>
+                          {item.title}
+                        </Link>
+                        <div className="relevanceText">{item.relevance}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 資料來源區塊 - 放在頁面底部 */}
       {(newsUrl || newsData.source) && (() => {
@@ -770,17 +1005,8 @@ function NewsDetail() {
 
       {/* 側邊聊天室 */}
       <div className={`chat-sidebar ${isChatOpen ? 'open' : ''}`}>
-        <div className="chat-sidebar-header">
-          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>新聞討論</h3>
-          <button 
-            className="chat-close-btn"
-            onClick={() => setIsChatOpen(false)}
-          >
-            ✕
-          </button>
-        </div>
         <div className="chat-sidebar-content" style={{ flex: 1, overflow: 'hidden' }}>
-          <ChatRoom ref={chatRoomRef} newsData={newsData} />
+          <ChatRoom ref={chatRoomRef} newsData={newsData} onClose={() => setIsChatOpen(false)} />
         </div>
       </div>
 
@@ -788,9 +1014,15 @@ function NewsDetail() {
       {tooltipTerm && (
         <TermTooltip
           term={tooltipTerm}
-          definition={termDefinitions[tooltipTerm]?.definition || `未找到「${tooltipTerm}」的定義`}
-          example={termDefinitions[tooltipTerm]?.example}
-          exampleFromDB={termDefinitions[tooltipTerm]?.example}
+          definition={
+            termDefinitionsFromDB[tooltipTerm]?.definition || 
+            termDefinitions[tooltipTerm]?.definition || 
+            `未找到「${tooltipTerm}」的定義`
+          }
+          example={
+            termDefinitionsFromDB[tooltipTerm]?.example || 
+            termDefinitions[tooltipTerm]?.example
+          }
           position={tooltipPosition}
           onClose={() => setTooltipTerm(null)}
         />

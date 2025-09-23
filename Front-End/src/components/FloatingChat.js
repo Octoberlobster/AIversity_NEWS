@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import './../css/FloatingChat.css';
+import './../css/ChatRoom.css';
 import { useLocation } from 'react-router-dom';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { fetchJson } from './api';
@@ -12,6 +12,7 @@ function FloatingChat() {
   const [newMessage, setNewMessage] = useState('');
   const [quickPrompts, setQuickPrompts] = useState([]);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
   const location = useLocation();
   const user_id = getOrCreateUserId();
   const roomIdRef = useRef(createRoomId());
@@ -29,7 +30,6 @@ function FloatingChat() {
   // Fetch quickPrompts 從後端獲取資料
   useEffect(() => {
     let isMounted = true;
-    console.log("fuck fuck")
     const fetchQuickPrompts = async () => {
       try {
         const response = await fetchJson('/hint_prompt/search', {});
@@ -57,8 +57,8 @@ function FloatingChat() {
 
   const toggleChat = () => setIsExpanded((v) => !v);
 
-  const handleSendMessage = async () => {
-    const text = newMessage.trim();
+  const handleSendMessage = async (customMessage = null) => {
+    const text = (customMessage ?? newMessage).trim();
     if (!text) return;
 
     const now = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
@@ -71,16 +71,16 @@ function FloatingChat() {
     setNewMessage('');
 
     try {
-      // 呼叫後端 API
+      // 呼叫後端 API（舊版邏輯）
       const response = await fetchJson('/chat/search', {
         user_id: user_id,
         room_id: room_id,
         prompt: text,
-        category: ['search'], // 假設這裡的分類是固定的
+        category: ['search'],
       });
 
       // 處理後端回應
-      const reply = response.response || '抱歉，我無法處理您的請求。';
+      const reply = response.response || [];
       console.log('後端回應:', reply);
 
       // 先處理普通訊息
@@ -125,14 +125,14 @@ function FloatingChat() {
                 };
               })
             );
-            return newsData.filter(Boolean); // 過濾掉 null 的結果
+            return newsData.filter(Boolean);
           })
       );
 
       // 延遲顯示新聞訊息
       setTimeout(() => {
         setMessages((prev) => [...prev, ...newsMessages.flat()]);
-      }, 1000); // 延遲 1 秒顯示新聞
+      }, 1000);
     } catch (error) {
       console.error('Error fetching chat response:', error);
       setMessages((prev) => [
@@ -151,6 +151,12 @@ function FloatingChat() {
     if (e.key === 'Enter') handleSendMessage();
   };
 
+  // 新版 handlePromptSend：直接送出，而不是塞進 input
+  const handlePromptSend = (promptText) => {
+    if (!promptText.trim()) return;
+    handleSendMessage(promptText);
+  };
+
   return (
     <div className="fchat">
       <div className={`fchat__window ${isExpanded ? 'is-expanded' : ''}`}>
@@ -165,40 +171,36 @@ function FloatingChat() {
             <span className="fchat__icon">🔍</span>
           </button>
         ) : (
-          <div
-            className="fchat__header"
-            onClick={toggleChat}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && toggleChat()}
-            aria-label="收合智慧搜尋助手"
-          >
-            <div className="fchat__headerContent">
-              <span className="fchat__icon">🔍</span>
-              <div>
-                <h3 className="fchat__title">智慧搜尋助手</h3>
-                <p className="fchat__subtitle">AI 驅動的新聞搜尋與分析</p>
+          <div className="chat">
+            {/* Header - 統一使用ChatRoom樣式 */}
+            <div className="chat__header">
+              <div className="chat__headerLeft">
+                <div className="chat__icon">🔍</div>
+                <div>
+                  <h3 className="chat__title">智慧搜尋助手</h3>
+                  <p className="chat__subtitle">AI 驅動的新聞搜尋與分析</p>
+                </div>
+              </div>
+              <div className="chat__headerRight">
+                <button
+                  type="button"
+                  className="chat-close-btn"
+                  onClick={toggleChat}
+                  aria-label="收合"
+                  title="收合"
+                >
+                  ×
+                </button>
               </div>
             </div>
-            <button
-              type="button"
-              className="fchat__toggle"
-              aria-label="收合"
-              title="收合"
-            >
-              ×
-            </button>
-          </div>
-        )}
 
-        {isExpanded && (
-          <div className="fchat__body">
-            <div className="fchat__intro">
-              輸入任何關鍵字、問題或主題，我將為您搜尋相關新聞、提供分析見解，並推薦相關報導。
-              支援自然語言查詢，讓您快速找到所需資訊。
+            {/* 搜尋說明區 */}
+            <div className="chat__expertSelector">
+              🔍 輸入任何關鍵字、問題或主題，我將為您搜尋相關新聞、提供分析見解，並推薦相關報導
             </div>
 
-            <div className="fchat__messages">
+            {/* 訊息區 */}
+            <div className="messages">
               {messages.length === 0 && (
                 <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
@@ -210,35 +212,33 @@ function FloatingChat() {
               {messages.map((m) => {
                 if (m.type === 'news') {
                   return (
-                    <div key={m.id} className="fchat__message fchat__message--news">
+                    <div key={m.id} className="message message--news">
                       <div
-                        className="fchat__bubble fchat__bubble--news"
+                        className="bubble bubble--news"
                         onClick={() => window.location.href = `/news/${m.newsId}`}
-                        style={{ cursor: "pointer" }}
                       >
                         <img
                           src={`data:image/png;base64,${m.image}`}
                           alt="新聞圖片"
-                          style={{ width: '100px', height: '100px', marginRight: '10px' }}
                         />
                         <div>
                           <h4>{m.title}</h4>
                           <p>{m.ultra_short}</p>
                         </div>
                       </div>
-                      <span className="fchat__time">{m.time}</span>
+                      <span className="message__time">{m.time}</span>
                     </div>
                   );
                 } else {
                   return (
                     <div
                       key={m.id}
-                      className={`fchat__message ${m.isOwn ? 'fchat__message--own' : ''}`}
+                      className={`message ${m.isOwn ? 'message--own' : ''}`}
                     >
-                      <div className={`fchat__bubble ${m.isOwn ? 'fchat__bubble--own' : ''}`}>
+                      <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>
                         <ReactMarkdown>{m.text}</ReactMarkdown>
                       </div>
-                      <span className="fchat__time">{m.time}</span>
+                      <span className="message__time">{m.time}</span>
                     </div>
                   );
                 }
@@ -246,32 +246,40 @@ function FloatingChat() {
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="fchat__quick">
-              {quickPrompts.map((p, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  className="fchat__quickBtn"
-                  onClick={() => setNewMessage(p)}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
+            {/* 快速提示區 */}
+            {quickPrompts.length > 0 && (
+              <div className="prompt">
+                <div className="prompt__container">
+                  {quickPrompts.map((p, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className="prompt__item"
+                      onClick={() => handlePromptSend(p)}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            <div className="fchat__input">
+            {/* 輸入區 */}
+            <div className="input">
               <input
+                ref={inputRef}
                 type="text"
-                className="fchat__inputText"
+                className="input__text"
                 placeholder="輸入您想搜尋的新聞主題或問題..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={handleKeyPress}
+                onKeyPress={handleKeyPress}
+                autoComplete="off"
+                spellCheck="false"
               />
               <button
-                type="button"
-                className="fchat__send"
-                onClick={handleSendMessage}
+                className="input__send"
+                onClick={() => handleSendMessage()}
                 disabled={!newMessage.trim()}
               >
                 ➤

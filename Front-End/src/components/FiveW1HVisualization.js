@@ -772,7 +772,7 @@ export class FiveW1HVisualization {
     // 組裝視窗內容
     modalContent.appendChild(closeBtn);
     modalContent.appendChild(title);
-    
+
     if(node.type === '5w1h' && node.category !== 'why') {
       modalContent.appendChild(description);
     }
