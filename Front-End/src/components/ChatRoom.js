@@ -396,6 +396,16 @@ function ChatRoom({newsData, onClose}, ref) {
           </div>      
         </div>
         <div className="chat__headerRight">
+          {/* 模式切換按鈕 */}
+          {showProofMode && (
+            <button 
+              className="chat-mode-switch-btn"
+              onClick={() => setShowProofMode(false)}
+              title="返回專家聊天"
+            >
+              返回聊天
+            </button>
+          )}
           {/* 關閉聊天室按鈕 - 採用FloatingChat樣式 */}
           {onClose && (
             <button 
@@ -557,6 +567,18 @@ function ChatRoom({newsData, onClose}, ref) {
         
         
       </div>
+
+      {/* 溯源驗證模式下的操作區域 */}
+      {showProofMode && (
+        <div className="proof-mode-controls">
+          <button 
+            className="proofButton" 
+            onClick={handleProofButtonClick}
+          >
+            重新驗證
+          </button>
+        </div>
+      )}
 
       {!showProofMode && (
         <div className="input">
