@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 from ChatRoom import ChatRoom
 from Hint_Prompt_Single import Hint_Prompt_Single
 from Hint_Prompt_Topic import Hint_Prompt_Topic
+from Translator import Translator
 
 app = Flask(__name__)
 CORS(app)
@@ -192,6 +193,24 @@ def fact_check():
         fact_checker = NewsFactChecker()
         result = fact_checker.fact_check_by_story_id(statement, story_id)
         return jsonify({"result": result})
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/translate-texts", methods=["POST"])
+def translate_texts():
+    data = request.json
+    texts = data.get("texts")
+    target_language = data.get("targetLanguage")
+
+    if not texts or not isinstance(texts, list) or not target_language:
+        return jsonify({"error": "Invalid input. 'texts' should be a list and 'targetLanguage' is required."}), 400
+
+    try:
+        translator = Translator()
+        translated_texts = [translator(text, target_language) for text in texts]
+        print(f"🗒️ 翻譯結果: {translated_texts}")
+        return jsonify({"translated_texts": translated_texts})
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
