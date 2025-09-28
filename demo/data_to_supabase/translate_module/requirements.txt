@@ -1,0 +1,6 @@
+# requirements.txt
+
+fastapi
+uvicorn
+python-dotenv
+google-cloud-translate
