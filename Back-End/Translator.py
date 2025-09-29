@@ -1,4 +1,3 @@
-# pip install requests
 from env import supabase, translate_api_key
 import requests
 
