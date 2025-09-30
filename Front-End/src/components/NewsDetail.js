@@ -845,7 +845,7 @@ function NewsDetail() {
                         ))
                       ) : (
                         <div className="consPoint">
-                          • 暫無反方觀點資料
+                          暫無反方觀點資料
                         </div>
                       )}
                     </div>

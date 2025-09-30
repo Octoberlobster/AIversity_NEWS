@@ -310,6 +310,42 @@
   transform: scale(1.05);
 }
 
+/* 返回聊天按鈕樣式 */
+.chat-mode-switch-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+  margin-right: 0.5rem;
+}
+
+.chat-mode-switch-btn::before {
+  content: "↩";
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.chat-mode-switch-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.chat-mode-switch-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
 /* 底部輸入區 */
 .input {
   padding: 1.2rem 1.5rem;
@@ -395,6 +431,30 @@
   border-radius: 20px;
   margin: 0;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+/* 溯源驗證模式控制區域 */
+.proof-mode-controls {
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f8fafc;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.proof-mode-controls .proofButton {
+  margin: 0;
+  padding: 0.7rem 1.4rem;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease;
+}
+
+.proof-mode-controls .proofButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
 }
 
 .proofButton--inline::before {

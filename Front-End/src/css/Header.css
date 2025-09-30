@@ -76,6 +76,20 @@
     justify-content: center;
   }
 }
+
+/* 右側區域（搜尋+語言） */
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+@media (max-width: 700px) {
+  .rightSection {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
 .searchInputWrapper {
   position: relative;
   display: flex;
@@ -106,6 +120,41 @@
 .searchInput:focus {
   box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
   border: 2px solid #667eea;
+}
+
+/* 語言選擇器 */
+.languageSection {
+  display: flex;
+  align-items: center;
+}
+
+.languageSelect {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 2px solid #e5e7eb;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #1e3a8a;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  min-width: 120px;
+}
+
+.languageSelect:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.1);
+}
+
+.languageSelect:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+}
+
+.languageSelect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* 第二列：類別標籤列 */
