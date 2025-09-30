@@ -820,12 +820,12 @@ function NewsDetail() {
                       {positionData.positive && positionData.positive.length > 0 ? (
                         positionData.positive.map((point, index) => (
                           <div className="prosPoint" key={index}>
-                            • {point}
+                            {point}
                           </div>
                         ))
                       ) : (
                         <div className="prosPoint">
-                          • 暫無正方觀點資料
+                          暫無正方觀點資料
                         </div>
                       )}
                     </div>
@@ -840,7 +840,7 @@ function NewsDetail() {
                       {positionData.negative && positionData.negative.length > 0 ? (
                         positionData.negative.map((point, index) => (
                           <div className="consPoint" key={index}>
-                            • {point}
+                            {point}
                           </div>
                         ))
                       ) : (
