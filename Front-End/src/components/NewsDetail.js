@@ -216,7 +216,7 @@ function NewsDetail() {
       try {
         const { data, error } = await supabaseClient
           .from('pro_analyze')
-          .select('analyze_id, category, analyze')
+          .select('analyze_id, category, analyze_test')
           .eq('story_id', id);
         
         if (error) {
@@ -858,19 +858,16 @@ function NewsDetail() {
                 <div className="expertAnalysisContent">
                   {expertAnalysis && expertAnalysis.length > 0 ? (
                     expertAnalysis.map((analysis, index) => {
-                      // 根據 category 找到對應的專家名稱
-                      const expert = experts.find(exp => exp.category === analysis.category);
-                      const expertName = expert ? expert.name : analysis.category;
                       
                       return (
                         <div className="analysisItem" key={analysis.analyze_id || index}>
-                          {expertName && (
+                          {
                             <div className="analysisCategory">
-                              <span className="categoryTag">{expertName}</span>
+                              <span className="categoryTag">{analysis.analyze_test.Role}</span>
                             </div>
-                          )}
+                          }
                           <div className="analysisText">
-                            {analysis.analyze}
+                            {analysis.analyze_test.Analyze}
                           </div>
                         </div>
                       );

@@ -5,6 +5,8 @@ import './../css/Header.css';
 
 const domains = [
   { id: '/', label: '首頁', path: '/'},
+  { id: 'project', label: '專題報導', path: '/special-reports'},
+  { id: 'abroad', label: '國外新聞', path: '/abroad'},
   { id: 'politics', label: '政治', path: '/category/Politics' },
   { id: 'taiwan', label: '台灣', path: '/category/Taiwan News' },
   { id: 'international', label: '國際', path: '/category/International News' },
@@ -14,7 +16,6 @@ const domains = [
   { id: 'entertainment', label: '娛樂', path: '/category/Entertainment' },
   { id: 'finance', label: '商業財經', path: '/category/Business & Finance' },
   { id: 'health', label: '健康', path: '/category/Health & Wellness' },
-  { id: 'project', label: '專題報導', path: '/special-reports'}
 ];
 
 const languages = [
@@ -93,12 +94,10 @@ function Header() {
             if (currentElement.classList) {
               // 排除資料來源相關的 CSS 類別
               if (currentElement.classList.contains('sourceBlock') ||
-                  currentElement.classList.contains('sourceTitle') ||
                   currentElement.classList.contains('sourceList') ||
                   currentElement.classList.contains('sourceMedia') ||
                   currentElement.classList.contains('sourceLink') ||
-                  currentElement.classList.contains('sourceEmpty') ||
-                  currentElement.classList.contains('sourceToggleButton')) {
+                  currentElement.classList.contains('sourceEmpty')) {
                 return NodeFilter.FILTER_REJECT;
               }
             }
