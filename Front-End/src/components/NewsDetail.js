@@ -73,8 +73,31 @@ function NewsDetail() {
   const [selectionPosition, setSelectionPosition] = useState({ x: 0, y: 0 });
   const [showFactCheckButton, setShowFactCheckButton] = useState(false);
   
+  // 正反方立場彈窗相關狀態
+  const [showPositionModal, setShowPositionModal] = useState(false);
+  const [modalContent, setModalContent] = useState({ type: '', content: '' });
+  
   // ChatRoom組件的ref
   const chatRoomRef = useRef(null);
+
+  // 文字截斷函數 - 限制30字並添加省略號
+  const truncateText = (text, maxLength = 30) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  // 處理正反方立場點擊事件
+  const handlePositionClick = (content, type) => {
+    setModalContent({ type, content });
+    setShowPositionModal(true);
+  };
+
+  // 關閉彈窗
+  const closeModal = () => {
+    setShowPositionModal(false);
+    setModalContent({ type: '', content: '' });
+  };
 
   // 確保頁面載入時滾動到頂部
   useEffect(() => {
@@ -819,8 +842,13 @@ function NewsDetail() {
                     <div className="prosContent">
                       {positionData.positive && positionData.positive.length > 0 ? (
                         positionData.positive.map((point, index) => (
-                          <div className="prosPoint" key={index}>
-                            {point}
+                          <div 
+                            className="prosPoint clickable-point" 
+                            key={index}
+                            onClick={() => handlePositionClick(point, 'positive')}
+                            title="點擊查看完整內容"
+                          >
+                            {truncateText(point)}
                           </div>
                         ))
                       ) : (
@@ -839,8 +867,13 @@ function NewsDetail() {
                     <div className="consContent">
                       {positionData.negative && positionData.negative.length > 0 ? (
                         positionData.negative.map((point, index) => (
-                          <div className="consPoint" key={index}>
-                            {point}
+                          <div 
+                            className="consPoint clickable-point" 
+                            key={index}
+                            onClick={() => handlePositionClick(point, 'negative')}
+                            title="點擊查看完整內容"
+                          >
+                            {truncateText(point)}
                           </div>
                         ))
                       ) : (
@@ -1006,6 +1039,25 @@ function NewsDetail() {
           <ChatRoom ref={chatRoomRef} newsData={newsData} onClose={() => setIsChatOpen(false)} />
         </div>
       </div>
+
+      {/* 正反方立場彈窗 */}
+      {showPositionModal && (
+        <div className="position-modal-overlay" onClick={closeModal}>
+          <div className="position-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="position-modal-header">
+              <h3 className={`position-modal-title ${modalContent.type}`}>
+                {modalContent.type === 'positive' ? '正方立場' : '反方立場'}
+              </h3>
+              <button className="position-modal-close" onClick={closeModal}>
+                ×
+              </button>
+            </div>
+            <div className="position-modal-body">
+              <p>{modalContent.content}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tooltip */}
       {tooltipTerm && (
