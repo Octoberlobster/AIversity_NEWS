@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 import './../css/ChatRoom.css';
 import { useLocation } from 'react-router-dom';
 import { getOrCreateUserId, createRoomId } from './utils.js';
@@ -7,6 +8,7 @@ import { fetchJson } from './api';
 import { supabase } from './supabase.js';
 
 function FloatingChat() {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -18,9 +20,9 @@ function FloatingChat() {
   const roomIdRef = useRef(createRoomId());
   const room_id = roomIdRef.current;
 
-  const fixedPrompts = [
-    "近期有什麼重要的新聞？",
-  ];
+  const fixedPrompts = useMemo(() => [
+    t('floatingChat.prompts.recentNews'),
+  ], [t]);
 
   // 滾動到底
   useEffect(() => {
@@ -48,7 +50,7 @@ function FloatingChat() {
     return () => {
       isMounted = false;
     };
-  }, [user_id]);
+  }, [user_id, fixedPrompts]);
 
   // 詳情頁不顯示
   const isSpecialReportPage = location.pathname.includes('/special-report/');
@@ -139,7 +141,7 @@ function FloatingChat() {
         ...prev,
         {
           id: Date.now() + 1,
-          text: '抱歉，伺服器發生錯誤，請稍後再試。',
+          text: t('floatingChat.error.serverError'),
           isOwn: false,
           time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
         },
@@ -165,8 +167,8 @@ function FloatingChat() {
             type="button"
             className="fchat__collapsed"
             onClick={toggleChat}
-            aria-label="展開智慧搜尋助手"
-            title="展開智慧搜尋助手"
+            aria-label={t('floatingChat.aria.expand')}
+            title={t('floatingChat.aria.expand')}
           >
             <span className="fchat__icon">🔍</span>
           </button>
@@ -177,8 +179,8 @@ function FloatingChat() {
               <div className="chat__headerLeft">
                 <div className="chat__icon">🔍</div>
                 <div>
-                  <h3 className="chat__title">智慧搜尋助手</h3>
-                  <p className="chat__subtitle">AI 驅動的新聞搜尋與分析</p>
+                  <h3 className="chat__title">{t('floatingChat.title')}</h3>
+                  <p className="chat__subtitle">{t('floatingChat.subtitle')}</p>
                 </div>
               </div>
               <div className="chat__headerRight">
@@ -186,8 +188,8 @@ function FloatingChat() {
                   type="button"
                   className="chat-close-btn"
                   onClick={toggleChat}
-                  aria-label="收合"
-                  title="收合"
+                  aria-label={t('floatingChat.aria.collapse')}
+                  title={t('floatingChat.aria.collapse')}
                 >
                   ×
                 </button>
@@ -196,7 +198,7 @@ function FloatingChat() {
 
             {/* 搜尋說明區 */}
             <div className="chat__expertSelector">
-              🔍 輸入任何關鍵字、問題或主題，我將為您搜尋相關新聞、提供分析見解，並推薦相關報導
+              {t('floatingChat.description')}
             </div>
 
             {/* 訊息區 */}
@@ -204,8 +206,8 @@ function FloatingChat() {
               {messages.length === 0 && (
                 <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-                  <h3>歡迎使用智慧搜尋助手</h3>
-                  <p>請輸入您想搜尋的新聞主題或問題</p>
+                  <h3>{t('floatingChat.welcome.title')}</h3>
+                  <p>{t('floatingChat.welcome.message')}</p>
                 </div>
               )}
 
@@ -219,7 +221,7 @@ function FloatingChat() {
                       >
                         <img
                           src={`data:image/png;base64,${m.image}`}
-                          alt="新聞圖片"
+                          alt={t('floatingChat.newsImage.alt')}
                         />
                         <div>
                           <h4>{m.title}</h4>
@@ -270,7 +272,7 @@ function FloatingChat() {
                 ref={inputRef}
                 type="text"
                 className="input__text"
-                placeholder="輸入您想搜尋的新聞主題或問題..."
+                placeholder={t('floatingChat.placeholders.input')}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}

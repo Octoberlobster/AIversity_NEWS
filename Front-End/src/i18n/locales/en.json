@@ -1,0 +1,140 @@
+{
+  "header": {
+    "brand": "AIversity",
+    "tagline": "AI-Driven News for Deeper Understanding",
+    "menu": {
+      "home": "Home",
+      "specialReports": "Special Reports",
+      "abroad": "Abroad News",
+      "politics": "Politics",
+      "taiwan": "Taiwan",
+      "international": "International",
+      "scienceAndTech": "Science & Technology",
+      "life": "Lifestyle",
+      "sports": "Sports", 
+      "entertainment": "Entertainment",
+      "finance": "Business & Finance",
+      "health": "Health"
+    },
+    "search": {
+      "placeholder": "Search news/keywords..."
+    },
+    "language": {
+      "select": "Select Language",
+      "chinese": "Chinese",
+      "english": "English",
+      "japanese": "Japanese",
+      "korean": "Korean",
+      "vietnamese": "Vietnamese",
+      "filipino": "Filipino",
+      "indonesian": "Indonesian", 
+      "spanish": "Spanish",
+      "french": "French",
+      "german": "German"
+    }
+  },
+  "home":{
+    "latestTopic": "Latest Topic",
+    "latestNews": "Latest News",
+    "articles": "Related Articles",
+    "topicpreview": "Topic Preview",
+    "nobranches": "No topic preview available"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadingMore": "Loading more...",
+    "error": "Loading failed",
+    "retry": "Retry",
+    "readMore": "Read more news",
+    "close": "Close",
+    "search": "Search",
+    "noContent": "No content available",
+    "searchError": "Search error occurred"
+  },
+  "categorySection": {
+    "title": "Category News",
+    "newsTitle": "{{category}} News",
+    "loading": "Loading...",
+    "error": {
+      "loadFailed": "Failed to load news data",
+      "loadError": "Error occurred while loading news"
+    },
+    "empty": {
+      "categoryNotFound": "Category not found",
+      "noNews": "No {{category}} news available at the moment"
+    },
+    "categories": {
+      "politics": "Politics",
+      "taiwan": "Taiwan",
+      "scienceAndTech": "Science & Technology", 
+      "international": "International",
+      "life": "Lifestyle",
+      "sports": "Sports",
+      "entertainment": "Entertainment",
+      "finance": "Business & Finance",
+      "health": "Health"
+    }
+  },
+  "abroad": {
+    "title": "Abroad News",
+    "selectCountry": "Select Country:",
+    "allCountries": "All Countries",
+    "loading": "Loading...",
+    "loadingMore": "Loading...",
+    "loadMore": "Load More",
+    "error": {
+      "loadFailed": "Failed to load abroad news",
+      "loadError": "Error occurred while loading abroad news",
+      "loadStories": "Failed to load stories data",
+      "loadNews": "Failed to load news data"
+    },
+    "empty": {
+      "categoryNotFound": "Abroad news category not found",
+      "noNews": "No abroad news available",
+      "noCountryNews": "No {{country}} news available"
+    },
+    "countries": {
+      "United States of America": "United States",
+      "Japan": "Japan",
+      "Korea": "Korea",
+      "France": "France",
+      "Germany": "Germany",
+      "Vietnam": "Vietnam",
+      "Philippines": "Philippines",
+      "Indonesia": "Indonesia",
+      "Spain": "Spain",
+      "United Kingdom": "United Kingdom",
+      "Italy": "Italy",
+      "Canada": "Canada",
+      "Australia": "Australia",
+      "Thailand": "Thailand",
+      "Malaysia": "Malaysia",
+      "Singapore": "Singapore"
+    }
+  },
+  "floatingChat": {
+    "title": "Smart Search Assistant",
+    "subtitle": "AI-Powered News Search & Analysis",
+    "description": "🔍 Enter any keywords, questions, or topics, and I'll search for relevant news, provide analytical insights, and recommend related reports",
+    "aria": {
+      "expand": "Expand Smart Search Assistant",
+      "collapse": "Collapse"
+    },
+    "welcome": {
+      "title": "Welcome to Smart Search Assistant",
+      "message": "Please enter the news topics or questions you want to search for"
+    },
+    "placeholders": {
+      "input": "Enter news topics or questions you want to search..."
+    },
+    "prompts": {
+      "recentNews": "What important news has happened recently?"
+    },
+    "error": {
+      "serverError": "Sorry, a server error occurred. Please try again later."
+    },
+    "newsImage": {
+      "alt": "News Image"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from './components/Header';
 import LatestTopics from './components/LatestTopics';
 import CategorySection from './components/CategorySection';
@@ -13,9 +14,13 @@ import SpecialReportDetail from './components/SpecialReportDetail';
 import AdminDashboard from './components/admin/AdminDashboard';
 import AbroadNewsPage from './components/AbroadNewsPage';
 import { SupabaseProvider } from './components/supabase';
+import './i18n'; // 初始化 i18n
 import './css/App.css';
 
 function App() {
+
+  const { t, i18n } = useTranslation();
+
   return (
     <SupabaseProvider>
       <Router>
@@ -37,7 +42,7 @@ function App() {
                         <div className="contentGrid news-section-overlap">
                           <div className="mainColumn">
                             <h2 className="sectionTitle">
-                              最新新聞 
+                              {t('home.latestNews')} 
                             </h2>
                             <UnifiedNewsCard 
                               instanceId="main_news_list"

@@ -1,0 +1,141 @@
+{
+  "header": {
+    "brand": "AIversity",
+    "tagline": "智能新聞，深度洞察",
+    "menu": {
+      "home": "首頁",
+      "specialReports": "專題報導",
+      "abroad": "國外新聞",
+      "politics": "政治",
+      "taiwan": "台灣",
+      "international": "國際",
+      "scienceAndTech": "科學與科技",
+      "life": "生活",
+      "sports": "體育",
+      "entertainment": "娛樂",
+      "finance": "商業財經",
+      "health": "健康"
+    },
+    "search": {
+      "placeholder": "搜尋新聞/關鍵字..."
+    },
+    "language": {
+      "select": "選擇語言",
+      "chinese": "中文",
+      "english": "English",
+      "japanese": "日文",
+      "korean": "韓文",
+      "vietnamese": "越南文",
+      "filipino": "菲律賓文",
+      "indonesian": "印尼文",
+      "spanish": "西班牙文",
+      "french": "法文",
+      "german": "德文"
+    }
+  },
+  "home":{
+    "latestTopic": "最新專題",
+    "latestNews": "最新新聞",
+    "articles": "篇相關新聞",
+    "topicpreview": "專題預覽",
+    "nobranches": "暫無專題預覽"
+  },
+  "common": {
+    "loading": "載入中...",
+    "loadingMore": "載入更多...",
+    "loadMore": "載入更多",
+    "error": "載入失敗",
+    "retry": "重新載入",
+    "readMore": "閱讀更多新聞",
+    "close": "關閉",
+    "search": "搜尋",
+    "noContent": "暫無內容",
+    "searchError": "搜尋時發生錯誤"
+  },
+  "categorySection": {
+    "title": "分類新聞",
+    "newsTitle": "{{category}}新聞",
+    "loading": "載入中...",
+    "error": {
+      "loadFailed": "無法載入新聞資料",
+      "loadError": "載入新聞時發生錯誤"
+    },
+    "empty": {
+      "categoryNotFound": "找不到該分類的新聞",
+      "noNews": "目前沒有 {{category}} 相關的新聞"
+    },
+    "categories": {
+      "politics": "政治",
+      "taiwan": "台灣", 
+      "scienceAndTech": "科學與科技",
+      "international": "國際",
+      "life": "生活",
+      "sports": "體育",
+      "entertainment": "娛樂",
+      "finance": "商業財經",
+      "health": "健康"
+    }
+  },
+  "abroad": {
+    "title": "國外新聞",
+    "selectCountry": "選擇國家：",
+    "allCountries": "所有國家",
+    "loading": "載入中...",
+    "loadingMore": "載入中...",
+    "loadMore": "載入更多",
+    "error": {
+      "loadFailed": "無法載入國外新聞",
+      "loadError": "載入國外新聞時發生錯誤",
+      "loadStories": "無法載入故事資料",
+      "loadNews": "無法載入新聞資料"
+    },
+    "empty": {
+      "categoryNotFound": "找不到該分類的國外新聞",
+      "noNews": "目前沒有國外新聞",
+      "noCountryNews": "目前沒有{{country}}新聞"
+    },
+    "countries": {
+      "United States of America": "美國",
+      "Japan": "日本",
+      "Korea": "韓國",
+      "France": "法國",
+      "Germany": "德國",
+      "Vietnam": "越南",
+      "Philippines": "菲律賓",
+      "Indonesia": "印尼",
+      "Spain": "西班牙",
+      "United Kingdom": "英國",
+      "Italy": "義大利",
+      "Canada": "加拿大",
+      "Australia": "澳洲",
+      "Thailand": "泰國",
+      "Malaysia": "馬來西亞",
+      "Singapore": "新加坡"
+    }
+  },
+  "floatingChat": {
+    "title": "智慧搜尋助手",
+    "subtitle": "AI 驅動的新聞搜尋與分析",
+    "description": "🔍 輸入任何關鍵字、問題或主題，我將為您搜尋相關新聞、提供分析見解，並推薦相關報導",
+    "aria": {
+      "expand": "展開智慧搜尋助手",
+      "collapse": "收合"
+    },
+    "welcome": {
+      "title": "歡迎使用智慧搜尋助手",
+      "message": "請輸入您想搜尋的新聞主題或問題"
+    },
+    "placeholders": {
+      "input": "輸入您想搜尋的新聞主題或問題..."
+    },
+    "prompts": {
+      "recentNews": "近期有什麼重要的新聞？"
+    },
+    "error": {
+      "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
+    },
+    "newsImage": {
+      "alt": "新聞圖片"
+    }
+  }
+}

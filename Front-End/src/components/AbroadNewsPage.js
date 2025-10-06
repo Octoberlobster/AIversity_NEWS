@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import './../css/UnifiedNewsCard.css';
 import UnifiedNewsCard from './UnifiedNewsCard';
 import { useSupabase } from './supabase';
@@ -15,6 +16,8 @@ function AbroadNewsPage() {
   const [availableCountries, setAvailableCountries] = useState([]);
   const supabaseClient = useSupabase();
   
+  const { t } = useTranslation();
+
   const ITEMS_PER_PAGE = 18;
 
   // 獲取可用的國家列表 - 先從 stories 表獲取非 Taiwan 的資料
@@ -137,7 +140,7 @@ function AbroadNewsPage() {
 
       if (storiesError) {
         console.error('Error fetching stories:', storiesError);
-        setError('無法載入故事資料');
+        setError(t('abroad.error.loadStories'));
         return;
       }
 
@@ -182,7 +185,7 @@ function AbroadNewsPage() {
 
       if (newsError) {
         console.error('Error fetching news:', newsError);
-        setError('無法載入新聞資料');
+        setError(t('abroad.error.loadNews'));
         return;
       }
 
@@ -213,11 +216,11 @@ function AbroadNewsPage() {
       
     } catch (err) {
       console.error('Error in loadInitialNews:', err);
-      setError('載入新聞時發生錯誤');
+      setError(t('abroad.error.loadError'));
     } finally {
       setLoading(false);
     }
-  }, [selectedCountry, supabaseClient, loadImagesForNews]);
+  }, [selectedCountry, supabaseClient, loadImagesForNews, t]);
 
   // 載入更多新聞
   const loadMoreNews = useCallback(async () => {
@@ -294,9 +297,9 @@ function AbroadNewsPage() {
     return (
       <section className="catSec">
         <div className="catSec__header" style={{ marginBottom: '30px' }}>
-          <h2 className="catSec__title">國外新聞</h2>
+          <h2 className="catSec__title">{t('header.menu.abroad')}</h2>
         </div>
-        <div className="catSec__loading">載入中...</div>
+        <div className="catSec__loading">{t('abroad.loading')}</div>
       </section>
     );
   }
@@ -305,7 +308,7 @@ function AbroadNewsPage() {
     return (
       <section className="catSec">
         <div className="catSec__header" style={{ marginBottom: '30px' }}>
-          <h2 className="catSec__title">國外新聞</h2>
+          <h2 className="catSec__title">{t('header.menu.abroad')}</h2>
         </div>
         <div className="catSec__error">{error}</div>
       </section>
@@ -317,26 +320,18 @@ function AbroadNewsPage() {
     setSelectedCountry(event.target.value);
   };
 
-  // 獲取國家的中文名稱
+  // 獲取國家的翻譯名稱
   const getCountryDisplayName = (country) => {
-    const countryNames = {
-      'United States of America': '美國',
-      'Japan': '日本',
-      'Korea': '韓國',
-      'France': '法國',
-      'Germany': '德國',
-      'Vietnam': '越南',
-      'Philippines': '菲律賓',
-      'Indonesia': '印尼',
-      'Spain': '西班牙',
-    };
-    return countryNames[country] || country;
+    const translationKey = `abroad.countries.${country}`;
+    const translatedName = t(translationKey);
+    // 如果翻譯不存在，返回原始名稱
+    return translatedName !== translationKey ? translatedName : country;
   };
 
   return (
     <section className="catSec">
       <div className="catSec__header" style={{ marginBottom: '30px' }}>
-        <h2 className="catSec__title" style={{ marginBottom: '25px' }}>國外新聞</h2>
+        <h2 className="catSec__title" style={{ marginBottom: '25px' }}>{t('abroad.title')}</h2>
         
         {/* 國家選擇器 */}
         <div className="country-selector" style={{ 
@@ -354,7 +349,7 @@ function AbroadNewsPage() {
             color: '#495057',
             minWidth: '80px'
           }}>
-            選擇國家：
+            {t('abroad.selectCountry')}
           </label>
           <select 
             id="country-select"
@@ -374,7 +369,7 @@ function AbroadNewsPage() {
             onFocus={(e) => e.target.style.borderColor = '#007bff'}
             onBlur={(e) => e.target.style.borderColor = '#dee2e6'}
           >
-            <option value="all">所有國家</option>
+            <option value="all">{t('abroad.allCountries')}</option>
             {availableCountries.map(country => (
               <option key={country} value={country}>
                 {getCountryDisplayName(country)}
@@ -386,7 +381,10 @@ function AbroadNewsPage() {
 
       {newsData.length === 0 ? (
         <div className="catSec__empty">
-          目前沒有{selectedCountry === 'all' ? '國外' : getCountryDisplayName(selectedCountry)}新聞
+          {selectedCountry === 'all' 
+            ? t('abroad.empty.noNews')
+            : t('abroad.empty.noCountryNews', { country: getCountryDisplayName(selectedCountry) })
+          }
         </div>
       ) : (
         <div className="catSec__content">
@@ -412,7 +410,7 @@ function AbroadNewsPage() {
                   opacity: isLoadingMore ? 0.6 : 1
                 }}
               >
-                {isLoadingMore ? '載入中...' : '載入更多'}
+                {isLoadingMore ? t('abroad.loadingMore') : t('abroad.loadMore')}
               </button>
             </div>
           )}
