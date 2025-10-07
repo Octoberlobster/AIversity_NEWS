@@ -41,9 +41,11 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
           return;
         }
 
+        const newsMultiLangFields = getMultiLanguageSelect(["news_title", "ultra_short"]);
+
         const { data: fetchedData, error } = await supabaseClient
           .from("single_news")
-          .select(getMultiLanguageSelect("story_id, generated_date", ["news_title", "ultra_short"]))
+          .select(`story_id, generated_date, ${newsMultiLangFields}`)
           .order("generated_date", { ascending: false })
           .limit(ITEMS_PER_PAGE);
 
