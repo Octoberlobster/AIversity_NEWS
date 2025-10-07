@@ -210,20 +210,13 @@
       "selectExperts": "Pilih Pakar",
       "backToChat": "Kembali ke Obrolan",
       "close": "Tutup Obrolan",
-      "factCheck": "🔍 Cek Fakta",
-      "reVerify": "Verifikasi Ulang",
       "send": "➤"
     },
     "welcome": {
       "chat": {
-        "greeting": "Selamat datang di Asisten Berita. Di sini Anda dapat bertanya kepada beberapa pakar dari berbagai bidang secara bersamaan, menggunakan petunjuk cepat untuk memulai topik pertama Anda, dan menggunakan verifikasi sumber untuk memastikan konten berita tersebut benar.",
+        "greeting": "Selamat datang di Asisten Berita. Di sini Anda dapat bertanya kepada beberapa pakar dari berbagai bidang secara bersamaan, menggunakan petunjuk cepat untuk memulai topik pertama Anda.",
         "title": "Selamat Datang di Ruang Diskusi Pakar AI",
         "description": "Pilih pakar dan mulailah berdiskusi!"
-      },
-      "proof": {
-        "title": "Verifikasi Cek Fakta",
-        "description": "Klik tombol '🔍 Cek Fakta' di bawah untuk mulai memeriksa keaslian dan sumber konten berita.",
-        "tip": "💡 Sistem akan secara otomatis membandingkan konten berita dengan sumber yang kredibel."
       }
     },
     "placeholders": {

@@ -148,9 +148,6 @@
       "open": "Open Chat",
       "close": "Close Chat"
     },
-    "factCheck": {
-      "button": "🔍 Fact Check"
-    },
     "author": "Author: ",
     "backToHome": "← Back to Home",
     "positions": {
@@ -198,31 +195,22 @@
       "健康顧問": "Health Consultant"
     },
     "titles": {
-      "chat": "AI Expert Discussion Room",
-      "proof": "Source Verification Results"
+      "chat": "AI Expert Discussion Room"
     },
     "subtitles": {
-      "chat": "{{count}} experts online",
-      "proof": "News content source verification"
+      "chat": "{{count}} experts online"
     },
     "buttons": {
       "selectExperts": "Select Experts",
       "backToChat": "Back to Chat",
       "close": "Close Chat",
-      "factCheck": "🔍 Fact Check",
-      "reVerify": "Re-verify",
       "send": "➤"
     },
     "welcome": {
       "chat": {
-        "greeting": "Welcome to the News Assistant, where you can consult multiple experts from different fields simultaneously, use quick prompts to start your first topic, and use source verification to confirm that news content is not false.",
+        "greeting": "Welcome to the News Assistant, where you can consult multiple experts from different fields simultaneously, use quick prompts to start your first topic.",
         "title": "Welcome to AI Expert Discussion Room",
         "description": "Select experts and start discussing!"
-      },
-      "proof": {
-        "title": "Source Verification Check",
-        "description": "Click the '🔍 Fact Check' button below to start verifying the authenticity and sources of news content",
-        "tip": "💡 System will automatically compare news content with trusted sources"
       }
     },
     "placeholders": {

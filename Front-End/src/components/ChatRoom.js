@@ -52,7 +52,20 @@ const parseWhoTalk = (whoTalk) => {
   return [];
 };
 
-function ChatRoom({newsData, onClose}, ref) {
+function updateExpertNamesByChatExperts(chatExperts) {
+  if (!Array.isArray(chatExperts)) return;
+
+  chatExperts.forEach(item => {
+    if (!item || !item.category) return; // 避免 item 為 null 或沒有 category
+
+    const expert = experts.find(e => e.category === item.category);
+    if (expert && item.analyze?.Role) {
+      expert.name = item.analyze.Role;
+    }
+  });
+}
+
+function ChatRoom({newsData, onClose, chatExperts}, ref) {
   const { t } = useTranslation();
   const [selectedExperts, setSelectedExperts] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -166,6 +179,11 @@ function ChatRoom({newsData, onClose}, ref) {
     }
   }, [selectedExperts, changeQuickPrompt]);
 
+  useEffect(() => {
+    // chatExperts 變動時自動更新 experts 的 name
+    updateExpertNamesByChatExperts(chatExperts);
+  }, [chatExperts]);
+
   // 等待 category 傳遞後初始化 selectedExperts
   useEffect(() => {
     if (newsData.category) {
@@ -215,6 +233,7 @@ function ChatRoom({newsData, onClose}, ref) {
   
       // 呼叫後端 API
       const response = await fetchJson('/chat/single', {
+        story_id: newsData.story_id,
         user_id: user_id,
         room_id: room_id,
         prompt: inputMessage,
@@ -276,6 +295,7 @@ function ChatRoom({newsData, onClose}, ref) {
   
       // 呼叫後端 API
       const response = await fetchJson('/chat/single', {
+        story_id: newsData.story_id,
         user_id: user_id,
         room_id: room_id,
         prompt: promptText,
@@ -388,7 +408,7 @@ function ChatRoom({newsData, onClose}, ref) {
                         className="dropdown__item"
                         onClick={() => toggleExpert(expert.id)}
                       >
-                        <span>{t(`exportChat.experts.${expert.name}`)}</span>
+                        <span>{expert.name}</span>
                         <span className={`checkbox ${checked ? 'is-checked' : ''}`} />
                       </div>
                     );

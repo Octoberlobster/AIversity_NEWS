@@ -1,13 +1,10 @@
 import Hint_Prompt_Search
 import Advanced_Search_Service
-import Proof_Single_News
-from check_real2 import NewsFactChecker
 from flask_cors import CORS
 from flask import Flask, request, jsonify
 from ChatRoom import ChatRoom
 from Hint_Prompt_Single import Hint_Prompt_Single
 from Hint_Prompt_Topic import Hint_Prompt_Topic
-from Translator import Translator
 
 app = Flask(__name__)
 CORS(app)
@@ -20,9 +17,10 @@ def chat():
     room_id = data.get("room_id")
     prompt = data.get("prompt")
     categories = data.get("category")
-    article = data.get("article")
+    story_id = data.get("story_id")
+    print(story_id)
 
-    if not user_id or not room_id or not prompt or not categories:
+    if not user_id or not room_id or not prompt or not categories or not story_id:
         return jsonify({"error": "Missing required fields"}), 400
 
     key = (user_id, room_id,"chat")
@@ -33,9 +31,8 @@ def chat():
     if user_sessions[(user_id,room_id,"hint_prompt")]:
         user_sessions[(user_id,room_id,"hint_prompt")].refresh_hint_prompt()
 
-    prompt = f"目前正在閱讀的文章是：{article}，請根據這篇文章回答使用者。以下是使用者的提問：{prompt}"
 
-    response = room.chat(prompt, categories)
+    response = room.chat(prompt, categories,story_id)
     print(response)
     return jsonify({"response": response})
 
@@ -163,54 +160,6 @@ def advanced_search():
     try:
         response = Advanced_Search_Service.search(query)
         return jsonify(response)
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/proof/single_news", methods=["POST"])
-def proof_single_news():
-    data = request.json
-    story_id = data.get("story_id")
-    if not story_id:
-        return jsonify({"error": "Missing 'story_id'"}), 400
-
-    try:
-        response = Proof_Single_News.generate_proof(story_id)
-        return jsonify(response)
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"error": str(e)}), 500
-    
-@app.route("/fact_check", methods=["POST"])
-def fact_check():
-    data = request.json
-    statement = data.get("statement")
-    story_id = data.get("story_id")
-    if not statement or not story_id:
-        return jsonify({"error": "Missing 'statement' or 'story_id'"}), 400
-
-    try:
-        fact_checker = NewsFactChecker()
-        result = fact_checker.fact_check_by_story_id(statement, story_id)
-        return jsonify({"result": result})
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/translate-texts", methods=["POST"])
-def translate_texts():
-    data = request.json
-    texts = data.get("texts")
-    target_language = data.get("targetLanguage")
-
-    if not texts or not isinstance(texts, list) or not target_language:
-        return jsonify({"error": "Invalid input. 'texts' should be a list and 'targetLanguage' is required."}), 400
-
-    try:
-        translator = Translator()
-        translated_texts = [translator(text, target_language) for text in texts]
-        print(f"🗒️ 翻譯結果: {translated_texts}")
-        return jsonify({"translated_texts": translated_texts})
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500

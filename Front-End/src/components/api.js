@@ -22,14 +22,6 @@ export async function searchNews(query) {
   return await fetchJson('/Advanced_Search_Service/search', { query });
 }
 
-// 翻譯純文字陣列 - 更經濟的翻譯方式
-export async function translateTexts(textsArray, targetLanguage) {
-  console.log(`translateTexts called with ${textsArray.length} texts, target language:`, targetLanguage);
-  const result = await fetchJson('/translate-texts', { texts: textsArray, targetLanguage });
-  console.log(`🗒️ 翻譯結果:`, result.translated_texts);
-  return result.translated_texts;
-}
-
 /**
  * 從 Supabase 根據 story_ids 獲取新聞資料（輔助函數）
  */

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from './components/Header';
 import LatestTopics from './components/LatestTopics';
@@ -19,13 +19,20 @@ import './css/App.css';
 
 // Layout 組件使用 Outlet 來渲染子路由
 function LanguageLayout() {
+  const location = useLocation();
+  
+  // 檢查當前路由是否應該隱藏 FloatingChat
+  // 在 NewsDetail 和 SpecialReportDetail 頁面隱藏 FloatingChat，因為這些頁面有自己的聊天室
+  const shouldHideFloatingChat = location.pathname.includes('/news/') || 
+                                location.pathname.match(/\/special-report\/[^/]+$/); // 只匹配 /special-report/id 不匹配 /special-reports
+  
   return (
     <div className="app">
       <Header />
       <main className="mainContent">
         <Outlet />
       </main>
-      
+      {!shouldHideFloatingChat && <FloatingChat />}
     </div>
   );
 }

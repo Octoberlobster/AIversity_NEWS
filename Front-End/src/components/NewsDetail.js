@@ -61,6 +61,7 @@ function NewsDetail() {
   const [analysisLoading, setAnalysisLoading] = useState(true); // 專家分析載入狀態
   const [showContent, setShowContent] = useState('loading'); // 'loading', 'position', 'expert', 'none'
   const [isChatOpen, setIsChatOpen] = useState(false); // 聊天室開關狀態
+  const [chatExperts, setChatExperts] = useState([null]); // 聊天室選擇的專家
   
   // 正反方立場彈窗相關狀態
   const [showPositionModal, setShowPositionModal] = useState(false);
@@ -178,9 +179,7 @@ function NewsDetail() {
   // 載入正反方立場資料 - 支援多語言
   useEffect(() => {
     const fetchPositionData = async () => {
-      if (!id || !supabaseClient) {
-        setPositionLoading(false);
-        setShowContent('none');
+      if (!id || !supabaseClient || (showContent !== 'loadPosition' && showContent !== 'loadBoth')) {
         return;
       }
       
@@ -200,7 +199,7 @@ function NewsDetail() {
           console.error(`Error fetching position data for story ${id}:`, error);
           setPositionData({ positive: [], negative: [] });
           setPositionLoading(false);
-          // 如果正反方立場載入失敗，嘗試載入專家分析
+          // 如果正反方立場載入失敗，回退到專家分析
           setShowContent('loadExpert');
           return;
         }
@@ -211,20 +210,20 @@ function NewsDetail() {
           const positive = positionRow[getFieldName('positive')] || positionRow.positive;
           const negative = positionRow[getFieldName('negative')] || positionRow.negative;
 
-          if ((positive && positive.length > 0) || (negative && negative.length > 0)) {
-            // 有正反方立場資料
-            setPositionData({
-              positive: positive || [],
-              negative: negative || []
-            });
-            setShowContent('position');
+          // 因為 position_flag 為 true，所以直接設定資料並顯示正反方立場
+          setPositionData({
+            positive: positive || [],
+            negative: negative || []
+          });
+          
+          // 如果是 loadBoth 模式，載入專家分析但顯示正反方立場
+          if (showContent === 'loadBoth') {
+            setShowContent('loadExpertForBoth'); // 觸發專家分析載入
           } else {
-            // 沒有正反方立場資料，需要載入專家分析
-            setPositionData({ positive: [], negative: [] });
-            setShowContent('loadExpert');
+            setShowContent('position');
           }
         } else {
-          // 沒有找到資料
+          // 沒有找到正反方資料，回退到專家分析
           setPositionData({ positive: [], negative: [] });
           setShowContent('loadExpert');
         }
@@ -238,16 +237,12 @@ function NewsDetail() {
     };
 
     fetchPositionData();
-  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
+  }, [id, supabaseClient, showContent, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
 
   // 載入專家分析資料 - 只在沒有正反方立場時載入
   useEffect(() => {
     const fetchExpertAnalysis = async () => {
-      if (!id || !supabaseClient || showContent !== 'loadExpert') {
-        if (showContent === 'loadExpert') {
-          setAnalysisLoading(false);
-          setShowContent('none');
-        }
+      if (!id || !supabaseClient || (showContent !== 'loadExpert' && showContent !== 'loadExpertForBoth')) {
         return;
       }
       
@@ -280,10 +275,23 @@ function NewsDetail() {
         
         if (analysisData.length > 0) {
           setExpertAnalysis(analysisData);
-          setShowContent('expert');
+          setChatExperts(analysisData);
+          
+          // 根據載入模式決定要顯示什麼
+          if (showContent === 'loadExpertForBoth') {
+            // 如果是 loadExpertForBoth 模式，保持顯示正反方立場，但專家分析資料已載入供聊天室使用
+            setShowContent('position');
+          } else {
+            // 正常的專家分析載入模式，顯示專家分析
+            setShowContent('expert');
+          }
         } else {
           setExpertAnalysis([]);
-          setShowContent('none');
+          if (showContent === 'loadExpertForBoth') {
+            setShowContent('position'); // 回到正反方立場顯示
+          } else {
+            setShowContent('none');
+          }
         }
       } catch (error) {
         console.error(`Error fetching expert analysis for story ${id}:`, error);
@@ -308,7 +316,7 @@ function NewsDetail() {
       // 同時選取原欄位和多語言欄位
       const { data, error } = await supabaseClient
         .from('single_news')
-        .select(`${selectFields}, generated_date, category, story_id, who_talk`)
+        .select(`${selectFields}, generated_date, category, story_id, who_talk, position_flag`)
         .eq('story_id', id);
         
       if (error) {
@@ -334,8 +342,18 @@ function NewsDetail() {
             source: [],
             category: row.category,
             story_id: row.story_id,
-            who_talk: row.who_talk
+            who_talk: row.who_talk,
+            position_flag: row.position_flag
           });
+          
+          // 根據 position_flag 決定要載入的內容類型
+          if (row.position_flag) {
+            // 有正反方立場，同時載入正反方資料和專家分析，但優先顯示正反方
+            setShowContent('loadBoth');
+          } else {
+            // 沒有正反方立場，只載入專家分析並顯示
+            setShowContent('loadExpert');
+          }
         } else {
           setNewsData(null);
         }
@@ -345,6 +363,7 @@ function NewsDetail() {
     fetchNewsData();
   }, [id, supabaseClient, currentLanguage, getMultiLanguageSelect, getFieldName]); // 語言改變時重新載入
 
+  // 載入新聞圖片
   useEffect(() => {
     const fetchNewsImage = async () => {
       const { data, error } = await supabaseClient
@@ -375,6 +394,7 @@ function NewsDetail() {
     fetchNewsImage();
   }, [id, supabaseClient, currentLanguage, getFieldName]); // 語言改變時重新載入
 
+  // 載入新聞來源 URL
   useEffect(() => {
     const fetchNewsUrl = async () => {
       const { data, error } = await supabaseClient
@@ -393,6 +413,7 @@ function NewsDetail() {
     fetchNewsUrl();
   }, [id, supabaseClient, currentLanguage]); // 語言改變時重新載入
 
+  // 載入新聞關鍵字
   useEffect(() => {
     const fetchNewsKeywords = async () => {
       if (!id || !supabaseClient) return;
@@ -592,14 +613,6 @@ function NewsDetail() {
     setTooltipTerm(term);
     setTooltipPosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
   };
-
-
-
-
-
-
-
-
 
   const renderArticleText = (text) => {
     if (!text) return null;
@@ -963,7 +976,7 @@ function NewsDetail() {
       {/* 側邊聊天室 */}
       <div className={`chat-sidebar ${isChatOpen ? 'open' : ''}`}>
         <div className="chat-sidebar-content" style={{ flex: 1, overflow: 'hidden' }}>
-          <ChatRoom ref={chatRoomRef} newsData={newsData} onClose={() => setIsChatOpen(false)} />
+          <ChatRoom ref={chatRoomRef} newsData={newsData} onClose={() => setIsChatOpen(false)} chatExperts={chatExperts}/>
         </div>
       </div>
 
