@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef} from 'react';
 import { useParams, Link} from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './../css/NewsDetail.css';
 import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
@@ -48,6 +49,7 @@ const experts = [
 ];
 
 function NewsDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   // 移除了 showLongContent state，直接顯示完整內容
   const [tooltipTerm, setTooltipTerm] = useState(null);
@@ -740,7 +742,7 @@ function NewsDetail() {
   if (!newsData) {
     return (
       <div className="newsDetail">
-        <Link to="/" className="backButton">← 返回首頁</Link>
+        <Link to="/" className="backButton">{t('newsDetail.backToHome')}</Link>
         <p>找不到該新聞</p>
       </div>
     );
@@ -753,7 +755,7 @@ function NewsDetail() {
       <button 
         className={`chat-toggle-btn ${isChatOpen ? 'hidden' : ''}`}
         onClick={() => setIsChatOpen(!isChatOpen)}
-        title={isChatOpen ? '關閉聊天室' : '開啟聊天室'}
+        title={isChatOpen ? t('newsDetail.chat.close') : t('newsDetail.chat.open')}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path 
@@ -786,7 +788,7 @@ function NewsDetail() {
             e.target.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)';
           }}
         >
-          🔍 溯源驗證
+          {t('newsDetail.factCheck.button')}
         </div>
       )}
 
@@ -827,17 +829,17 @@ function NewsDetail() {
           <div className="sidebar-content">
             {showContent === 'loading' || positionLoading || (showContent === 'loadExpert' && analysisLoading) ? (
               <div className="prosConsSection">
-                <h4 className="prosConsTitle">載入中...</h4>
-                <div className="loadingMessage">正在載入資料...</div>
+                <h4 className="prosConsTitle">{t('newsDetail.loading.positions')}</h4>
+                <div className="loadingMessage">{t('newsDetail.loading.data')}</div>
               </div>
             ) : showContent === 'position' ? (
               <div className="prosConsSection">
-                <h4 className="prosConsTitle">正反方立場</h4>
+                <h4 className="prosConsTitle">{t('newsDetail.positions.positive')} / {t('newsDetail.positions.negative')}</h4>
                 <div className="prosConsGrid">
                   {/* 正方立場 */}
                   <div className="prosColumn">
                     <div className="prosHeader">
-                      <h5 className="prosTitle">正方</h5>
+                      <h5 className="prosTitle">{t('newsDetail.positions.positive')}</h5>
                     </div>
                     <div className="prosContent">
                       {positionData.positive && positionData.positive.length > 0 ? (
@@ -853,7 +855,7 @@ function NewsDetail() {
                         ))
                       ) : (
                         <div className="prosPoint">
-                          暫無正方觀點資料
+                          {t('newsDetail.positions.noPositive')}
                         </div>
                       )}
                     </div>
@@ -862,7 +864,7 @@ function NewsDetail() {
                   {/* 反方立場 */}
                   <div className="consColumn">
                     <div className="consHeader">
-                      <h5 className="consTitle">反方</h5>
+                      <h5 className="consTitle">{t('newsDetail.positions.negative')}</h5>
                     </div>
                     <div className="consContent">
                       {positionData.negative && positionData.negative.length > 0 ? (
@@ -878,7 +880,7 @@ function NewsDetail() {
                         ))
                       ) : (
                         <div className="consPoint">
-                          暫無反方觀點資料
+                          {t('newsDetail.positions.noNegative')}
                         </div>
                       )}
                     </div>
@@ -887,7 +889,7 @@ function NewsDetail() {
               </div>
             ) : showContent === 'expert' ? (
               <div className="expertAnalysisSection">
-                <h4 className="expertAnalysisTitle">專家分析</h4>
+                <h4 className="expertAnalysisTitle">{t('newsDetail.expertAnalysis.title')}</h4>
                 <div className="expertAnalysisContent">
                   {expertAnalysis && expertAnalysis.length > 0 ? (
                     expertAnalysis.map((analysis, index) => {
@@ -907,16 +909,16 @@ function NewsDetail() {
                     })
                   ) : (
                     <div className="noAnalysisMessage">
-                      暫無專家分析資料
+                      {t('newsDetail.expertAnalysis.noData')}
                     </div>
                   )}
                 </div>
               </div>
             ) : (
               <div className="prosConsSection">
-                <h4 className="prosConsTitle">暫無分析資料</h4>
+                <h4 className="prosConsTitle">{t('newsDetail.expertAnalysis.noAnalysis')}</h4>
                 <div className="noAnalysisMessage">
-                  目前沒有正反方立場或專家分析資料
+                  {t('newsDetail.expertAnalysis.noContent')}
                 </div>
               </div>
             )}
@@ -932,7 +934,7 @@ function NewsDetail() {
               {/* 相關新聞 */}
               {relatedNews && relatedNews.length > 0 && (
                 <div className="relatedColumn">
-                  <h5 className="sectionTitle">相關新聞</h5>
+                  <h5 className="sectionTitle">{t('newsDetail.related.news')}</h5>
                   <div className="relatedItems">
                     {relatedNews.map(item => (
                       <div className="relatedItem" key={`news-${item.id}`}>
@@ -949,7 +951,7 @@ function NewsDetail() {
               {/* 相關專題 */}
               {relatedTopics && relatedTopics.length > 0 && (
                 <div className="relatedColumn">
-                  <h5 className="sectionTitle">相關專題</h5>
+                  <h5 className="sectionTitle">{t('newsDetail.related.topics')}</h5>
                   <div className="relatedItems">
                     {relatedTopics.map(item => (
                       <div className="relatedItem" key={`topic-${item.id}`}>
@@ -977,7 +979,7 @@ function NewsDetail() {
           sources = newsUrl.filter(item => item.article_url && item.article_title).map(item => ({
             url: item.article_url,
             title: item.article_title,
-            media: item.media || '未知媒體'
+            media: item.media || t('newsDetail.sources.unknownMedia')
           }));
         }
         
@@ -989,7 +991,7 @@ function NewsDetail() {
           sources = all.map(url => ({
             url: url,
             title: url,
-            media: '未知媒體'
+            media: t('newsDetail.sources.unknownMedia')
           }));
         }
 
@@ -1003,7 +1005,7 @@ function NewsDetail() {
 
         return (
           <div className="sourceBlock">
-            <div className="sourceTitle">資料來源：</div>
+            <div className="sourceTitle">{t('newsDetail.sources.title')}</div>
 
             {visible.length > 0 ? (
               <ul className="sourceList">
@@ -1018,7 +1020,7 @@ function NewsDetail() {
                 ))}
               </ul>
             ) : (
-              <div className="sourceEmpty">（無資料來源）</div>
+              <div className="sourceEmpty">{t('newsDetail.sources.noSources')}</div>
             )}
 
             {hasMore && (
@@ -1026,7 +1028,7 @@ function NewsDetail() {
                 className="sourceToggleButton"
                 onClick={() => setShowAllSources(s => !s)}
               >
-                {showAllSources ? '收起' : `觀看更多（還有 ${total - MAX} 筆）`}
+                {showAllSources ? t('newsDetail.sources.showLess') : t('newsDetail.sources.showMore', { count: total - MAX })}
               </button>
             )}
           </div>
@@ -1046,10 +1048,10 @@ function NewsDetail() {
           <div className="position-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="position-modal-header">
               <h3 className={`position-modal-title ${modalContent.type}`}>
-                {modalContent.type === 'positive' ? '正方立場' : '反方立場'}
+                {modalContent.type === 'positive' ? t('newsDetail.positions.positiveModal') : t('newsDetail.positions.negativeModal')}
               </h3>
               <button className="position-modal-close" onClick={closeModal}>
-                ×
+                {t('newsDetail.modal.close')}
               </button>
             </div>
             <div className="position-modal-body">

@@ -137,5 +137,219 @@
     "newsImage": {
       "alt": "新聞圖片"
     }
+  },
+  "newsDetail": {
+    "loading": {
+      "terms": "載入術語定義時發生錯誤",
+      "positions": "載入中...",
+      "data": "正在載入資料..."
+    },
+    "chat": {
+      "open": "開啟聊天室",
+      "close": "關閉聊天室"
+    },
+    "factCheck": {
+      "button": "🔍 溯源驗證"
+    },
+    "backToHome": "← 返回首頁",
+    "positions": {
+      "positive": "正方觀點",
+      "negative": "反方觀點",
+      "noPositive": "暫無正方觀點資料",
+      "noNegative": "暫無反方觀點資料",
+      "positiveModal": "正方立場",
+      "negativeModal": "反方立場"
+    },
+    "expertAnalysis": {
+      "title": "專家分析",
+      "noData": "暫無專家分析資料",
+      "noAnalysis": "暫無分析資料",
+      "noContent": "目前沒有正反方立場或專家分析資料"
+    },
+    "related": {
+      "news": "相關新聞",
+      "topics": "相關專題"
+    },
+    "sources": {
+      "title": "資料來源：",
+      "noSources": "（無資料來源）",
+      "unknownMedia": "未知媒體",
+      "showMore": "觀看更多（還有 {{count}} 筆）",
+      "showLess": "收起"
+    },
+    "modal": {
+      "close": "關閉"
+    }
+  },
+  "term": {
+    "example": "使用情境"
+  },
+  "exportChat": {
+    "experts": {
+      "政治專家": "政治專家",
+      "台灣議題分析師": "台灣議題分析師",
+      "國際專家": "國際專家",
+      "科技專家": "科技專家",
+      "生活達人": "生活達人",
+      "體育專家": "體育專家",
+      "娛樂專家": "娛樂專家",
+      "財經專家": "財經專家",
+      "健康顧問": "健康顧問"
+    },
+    "titles": {
+      "chat": "AI 專家討論室",
+      "proof": "溯源驗證結果"
+    },
+    "subtitles": {
+      "chat": "{{count}} 位專家在線",
+      "proof": "新聞內容溯源查核"
+    },
+    "buttons": {
+      "selectExperts": "選擇專家",
+      "backToChat": "返回聊天",
+      "close": "關閉聊天室",
+      "factCheck": "🔍 溯源驗證",
+      "reVerify": "重新驗證",
+      "send": "➤"
+    },
+    "welcome": {
+      "chat": {
+        "greeting": "歡迎使用新聞小幫手，在這你可以同時詢問多位不同領域的專家，利用快速提示幫助你展開第一個話題，運用溯源驗證來證實新聞內容並非虛言。",
+        "title": "歡迎來到 AI 專家討論室",
+        "description": "選擇專家並開始討論吧！"
+      },
+      "proof": {
+        "title": "溯源驗證查核",
+        "description": "點擊下方「🔍 溯源驗證」按鈕開始查核新聞內容的真實性和來源",
+        "tip": "💡 系統將自動比對新聞內容與可信來源"
+      }
+    },
+    "placeholders": {
+      "selectFirst": "請先選擇專家...",
+      "enterQuestion": "輸入您的問題..."
+    },
+    "verification": {
+      "failed": "溯源驗證失敗",
+      "systemError": "系統錯誤",
+      "errorReason": "錯誤原因：",
+      "cannotConnect": "無法連接到驗證服務",
+      "suggestion": "建議：",
+      "tryLater": "請稍後再試或聯繫系統管理員",
+      "checkSource": "請檢查新聞來源的可信度或嘗試其他查證方式。"
+    },
+    "tooltips": {
+      "backToChat": "返回專家聊天",
+      "closeChat": "關閉聊天室"
+    }
+  },
+  "specialReportPage": {
+    "title": "專題報導",
+    "subtitle": "深入探討重要議題，提供全面而深度的新聞分析",
+    "loading": "載入中...",
+    "error": {
+      "loadFailed": "載入失敗: {{error}}",
+      "fetchTopicNews": "無法獲取專題新聞對應關係: {{error}}",
+      "fetchTopicDetails": "無法獲取專題詳細資訊: {{error}}",
+      "fetchReports": "獲取專題報導資料失敗"
+    },
+    "retry": "重新載入",
+    "empty": {
+      "noReports": "目前沒有專題報導"
+    },
+    "meta": {
+      "articles": "篇文章",
+      "viewMore": "查看專題 →"
+    }
+  },
+  "specialReportDetail": {
+    "loading": "載入中...",
+    "error": {
+      "notFound": "專題報導不存在",
+      "fallback": "請返回專題報導列表",
+      "fetchFailed": "無法獲取專題資訊: {{error}}",
+      "newsCountFailed": "無法獲取新聞數量",
+      "branchFailed": "無法獲取分支列表",
+      "dataFailed": "獲取專題詳細資料失敗"
+    },
+    "backToList": "返回專題報導",
+    "chat": {
+      "open": "開啟聊天室",
+      "close": "關閉聊天室"
+    },
+    "header": {
+      "articlesCount": "篇文章",
+      "reportButton": "專題報告",
+      "reportButtonTitle": "查看專題整合報告",
+      "clickToEnlarge": "點擊放大"
+    },
+    "navigation": {
+      "title": "專題導覽",
+      "noBranches": "尚無分支"
+    },
+    "section": {
+      "newsCount": "篇新聞",
+      "sourcesCount": "來源",
+      "sourcesTotal": "共 {{count}} 來源",
+      "noContent": "此分支暫無新聞內容"
+    },
+    "modal": {
+      "5w1h": {
+        "title": "5W1H關聯分析",
+        "close": "關閉"
+      },
+      "report": {
+        "title": "專題整合分析報告",
+        "close": "關閉報告",
+        "generating": "正在生成報告...",
+        "generatingDetail": "正在生成專題分析報告，請稍候..."
+      }
+    }
+  },
+  "topicChat":{
+    "title": "專題討論",
+    "subtitle": "與AI助手討論「{{topicTitle}}」",
+    "close": "關閉聊天室",
+    "welcome": {
+      "title": "歡迎來到專題討論室",
+      "description": "與AI助手討論「{{topicTitle}}」相關議題！"
+    },
+    "input": {
+      "placeholder": "輸入您的問題或觀點..."
+    },
+    "prompts": {
+      "default": [
+        "專家如何看待這個議題？",
+        "這個專題的未來發展趨勢"
+      ],
+      "fixed": {
+        "updates": "「{{topicTitle}}」近期有什麼更新",
+        "content": "「{{topicTitle}}」提供甚麼內容？",
+        "opinion": "你對於「{{topicTitle}}」有什麼看法？"
+      }
+    }
+  },
+  "searchResult":{
+    "loading": {
+      "text": "搜尋中..."
+    },
+    "error": {
+      "title": "⚠️ 搜尋出現問題",
+      "emptyQuery": "請輸入搜尋關鍵字",
+      "noResponse": "搜尋 API 沒有返回有效回應",
+      "general": "搜尋時發生錯誤",
+      "backToHome": "返回首頁"
+    },
+    "header": {
+      "title": "搜尋結果：「{{query}}」",
+      "resultCount": "找到 {{count}} 篇相關新聞",
+      "keywords": "搜尋關鍵字: "
+    },
+    "noResults": {
+      "title": "😔 找不到相關新聞",
+      "suggestion": "嘗試使用不同的關鍵字，或瀏覽以下熱門主題："
+    },
+    "moreButton": {
+      "text": "顯示更多搜尋結果 ({{count}} 篇)"
+    }
   }
 }

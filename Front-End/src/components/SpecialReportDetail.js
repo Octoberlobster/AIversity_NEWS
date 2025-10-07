@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import TopicChatRoom from './TopicChatRoom';
 import UnifiedNewsCard from './UnifiedNewsCard';
@@ -8,6 +9,7 @@ import { createHeaderVisualization } from './FiveW1HVisualization';
 import './../css/SpecialReportDetail.css';
 
 function SpecialReportDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [report, setReport] = useState(null);
   const [branches, setBranches] = useState([]); // 專題分支列表
@@ -88,7 +90,7 @@ function SpecialReportDetail() {
     setIsReportModalOpen(true);
     
     // 模擬報告生成過程
-    setIntegrationReport('正在生成報告...');
+    setIntegrationReport(t('specialReportDetail.modal.report.generating'));
     
     // 模擬API調用延遲
     setTimeout(() => {
@@ -211,7 +213,7 @@ function SpecialReportDetail() {
       <div className="srdPage">
         <div className="srdMain">
           <div style={{ textAlign: 'center', padding: '3rem' }}>
-            <h2>載入中...</h2>
+            <h2>{t('specialReportDetail.loading')}</h2>
           </div>
         </div>
       </div>
@@ -223,10 +225,10 @@ function SpecialReportDetail() {
       <div className="srdPage">
         <div className="srdMain">
           <div style={{ textAlign: 'center', padding: '3rem' }}>
-            <h2>專題報導不存在</h2>
-            <p>{error || '請返回專題報導列表'}</p>
+            <h2>{t('specialReportDetail.error.notFound')}</h2>
+            <p>{error || t('specialReportDetail.error.fallback')}</p>
             <Link to="/special-reports" style={{ color: '#667eea' }}>
-              返回專題報導
+              {t('specialReportDetail.backToList')}
             </Link>
           </div>
         </div>
@@ -250,7 +252,7 @@ function SpecialReportDetail() {
       <button 
         className={`chat-toggle-btn ${isChatOpen ? 'hidden' : ''}`}
         onClick={() => setIsChatOpen(!isChatOpen)}
-        title={isChatOpen ? '關閉聊天室' : '開啟聊天室'}
+        title={isChatOpen ? t('specialReportDetail.chat.close') : t('specialReportDetail.chat.open')}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path 
@@ -276,7 +278,7 @@ function SpecialReportDetail() {
               </div>
               <div className="srdHeader__metaItem">
                 <span>📄</span>
-                <span>{report.articles} 篇文章</span>
+                <span>{report.articles} {t('specialReportDetail.header.articlesCount')}</span>
               </div>
               <div className="srdHeader__metaItem">
                 <span>👁️</span>
@@ -285,16 +287,16 @@ function SpecialReportDetail() {
               <button 
                 className="srdHeader__reportBtn"
                 onClick={generateIntegrationReport}
-                title="查看專題整合報告"
+                title={t('specialReportDetail.header.reportButtonTitle')}
               >
-                📊 專題報告
+                📊 {t('specialReportDetail.header.reportButton')}
               </button>
             </div>
           </div>
           <div className="srdHeader__image" ref={headerImageRef} onClick={handle5W1HClick} style={{ cursor: 'pointer' }}>
             <div id="header-mindmap" style={{ width: '100%', height: '100%' }}></div>
             <div className="srdHeader__imageOverlay">
-              <span className="srdHeader__imageHint">點擊放大</span>
+              <span className="srdHeader__imageHint">{t('specialReportDetail.header.clickToEnlarge')}</span>
             </div>
           </div>
         </div>
@@ -304,10 +306,10 @@ function SpecialReportDetail() {
           {/* Sidebar - 移到左邊 */}
           <aside className="srdSidebar srdSidebar--left">
             <div className="srdSidebarCard">
-              <h3 className="srdSidebarTitle">專題導覽</h3>
+              <h3 className="srdSidebarTitle">{t('specialReportDetail.navigation.title')}</h3>
               <nav className="srdNav">
                 {branches.length === 0 ? (
-                  <div className="srdNavEmpty">尚無分支</div>
+                  <div className="srdNavEmpty">{t('specialReportDetail.navigation.noBranches')}</div>
                 ) : (
                   branches.map((b) => (
                     <button
@@ -341,12 +343,12 @@ function SpecialReportDetail() {
                   <div className="srdSection__meta">
                     <div className="srdSection__metaItem">
                       <span>📄</span>
-                      <span>{branch.news?.length || 0} 篇新聞</span>
+                      <span>{branch.news?.length || 0} {t('specialReportDetail.section.newsCount')}</span>
                     </div>
                     {branch.news?.length > 0 && (
                       <div className="srdSection__metaItem">
                         <span>📊</span>
-                        <span>共 {branch.news.reduce((sum, n) => sum + (n.sourceCount || 0), 0)} 來源</span>
+                        <span>{t('specialReportDetail.section.sourcesTotal', { count: branch.news.reduce((sum, n) => sum + (n.sourceCount || 0), 0) })}</span>
                       </div>
                     )}
                   </div>
@@ -367,7 +369,7 @@ function SpecialReportDetail() {
                         gap: '0.5rem', fontSize: '1.1rem'
                       }}>
                         <span>📭</span>
-                        <span>此分支暫無新聞內容</span>
+                        <span>{t('specialReportDetail.section.noContent')}</span>
                       </div>
                     )}
                   </div>
@@ -391,12 +393,12 @@ function SpecialReportDetail() {
             <button 
               className="srd5W1HModal__closeBtn" 
               onClick={close5W1HExpanded}
-              aria-label="關閉"
+              aria-label={t('specialReportDetail.modal.5w1h.close')}
             >
               ✕
             </button>
             <div className="srd5W1HModal__title">
-               <h2>{report.topic_title} - 5W1H關聯分析</h2>
+               <h2>{report.topic_title} - {t('specialReportDetail.modal.5w1h.title')}</h2>
             </div>
             <div className="srd5W1HModal__visualization" ref={expanded5W1HRef}>
               <div id="expanded-mindmap" style={{ width: '100%', height: '100%' }}></div>
@@ -410,20 +412,20 @@ function SpecialReportDetail() {
         <div className="srdReportModal" onClick={() => setIsReportModalOpen(false)}>
           <div className="srdReportModal__content" onClick={(e) => e.stopPropagation()}>
             <div className="srdReportModal__header">
-              <h2 className="srdReportModal__title">📊 專題整合分析報告</h2>
+              <h2 className="srdReportModal__title">📊 {t('specialReportDetail.modal.report.title')}</h2>
               <button 
                 className="srdReportModal__close"
                 onClick={() => setIsReportModalOpen(false)}
-                title="關閉報告"
+                title={t('specialReportDetail.modal.report.close')}
               >
                 ✕
               </button>
             </div>
             <div className="srdReportModal__body">
-              {integrationReport === '正在生成報告...' ? (
+              {integrationReport === t('specialReportDetail.modal.report.generating') ? (
                 <div className="srdReportModal__loading">
                   <div className="srdReportModal__spinner"></div>
-                  <p>正在生成專題分析報告，請稍候...</p>
+                  <p>{t('specialReportDetail.modal.report.generatingDetail')}</p>
                 </div>
               ) : (
                 <div className="srdReportModal__report">

@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { fetchJson } from './api';
 import './../css/ChatRoom.css';
 import ReactMarkdown from 'react-markdown';
 
 function TopicChatRoom({topic_id, topic_title, onClose}) {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [quickPrompts, setQuickPrompts] = useState([]);
@@ -27,9 +29,9 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
 
   const loadQuickPrompts = useCallback(async (chat_content = '') => {
     const fixedPrompts = [
-      "「" + topic_title + "」近期有什麼更新",
-      "「" + topic_title + "」提供甚麼內容？",
-      "你對於「" + topic_title + "」有什麼看法？"
+      t('topicChat.prompts.fixed.updates', { topicTitle: topic_title }),
+      t('topicChat.prompts.fixed.content', { topicTitle: topic_title }),
+      t('topicChat.prompts.fixed.opinion', { topicTitle: topic_title })
     ]; // 固定的 prompt
 
     try {
@@ -48,12 +50,11 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
 
       // 如果發生錯誤，僅保留固定的 prompt
       setQuickPrompts([
-        "專家如何看待這個議題？",
-        "這個專題的未來發展趨勢",
+        ...t('topicChat.prompts.default', { returnObjects: true }),
         ...fixedPrompts,
       ]);
     }
-  }, [topic_id, topic_title, room_id, user_id]);
+  }, [topic_id, topic_title, room_id, user_id, t]);
 
   useEffect(() => {
     loadQuickPrompts();
@@ -136,8 +137,8 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
         <div className="chat__headerLeft">
           <div className="chat__icon">💬</div>
           <div>
-            <h3 className="chat__title">專題討論</h3>
-            <p className="chat__subtitle">與AI助手討論「{topic_title}」</p>
+            <h3 className="chat__title">{t('topicChat.title')}</h3>
+            <p className="chat__subtitle">{t('topicChat.subtitle', { topicTitle: topic_title })}</p>
           </div>      
         </div>
         <div className="chat__headerRight">
@@ -146,7 +147,7 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
             <button 
               className="chat-close-btn"
               onClick={onClose}
-              title="關閉聊天室"
+              title={t('topicChat.close')}
             >
               ✕
             </button>
@@ -159,8 +160,8 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
         {messages.length === 0 && (
           <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💬</div>
-            <h3>歡迎來到專題討論室</h3>
-            <p>與AI助手討論「{topic_title}」相關議題！</p>
+            <h3>{t('topicChat.welcome.title')}</h3>
+            <p>{t('topicChat.welcome.description', { topicTitle: topic_title })}</p>
           </div>
         )}
 
@@ -199,7 +200,7 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
           ref={inputRef}
           type="text"
           className="input__text"
-          placeholder="輸入您的問題或觀點..."
+          placeholder={t('topicChat.input.placeholder')}
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}

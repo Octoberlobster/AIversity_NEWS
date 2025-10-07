@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import "./../css/UnifiedNewsCard.css";
 import { useSupabase } from "./supabase";
@@ -10,6 +11,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const supabaseClient = useSupabase();
+  const { t } = useTranslation();
   
   const ITEMS_PER_PAGE = 18;
 
@@ -271,7 +273,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
               cursor: isLoading ? 'not-allowed' : 'pointer'
             }}
           >
-            {isLoading ? '載入中...' : '閱讀更多新聞'}
+            {isLoading ? '載入中...' : t('common.readMore')}
           </button>
         </div>
       )}

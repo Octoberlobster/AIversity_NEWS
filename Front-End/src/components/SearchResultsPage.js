@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import UnifiedNewsCard from './UnifiedNewsCard';
 import FloatingChat from './FloatingChat';
 import { searchNews, fetchNewsDataFromSupabase } from './api';
@@ -15,6 +16,7 @@ const hotKeywords = [
 function SearchResultsPage() {
   const { query } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const supabaseClient = useSupabase();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,7 +27,7 @@ function SearchResultsPage() {
   useEffect(() => {
     const performSearch = async () => {
       if (!query || query.trim() === '') {
-        setError('請輸入搜尋關鍵字');
+        setError(t('searchResult.error.emptyQuery'));
         setLoading(false);
         return;
       }
@@ -43,7 +45,7 @@ function SearchResultsPage() {
         
         // 檢查 API 回應是否有效
         if (!searchResponse) {
-          throw new Error('搜尋 API 沒有返回有效回應');
+          throw new Error(t('searchResult.error.noResponse'));
         }
         
         // 設置搜尋資訊
@@ -67,14 +69,14 @@ function SearchResultsPage() {
 
       } catch (err) {
         console.error('搜尋錯誤:', err);
-        setError(err.message || '搜尋時發生錯誤');
+        setError(err.message || t('searchResult.error.general'));
       } finally {
         setLoading(false);
       }
     };
 
     performSearch();
-  }, [query, supabaseClient]);
+  }, [query, supabaseClient, t]);
 
   if (loading) {
     return (
@@ -82,7 +84,7 @@ function SearchResultsPage() {
         <main className="searchPage__main">
           <div className="searchPage__loading">
             <div className="loadingSpinner"></div>
-            <p>搜尋中...</p>
+            <p>{t('searchResult.loading.text')}</p>
           </div>
         </main>
         <FloatingChat />
@@ -95,13 +97,13 @@ function SearchResultsPage() {
       <div className="searchPage">
         <main className="searchPage__main">
           <div className="searchPage__error">
-            <h2>⚠️ 搜尋出現問題</h2>
+            <h2>{t('searchResult.error.title')}</h2>
             <p>{error}</p>
             <button 
               className="searchPage__backBtn"
               onClick={() => navigate('/')}
             >
-              返回首頁
+              {t('searchResult.error.backToHome')}
             </button>
           </div>
         </main>
@@ -117,16 +119,16 @@ function SearchResultsPage() {
           <div className="searchPage__mainCol">
             <div className="searchPage__header">
               <h2 className="searchPage__sectionTitle">
-                搜尋結果：「{query}」
+                {t('searchResult.header.title', { query })}
               </h2>
               {searchInfo && (
                 <div className="searchPage__info">
                   <p className="searchPage__resultCount">
-                    找到 {searchInfo.count || searchResults.length} 篇相關新聞
+                    {t('searchResult.header.resultCount', { count: searchInfo.count || searchResults.length })}
                   </p>
                   {searchInfo.keywords && searchInfo.keywords.length > 0 && (
                     <div className="searchPage__keywords">
-                      <span>搜尋關鍵字: </span>
+                      <span>{t('searchResult.header.keywords')}</span>
                       {searchInfo.keywords.map((keyword, index) => (
                         <span key={index} className="searchPage__keyword">
                           {keyword}
@@ -140,8 +142,8 @@ function SearchResultsPage() {
 
             {searchResults.length === 0 ? (
               <div className="searchPage__noResults">
-                <h3>😔 找不到相關新聞</h3>
-                <p>嘗試使用不同的關鍵字，或瀏覽以下熱門主題：</p>
+                <h3>{t('searchResult.noResults.title')}</h3>
+                <p>{t('searchResult.noResults.suggestion')}</p>
                 <div className="searchPage__suggestedKeywords">
                   {hotKeywords.slice(0, 8).map((kw) => (
                     <span
@@ -167,7 +169,7 @@ function SearchResultsPage() {
                       className="searchPage__moreBtn"
                       onClick={() => setShowAllNews(true)}
                     >
-                      顯示更多搜尋結果 ({searchResults.length - 12} 篇)
+                      {t('searchResult.moreButton.text', { count: searchResults.length - 12 })}
                     </button>
                   </div>
                 )}

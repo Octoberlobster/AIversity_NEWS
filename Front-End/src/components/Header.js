@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import './../css/Header.css';
+
 function Header() {
   const { t, i18n } = useTranslation();
   
-  // 定義導航選單陣列，使用 i18n 翻譯 (使用 useMemo 優化性能)
   const domains = useMemo(() => [
     { id: '/', label: t('header.menu.home'), path: '/'},
     { id: 'project', label: t('header.menu.specialReports'), path: '/special-reports'},
@@ -23,55 +23,81 @@ function Header() {
 
   // 定義語言選單陣列，使用 i18n 翻譯
   const languages = [
-    { name: t('header.language.chinese'), code: 'zh-TW' },
-    { name: t('header.language.english'), code: 'en' },
+    { name: t('header.language.chinese'), code: 'zh-TW', route: 'zh-TW' },
+    { name: t('header.language.english'), code: 'en', route: 'en' },
+    { name: t('header.language.japanese'), code: 'jp', route: 'jp' },
+    { name: t('header.language.indonesian'), code: 'id', route: 'id' },
   ];
 
   const [activeDomain, setActiveDomain] = useState(domains[0].id);
   const [search, setSearch] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language || 'zh-TW');
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [selectedLanguage, setSelectedLanguage] = useState('zh-TW');
 
   // 處理搜尋功能
   const handleSearchKeyPress = (e) => {
     if (e.key === 'Enter' && search.trim() !== '') {
-      navigate(`/search/${encodeURIComponent(search.trim())}`);
+      navigate(`/${selectedLanguage}/search/${encodeURIComponent(search.trim())}`);
     }
   };
 
-  // 處理語言切換功能 (使用 i18n)
+  // 處理語言切換功能 (使用 i18n 和路由切換)
   const handleLanguageChange = (e) => {
     const newLanguage = e.target.value;
     console.log('切換語言到:', newLanguage);
     setSelectedLanguage(newLanguage);
     i18n.changeLanguage(newLanguage);
+    
+    // 更新路由到新語言
+    const pathSegments = location.pathname.split('/');
+    pathSegments[1] = newLanguage; // 替換語言代碼
+    const newPath = pathSegments.join('/');
+    navigate(newPath);
   };
 
-  // 當路由改變時，設定 active domain
+  // 當路由改變時，更新語言和 active domain
   useEffect(() => {
+    const pathSegments = location.pathname.split('/');
+    const langCode = pathSegments[1];
+    let currentLang = 'zh-TW'; // 預設語言
+    
+    if (['zh-TW', 'en', 'jp', 'id'].includes(langCode)) {
+      currentLang = langCode;
+    }
+    
+    // 只在語言真的改變時才更新
+    if (currentLang !== selectedLanguage) {
+      setSelectedLanguage(currentLang);
+      i18n.changeLanguage(currentLang);
+    }
+
+    // 移除語言前綴來檢查路徑，使用正確的語言長度
+    const pathWithoutLang = location.pathname.replace(/^\/[a-z-]+/, '') || '/';
+    
     // 設定當前 active 的類別
-    if (location.pathname === '/') {
+    if (pathWithoutLang === '/') {
       setActiveDomain('/');
-    } else if (location.pathname.startsWith('/special-reports')) {
+    } else if (pathWithoutLang.startsWith('/special-reports')) {
       setActiveDomain('project');
-    } else if (location.pathname.startsWith('/abroad')) {
+    } else if (pathWithoutLang.startsWith('/abroad')) {
       setActiveDomain('abroad');
-    } else if (location.pathname.startsWith('/category/')) {
-      const categoryFromPath = decodeURIComponent(location.pathname.substring(10));
+    } else if (pathWithoutLang.startsWith('/category/')) {
+      const categoryFromPath = decodeURIComponent(pathWithoutLang.substring(10));
       const domain = domains.find((d) => {
         const categoryFromDomain = d.path.substring(10);
         return categoryFromDomain === categoryFromPath;
       });
       if (domain) setActiveDomain(domain.id);
     }
-  }, [location.pathname, domains]);
+  }, [location.pathname, domains, selectedLanguage, i18n]);
 
   return (
     <header className="header">
       <div className="mainBar">
         <div className="brandSection">
-          <Link to="/" className="brandLink">
+          <Link to={`/${selectedLanguage}`} className="brandLink">
             <div className="logo">{t('header.brand')}</div>
           </Link>
           <span className="tagline">{t('header.tagline')}</span>
@@ -99,7 +125,7 @@ function Header() {
               onChange={handleLanguageChange}
             >
               {languages.map((language) => (
-                <option key={language.code} value={language.code}>
+                <option key={language.code} value={language.route}>
                   {language.name}
                 </option>
               ))}
@@ -113,7 +139,7 @@ function Header() {
           {domains.map((domain) => (
             <Link
               key={domain.id}
-              to={domain.path}
+              to={`/${selectedLanguage}${domain.path}`}
               className={`tagLink ${activeDomain === domain.id ? 'is-active' : ''}`}
               onClick={() => setActiveDomain(domain.id)}
             >

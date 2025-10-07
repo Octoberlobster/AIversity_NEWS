@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import ReactMarkdown from 'react-markdown';
 import { fetchJson } from './api';
@@ -51,6 +52,7 @@ const parseWhoTalk = (whoTalk) => {
 };
 
 function ChatRoom({newsData, onClose}, ref) {
+  const { t } = useTranslation();
   const [selectedExperts, setSelectedExperts] = useState([]);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -166,14 +168,14 @@ function ChatRoom({newsData, onClose}, ref) {
         .filter((expert) => expert.category === newsData.category)
         .map((expert) => expert.id);
       setSelectedExperts(filteredExperts);
-      setMessages(["歡迎使用新聞小幫手，在這你可以同時詢問多位不同領域的專家，利用快速提示幫助你展開第一個話題，運用溯源驗證來證實新聞內容並非虛言。"].map(text => ({
+      setMessages([t('exportChat.welcome.chat.greeting')].map(text => ({
         id: Date.now() + Math.random(),
         text,
         isOwn: false,
         time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
       }))); 
     }
-  }, [newsData.category]);
+  }, [newsData.category, t]);
 
   const toggleExpert = (id) => {
     setSelectedExperts((prev) =>
@@ -347,7 +349,7 @@ function ChatRoom({newsData, onClose}, ref) {
         formattedResponse += "**💡 說明：** 以上資料來自系統自動比對，建議進一步查證確認。\n";
       } else {
         formattedResponse += `<div class="verification-status error">❌ 查無相關來源資料</div>\n\n`;
-        formattedResponse += "**建議：** 請檢查新聞來源的可信度或嘗試其他查證方式。\n";
+        formattedResponse += `**${t('exportChat.verification.suggestion')}** ${t('exportChat.verification.checkSource')}\n`;
       }
 
       // Add the formatted response to the proof messages container
@@ -366,7 +368,7 @@ function ChatRoom({newsData, onClose}, ref) {
     } catch (error) {
       console.error('Error fetching proof data:', error);
       
-      const errorMessage = `### ❌ 溯源驗證失敗\n\n<div class="verification-status error">系統錯誤</div>\n\n**錯誤原因：** 無法連接到驗證服務\n\n**建議：** 請稍後再試或聯繫系統管理員`;
+      const errorMessage = `### ❌ ${t('exportChat.verification.failed')}\n\n<div class="verification-status error">${t('exportChat.verification.systemError')}</div>\n\n**${t('exportChat.verification.errorReason')}** ${t('exportChat.verification.cannotConnect')}\n\n**${t('exportChat.verification.suggestion')}** ${t('exportChat.verification.tryLater')}`;
       
       setProofMessages((prev) => [
         ...prev,
@@ -388,10 +390,10 @@ function ChatRoom({newsData, onClose}, ref) {
           <div className="chat__icon">🤖</div>
           <div>
             <h3 className="chat__title">
-              {showProofMode ? "溯源驗證結果" : "AI 專家討論室"}
+              {showProofMode ? t('exportChat.titles.proof') : t('exportChat.titles.chat')}
             </h3>
             <p className="chat__subtitle">
-              {showProofMode ? "新聞內容溯源查核" : `${selectedExperts.length} 位專家在線`}
+              {showProofMode ? t('exportChat.subtitles.proof') : t('exportChat.subtitles.chat', { count: selectedExperts.length })}
             </p>
           </div>      
         </div>
@@ -401,9 +403,9 @@ function ChatRoom({newsData, onClose}, ref) {
             <button 
               className="chat-mode-switch-btn"
               onClick={() => setShowProofMode(false)}
-              title="返回專家聊天"
+              title={t('exportChat.tooltips.backToChat')}
             >
-              返回聊天
+              {t('exportChat.buttons.backToChat')}
             </button>
           )}
           {/* 關閉聊天室按鈕 - 採用FloatingChat樣式 */}
@@ -411,7 +413,7 @@ function ChatRoom({newsData, onClose}, ref) {
             <button 
               className="chat-close-btn"
               onClick={onClose}
-              title="關閉聊天室"
+              title={t('exportChat.tooltips.closeChat')}
             >
               ✕
             </button>
@@ -427,7 +429,7 @@ function ChatRoom({newsData, onClose}, ref) {
               className="dropdown__btn"
               onClick={() => setIsDropdownOpen((v) => !v)}
             >
-              <span>選擇專家</span>
+              <span>{t('exportChat.buttons.selectExperts')}</span>
               {selectedExperts.length > 0 && <span className="selectedCount">{selectedExperts.length}</span>}
               <span className={`dropdown__icon ${isDropdownOpen ? 'is-open' : ''}`}>▼</span>
             </button>
@@ -453,7 +455,7 @@ function ChatRoom({newsData, onClose}, ref) {
                         className="dropdown__item"
                         onClick={() => toggleExpert(expert.id)}
                       >
-                        <span>{expert.name}</span>
+                        <span>{t(`exportChat.experts.${expert.name}`)}</span>
                         <span className={`checkbox ${checked ? 'is-checked' : ''}`} />
                       </div>
                     );
@@ -463,7 +465,7 @@ function ChatRoom({newsData, onClose}, ref) {
           </div>
           
           <button className="proofButton proofButton--inline" onClick={handleProofButtonClick}>
-            🔍 溯源驗證
+            {t('exportChat.buttons.factCheck')}
           </button>
         </div>
       )}
@@ -474,8 +476,8 @@ function ChatRoom({newsData, onClose}, ref) {
           {messages.length === 0 && (
             <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💬</div>
-              <h3>歡迎來到 AI 專家討論室</h3>
-              <p>選擇專家並開始討論吧！</p>
+              <h3>{t('exportChat.welcome.chat.title')}</h3>
+              <p>{t('exportChat.welcome.chat.description')}</p>
             </div>
           )}
 
@@ -516,13 +518,13 @@ function ChatRoom({newsData, onClose}, ref) {
                 marginBottom: '1rem',
                 fontSize: '1.5rem',
                 fontWeight: '600'
-              }}>溯源驗證查核</h3>
+              }}>{t('exportChat.welcome.proof.title')}</h3>
               <p style={{ 
                 color: '#64748b',
                 fontSize: '1rem',
                 lineHeight: '1.6',
                 maxWidth: '400px'
-              }}>點擊下方「🔍 溯源驗證」按鈕開始查核新聞內容的真實性和來源</p>
+              }}>{t('exportChat.welcome.proof.description')}</p>
               <div style={{
                 marginTop: '1.5rem',
                 padding: '1rem',
@@ -532,7 +534,7 @@ function ChatRoom({newsData, onClose}, ref) {
                 fontSize: '0.9rem',
                 color: '#475569'
               }}>
-                💡 系統將自動比對新聞內容與可信來源
+                {t('exportChat.welcome.proof.tip')}
               </div>
             </div>
           )}
@@ -575,7 +577,7 @@ function ChatRoom({newsData, onClose}, ref) {
             className="proofButton" 
             onClick={handleProofButtonClick}
           >
-            重新驗證
+            {t('exportChat.buttons.reVerify')}
           </button>
         </div>
       )}
@@ -586,7 +588,7 @@ function ChatRoom({newsData, onClose}, ref) {
             ref={inputRef}
             type="text"
             className="input__text"
-            placeholder={selectedExperts.length === 0 ? "請先選擇專家..." : "輸入您的問題..."}
+            placeholder={selectedExperts.length === 0 ? t('exportChat.placeholders.selectFirst') : t('exportChat.placeholders.enterQuestion')}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}

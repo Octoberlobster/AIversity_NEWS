@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './../css/SpecialReportPage.css';
 import { useSupabase } from './supabase';
 
 function SpecialReportPage() {
+  const { t } = useTranslation();
   const [specialReports, setSpecialReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const supabase = useSupabase();
 
   // 獲取專題新聞對應關係
-  const fetchTopicNewsCounts = async () => {
+  const fetchTopicNewsCounts = useCallback(async () => {
     const { data: topicNewsData, error } = await supabase
       .from('topic_news_map')
       .select('topic_id');
@@ -35,10 +37,10 @@ function SpecialReportPage() {
     const validTopicIds = Object.keys(topicCounts).filter(id => id.trim() !== '');
 
     return { topicCounts, validTopicIds };
-  };
+  }, [supabase]);
 
   // 獲取專題基本資訊
-  const fetchTopicDetails = async (topicIds) => {
+  const fetchTopicDetails = useCallback(async (topicIds) => {
     if (topicIds.length === 0) {
       return [];
     }
@@ -53,7 +55,7 @@ function SpecialReportPage() {
     }
 
     return data || [];
-  };
+  }, [supabase]);
 
   // 組合最終資料
   const formatReportsData = (topicDetails, topicCounts) => {
@@ -66,7 +68,7 @@ function SpecialReportPage() {
   };
 
   // 主要資料獲取函數
-  const fetchSpecialReports = async () => {
+  const fetchSpecialReports = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -82,16 +84,16 @@ function SpecialReportPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchTopicNewsCounts, fetchTopicDetails]);
 
   useEffect(() => {
     fetchSpecialReports();
-  }, [supabase]);
+  }, [fetchSpecialReports]);
 
   if (loading) {
     return (
       <div className="srp-page">
-        <div className="loading-message">載入中...</div>
+        <div className="loading-message">{t('specialReportPage.loading')}</div>
       </div>
     );
   }
@@ -100,9 +102,9 @@ function SpecialReportPage() {
     return (
       <div className="srp-page">
         <div className="error-message">
-          載入失敗: {error}
+          {t('specialReportPage.error.loadFailed', { error })}
           <button onClick={fetchSpecialReports} className="retry-button">
-            重新載入
+            {t('specialReportPage.retry')}
           </button>
         </div>
       </div>
@@ -112,13 +114,13 @@ function SpecialReportPage() {
   return (
     <div className="srp-page">
       <header className="srp-header">
-        <h1 className="srp-title">專題報導</h1>
-        <p className="srp-subtitle">深入探討重要議題，提供全面而深度的新聞分析</p>
+        <h1 className="srp-title">{t('specialReportPage.title')}</h1>
+        <p className="srp-subtitle">{t('specialReportPage.subtitle')}</p>
       </header>
 
       <section className="srp-grid">
         {specialReports.length === 0 ? (
-          <div className="no-data-message">目前沒有專題報導</div>
+          <div className="no-data-message">{t('specialReportPage.empty.noReports')}</div>
         ) : (
           specialReports.map(report => (
             <article key={report.topic_id} className="srp-card">
@@ -131,12 +133,12 @@ function SpecialReportPage() {
 
                 <div className="srp-meta">
                   <div className="srp-metaInfo">
-                    <span>📄 {report.articles} 篇文章</span>
+                    <span>📄 {report.articles} {t('specialReportPage.meta.articles')}</span>
                     <span>👁️ {report.views}</span>
                     <span>🕒 {new Date(report.lastUpdate).toLocaleDateString('zh-TW')}</span>
                   </div>
                   <Link to={`/special-report/${report.topic_id}`} className="srp-readMore">
-                    查看專題 →
+                    {t('specialReportPage.meta.viewMore')}
                   </Link>
                 </div>
               </div>
