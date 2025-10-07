@@ -855,7 +855,7 @@
 .newsDetail .chat-sidebar{
     position: fixed;
     top: 0;
-    right: -400px;
+    right: -500px;
     width: 400px;
     height: 100vh;
     background: #ffffff;
