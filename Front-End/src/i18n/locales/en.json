@@ -150,6 +150,7 @@
     "factCheck": {
       "button": "🔍 Fact Check"
     },
+    "author": "Author: ",
     "backToHome": "← Back to Home",
     "positions": {
       "positive": "Supporting Views",

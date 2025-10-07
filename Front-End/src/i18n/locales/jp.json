@@ -151,6 +151,7 @@
     "factCheck": {
       "button": "🔍 ファクトチェック"
     },
+    "author": "作者：",
     "backToHome": "← ホームに戻る",
     "positions": {
       "positive": "賛成意見",

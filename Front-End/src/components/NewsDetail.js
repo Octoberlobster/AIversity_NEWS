@@ -5,7 +5,7 @@ import './../css/NewsDetail.css';
 import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
 import { useSupabase } from './supabase';
-import { fetchJson } from './api';
+import { useLanguageFields } from '../utils/useLanguageFields';
 
 // 從資料庫動態載入術語定義的函數
 const loadTermDefinitions = async (supabase) => {
@@ -36,21 +36,13 @@ const loadTermDefinitions = async (supabase) => {
   }
 };
 
-const experts = [
-  { id: 1, name: "政治專家", category: "Politics" },
-  { id: 2, name: "台灣議題分析師", category: "Taiwan News" },
-  { id: 3, name: "國際專家", category: "International News" },
-  { id: 4, name: "科技專家", category: "Science & Technology" },
-  { id: 5, name: "生活達人", category: "Lifestyle & Consumer News" },
-  { id: 6, name: "體育專家", category: "Sports" },
-  { id: 7, name: "娛樂專家", category: "Entertainment" },
-  { id: 8, name: "財經專家", category: "Business & Finance" },
-  { id: 9, name: "健康顧問", category: "Health & Wellness" },
-];
-
 function NewsDetail() {
   const { t } = useTranslation();
   const { id } = useParams();
+  
+  // 多語言相關 hooks
+  const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
   // 移除了 showLongContent state，直接顯示完整內容
   const [tooltipTerm, setTooltipTerm] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
@@ -69,11 +61,6 @@ function NewsDetail() {
   const [analysisLoading, setAnalysisLoading] = useState(true); // 專家分析載入狀態
   const [showContent, setShowContent] = useState('loading'); // 'loading', 'position', 'expert', 'none'
   const [isChatOpen, setIsChatOpen] = useState(false); // 聊天室開關狀態
-  
-  // 文字選取和溯源驗證相關狀態
-  const [selectedText, setSelectedText] = useState('');
-  const [selectionPosition, setSelectionPosition] = useState({ x: 0, y: 0 });
-  const [showFactCheckButton, setShowFactCheckButton] = useState(false);
   
   // 正反方立場彈窗相關狀態
   const [showPositionModal, setShowPositionModal] = useState(false);
@@ -101,28 +88,28 @@ function NewsDetail() {
     setModalContent({ type: '', content: '' });
   };
 
-  // 確保頁面載入時滾動到頂部
+  // 確保頁面載入時滾動到頂部，語言切換時也要重置
   useEffect(() => {
     window.scrollTo(0, 0);
     setShowAllSources(false);
     setPositionLoading(true); // 重置載入狀態
     setAnalysisLoading(true); // 重置專家分析載入狀態
     setShowContent('loading'); // 重置顯示狀態
-  }, [id]); // 當 id 改變時執行
+  }, [id, currentLanguage]); // 當 id 或語言改變時執行
 
   // 使用 Supabase 客戶端獲取新聞數據
   const supabaseClient = useSupabase();
 
-  // 載入術語定義
+  // 載入術語定義 - 支援多語言
   useEffect(() => {
     const initTermDefinitions = async () => {
       const definitions = await loadTermDefinitions(supabaseClient);
       setTermDefinitions(definitions);
     };
     initTermDefinitions();
-  }, [supabaseClient]);
+  }, [supabaseClient, currentLanguage]); // 語言改變時重新載入術語
 
-  // 載入特定新聞的術語
+  // 載入特定新聞的術語 - 支援多語言
   useEffect(() => {
     const fetchNewsTerms = async () => {
       if (!id || !supabaseClient) return;
@@ -147,10 +134,13 @@ function NewsDetail() {
           return;
         }
 
-        // 根據 term_id 獲取實際的術語文字
+        // 根據 term_id 獲取實際的術語文字，支援多語言
+        const termMultiLangFields = ['term', 'definition', 'example'];
+        const termSelectFields = getMultiLanguageSelect(termMultiLangFields);
+        
         const { data: termsData, error: termsError } = await supabaseClient
           .from('term')
-          .select('term_id, term, definition, example')
+          .select(`term_id, ${termSelectFields}`)
           .in('term_id', termIds);
         
         if (termsError) {
@@ -159,11 +149,13 @@ function NewsDetail() {
           return;
         }
 
+        // 使用多語言欄位，如果不存在則使用原欄位作為 fallback
         const terms = termsData?.map(item => ({
-          term: item.term,
-          definition: item.definition,
-          example: item.example
+          term: item[getFieldName('term')] || item.term,
+          definition: item[getFieldName('definition')] || item.definition,
+          example: item[getFieldName('example')] || item.example
         })) || [];
+        
         setNewsTerms(terms);
       } catch (error) {
         console.error(`Error fetching terms for story ${id}:`, error);
@@ -172,9 +164,9 @@ function NewsDetail() {
     };
 
     fetchNewsTerms();
-  }, [id, supabaseClient]);
+  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
 
-  // 載入正反方立場資料
+  // 載入正反方立場資料 - 支援多語言
   useEffect(() => {
     const fetchPositionData = async () => {
       if (!id || !supabaseClient) {
@@ -186,9 +178,13 @@ function NewsDetail() {
       setPositionLoading(true);
       
       try {
+        // 查詢正反方立場，支援多語言
+        const positionMultiLangFields = ['positive', 'negative'];
+        const positionSelectFields = getMultiLanguageSelect(positionMultiLangFields);
+        
         const { data, error } = await supabaseClient
           .from('position')
-          .select('positive, negative')
+          .select(positionSelectFields)
           .eq('story_id', id);
         
         if (error) {
@@ -201,15 +197,25 @@ function NewsDetail() {
         }
 
         const positionRow = data?.[0];
-        if (positionRow && ((positionRow.positive && positionRow.positive.length > 0) || (positionRow.negative && positionRow.negative.length > 0))) {
-          // 有正反方立場資料
-          setPositionData({
-            positive: positionRow.positive || [],
-            negative: positionRow.negative || []
-          });
-          setShowContent('position');
+        if (positionRow) {
+          // 處理多語言立場資料
+          const positive = positionRow[getFieldName('positive')] || positionRow.positive;
+          const negative = positionRow[getFieldName('negative')] || positionRow.negative;
+
+          if ((positive && positive.length > 0) || (negative && negative.length > 0)) {
+            // 有正反方立場資料
+            setPositionData({
+              positive: positive || [],
+              negative: negative || []
+            });
+            setShowContent('position');
+          } else {
+            // 沒有正反方立場資料，需要載入專家分析
+            setPositionData({ positive: [], negative: [] });
+            setShowContent('loadExpert');
+          }
         } else {
-          // 沒有正反方立場資料，需要載入專家分析
+          // 沒有找到資料
           setPositionData({ positive: [], negative: [] });
           setShowContent('loadExpert');
         }
@@ -223,7 +229,7 @@ function NewsDetail() {
     };
 
     fetchPositionData();
-  }, [id, supabaseClient]);
+  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
 
   // 載入專家分析資料 - 只在沒有正反方立場時載入
   useEffect(() => {
@@ -239,9 +245,13 @@ function NewsDetail() {
       setAnalysisLoading(true);
       
       try {
+        // 查詢專家分析，支援多語言
+        const analyzeMultiLangFields = ['analyze'];
+        const analyzeSelectFields = getMultiLanguageSelect(analyzeMultiLangFields);
+        
         const { data, error } = await supabaseClient
           .from('pro_analyze')
-          .select('analyze_id, category, analyze_test')
+          .select(`analyze_id, category, ${analyzeSelectFields}`)
           .eq('story_id', id);
         
         if (error) {
@@ -252,8 +262,13 @@ function NewsDetail() {
           return;
         }
 
-        // 處理分析資料
-        const analysisData = data || [];
+        // 處理多語言分析資料
+        const analysisData = (data || []).map(item => ({
+          analyze_id: item.analyze_id,
+          category: item.category,
+          analyze: item[getFieldName('analyze')] || item.analyze
+        }));
+        
         if (analysisData.length > 0) {
           setExpertAnalysis(analysisData);
           setShowContent('expert');
@@ -271,36 +286,55 @@ function NewsDetail() {
     };
 
     fetchExpertAnalysis();
-  }, [id, supabaseClient, showContent]);
+  }, [id, supabaseClient, showContent, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
 
   useEffect(() => {
     const fetchNewsData = async () => {
+      if (!id || !supabaseClient) return;
+      
+      // 設定需要多語言支援的欄位
+      const multiLangFields = ['news_title', 'ultra_short', 'long'];
+      const selectFields = getMultiLanguageSelect(multiLangFields);
+      
+      // 同時選取原欄位和多語言欄位
       const { data, error } = await supabaseClient
         .from('single_news')
-        .select('*')
+        .select(`${selectFields}, generated_date, category, story_id, who_talk`)
         .eq('story_id', id);
+        
       if (error) {
         console.error('Error fetching news data:', error);
       } else {
         const row = data?.[0];
-        setNewsData(row ? {
-          title: row.news_title,
-          date: row.generated_date,
-          author: 'Gemini',
-          short: row.short,
-          long: row.long,
-          terms: [],
-          keywords: [],
-          source: [],
-          category: row.category,
-          story_id: row.story_id,
-          who_talk: row.who_talk
-        } : null);
+        if (row) {
+          // 使用多語言欄位，如果不存在則使用原欄位作為 fallback
+          const title = row[getFieldName('news_title')] || row.news_title;
+          const short = row[getFieldName('ultra_short')] || row.short;
+          const long = row[getFieldName('long')] || row.long;
+          
+          // 多語言資料處理完成
+          
+          setNewsData({
+            title: title,
+            date: row.generated_date,
+            author: 'Gemini',
+            short: short,
+            long: long,
+            terms: [],
+            keywords: [],
+            source: [],
+            category: row.category,
+            story_id: row.story_id,
+            who_talk: row.who_talk
+          });
+        } else {
+          setNewsData(null);
+        }
       }
     };
 
     fetchNewsData();
-  }, [id, supabaseClient]);
+  }, [id, supabaseClient, currentLanguage, getMultiLanguageSelect, getFieldName]); // 語言改變時重新載入
 
   useEffect(() => {
     const fetchNewsImage = async () => {
@@ -318,9 +352,11 @@ function NewsDetail() {
       const processed = (data || []).map(item => {
         // 將純 base64 字串轉換為完整的 data URL
         const src = item.image ? `data:image/png;base64,${item.image}` : '';
+        // 使用多語言描述，如果不存在則使用原欄位
+        const description = item[getFieldName('description')] || item.description || '';
         return {
-          src,                               // 給 <img src={x} />
-          description: item.description || '',
+          src,
+          description,
         };
       });
 
@@ -328,10 +364,10 @@ function NewsDetail() {
     };
 
     fetchNewsImage();
-  }, [id, supabaseClient]);
+  }, [id, supabaseClient, currentLanguage, getFieldName]); // 語言改變時重新載入
 
   useEffect(() => {
-    const fetchNewsImage = async () => {
+    const fetchNewsUrl = async () => {
       const { data, error } = await supabaseClient
         .from('cleaned_news')
         .select('article_title, article_url, media')
@@ -345,14 +381,20 @@ function NewsDetail() {
       setNewsUrl(data);
     };
 
-    fetchNewsImage();
-  }, [id, supabaseClient]);
+    fetchNewsUrl();
+  }, [id, supabaseClient, currentLanguage]); // 語言改變時重新載入
 
   useEffect(() => {
     const fetchNewsKeywords = async () => {
+      if (!id || !supabaseClient) return;
+      
+      // 獲取關鍵字，支援多語言
+      const keywordMultiLangFields = ['keyword'];
+      const keywordSelectFields = getMultiLanguageSelect(keywordMultiLangFields);
+      
       const { data, error } = await supabaseClient
         .from('keywords_map')
-        .select('keyword')
+        .select(keywordSelectFields)
         .eq('story_id', id)
         .limit(3); // 限制為 3 個關鍵字
 
@@ -361,11 +403,17 @@ function NewsDetail() {
         setNewsKeywords([]);
         return;
       }
-      setNewsKeywords(data);
+      
+      // 處理多語言關鍵字
+      const processedData = (data || []).map(item => ({
+        keyword: item[getFieldName('keyword')] || item.keyword
+      }));
+      
+      setNewsKeywords(processedData);
     };
 
     fetchNewsKeywords();
-  }, [id, supabaseClient]);
+  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
 
   // 載入相關新聞
   useEffect(() => {
@@ -373,12 +421,16 @@ function NewsDetail() {
       if (!id || !supabaseClient) return;
       
       try {
+        // 準備 reason 的多語言欄位查詢
+        const reasonMultiLangFields = ['reason'];
+        const reasonSelectFields = getMultiLanguageSelect(reasonMultiLangFields);
+        
         // 查詢相關新聞 - 找出以當前新聞為 src_story_id 的相關新聞
         const { data: relatedData, error: relatedError } = await supabaseClient
           .from('relative_news')
           .select(`
             dst_story_id,
-            reason
+            ${reasonSelectFields}
           `)
           .eq('src_story_id', id);
 
@@ -397,10 +449,13 @@ function NewsDetail() {
         // 獲取所有目標新聞的 story_id
         const targetStoryIds = relatedData.map(item => item.dst_story_id);
         
-        // 查詢目標新聞的詳細資料
+        // 查詢目標新聞的詳細資料，支援多語言
+        const newsMultiLangFields = ['news_title'];
+        const newsSelectFields = getMultiLanguageSelect(newsMultiLangFields);
+        
         const { data: newsData, error: newsError } = await supabaseClient
           .from('single_news')
-          .select('story_id, news_title')
+          .select(`story_id, ${newsSelectFields}`)
           .in('story_id', targetStoryIds);
 
         if (newsError) {
@@ -414,14 +469,14 @@ function NewsDetail() {
           const newsItem = newsData?.find(n => n.story_id === relatedItem.dst_story_id);
           
           // 資料清理：如果 reason 過長，可能是錯誤的內容，截短它
-          let reason = relatedItem.reason || '無相關性說明';
+          let reason = relatedItem[getFieldName('reason')] || relatedItem.reason || '無相關性說明';
           if (reason.length > 200) {
             reason = reason.substring(0, 200) + '...';
           }
           
-          // 確保有有效的標題
-          let title = newsItem?.news_title || `新聞 ID: ${relatedItem.dst_story_id}`;
-          if (!title.trim()) {
+          // 使用多語言標題，如果不存在則使用原標題作為 fallback
+          let title = newsItem ? (newsItem[getFieldName('news_title')] || newsItem.news_title) : '';
+          if (!title || !title.trim()) {
             title = `新聞 ID: ${relatedItem.dst_story_id}`;
           }
           
@@ -439,7 +494,7 @@ function NewsDetail() {
     };
 
     fetchRelatedNews();
-  }, [id, supabaseClient]);
+  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
 
   // 載入相關專題
   useEffect(() => {
@@ -447,12 +502,16 @@ function NewsDetail() {
       if (!id || !supabaseClient) return;
       
       try {
+        // 準備 reason 的多語言欄位查詢
+        const reasonMultiLangFields = ['reason'];
+        const reasonSelectFields = getMultiLanguageSelect(reasonMultiLangFields);
+        
         // 查詢相關專題 - 找出以當前新聞為 src_story_id 的相關專題
         const { data: relatedData, error: relatedError } = await supabaseClient
           .from('relative_topics')
           .select(`
             dst_topic_id,
-            reason
+            ${reasonSelectFields}
           `)
           .eq('src_story_id', id);
 
@@ -471,10 +530,13 @@ function NewsDetail() {
         // 獲取所有目標專題的 topic_id
         const targetTopicIds = relatedData.map(item => item.dst_topic_id);
         
-        // 查詢目標專題的詳細資料
+        // 查詢目標專題的詳細資料，支援多語言
+        const topicMultiLangFields = ['topic_title'];
+        const topicSelectFields = getMultiLanguageSelect(topicMultiLangFields);
+        
         const { data: topicData, error: topicError } = await supabaseClient
           .from('topic')
-          .select('topic_id, topic_title')
+          .select(`topic_id, ${topicSelectFields}`)
           .in('topic_id', targetTopicIds);
 
         if (topicError) {
@@ -488,14 +550,14 @@ function NewsDetail() {
           const topicItem = topicData?.find(t => t.topic_id === relatedItem.dst_topic_id);
           
           // 資料清理：如果 reason 過長，可能是錯誤的內容，截短它
-          let reason = relatedItem.reason || '無相關性說明';
+          let reason = relatedItem[getFieldName('reason')] || relatedItem.reason || '無相關性說明';
           if (reason.length > 200) {
             reason = reason.substring(0, 200) + '...';
           }
           
-          // 確保有有效的標題
-          let title = topicItem?.topic_title || `專題 ID: ${relatedItem.dst_topic_id}`;
-          if (!title.trim()) {
+          // 使用多語言標題，如果不存在則使用原標題作為 fallback
+          let title = topicItem ? (topicItem[getFieldName('topic_title')] || topicItem.topic_title) : '';
+          if (!title || !title.trim()) {
             title = `專題 ID: ${relatedItem.dst_topic_id}`;
           }
           
@@ -513,7 +575,7 @@ function NewsDetail() {
     };
 
     fetchRelatedTopics();
-  }, [id, supabaseClient]);
+  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
 
   // 名詞解釋 tooltip
   const handleTermClick = (term, e) => {
@@ -522,137 +584,13 @@ function NewsDetail() {
     setTooltipPosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
   };
 
-  // 處理文字選取
-  const handleTextSelection = () => {
-    // 延遲執行，確保selection已經完成
-    setTimeout(() => {
-      const selection = window.getSelection();
-      const selectedText = selection.toString().trim();
-      
-      if (selectedText.length > 0 && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        
-        // 確保選取的是文章內容區域的文字
-        const container = range.commonAncestorContainer;
-        const articleElement = container.nodeType === Node.TEXT_NODE 
-          ? container.parentElement 
-          : container;
-        
-        if (articleElement.closest('.articleText')) {
-          setSelectedText(selectedText);
-          // 修復位置計算 - 使用相對於viewport的座標
-          const buttonY = Math.max(rect.top - 60, 10); // 不要加window.scrollY，因為position:fixed已經相對於viewport
-          const buttonX = Math.min(Math.max(rect.left + rect.width / 2, 60), window.innerWidth - 60); // 確保不超出螢幕邊界
-          
-          setSelectionPosition({
-            x: buttonX,
-            y: buttonY
-          });
-          setShowFactCheckButton(true);
-        }
-      } else {
-        setShowFactCheckButton(false);
-        setSelectedText('');
-      }
-    }, 100); // 增加延遲時間
-  };
 
-  // 處理溯源驗證API調用
-  const handleFactCheck = async () => {
-    if (!selectedText || !newsData?.story_id) return;
-    
-    try {
-      const response = await fetchJson('/fact_check', {
-        statement: selectedText,
-        story_id: newsData.story_id
-      });
-      
-      console.log('Fact check result:', response);
-      
-      // 創建溯源驗證訊息
-      const factCheckMessage = {
-        id: Date.now(),
-        text: response.result,
-        isOwn: false,
-        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-      };
 
-      // 通知ChatRoom組件添加溯源驗證結果
-      if (chatRoomRef.current) {
-        chatRoomRef.current.addFactCheckMessage(factCheckMessage);
-      }
-      
-      // 隱藏按鈕
-      setShowFactCheckButton(false);
-      setSelectedText('');
-    } catch (error) {
-      console.error('Error during fact check:', error);
-      
-      // 創建錯誤訊息
-      const errorMessage = {
-        id: Date.now(),
-        text: '❌ 溯源驗證失敗\n\n無法取得查核結果，請稍後再試。',
-        isOwn: false,
-        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-      };
 
-      // 通知ChatRoom組件添加錯誤訊息
-      if (chatRoomRef.current) {
-        chatRoomRef.current.addFactCheckMessage(errorMessage);
-      }
-      
-      // 隱藏按鈕
-      setShowFactCheckButton(false);
-      setSelectedText('');
-    }
-  };
 
-  // 點擊其他地方時隱藏按鈕
-  const handleDocumentClick = (e) => {
-    // 如果點擊的是溯源按鈕本身，不要隱藏
-    if (e.target.closest('.fact-check-button')) {
-      return;
-    }
-    
-    // 如果點擊的是文章內容區域，允許重新選取
-    if (e.target.closest('.articleText')) {
-      return;
-    }
-    
-    // 其他情況隱藏按鈕
-    setShowFactCheckButton(false);
-    setSelectedText('');
-    
-    // 清除選取
-    window.getSelection().removeAllRanges();
-  };
 
-  // 添加事件監聽器
-  useEffect(() => {
-    const handleSelectionChange = () => {
-      handleTextSelection();
-    };
 
-    const handleMouseUp = () => {
-      handleTextSelection();
-    };
 
-    const handleDocumentClickEvent = (e) => {
-      handleDocumentClick(e);
-    };
-
-    // 監聽選取變化和滑鼠釋放
-    document.addEventListener('selectionchange', handleSelectionChange);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('click', handleDocumentClickEvent);
-    
-    return () => {
-      document.removeEventListener('selectionchange', handleSelectionChange);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('click', handleDocumentClickEvent);
-    };
-  }, []);
 
   const renderArticleText = (text) => {
     if (!text) return null;
@@ -768,29 +706,7 @@ function NewsDetail() {
         </svg>
       </button>
 
-      {/* 溯源驗證按鈕 */}
-      {showFactCheckButton && (
-        <div 
-          className="fact-check-button"
-          style={{
-            left: selectionPosition.x,
-            top: selectionPosition.y,
-          }}
-          onClick={handleFactCheck}
-          onMouseEnter={(e) => {
-            e.target.style.background = '#f8f9fa';
-            e.target.style.transform = 'translateX(-50%) translateY(-2px)';
-            e.target.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.2)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = '#ffffff';
-            e.target.style.transform = 'translateX(-50%)';
-            e.target.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)';
-          }}
-        >
-          {t('newsDetail.factCheck.button')}
-        </div>
-      )}
+
 
       <div className={`article-container articleContainer ${isChatOpen ? 'chat-open' : ''}`}>
         {/* 主要內容區域 - 左右佈局 */}
@@ -801,7 +717,7 @@ function NewsDetail() {
               <h2 className="articleTitle">{newsData.title}</h2>
               <div className="articleInfo">
                 <span className="articleDate">{newsData.date}</span>
-                <span className="articleAuthor">作者 {newsData.author}</span>
+                <span className="articleAuthor">{t('newsDetail.author')}{newsData.author}</span>
                 {newsKeywords && newsKeywords.length > 0 && (
                   <div className="articleKeywords">
                     {newsKeywords.map((kw, index) => (
@@ -898,11 +814,11 @@ function NewsDetail() {
                         <div className="analysisItem" key={analysis.analyze_id || index}>
                           {
                             <div className="analysisCategory">
-                              <span className="categoryTag">{analysis.analyze_test.Role}</span>
+                              <span className="categoryTag">{analysis.analyze.Role}</span>
                             </div>
                           }
                           <div className="analysisText">
-                            {analysis.analyze_test.Analyze}
+                            {analysis.analyze.Analyze}
                           </div>
                         </div>
                       );

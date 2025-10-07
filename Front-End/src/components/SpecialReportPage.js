@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import './../css/SpecialReportPage.css';
 import { useSupabase } from './supabase';
+import { useLanguageFields } from '../utils/useLanguageFields';
 
 function SpecialReportPage() {
   const { t } = useTranslation();
+  const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
   const [specialReports, setSpecialReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const supabase = useSupabase();
+  const currentLanguage = getCurrentLanguage();
 
   // 獲取專題新聞對應關係
   const fetchTopicNewsCounts = useCallback(async () => {
@@ -45,9 +48,13 @@ function SpecialReportPage() {
       return [];
     }
 
+    // 準備多語言欄位查詢
+    const multiLangFields = ['topic_title', 'topic_short'];
+    const selectFields = getMultiLanguageSelect(multiLangFields);
+
     const { data, error } = await supabase
       .from('topic')
-      .select('topic_id, topic_title, topic_short, generated_date')
+      .select(`topic_id, ${selectFields}, generated_date`)
       .in('topic_id', topicIds);
 
     if (error) {
@@ -55,17 +62,19 @@ function SpecialReportPage() {
     }
 
     return data || [];
-  }, [supabase]);
+  }, [supabase, getMultiLanguageSelect]);
 
   // 組合最終資料
-  const formatReportsData = (topicDetails, topicCounts) => {
+  const formatReportsData = useCallback((topicDetails, topicCounts) => {
     return topicDetails.map(topic => ({
       ...topic,
+      // 使用多語言欄位，如果不存在則使用原欄位作為 fallback
+      topic_title: topic[getFieldName('topic_title')] || topic.topic_title,
+      topic_short: topic[getFieldName('topic_short')] || topic.topic_short,
       articles: topicCounts[topic.topic_id] || 0,
-      views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
       lastUpdate: topic.generated_date
     }));
-  };
+  }, [getFieldName]);
 
   // 主要資料獲取函數
   const fetchSpecialReports = useCallback(async () => {
@@ -84,11 +93,11 @@ function SpecialReportPage() {
     } finally {
       setLoading(false);
     }
-  }, [fetchTopicNewsCounts, fetchTopicDetails]);
+  }, [fetchTopicNewsCounts, fetchTopicDetails, formatReportsData]);
 
   useEffect(() => {
     fetchSpecialReports();
-  }, [fetchSpecialReports]);
+  }, [fetchSpecialReports, currentLanguage]);
 
   if (loading) {
     return (
@@ -134,7 +143,6 @@ function SpecialReportPage() {
                 <div className="srp-meta">
                   <div className="srp-metaInfo">
                     <span>📄 {report.articles} {t('specialReportPage.meta.articles')}</span>
-                    <span>👁️ {report.views}</span>
                     <span>🕒 {new Date(report.lastUpdate).toLocaleDateString('zh-TW')}</span>
                   </div>
                   <Link to={`/special-report/${report.topic_id}`} className="srp-readMore">

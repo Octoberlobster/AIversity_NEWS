@@ -6,10 +6,12 @@ import TopicChatRoom from './TopicChatRoom';
 import UnifiedNewsCard from './UnifiedNewsCard';
 import { useSupabase } from './supabase';
 import { createHeaderVisualization } from './FiveW1HVisualization';
+import { useLanguageFields } from '../utils/useLanguageFields';
 import './../css/SpecialReportDetail.css';
 
 function SpecialReportDetail() {
   const { t } = useTranslation();
+  const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
   const { id } = useParams();
   const [report, setReport] = useState(null);
   const [branches, setBranches] = useState([]); // 專題分支列表
@@ -104,9 +106,12 @@ function SpecialReportDetail() {
       setError(null);
 
       // 專題基本資訊
+      const topicMultiLangFields = ['topic_title', 'topic_short', 'topic_long', 'report'];
+      const topicSelectFields = getMultiLanguageSelect(topicMultiLangFields);
+      
       const { data: topicData, error: topicError } = await supabase
         .from('topic')
-        .select('topic_id, topic_title, topic_short, topic_long, generated_date, report')
+        .select(`topic_id, ${topicSelectFields}, generated_date`)
         .eq('topic_id', id)
         .single();
       if (topicError) throw new Error(`無法獲取專題資訊: ${topicError.message}`);
@@ -120,16 +125,19 @@ function SpecialReportDetail() {
       if (countError) console.warn('無法獲取新聞數量:', countError);
 
       // 專題分支列表（topic_branch）
+      const branchMultiLangFields = ['topic_branch_title', 'topic_branch_content'];
+      const branchSelectFields = getMultiLanguageSelect(branchMultiLangFields);
+      
       const { data: branchData, error: branchError } = await supabase
         .from('topic_branch')
-        .select('topic_branch_id, topic_id, topic_branch_title, topic_branch_content')
+        .select(`topic_branch_id, topic_id, ${branchSelectFields}`)
         .eq('topic_id', id);
       if (branchError) console.warn('無法獲取分支列表:', branchError);
 
       const normalizedBranches = (branchData || []).map((b, idx) => ({
         id: b.topic_branch_id,
-        name: b.topic_branch_title || `分支 ${idx + 1}`,
-        summary: b.topic_branch_content || ''
+        name: b[getFieldName('topic_branch_title')] || b.topic_branch_title || `分支 ${idx + 1}`,
+        summary: b[getFieldName('topic_branch_content')] || b.topic_branch_content || ''
       }));
 
       // 針對每個分支抓取對應新聞（topic_branch__map -> single_news），並轉為 UnifiedNewsCard 的 customData
@@ -149,9 +157,12 @@ function SpecialReportDetail() {
               return { ...branch, news: [] };
             }
 
+            const newsMultiLangFields = ['news_title', 'ultra_short'];
+            const newsSelectFields = getMultiLanguageSelect(newsMultiLangFields);
+            
             const { data: stories, error: storiesError } = await supabase
               .from('single_news')
-              .select('story_id, news_title, category, generated_date, total_articles, ultra_short')
+              .select(`story_id, ${newsSelectFields}, category, generated_date, total_articles`)
               .in('story_id', storyIds);
             if (storiesError) {
               console.warn(`無法獲取分支 ${branch.id} 的新聞內容:`, storiesError);
@@ -160,12 +171,12 @@ function SpecialReportDetail() {
 
             const customData = (stories || []).map(s => ({
               story_id: s.story_id,
-              title: s.news_title,
+              title: s[getFieldName('news_title')] || s.news_title,
               category: s.category, // 若需中文化，可在這裡自行映射
               date: s.generated_date,
               author: 'Gemini',
               sourceCount: s.total_articles,
-              shortSummary: s.ultra_short,
+              shortSummary: s[getFieldName('ultra_short')] || s.ultra_short,
               relatedNews: [],
               views: 0,
               keywords: [],
@@ -182,12 +193,12 @@ function SpecialReportDetail() {
 
       const reportData = {
         topic_id: topicData.topic_id,
-        topic_title: topicData.topic_title,
-        description: topicData.topic_long || topicData.topic_short || '',
+        topic_title: topicData[getFieldName('topic_title')] || topicData.topic_title,
+        description: topicData[getFieldName('topic_long')] || topicData[getFieldName('topic_short')] || topicData.topic_long || topicData.topic_short || '',
         articles: newsCountData ? newsCountData.length : 0,
         views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
         lastUpdate: topicData.generated_date ? new Date(topicData.generated_date).toLocaleDateString('zh-TW') : '',
-        report: topicData.report || ''
+        report: topicData[getFieldName('report')] || topicData.report || ''
       };
 
   setReport(reportData);
@@ -206,7 +217,7 @@ function SpecialReportDetail() {
       fetchSpecialReportDetail();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, supabase]);
+  }, [id, supabase, getCurrentLanguage()]);
 
   if (loading) {
     return (

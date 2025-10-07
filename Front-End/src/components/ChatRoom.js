@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import ReactMarkdown from 'react-markdown';
 import { fetchJson } from './api';
@@ -57,13 +58,33 @@ function ChatRoom({newsData, onClose}, ref) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
-  // 溯源驗證相關狀態
-  const [proofMessages, setProofMessages] = useState([]);
-  const [showProofMode, setShowProofMode] = useState(false);
+
+  // 根據當前語言獲取對應的區域代碼
+  const getCurrentLocale = () => {
+    const currentLang = i18n.language;
+    switch (currentLang) {
+      case 'zh-TW':
+        return 'zh-TW';
+      case 'en':
+        return 'en-US';
+      case 'jp':
+        return 'ja-JP';
+      case 'id':
+        return 'id-ID';
+      default:
+        return 'zh-TW';
+    }
+  };
+
+  // 獲取格式化的時間字符串
+  const getFormattedTime = useCallback(() => {
+    return new Date().toLocaleTimeString(getCurrentLocale(), { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  }, []);
 
   const messagesEndRef = useRef(null);
-  const proofMessagesEndRef = useRef(null);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -73,19 +94,9 @@ function ChatRoom({newsData, onClose}, ref) {
 
   // 暴露給父組件的方法
   useImperativeHandle(ref, () => ({
-    addFactCheckMessage: (message) => {
-      setProofMessages((prev) => [...prev, message]);
-      setShowProofMode(true); // 自動切換到溯源驗證模式
-    },
-    resetToChat: () => {
-      setShowProofMode(false);
-    }
   }), []);
 
-  // 當切換回專家聊天模式時的處理
-  useEffect(() => {
-    // 目前只是監聽模式切換，不做額外處理
-  }, [showProofMode]);
+
 
   // 當 newsData 改變時，清理不在 who_talk 範圍內的已選專家
   useEffect(() => {
@@ -102,21 +113,15 @@ function ChatRoom({newsData, onClose}, ref) {
     }
   }, [newsData?.who_talk]);
 
-  // 自動滾到最底
+    // 自動滾動到底部
   useEffect(() => {
-    if (messagesEndRef.current && !showProofMode) {
-      const container = messagesEndRef.current.closest('[data-messages-container]');
-      if (container) {
-        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-      }
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end'
+      });
     }
-    if (proofMessagesEndRef.current && showProofMode) {
-      const container = proofMessagesEndRef.current.closest('[data-proof-container]');
-      if (container) {
-        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-      }
-    }
-  }, [messages, proofMessages, showProofMode]);
+  }, [messages]);
 
   const changeQuickPrompt = useCallback(async (chat_content = '') => {
     try{
@@ -172,10 +177,10 @@ function ChatRoom({newsData, onClose}, ref) {
         id: Date.now() + Math.random(),
         text,
         isOwn: false,
-        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+        time: getFormattedTime(),
       }))); 
     }
-  }, [newsData.category, t]);
+  }, [newsData.category, t, getFormattedTime]);
 
   const toggleExpert = (id) => {
     setSelectedExperts((prev) =>
@@ -188,7 +193,7 @@ function ChatRoom({newsData, onClose}, ref) {
     id: Date.now(),
     text,
     isOwn: true,
-    time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    time: getFormattedTime(),
   });
 
   const makeExpertReply = (expertId) => {
@@ -197,7 +202,7 @@ function ChatRoom({newsData, onClose}, ref) {
       id: Date.now() + expertId,
       text: `${expert.name}：${expertReplies[expertId]}`,
       isOwn: false,
-      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+      time: getFormattedTime(),
     };
   };
 
@@ -320,68 +325,7 @@ function ChatRoom({newsData, onClose}, ref) {
     if (e.key === 'Enter') handleSendMessage();
   };
 
-  const handleProofButtonClick = async () => {
-    try {
-      const response = await fetchJson('/proof/single_news', {
-        story_id: newsData.story_id,
-      });
 
-      // Format the response into a more structured format
-      let formattedResponse = "### 📋 新聞內容溯源驗證報告\n\n";
-      
-      if (response && response.length > 0) {        
-        response.forEach((item, index) => {
-          formattedResponse += `#### 📖 內容片段 ${index + 1}\n`;
-          formattedResponse += `**原文：** ${item.sentence}\n\n`;
-          
-          if (item.source && item.source.length > 0) {
-            formattedResponse += `**📚 相關來源：**\n`;
-            item.source.forEach((src, srcIndex) => {
-              formattedResponse += `${srcIndex + 1}. **[${src.title}](${src.url})** *來源：${src.media}*\n`;
-            });
-          } else {
-            formattedResponse += `<div class="verification-status warning">⚠️ 此片段暫無找到相關來源</div>\n`;
-          }
-          
-          formattedResponse += "\n---\n\n";
-        });
-        
-        formattedResponse += "**💡 說明：** 以上資料來自系統自動比對，建議進一步查證確認。\n";
-      } else {
-        formattedResponse += `<div class="verification-status error">❌ 查無相關來源資料</div>\n\n`;
-        formattedResponse += `**${t('exportChat.verification.suggestion')}** ${t('exportChat.verification.checkSource')}\n`;
-      }
-
-      // Add the formatted response to the proof messages container
-      setProofMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          text: formattedResponse,
-          isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
-      
-      // Switch to proof mode to show the verification results
-      setShowProofMode(true);
-    } catch (error) {
-      console.error('Error fetching proof data:', error);
-      
-      const errorMessage = `### ❌ ${t('exportChat.verification.failed')}\n\n<div class="verification-status error">${t('exportChat.verification.systemError')}</div>\n\n**${t('exportChat.verification.errorReason')}** ${t('exportChat.verification.cannotConnect')}\n\n**${t('exportChat.verification.suggestion')}** ${t('exportChat.verification.tryLater')}`;
-      
-      setProofMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          text: errorMessage,
-          isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
-      setShowProofMode(true);
-    }
-  };
 
   return (
     <div className="chat">
@@ -390,24 +334,14 @@ function ChatRoom({newsData, onClose}, ref) {
           <div className="chat__icon">🤖</div>
           <div>
             <h3 className="chat__title">
-              {showProofMode ? t('exportChat.titles.proof') : t('exportChat.titles.chat')}
+              {t('exportChat.titles.chat')}
             </h3>
             <p className="chat__subtitle">
-              {showProofMode ? t('exportChat.subtitles.proof') : t('exportChat.subtitles.chat', { count: selectedExperts.length })}
+              {t('exportChat.subtitles.chat', { count: selectedExperts.length })}
             </p>
           </div>      
         </div>
         <div className="chat__headerRight">
-          {/* 模式切換按鈕 */}
-          {showProofMode && (
-            <button 
-              className="chat-mode-switch-btn"
-              onClick={() => setShowProofMode(false)}
-              title={t('exportChat.tooltips.backToChat')}
-            >
-              {t('exportChat.buttons.backToChat')}
-            </button>
-          )}
           {/* 關閉聊天室按鈕 - 採用FloatingChat樣式 */}
           {onClose && (
             <button 
@@ -421,8 +355,7 @@ function ChatRoom({newsData, onClose}, ref) {
         </div>
       </div>
 
-      {!showProofMode && (
-        <div className="chat__expertSelector">
+      <div className="chat__expertSelector">
           <div className="dropdown" ref={dropdownRef}>
             <button
               type="button"
@@ -463,15 +396,9 @@ function ChatRoom({newsData, onClose}, ref) {
               </div>
             )}
           </div>
-          
-          <button className="proofButton proofButton--inline" onClick={handleProofButtonClick}>
-            {t('exportChat.buttons.factCheck')}
-          </button>
         </div>
-      )}
 
-      {!showProofMode ? (
-        // 專家聊天室訊息區域
+      {/* 專家聊天室訊息區域 */}
         <div className="messages" data-messages-container>
           {messages.length === 0 && (
             <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
@@ -491,68 +418,9 @@ function ChatRoom({newsData, onClose}, ref) {
           ))}
           <div ref={messagesEndRef} />
         </div>
-      ) : (
-        // 溯源驗證結果區域
-        <div className="messages proof-messages" data-proof-container>
-          {proofMessages.length === 0 && (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '3rem 2rem',
-              color: '#64748b',
-              textAlign: 'center',
-              height: '100%'
-            }}>
-              <div style={{ 
-                fontSize: '4rem', 
-                marginBottom: '1.5rem',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>🔍</div>
-              <h3 style={{ 
-                color: '#3b82f6', 
-                marginBottom: '1rem',
-                fontSize: '1.5rem',
-                fontWeight: '600'
-              }}>{t('exportChat.welcome.proof.title')}</h3>
-              <p style={{ 
-                color: '#64748b',
-                fontSize: '1rem',
-                lineHeight: '1.6',
-                maxWidth: '400px'
-              }}>{t('exportChat.welcome.proof.description')}</p>
-              <div style={{
-                marginTop: '1.5rem',
-                padding: '1rem',
-                background: '#f8faff',
-                borderRadius: '8px',
-                border: '2px solid #e2e8f0',
-                fontSize: '0.9rem',
-                color: '#475569'
-              }}>
-                {t('exportChat.welcome.proof.tip')}
-              </div>
-            </div>
-          )}
-
-          {proofMessages.map((m) => (
-            <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''} proof-message`}>
-              <div className={`bubble ${m.isOwn ? 'bubble--own' : 'bubble--proof'}`}>
-                <ReactMarkdown>{m.text}</ReactMarkdown>
-              </div>
-              <span className="time">{m.time}</span>
-            </div>
-          ))}
-          <div ref={proofMessagesEndRef} />
-        </div>
-      )}
 
       <div className="prompt">
-        {!showProofMode && quickPrompts.length > 0 && selectedExperts.length > 0 && (
+        {quickPrompts.length > 0 && selectedExperts.length > 0 && (
           <div className="prompt__container">
             {quickPrompts.map((p, i) => (
               <button
@@ -570,19 +438,7 @@ function ChatRoom({newsData, onClose}, ref) {
         
       </div>
 
-      {/* 溯源驗證模式下的操作區域 */}
-      {showProofMode && (
-        <div className="proof-mode-controls">
-          <button 
-            className="proofButton" 
-            onClick={handleProofButtonClick}
-          >
-            {t('exportChat.buttons.reVerify')}
-          </button>
-        </div>
-      )}
 
-      {!showProofMode && (
         <div className="input">
           <input
             ref={inputRef}
@@ -617,7 +473,6 @@ function ChatRoom({newsData, onClose}, ref) {
             ➤
           </button>
         </div>
-      )}
     </div>
   );
 }
