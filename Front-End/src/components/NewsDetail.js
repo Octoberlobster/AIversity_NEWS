@@ -182,7 +182,6 @@ function NewsDetail() {
       if (!id || !supabaseClient || (showContent !== 'loadPosition' && showContent !== 'loadBoth')) {
         return;
       }
-      
       setPositionLoading(true);
       
       try {
@@ -274,6 +273,7 @@ function NewsDetail() {
         }));
         
         if (analysisData.length > 0) {
+          // 先設定資料
           setExpertAnalysis(analysisData);
           setChatExperts(analysisData);
           
@@ -708,8 +708,6 @@ function NewsDetail() {
     );
   }
 
-  
-
   return (
     <div className="newsDetail">
       <button 
@@ -765,7 +763,12 @@ function NewsDetail() {
 
           {/* 右側：正反方立場 或 專家分析 */}
           <div className="sidebar-content">
-            {showContent === 'loading' || positionLoading || (showContent === 'loadExpert' && analysisLoading) ? (
+            {/* 載入中狀態：只在真正載入資料時顯示 */}
+            {(showContent === 'loading') || 
+             (showContent === 'loadPosition' && positionLoading) || 
+             (showContent === 'loadExpert' && analysisLoading) || 
+             (showContent === 'loadBoth' && (positionLoading || analysisLoading)) || 
+             (showContent === 'loadExpertForBoth' && analysisLoading) ? (
               <div className="prosConsSection">
                 <h4 className="prosConsTitle">{t('newsDetail.loading.positions')}</h4>
                 <div className="loadingMessage">{t('newsDetail.loading.data')}</div>

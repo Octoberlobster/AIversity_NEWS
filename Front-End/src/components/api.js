@@ -3,7 +3,7 @@ export const API_BASE =
   process.env.REACT_APP_API_BASE || 'http://localhost:5000';
 
 export async function fetchJson(path, body) {
-  console.log('fetchJson', path, JSON.stringify(body));
+  //console.log('fetchJson', path, JSON.stringify(body));
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -18,7 +18,7 @@ export async function fetchJson(path, body) {
 
 // 搜尋新聞功能 - 調用 Advanced_Search_Service API
 export async function searchNews(query) {
-  console.log('searchNews called with query:', query);
+  //console.log('searchNews called with query:', query);
   return await fetchJson('/Advanced_Search_Service/search', { query });
 }
 
