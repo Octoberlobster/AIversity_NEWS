@@ -50,7 +50,8 @@
     "close": "Tutup",
     "search": "Cari",
     "noContent": "Tidak ada konten",
-    "searchError": "Terjadi kesalahan saat mencari"
+    "searchError": "Terjadi kesalahan saat mencari",
+    "reporter": "Wartawan"
   },
   "categorySection": {
     "title": "Berita Kategori",

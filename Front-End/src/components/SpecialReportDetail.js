@@ -13,6 +13,10 @@ function SpecialReportDetail() {
   const { t } = useTranslation();
   const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
   const { id } = useParams();
+  
+  const getLanguageRoute = (path) => {
+    return `/${getCurrentLanguage()}${path}`;
+  };
   const [report, setReport] = useState(null);
   const [branches, setBranches] = useState([]); // 專題分支列表
   const [loading, setLoading] = useState(true);
@@ -238,7 +242,7 @@ function SpecialReportDetail() {
           <div style={{ textAlign: 'center', padding: '3rem' }}>
             <h2>{t('specialReportDetail.error.notFound')}</h2>
             <p>{error || t('specialReportDetail.error.fallback')}</p>
-            <Link to="/special-reports" style={{ color: '#667eea' }}>
+            <Link to={getLanguageRoute("/special-reports")} style={{ color: '#667eea' }}>
               {t('specialReportDetail.backToList')}
             </Link>
           </div>

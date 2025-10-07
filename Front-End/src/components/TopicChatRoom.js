@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { fetchJson } from './api';
 import './../css/ChatRoom.css';
@@ -8,6 +9,31 @@ import ReactMarkdown from 'react-markdown';
 function TopicChatRoom({topic_id, topic_title, onClose}) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
+
+  // 根據當前語言獲取對應的區域代碼
+  const getCurrentLocale = () => {
+    const currentLang = i18n.language;
+    switch (currentLang) {
+      case 'zh-TW':
+        return 'zh-TW';
+      case 'en':
+        return 'en-US';
+      case 'jp':
+        return 'ja-JP';
+      case 'id':
+        return 'id-ID';
+      default:
+        return 'zh-TW';
+    }
+  };
+
+  // 獲取格式化的時間字符串
+  const getFormattedTime = useCallback(() => {
+    return new Date().toLocaleTimeString(getCurrentLocale(), { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  }, []);
   const [inputMessage, setInputMessage] = useState('');
   const [quickPrompts, setQuickPrompts] = useState([]);
   
@@ -70,7 +96,7 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
       id: Date.now(),
       text: promptText,
       isOwn: true,
-      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+      time: getFormattedTime(),
     };
     setMessages((prev) => [...prev, userMsg]);
     
@@ -98,7 +124,7 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
           id: Date.now() + 1,
           text: response.response[0].chat_response,
           isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+          time: getFormattedTime()
         };
         setMessages((prev) => [...prev, reply]);
       }, 1000);
@@ -117,7 +143,7 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
       id: Date.now(),
       text: inputMessage,
       isOwn: true,
-      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+      time: getFormattedTime()
     };
     setMessages((prev) => [...prev, userMsg]);
     const currentInput = inputMessage;

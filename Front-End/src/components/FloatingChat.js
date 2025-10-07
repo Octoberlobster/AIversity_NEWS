@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
 import './../css/ChatRoom.css';
 import { useLocation } from 'react-router-dom';
 import { getOrCreateUserId, createRoomId } from './utils.js';
@@ -13,6 +14,31 @@ function FloatingChat() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [quickPrompts, setQuickPrompts] = useState([]);
+
+  // 根據當前語言獲取對應的區域代碼
+  const getCurrentLocale = () => {
+    const currentLang = i18n.language;
+    switch (currentLang) {
+      case 'zh-TW':
+        return 'zh-TW';
+      case 'en':
+        return 'en-US';
+      case 'jp':
+        return 'ja-JP';
+      case 'id':
+        return 'id-ID';
+      default:
+        return 'zh-TW';
+    }
+  };
+
+  // 獲取格式化的時間字符串
+  const getFormattedTime = useCallback(() => {
+    return new Date().toLocaleTimeString(getCurrentLocale(), { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  }, []);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const location = useLocation();
@@ -63,7 +89,7 @@ function FloatingChat() {
     const text = (customMessage ?? newMessage).trim();
     if (!text) return;
 
-    const now = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+    const now = getFormattedTime();
 
     // 新增使用者訊息
     setMessages((prev) => [
@@ -92,7 +118,7 @@ function FloatingChat() {
           type: 'text',
           text: item.chat_response,
           isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+          time: getFormattedTime(),
         }));
 
       setMessages((prev) => [...prev, ...textMessages]);
@@ -123,7 +149,7 @@ function FloatingChat() {
                   ultra_short: data.ultra_short,
                   newsId,
                   isOwn: false,
-                  time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+                  time: getFormattedTime(),
                 };
               })
             );
@@ -143,7 +169,7 @@ function FloatingChat() {
           id: Date.now() + 1,
           text: t('floatingChat.error.serverError'),
           isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+          time: getFormattedTime(),
         },
       ]);
     }

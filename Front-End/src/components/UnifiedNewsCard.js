@@ -4,10 +4,16 @@ import { Link } from "react-router-dom";
 import "./../css/UnifiedNewsCard.css";
 import { useSupabase } from "./supabase";
 import { newsCache, imageCache } from "./utils/cache";
+import { useLanguageFields } from '../utils/useLanguageFields';
 
 function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
   const [newsData, setNewsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  
+  const getLanguageRoute = (path) => {
+    return `/${getCurrentLanguage()}${path}`;
+  };
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const supabaseClient = useSupabase();
@@ -37,7 +43,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
 
         const { data: fetchedData, error } = await supabaseClient
           .from("single_news")
-          .select("story_id, news_title, ultra_short, generated_date")
+          .select(getMultiLanguageSelect("story_id, generated_date", ["news_title", "ultra_short"]))
           .order("generated_date", { ascending: false })
           .limit(ITEMS_PER_PAGE);
 
@@ -91,8 +97,8 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
       // 組合新聞資料與圖片
       const enhancedData = data.map(news => ({
         ...news,
-        title: news.news_title || news.title,
-        shortSummary: news.ultra_short || news.shortSummary,
+        title: news[getFieldName("news_title")] || news.news_title || news.title,
+        shortSummary: news[getFieldName("ultra_short")] || news.ultra_short || news.shortSummary,
         date: news.date || new Date(news.generated_date).toLocaleDateString("zh-TW"),
         imageUrl: news.imageUrl || imageMap[news.story_id] || "/api/placeholder/300/200"
       }));
@@ -115,12 +121,12 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
       console.error("Error in loadInitialData:", error);
     }
     setIsLoading(false);
-  }, [supabaseClient, customData, onNewsCountUpdate, ITEMS_PER_PAGE]);
+  }, [supabaseClient, customData, onNewsCountUpdate, ITEMS_PER_PAGE, getMultiLanguageSelect, getFieldName]);
 
   useEffect(() => {
     // 初始載入第一頁數據
     loadInitialData();
-  }, [loadInitialData, supabaseClient]);
+  }, [loadInitialData]);
 
   const loadMoreNews = async () => {
     if (isLoading || !hasMore || customData) return; // 如果使用 customData，直接返回
@@ -136,7 +142,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
 
       const { data: fetchedData, error } = await supabaseClient
         .from("single_news")
-        .select("story_id, news_title, ultra_short, generated_date")
+        .select(getMultiLanguageSelect("story_id, generated_date", ["news_title", "ultra_short"]))
         .order("generated_date", { ascending: false })
         .range(offset, offset + ITEMS_PER_PAGE - 1);
 
@@ -169,8 +175,8 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
       // 組合新數據
       const newEnhancedData = fetchedData.map(news => ({
         ...news,
-        title: news.news_title || news.title,
-        shortSummary: news.ultra_short || news.shortSummary,
+        title: news[getFieldName("news_title")] || news.news_title || news.title,
+        shortSummary: news[getFieldName("ultra_short")] || news.ultra_short || news.shortSummary,
         date: news.date || new Date(news.generated_date).toLocaleDateString("zh-TW"),
         imageUrl: news.imageUrl || imageMap[news.story_id] || "/api/placeholder/300/200"
       }));
@@ -214,7 +220,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
           fontSize: '16px',
           color: '#666'
         }}>
-          載入中...
+          {t('common.loading')}
         </div>
       )}
       
@@ -222,7 +228,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
         {displayNews.map((news) => (
           <div className="card" key={news.story_id}>
             <div className="card__image">
-              <Link to={`/news/${news.story_id}`}>
+              <Link to={getLanguageRoute(`/news/${news.story_id}`)}>
                 <img
                   src={news.imageUrl}
                   alt={news.title}
@@ -240,14 +246,14 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
             </div>
 
             <div className="card__header">
-              <Link className="card__title" to={`/news/${news.story_id}`}>
+              <Link className="card__title" to={getLanguageRoute(`/news/${news.story_id}`)}>
                 {news.title}
               </Link>
             </div>
             
             <div className="card__info">
               <span className="dateText">{news.date}</span>
-              <span className="authorText">記者 gemini</span>
+              <span className="authorText">{t('common.reporter')} gemini</span>
             </div>
 
             <div className="card__content">
@@ -273,7 +279,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
               cursor: isLoading ? 'not-allowed' : 'pointer'
             }}
           >
-            {isLoading ? '載入中...' : t('common.readMore')}
+            {isLoading ? t('common.loading') : t('common.readMore')}
           </button>
         </div>
       )}

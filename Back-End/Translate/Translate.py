@@ -509,8 +509,31 @@ class Translate:
         
 if __name__ == "__main__":
     translate = Translate(supabase, gemini_client)
-    story_id = "cd628e0b-d0b5-42cf-9708-2fff615ba401"
-    topic_id = "f147384e-06d2-42e4-994c-621b6026e0fe"   
+    
+    """
+    topic_id_list = supabase.table("topic").select("topic_id").execute().data
+    for item in topic_id_list:
+        print("開始翻譯topic_id:", item['topic_id'])
+        translate.translate_topic(item['topic_id'])
+        translate.translate_topic_branch(item['topic_id'])
+    """
+    
+    topic_id = "f147384e-06d2-42e4-994c-621b6026e0fe"
+    response = supabase.table("topic_news_map").select("story_id").eq("topic_id", topic_id).execute().data
+    story_id_list = [item.get("story_id", "") for item in response]
+    print("取得的story_id列表:", story_id_list)
+     
+    for story_id in story_id_list:
+        print("開始翻譯story_id:", story_id)
+        translate.translate_singleNews(story_id)
+        translate.translate_relativeNews(story_id)
+        translate.translate_relativeTopics(story_id)
+        translate.translate_terms(story_id)
+        translate.translate_position(story_id)
+        translate.translate_pro_analyze(story_id)
+        translate.translate_imagedescription(story_id)
+        translate.translate_keyword(story_id)
+      
     #translate.translate_singleNews(story_id)
     #translate.translate_relativeNews(story_id)
     #translate.translate_relativeTopics(story_id)

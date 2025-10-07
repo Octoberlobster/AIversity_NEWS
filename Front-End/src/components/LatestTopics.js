@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabase } from './supabase';
 import { useTranslation } from 'react-i18next';
+import { useLanguageFields } from '../utils/useLanguageFields';
 import '../css/LatestTopics.css';
 
 function LatestTopics() {
@@ -9,8 +10,19 @@ function LatestTopics() {
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const { getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
   const supabase = useSupabase();
+
+  // 生成帶語言前綴的路由
+  const getLanguageRoute = (path) => {
+    const langPrefix = currentLanguage === 'zh-TW' ? '/zh-TW' : 
+                      currentLanguage === 'en' ? '/en' : 
+                      currentLanguage === 'jp' ? '/jp' : 
+                      currentLanguage === 'id' ? '/id' : '/zh-TW';
+    return `${langPrefix}${path}`;
+  };
   
 
   // 獲取最新專題數據
@@ -241,7 +253,7 @@ function LatestTopics() {
                     )}
                     
                     <div className="slide-content">
-                      <Link to={`/special-report/${topic.topic_id}`} className="slide-title-link">
+                      <Link to={getLanguageRoute(`/special-report/${topic.topic_id}`)} className="slide-title-link">
                         <h2 className="slide-title">{topic.topic_title}</h2>
                       </Link>
                       <p className="slide-summary">
@@ -302,7 +314,7 @@ function LatestTopics() {
                 currentTopic.branches.map((branch, index) => (
                   <Link
                     key={branch.id}
-                    to={`/special-report/${currentTopic.topic_id}?branch=${encodeURIComponent(branch.id)}`}
+                    to={getLanguageRoute(`/special-report/${currentTopic.topic_id}?branch=${encodeURIComponent(branch.id)}`)}
                     className="branch-item"
                   >
                     <span className="branch-icon">📰</span>

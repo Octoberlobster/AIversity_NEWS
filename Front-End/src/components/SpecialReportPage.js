@@ -8,6 +8,10 @@ import { useLanguageFields } from '../utils/useLanguageFields';
 function SpecialReportPage() {
   const { t } = useTranslation();
   const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  
+  const getLanguageRoute = (path) => {
+    return `/${getCurrentLanguage()}${path}`;
+  };
   const [specialReports, setSpecialReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -145,7 +149,7 @@ function SpecialReportPage() {
                     <span>📄 {report.articles} {t('specialReportPage.meta.articles')}</span>
                     <span>🕒 {new Date(report.lastUpdate).toLocaleDateString('zh-TW')}</span>
                   </div>
-                  <Link to={`/special-report/${report.topic_id}`} className="srp-readMore">
+                  <Link to={getLanguageRoute(`/special-report/${report.topic_id}`)} className="srp-readMore">
                     {t('specialReportPage.meta.viewMore')}
                   </Link>
                 </div>

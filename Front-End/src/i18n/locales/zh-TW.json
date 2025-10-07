@@ -50,7 +50,8 @@
     "close": "關閉",
     "search": "搜尋",
     "noContent": "暫無內容",
-    "searchError": "搜尋時發生錯誤"
+    "searchError": "搜尋時發生錯誤",
+    "reporter": "記者"
   },
   "categorySection": {
     "title": "分類新聞",
@@ -152,7 +153,7 @@
       "button": "🔍 溯源驗證"
     },
     "backToHome": "← 返回首頁",
-    "author": "作者：",
+    "author": "記者：",
     "positions": {
       "positive": "正方觀點",
       "negative": "反方觀點",

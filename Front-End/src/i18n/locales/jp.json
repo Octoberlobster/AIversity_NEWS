@@ -50,7 +50,8 @@
     "close": "閉じる",
     "search": "検索",
     "noContent": "コンテンツがありません",
-    "searchError": "検索中にエラーが発生しました"
+    "searchError": "検索中にエラーが発生しました",
+    "reporter": "記者"
   },
   "categorySection": {
     "title": "カテゴリ別ニュース",

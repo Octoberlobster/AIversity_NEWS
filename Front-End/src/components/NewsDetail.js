@@ -69,6 +69,15 @@ function NewsDetail() {
   // ChatRoom組件的ref
   const chatRoomRef = useRef(null);
 
+  // 生成帶語言前綴的路由
+  const getLanguageRoute = (path) => {
+    const langPrefix = currentLanguage === 'zh-TW' ? '/zh-TW' : 
+                      currentLanguage === 'en' ? '/en' : 
+                      currentLanguage === 'jp' ? '/jp' : 
+                      currentLanguage === 'id' ? '/id' : '/zh-TW';
+    return `${langPrefix}${path}`;
+  };
+
   // 文字截斷函數 - 限制30字並添加省略號
   const truncateText = (text, maxLength = 30) => {
     if (!text) return '';
@@ -680,7 +689,7 @@ function NewsDetail() {
   if (!newsData) {
     return (
       <div className="newsDetail">
-        <Link to="/" className="backButton">{t('newsDetail.backToHome')}</Link>
+        <Link to={getLanguageRoute("/")} className="backButton">{t('newsDetail.backToHome')}</Link>
         <p>找不到該新聞</p>
       </div>
     );
@@ -854,7 +863,7 @@ function NewsDetail() {
                   <div className="relatedItems">
                     {relatedNews.map(item => (
                       <div className="relatedItem" key={`news-${item.id}`}>
-                        <Link to={`/news/${item.id}`}>
+                        <Link to={getLanguageRoute(`/news/${item.id}`)}>
                           {item.title}
                         </Link>
                         <div className="relevanceText">{item.relevance}</div>
@@ -871,7 +880,7 @@ function NewsDetail() {
                   <div className="relatedItems">
                     {relatedTopics.map(item => (
                       <div className="relatedItem" key={`topic-${item.id}`}>
-                        <Link to={`/special-report/${item.id}`}>
+                        <Link to={getLanguageRoute(`/special-report/${item.id}`)}>
                           {item.title}
                         </Link>
                         <div className="relevanceText">{item.relevance}</div>
