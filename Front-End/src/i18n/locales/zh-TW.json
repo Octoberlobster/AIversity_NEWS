@@ -178,9 +178,6 @@
       "unknownMedia": "未知媒體",
       "showMore": "觀看更多（還有 {{count}} 筆）",
       "showLess": "收起"
-    },
-    "modal": {
-      "close": "關閉"
     }
   },
   "term": {
@@ -209,6 +206,9 @@
     "placeholders": {
       "selectFirst": "請先選擇專家...",
       "enterQuestion": "輸入您的問題..."
+    },
+    "error": {
+      "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
     },
     "verification": {
       "failed": "溯源驗證失敗",
@@ -297,6 +297,9 @@
     },
     "input": {
       "placeholder": "輸入您的問題或觀點..."
+    },
+    "error": {
+      "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
     },
     "prompts": {
       "default": [

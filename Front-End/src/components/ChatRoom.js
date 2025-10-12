@@ -71,6 +71,7 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 根據當前語言獲取對應的區域代碼
   const getCurrentLocale = () => {
@@ -225,6 +226,17 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
   };
 
   const simulateReplies = async () => {
+    setIsLoading(true);
+    
+    // 添加載入訊息
+    const loadingMsg = {
+      id: 'loading-' + Date.now(),
+      isLoading: true,
+      isOwn: false,
+      time: getFormattedTime(),
+    };
+    setMessages((prev) => [...prev, loadingMsg]);
+    
     try {
       // 構建請求的資料
       const categories = selectedExperts.map(
@@ -241,6 +253,10 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
         article: newsData.long,
       });
   
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
+      
       // 處理後端回傳的回覆
       response.response.forEach((reply, index) => {
         setTimeout(() => {
@@ -262,6 +278,16 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
       changeQuickPrompt(`user:${inputMessage} ${formattedReplies.join(" ")}`);
     } catch (error) {
       console.error('Error fetching expert replies:', error);
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
+      
+      setMessages((prev) => [...prev, {
+        id: Date.now(),
+        text: t('exportChat.error.serverError'),
+        isOwn: false,
+        time: getFormattedTime(),
+      }]);
     }
   };
 
@@ -287,6 +313,17 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
   };
 
   const simulateRepliesWithPrompt = async (promptText) => {
+    setIsLoading(true);
+    
+    // 添加載入訊息
+    const loadingMsg = {
+      id: 'loading-' + Date.now(),
+      isLoading: true,
+      isOwn: false,
+      time: getFormattedTime(),
+    };
+    setMessages((prev) => [...prev, loadingMsg]);
+    
     try {
       // 構建請求的資料
       const categories = selectedExperts.map(
@@ -303,6 +340,10 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
         article: newsData.long,
       });
   
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
+      
       // 處理後端回傳的回覆
       response.response.forEach((reply, index) => {
         setTimeout(() => {
@@ -324,6 +365,16 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
       changeQuickPrompt(`user:${promptText} ${formattedReplies.join(" ")}`);
     } catch (error) {
       console.error('Error fetching expert replies:', error);
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
+      
+      setMessages((prev) => [...prev, {
+        id: Date.now(),
+        text: t('exportChat.error.serverError'),
+        isOwn: false,
+        time: getFormattedTime(),
+      }]);
     }
   };
 
@@ -429,9 +480,17 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
           )}
 
           {messages.map((m) => (
-            <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''}`}>
-              <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>
-                <ReactMarkdown>{m.text}</ReactMarkdown>
+            <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''} ${m.isLoading ? 'message--loading' : ''}`}>
+              <div className={`bubble ${m.isOwn ? 'bubble--own' : ''} ${m.isLoading ? 'bubble--loading' : ''}`}>
+                {m.isLoading ? (
+                  <div className="loading-dots">
+                    <span className="loading-dot"></span>
+                    <span className="loading-dot"></span>
+                    <span className="loading-dot"></span>
+                  </div>
+                ) : (
+                  <ReactMarkdown>{m.text}</ReactMarkdown>
+                )}
               </div>
               <span className="time">{m.time}</span>
             </div>

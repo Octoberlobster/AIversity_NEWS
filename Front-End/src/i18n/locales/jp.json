@@ -178,9 +178,6 @@
       "unknownMedia": "不明なメディア",
       "showMore": "さらに表示（残り{{count}}件）",
       "showLess": "折りたたむ"
-    },
-    "modal": {
-      "close": "閉じる"
     }
   },
   "term": {
@@ -220,6 +217,9 @@
     "placeholders": {
       "selectFirst": "まず専門家を選択してください...",
       "enterQuestion": "質問を入力してください..."
+    },
+    "error": {
+      "serverError": "申し訳ありませんが、サーバーエラーが発生しました。しばらくしてからもう一度お試しください。"
     },
     "verification": {
       "failed": "ファクトチェックに失敗しました",
@@ -308,6 +308,9 @@
     },
     "input": {
       "placeholder": "質問や意見を入力してください..."
+    },
+    "error": {
+      "serverError": "申し訳ありませんが、サーバーエラーが発生しました。しばらくしてからもう一度お試しください。"
     },
     "prompts": {
       "default": [

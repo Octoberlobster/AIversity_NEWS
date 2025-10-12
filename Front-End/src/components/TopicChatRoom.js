@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 function TopicChatRoom({topic_id, topic_title, onClose}) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 根據當前語言獲取對應的區域代碼
   const getCurrentLocale = () => {
@@ -108,6 +109,17 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
   };
 
   const simulateRepliesWithPrompt = async (promptText) => {
+    setIsLoading(true);
+    
+    // 添加載入訊息
+    const loadingMsg = {
+      id: 'loading-' + Date.now(),
+      isLoading: true,
+      isOwn: false,
+      time: getFormattedTime(),
+    };
+    setMessages((prev) => [...prev, loadingMsg]);
+    
     try {
       const response = await fetchJson('/chat/topic', {
         topic_id: topic_id,
@@ -117,6 +129,10 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
       });
       
       console.log(response);
+      
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
       
       // 處理AI回覆
       setTimeout(() => {
@@ -133,6 +149,16 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
       loadQuickPrompts("user:" + promptText + " assistant:" + response.response[0].chat_response);
     } catch (error) {
       console.error('Error fetching response:', error);
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
+      
+      setMessages((prev) => [...prev, {
+        id: Date.now(),
+        text: t('topicChat.error.serverError'),
+        isOwn: false,
+        time: getFormattedTime(),
+      }]);
     }
   };
 
@@ -192,9 +218,17 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
         )}
 
         {messages.map((m) => (
-          <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''}`}>
-            <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>
-              <ReactMarkdown>{m.text}</ReactMarkdown>
+          <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''} ${m.isLoading ? 'message--loading' : ''}`}>
+            <div className={`bubble ${m.isOwn ? 'bubble--own' : ''} ${m.isLoading ? 'bubble--loading' : ''}`}>
+              {m.isLoading ? (
+                <div className="loading-dots">
+                  <span className="loading-dot"></span>
+                  <span className="loading-dot"></span>
+                  <span className="loading-dot"></span>
+                </div>
+              ) : (
+                <ReactMarkdown>{m.text}</ReactMarkdown>
+              )}
             </div>
             <span className="time">{m.time}</span>
           </div>

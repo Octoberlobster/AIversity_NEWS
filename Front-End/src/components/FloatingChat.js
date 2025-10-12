@@ -14,6 +14,7 @@ function FloatingChat() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [quickPrompts, setQuickPrompts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 根據當前語言獲取對應的區域代碼
   const getCurrentLocale = () => {
@@ -98,6 +99,18 @@ function FloatingChat() {
     ]);
     setNewMessage('');
 
+    setIsLoading(true);
+    
+    // 添加載入訊息
+    const loadingMsg = {
+      id: 'loading-' + Date.now(),
+      type: 'text',
+      isLoading: true,
+      isOwn: false,
+      time: getFormattedTime(),
+    };
+    setMessages((prev) => [...prev, loadingMsg]);
+
     try {
       // 呼叫後端 API（舊版邏輯）
       const response = await fetchJson('/chat/search', {
@@ -110,6 +123,10 @@ function FloatingChat() {
       // 處理後端回應
       const reply = response.response || [];
       console.log('後端回應:', reply);
+
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
 
       // 先處理普通訊息
       const textMessages = reply
@@ -163,6 +180,10 @@ function FloatingChat() {
       }, 1000);
     } catch (error) {
       console.error('Error fetching chat response:', error);
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
+      
       setMessages((prev) => [
         ...prev,
         {
@@ -261,10 +282,18 @@ function FloatingChat() {
                   return (
                     <div
                       key={m.id}
-                      className={`message ${m.isOwn ? 'message--own' : ''}`}
+                      className={`message ${m.isOwn ? 'message--own' : ''} ${m.isLoading ? 'message--loading' : ''}`}
                     >
-                      <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>
-                        <ReactMarkdown>{m.text}</ReactMarkdown>
+                      <div className={`bubble ${m.isOwn ? 'bubble--own' : ''} ${m.isLoading ? 'bubble--loading' : ''}`}>
+                        {m.isLoading ? (
+                          <div className="loading-dots">
+                            <span className="loading-dot"></span>
+                            <span className="loading-dot"></span>
+                            <span className="loading-dot"></span>
+                          </div>
+                        ) : (
+                          <ReactMarkdown>{m.text}</ReactMarkdown>
+                        )}
                       </div>
                       <span className="message__time">{m.time}</span>
                     </div>

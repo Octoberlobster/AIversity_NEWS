@@ -178,9 +178,6 @@
       "unknownMedia": "Media tidak dikenal",
       "showMore": "Tampilkan lebih banyak ({{count}} lagi)",
       "showLess": "Tampilkan lebih sedikit"
-    },
-    "modal": {
-      "close": "Tutup"
     }
   },
   "term": {
@@ -222,6 +219,9 @@
     "placeholders": {
       "selectFirst": "Silakan pilih pakar terlebih dahulu...",
       "enterQuestion": "Masukkan pertanyaan Anda..."
+    },
+    "error": {
+      "serverError": "Maaf, terjadi kesalahan server. Silakan coba lagi nanti."
     },
     "verification": {
       "failed": "Cek fakta gagal",
@@ -310,6 +310,9 @@
     },
     "input": {
       "placeholder": "Masukkan pertanyaan atau sudut pandang Anda..."
+    },
+    "error": {
+      "serverError": "Maaf, terjadi kesalahan server. Silakan coba lagi nanti."
     },
     "prompts": {
       "default": [

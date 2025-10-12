@@ -174,9 +174,6 @@
       "unknownMedia": "Unknown Media",
       "showMore": "Show More ({{count}} more)",
       "showLess": "Show Less"
-    },
-    "modal": {
-      "close": "Close"
     }
   },
   "term": {
@@ -216,6 +213,9 @@
     "placeholders": {
       "selectFirst": "Please select experts first...",
       "enterQuestion": "Enter your question..."
+    },
+    "error": {
+      "serverError": "Sorry, a server error occurred. Please try again later."
     },
     "verification": {
       "failed": "Source verification failed",
@@ -304,6 +304,9 @@
     },
     "input": {
       "placeholder": "Enter your question or viewpoint..."
+    },
+    "error": {
+      "serverError": "Sorry, a server error occurred. Please try again later."
     },
     "prompts": {
       "default": [

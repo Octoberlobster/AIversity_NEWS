@@ -992,7 +992,7 @@ function NewsDetail() {
                 {modalContent.type === 'positive' ? t('newsDetail.positions.positiveModal') : t('newsDetail.positions.negativeModal')}
               </h3>
               <button className="position-modal-close" onClick={closeModal}>
-                {t('newsDetail.modal.close')}
+                X
               </button>
             </div>
             <div className="position-modal-body">
