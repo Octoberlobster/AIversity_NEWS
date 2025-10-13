@@ -20,17 +20,7 @@
       "placeholder": "Search news/keywords..."
     },
     "language": {
-      "select": "Select Language",
-      "chinese": "Chinese",
-      "english": "English",
-      "japanese": "Japanese",
-      "korean": "Korean",
-      "vietnamese": "Vietnamese",
-      "filipino": "Filipino",
-      "indonesian": "Indonesian", 
-      "spanish": "Spanish",
-      "french": "French",
-      "german": "German"
+      "select": "Select Language"
     }
   },
   "home":{
@@ -342,6 +332,39 @@
     },
     "moreButton": {
       "text": "Show more results ({{count}} articles)"
+    }
+  },
+  "fiveW1H": {
+    "defaultTitle": "Topic Analysis",
+    "centerDescription": "Core Issue Analysis of {{topicTitle}}",
+    "categoryRelatedContent": "Content related to {{category}}",
+    "instructions": "💡 Drag background to move graph, zoom centered, or drag individual nodes to adjust positions",
+    "reloadButton": "Reload",
+    "categories": {
+      "who": {
+        "name": "Who",
+        "description": "People, organizations, and stakeholders involved"
+      },
+      "what": {
+        "name": "What",
+        "description": "Event content and specific actions"
+      },
+      "when": {
+        "name": "When",
+        "description": "Timeline and important milestones"
+      },
+      "where": {
+        "name": "Where",
+        "description": "Location and scope of the event"
+      },
+      "why": {
+        "name": "Why",
+        "description": "Reasons and background of the event"
+      },
+      "how": {
+        "name": "How",
+        "description": "Process and methods of the event"
+      }
     }
   }
 }

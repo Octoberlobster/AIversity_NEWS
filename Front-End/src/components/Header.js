@@ -23,10 +23,10 @@ function Header() {
 
   // 定義語言選單陣列，使用 i18n 翻譯
   const languages = [
-    { name: t('header.language.chinese'), code: 'zh-TW', route: 'zh-TW' },
-    { name: t('header.language.english'), code: 'en', route: 'en' },
-    { name: t('header.language.japanese'), code: 'jp', route: 'jp' },
-    { name: t('header.language.indonesian'), code: 'id', route: 'id' },
+    { name: "繁體中文", code: 'zh-TW', route: 'zh-TW' },
+    { name: "English", code: 'en', route: 'en' },
+    { name: "日本語", code: 'jp', route: 'jp' },
+    { name: "Bahasa Indonesia", code: 'id', route: 'id' },
   ];
 
   const [activeDomain, setActiveDomain] = useState(domains[0].id);

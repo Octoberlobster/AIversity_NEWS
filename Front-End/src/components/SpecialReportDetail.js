@@ -39,9 +39,11 @@ function SpecialReportDetail() {
         // 使用新的 createHeaderVisualization 函數
         vizInstanceRef.current = createHeaderVisualization(
           headerImageRef, 
-          report?.topic_title || "專題分析",
+          report?.topic_title || t('fiveW1H.defaultTitle'),
           false, // isModal
-          report?.topic_id || id // 傳遞 topic_id，如果沒有就用 URL 的 id
+          report?.topic_id || id, // 傳遞 topic_id，如果沒有就用 URL 的 id
+          t, // 傳遞翻譯函數
+          getFieldName // 傳遞 getFieldName 函數
         );
       }
     };
@@ -56,7 +58,7 @@ function SpecialReportDetail() {
         vizInstanceRef.current = null;
       }
     };
-  }, [report?.topic_title, report?.topic_id, id]);
+  }, [report?.topic_title, report?.topic_id, id, t, getFieldName]);
 
   // 新增：處理5W1H關聯圖點擊放大
   useEffect(() => {
@@ -66,16 +68,18 @@ function SpecialReportDetail() {
         if (expanded5W1HRef.current) {
           expandedVizInstanceRef.current = createHeaderVisualization(
             expanded5W1HRef, 
-            report?.topic_title || "專題分析",
+            report?.topic_title || t('fiveW1H.defaultTitle'),
             true, // 標記為模態框模式
-            report?.topic_id || id // 傳遞 topic_id
+            report?.topic_id || id, // 傳遞 topic_id
+            t, // 傳遞翻譯函數
+            getFieldName // 傳遞 getFieldName 函數
           );
         }
       }, 100);
       
       return () => clearTimeout(timer);
     }
-  }, [is5W1HExpanded, report?.topic_title, report?.topic_id, id]);
+  }, [is5W1HExpanded, report?.topic_title, report?.topic_id, id, t, getFieldName]);
 
   // 新增：關閉5W1H關聯圖放大視窗
   const close5W1HExpanded = () => {

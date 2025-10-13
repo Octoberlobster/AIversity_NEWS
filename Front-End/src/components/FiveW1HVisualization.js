@@ -17,7 +17,9 @@ export class FiveW1HVisualization {
     this.g = null;
     this.simulation = null;
     this.transform = { x: 0, y: 0, k: 1 };
-    this.topicTitle = options.topicTitle || "專題分析";
+    this.t = options.t || ((key) => key); // 接收翻譯函數，如果沒有則返回 key
+    this.getFieldName = options.getFieldName || ((fieldName) => fieldName); // 接收 getFieldName 函數
+    this.topicTitle = options.topicTitle || this.t('fiveW1H.defaultTitle');
     this.topicId = options.topicId || null; // 接收 topic_id 參數
   }
 
@@ -36,18 +38,22 @@ export class FiveW1HVisualization {
       console.log('🔍 開始Supabase查詢...');
       let data, error;
       
+      // 獲取當前語言對應的 mind_map_detail 欄位名稱
+      const langSpecificField = this.getFieldName('mind_map_detail');
+      console.log('📋 使用欄位:', langSpecificField);
+      
       // 優先使用 topic_id 查詢，如果沒有則用 topic_title
       if (this.topicId) {
         console.log('🎯 使用 topic_id 查詢:', this.topicId);
         ({ data, error } = await supabase
           .from("topic")
-          .select("mind_map_detail")
+          .select(`mind_map_detail, ${langSpecificField}`)
           .eq("topic_id", this.topicId));
       } else {
         console.log('📝 使用 topic_title 查詢:', this.topicTitle);
         ({ data, error } = await supabase
           .from("topic")
-          .select("mind_map_detail")
+          .select(`mind_map_detail, ${langSpecificField}`)
           .eq("topic_title", this.topicTitle));
       }
 
@@ -70,14 +76,19 @@ export class FiveW1HVisualization {
       console.log("✅ 查到資料:", data[0]);
       console.log("📋 資料結構:", typeof data[0], data[0] ? Object.keys(data[0]) : 'null');
       
-      if (data[0] && data[0].mind_map_detail) {
+      // 優先使用當前語言的欄位，如果沒有則 fallback 到預設欄位
+      const mindMapField = this.getFieldName('mind_map_detail');
+      const mindMapDetailData = data[0][mindMapField] || data[0].mind_map_detail;
+      
+      if (mindMapDetailData) {
         try {
           console.log("🔄 開始轉換資料...");
-          console.log("📋 mind_map_detail 內容:", data[0].mind_map_detail);
-          console.log("📋 mind_map_detail 類型:", typeof data[0].mind_map_detail);
+          console.log("📋 使用欄位:", mindMapField);
+          console.log("📋 mind_map_detail 內容:", mindMapDetailData);
+          console.log("📋 mind_map_detail 類型:", typeof mindMapDetailData);
           
           // 檢查是否為字串格式的JSON
-          let mindMapData = data[0].mind_map_detail;
+          let mindMapData = mindMapDetailData;
           if (typeof mindMapData === 'string') {
             try {
               mindMapData = JSON.parse(mindMapData);
@@ -128,7 +139,7 @@ export class FiveW1HVisualization {
         id: mindMapData.center_node.id || 'center',
         label: mindMapData.center_node.label || this.topicTitle,
         type: 'center',
-        description: mindMapData.center_node.description || `${this.topicTitle}的核心議題分析`,
+        description: mindMapData.center_node.description || this.t('fiveW1H.centerDescription', { topicTitle: this.topicTitle }),
         x: 190, 
         y: 140
       });
@@ -138,7 +149,7 @@ export class FiveW1HVisualization {
         id: 'center',
         label: this.topicTitle,
         type: 'center',
-        description: `${this.topicTitle}的核心議題分析`,
+        description: this.t('fiveW1H.centerDescription', { topicTitle: this.topicTitle }),
         x: 190, 
         y: 140
       });
@@ -155,7 +166,7 @@ export class FiveW1HVisualization {
           label: node.id || node.label || node.name || category.toUpperCase(),
           type: '5w1h',
           category: category,
-          description: node.description || `涉及${category}相關的內容`
+          description: node.description || this.t('fiveW1H.categoryRelatedContent', { category })
         });
         
         // 連接到中心節點
@@ -174,7 +185,7 @@ export class FiveW1HVisualization {
           label: category.toUpperCase(),
           type: '5w1h',
           category: category,
-          description: `涉及${category}相關的內容`
+          description: this.t('fiveW1H.categoryRelatedContent', { category })
         });
         
         links.push({
@@ -201,31 +212,15 @@ export class FiveW1HVisualization {
   }
 
   getCategoryChineseName(category) {
-    const chineseNames = {
-      'who': '誰',
-      'what': '什麼',
-      'when': '何時',
-      'where': '哪裡',
-      'why': '為什麼',
-      'how': '如何'
-    };
-    return chineseNames[category] || category;
+    return this.t(`fiveW1H.categories.${category}.name`, category);
   }
 
   getCategoryDescription(category) {
-    const descriptions = {
-      'who': '涉及的人物、組織和利益相關者',
-      'what': '發生的事件內容和具體行為',
-      'when': '事件發生的時間軸和重要節點',
-      'where': '事件發生的地點和範圍',
-      'why': '事件發生的原因和背景',
-      'how': '事件的過程和方式'
-    };
-    return descriptions[category] || `涉及${category}相關的內容`;
+    return this.t(`fiveW1H.categories.${category}.description`, this.t('fiveW1H.categoryRelatedContent', { category }));
   }
 
   getHeaderModeData() {
-    const topicTitle = this.topicTitle || "專題分析";
+    const topicTitle = this.topicTitle || this.t('fiveW1H.defaultTitle');
     
     return {
       nodes: [
@@ -233,50 +228,50 @@ export class FiveW1HVisualization {
           id: 'center', 
           label: topicTitle, 
           type: 'center', 
-          description: `${topicTitle}的核心議題分析`,
+          description: this.t('fiveW1H.centerDescription', { topicTitle }),
           x: 190, y: 140
         },
         { 
           id: 'who', 
-          label: 'Who\n誰', 
+          label: `Who\n${this.t('fiveW1H.categories.who.name')}`, 
           type: '5w1h', 
           category: 'who',
-          description: '涉及的人物、組織和利益相關者'
+          description: this.t('fiveW1H.categories.who.description')
         },
         { 
           id: 'what', 
-          label: 'What\n什麼', 
+          label: `What\n${this.t('fiveW1H.categories.what.name')}`, 
           type: '5w1h', 
           category: 'what',
-          description: '發生的事件內容和具體行為'
+          description: this.t('fiveW1H.categories.what.description')
         },
         { 
           id: 'when', 
-          label: 'When\n何時', 
+          label: `When\n${this.t('fiveW1H.categories.when.name')}`, 
           type: '5w1h', 
           category: 'when',
-          description: '事件發生的時間軸和重要節點'
+          description: this.t('fiveW1H.categories.when.description')
         },
         { 
           id: 'where', 
-          label: 'Where\n哪裡', 
+          label: `Where\n${this.t('fiveW1H.categories.where.name')}`, 
           type: '5w1h', 
           category: 'where',
-          description: '事件發生的地點和範圍'
+          description: this.t('fiveW1H.categories.where.description')
         },
         { 
           id: 'why', 
-          label: 'Why\n為什麼', 
+          label: `Why\n${this.t('fiveW1H.categories.why.name')}`, 
           type: '5w1h', 
           category: 'why',
-          description: '事件發生的原因和背景'
+          description: this.t('fiveW1H.categories.why.description')
         },
         { 
           id: 'how', 
-          label: 'How\n如何', 
+          label: `How\n${this.t('fiveW1H.categories.how.name')}`, 
           type: '5w1h', 
           category: 'how',
-          description: '事件的過程和方式'
+          description: this.t('fiveW1H.categories.how.description')
         }
       ],
       links: [
@@ -298,50 +293,50 @@ export class FiveW1HVisualization {
           id: 'center', 
           label: this.topicTitle, 
           type: 'center', 
-          description: `${this.topicTitle}的核心議題分析`,
+          description: this.t('fiveW1H.centerDescription', { topicTitle: this.topicTitle }),
           x: 190, y: 140
         },
         { 
           id: 'who', 
-          label: 'WHO\n誰', 
+          label: `WHO\n${this.t('fiveW1H.categories.who.name')}`, 
           type: '5w1h', 
           category: 'who',
-          description: '涉及的人物、組織和利益相關者'
+          description: this.t('fiveW1H.categories.who.description')
         },
         { 
           id: 'what', 
-          label: 'WHAT\n什麼', 
+          label: `WHAT\n${this.t('fiveW1H.categories.what.name')}`, 
           type: '5w1h', 
           category: 'what',
-          description: '發生的事件內容和具體行為'
+          description: this.t('fiveW1H.categories.what.description')
         },
         { 
           id: 'when', 
-          label: 'WHEN\n何時', 
+          label: `WHEN\n${this.t('fiveW1H.categories.when.name')}`, 
           type: '5w1h', 
           category: 'when',
-          description: '事件發生的時間軸和重要節點'
+          description: this.t('fiveW1H.categories.when.description')
         },
         { 
           id: 'where', 
-          label: 'WHERE\n哪裡', 
+          label: `WHERE\n${this.t('fiveW1H.categories.where.name')}`, 
           type: '5w1h', 
           category: 'where',
-          description: '事件發生的地點和範圍'
+          description: this.t('fiveW1H.categories.where.description')
         },
         { 
           id: 'why', 
-          label: 'WHY\n為什麼', 
+          label: `WHY\n${this.t('fiveW1H.categories.why.name')}`, 
           type: '5w1h', 
           category: 'why',
-          description: '事件發生的原因和背景'
+          description: this.t('fiveW1H.categories.why.description')
         },
         { 
           id: 'how', 
-          label: 'HOW\n如何', 
+          label: `HOW\n${this.t('fiveW1H.categories.how.name')}`, 
           type: '5w1h', 
           category: 'how',
-          description: '事件的過程和方式'
+          description: this.t('fiveW1H.categories.how.description')
         }
       ],
       links: [
@@ -1350,8 +1345,8 @@ createMainNodesOverview() {
                  <div class="fivew1h-container">
            <div class="fivew1h-graph" id="fivew1h-graph-${this.containerId}"></div>
            <div class="fivew1h-bottom-row">
-             <p class="fivew1h-instructions">💡 可以拖動背景移動圖形、縮放以中心為基準，或拖動個別節點調整位置</p>
-             <button class="fivew1h-btn" onclick="window.fivew1hVizInstance?.reloadData()">重新載入</button>
+             <p class="fivew1h-instructions">${this.t('fiveW1H.instructions')}</p>
+             <button class="fivew1h-btn" onclick="window.fivew1hVizInstance?.reloadData()">${this.t('fiveW1H.reloadButton')}</button>
            </div>
          </div>
       `;
@@ -1400,13 +1395,13 @@ createMainNodesOverview() {
 }
 
 // 導出一個函數來創建和初始化 header 視覺化
-export const createHeaderVisualization = (containerRef, reportTitle, isModal = false, topicId = null) => {
+export const createHeaderVisualization = (containerRef, reportTitle, isModal = false, topicId = null, t = (key) => key, getFieldName = (fieldName) => fieldName) => {
   if (!containerRef.current) return null;
 
   // 清理舊的內容
   containerRef.current.innerHTML = '';
   
-  // 創建容器，為模態框使用不同的ID
+  // 創建容器,為模態框使用不同的ID
   const containerId = isModal ? 'expanded-mindmap' : 'header-mindmap';
   const mindmapContainer = document.createElement('div');
   mindmapContainer.id = containerId;
@@ -1423,8 +1418,10 @@ export const createHeaderVisualization = (containerRef, reportTitle, isModal = f
     height: height,
     dragLimit: isModal ? 50 : 20,
     isHeaderMode: !isModal, // 模態框不使用header模式，顯示完整功能
-    topicTitle: reportTitle || "專題分析",
-    topicId: topicId // 新增：傳遞 topic_id
+    topicTitle: reportTitle || t('fiveW1H.defaultTitle'),
+    topicId: topicId, // 新增：傳遞 topic_id
+    t: t, // 傳遞翻譯函數
+    getFieldName: getFieldName // 傳遞 getFieldName 函數
   });
   
   // 確保 D3.js 載入後再初始化

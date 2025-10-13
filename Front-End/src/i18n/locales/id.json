@@ -20,17 +20,7 @@
       "placeholder": "Cari berita/kata kunci..."
     },
     "language": {
-      "select": "Pilih Bahasa",
-      "chinese": "Mandarin",
-      "english": "Inggris",
-      "japanese": "Jepang",
-      "korean": "Korea",
-      "vietnamese": "Vietnam",
-      "filipino": "Filipina",
-      "indonesian": "Indonesia",
-      "spanish": "Spanyol",
-      "french": "Prancis",
-      "german": "Jerman"
+      "select": "Pilih Bahasa"
     }
   },
   "home": {
@@ -348,6 +338,39 @@
     },
     "moreButton": {
       "text": "Tampilkan lebih banyak hasil pencarian ({{count}} artikel)"
+    }
+  },
+  "fiveW1H": {
+    "defaultTitle": "Analisis Topik",
+    "centerDescription": "Analisis Isu Inti dari {{topicTitle}}",
+    "categoryRelatedContent": "Konten terkait {{category}}",
+    "instructions": "💡 Seret latar belakang untuk memindahkan grafik, zoom terpusat, atau seret node individual untuk menyesuaikan posisi",
+    "reloadButton": "Muat Ulang",
+    "categories": {
+      "who": {
+        "name": "Siapa",
+        "description": "Orang, organisasi, dan pemangku kepentingan yang terlibat"
+      },
+      "what": {
+        "name": "Apa",
+        "description": "Konten peristiwa dan tindakan spesifik"
+      },
+      "when": {
+        "name": "Kapan",
+        "description": "Timeline dan tonggak penting"
+      },
+      "where": {
+        "name": "Di mana",
+        "description": "Lokasi dan ruang lingkup peristiwa"
+      },
+      "why": {
+        "name": "Mengapa",
+        "description": "Alasan dan latar belakang peristiwa"
+      },
+      "how": {
+        "name": "Bagaimana",
+        "description": "Proses dan metode peristiwa"
+      }
     }
   }
 }
