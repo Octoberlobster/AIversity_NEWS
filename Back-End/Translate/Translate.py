@@ -698,6 +698,34 @@ class Translate:
                 return None
 
 if __name__ == "__main__":
-    translate = Translate(supabase, gemini_client)  
-    topic_id = "f147384e-06d2-42e4-994c-621b6026e0fe"
-    translate.translate_mindmap(topic_id)
+    
+    #宣告Translate物件
+    #translate = Translate(supabase, gemini_client)  
+    
+    #跑所有新聞的翻譯
+    """
+    story_id_list = supabase.table("single_news").select("story_id").execute().data
+    story_id_list = [item.get("story_id", "") for item in story_id_list]
+    for story_id in story_id_list:
+        print(f"開始翻譯story_id '{story_id}' 的新聞資料")
+        translate.translate_singleNews(story_id)
+        translate.translate_relativeNews(story_id)
+        translate.translate_relativeTopics(story_id)
+        translate.translate_terms(story_id)
+        translate.translate_position(story_id)
+        translate.translate_pro_analyze(story_id)
+        translate.translate_imagedescription(story_id)
+        translate.translate_keyword(story_id)
+    """
+    
+    #跑所有topic的翻譯
+    """
+    topic_id_list = supabase.table("topic").select("topic_id").execute().data
+    topic_id_list = [item.get("topic_id", "") for item in topic_id_list]
+    for topic_id in topic_id_list:
+        print(f"開始翻譯topic_id '{topic_id}' 的主題資料")
+        translate.translate_topic(topic_id)
+        translate.translate_topic_branch(topic_id)
+        translate.translate_mindmap(topic_id)
+    """
+    
