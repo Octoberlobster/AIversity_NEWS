@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import ReactMarkdown from 'react-markdown';
 import { fetchJson } from './api';
@@ -50,18 +52,53 @@ const parseWhoTalk = (whoTalk) => {
   return [];
 };
 
-function ChatRoom({newsData, onClose}, ref) {
+function updateExpertNamesByChatExperts(chatExperts) {
+  if (!Array.isArray(chatExperts)) return;
+
+  chatExperts.forEach(item => {
+    if (!item || !item.category) return; // 避免 item 為 null 或沒有 category
+
+    const expert = experts.find(e => e.category === item.category);
+    if (expert && item.analyze?.Role) {
+      expert.name = item.analyze.Role;
+    }
+  });
+}
+
+function ChatRoom({newsData, onClose, chatExperts}, ref) {
+  const { t } = useTranslation();
   const [selectedExperts, setSelectedExperts] = useState([]);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
-  // 溯源驗證相關狀態
-  const [proofMessages, setProofMessages] = useState([]);
-  const [showProofMode, setShowProofMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 根據當前語言獲取對應的區域代碼
+  const getCurrentLocale = () => {
+    const currentLang = i18n.language;
+    switch (currentLang) {
+      case 'zh-TW':
+        return 'zh-TW';
+      case 'en':
+        return 'en-US';
+      case 'jp':
+        return 'ja-JP';
+      case 'id':
+        return 'id-ID';
+      default:
+        return 'zh-TW';
+    }
+  };
+
+  // 獲取格式化的時間字符串
+  const getFormattedTime = useCallback(() => {
+    return new Date().toLocaleTimeString(getCurrentLocale(), { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  }, []);
 
   const messagesEndRef = useRef(null);
-  const proofMessagesEndRef = useRef(null);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -71,21 +108,11 @@ function ChatRoom({newsData, onClose}, ref) {
 
   // 暴露給父組件的方法
   useImperativeHandle(ref, () => ({
-    addFactCheckMessage: (message) => {
-      setProofMessages((prev) => [...prev, message]);
-      setShowProofMode(true); // 自動切換到溯源驗證模式
-    },
-    resetToChat: () => {
-      setShowProofMode(false);
-    }
   }), []);
 
-  // 當切換回專家聊天模式時的處理
-  useEffect(() => {
-    // 目前只是監聽模式切換，不做額外處理
-  }, [showProofMode]);
 
-  // 當 newsData 改變時，清理不在 who_talk 範圍內的已選專家
+
+  // 當 newsData 改變時,清理不在 who_talk 範圍內的已選專家
   useEffect(() => {
     const whoTalkArray = parseWhoTalk(newsData?.who_talk);
 
@@ -95,26 +122,31 @@ function ChatRoom({newsData, onClose}, ref) {
           const expert = experts.find(e => e.id === expertId);
           return expert && whoTalkArray.includes(expert.category);
         });
+        
+        // 自動選擇第一個符合條件的專家(如果目前沒有選中任何專家)
+        if (validExperts.length === 0) {
+          const firstAvailableExpert = experts.find(expert => 
+            whoTalkArray.includes(expert.category)
+          );
+          if (firstAvailableExpert) {
+            return [firstAvailableExpert.id];
+          }
+        }
+        
         return validExperts;
       });
     }
   }, [newsData?.who_talk]);
 
-  // 自動滾到最底
+    // 自動滾動到底部
   useEffect(() => {
-    if (messagesEndRef.current && !showProofMode) {
-      const container = messagesEndRef.current.closest('[data-messages-container]');
-      if (container) {
-        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-      }
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end'
+      });
     }
-    if (proofMessagesEndRef.current && showProofMode) {
-      const container = proofMessagesEndRef.current.closest('[data-proof-container]');
-      if (container) {
-        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-      }
-    }
-  }, [messages, proofMessages, showProofMode]);
+  }, [messages]);
 
   const changeQuickPrompt = useCallback(async (chat_content = '') => {
     try{
@@ -122,7 +154,7 @@ function ChatRoom({newsData, onClose}, ref) {
         (expertId) => experts.find((e) => e.id === expertId).category
       );
 
-      const response = await fetchJson('/hint_prompt/single', {
+      const response = await fetchJson('/api/hint_prompt/single', {
         option : options,
         user_id: user_id,
         room_id: room_id,
@@ -159,21 +191,31 @@ function ChatRoom({newsData, onClose}, ref) {
     }
   }, [selectedExperts, changeQuickPrompt]);
 
+  useEffect(() => {
+    // chatExperts 變動時自動更新 experts 的 name
+    updateExpertNamesByChatExperts(chatExperts);
+  }, [chatExperts]);
+
   // 等待 category 傳遞後初始化 selectedExperts
   useEffect(() => {
     if (newsData.category) {
       const filteredExperts = experts
         .filter((expert) => expert.category === newsData.category)
         .map((expert) => expert.id);
-      setSelectedExperts(filteredExperts);
-      setMessages(["歡迎使用新聞小幫手，在這你可以同時詢問多位不同領域的專家，利用快速提示幫助你展開第一個話題，運用溯源驗證來證實新聞內容並非虛言。"].map(text => ({
+      
+      // 自動選擇第一個符合條件的專家
+      if (filteredExperts.length > 0) {
+        setSelectedExperts([filteredExperts[0]]);
+      }
+      
+      setMessages([t('exportChat.welcome.chat.greeting')].map(text => ({
         id: Date.now() + Math.random(),
         text,
         isOwn: false,
-        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+        time: getFormattedTime(),
       }))); 
     }
-  }, [newsData.category]);
+  }, [newsData.category, t, getFormattedTime]);
 
   const toggleExpert = (id) => {
     setSelectedExperts((prev) =>
@@ -186,7 +228,7 @@ function ChatRoom({newsData, onClose}, ref) {
     id: Date.now(),
     text,
     isOwn: true,
-    time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    time: getFormattedTime(),
   });
 
   const makeExpertReply = (expertId) => {
@@ -195,49 +237,96 @@ function ChatRoom({newsData, onClose}, ref) {
       id: Date.now() + expertId,
       text: `${expert.name}：${expertReplies[expertId]}`,
       isOwn: false,
-      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+      time: getFormattedTime(),
     };
   };
 
   const simulateReplies = async () => {
+    setIsLoading(true);
+
+    // 加入「載入中」訊息
+    const loadingMsg = {
+      id: 'loading-' + Date.now(),
+      isLoading: true,
+      isOwn: false,
+      time: getFormattedTime(),
+    };
+    setMessages((prev) => [...prev, loadingMsg]);
+
     try {
-      // 構建請求的資料
+      // 取得分類（categories）
       const categories = selectedExperts.map(
         (expertId) => experts.find((e) => e.id === expertId).category
       );
-  
-      // 呼叫後端 API
-      const response = await fetchJson('/chat/single', {
-        user_id: user_id,
-        room_id: room_id,
-        prompt: inputMessage,
-        category: categories,
-        article: newsData.long,
-      });
-  
-      // 處理後端回傳的回覆
-      response.response.forEach((reply, index) => {
+
+      // 🧠 1️⃣ 依每個 category 建立單獨請求
+      const fetchCategory = async (category) => {
+        return fetchJson('/api/chat/single', {
+          story_id: newsData.story_id,
+          user_id,
+          room_id,
+          prompt: inputMessage,
+          category: [category], // ✅ 每次只送一個分類
+          article: newsData.long,
+        })
+          .then((res) => ({
+            category,
+            reply: res.response?.[0]?.chat_response || '(無回覆)',
+          }))
+          .catch((err) => ({
+            category,
+            reply: `(錯誤) ${err.message}`,
+          }));
+      };
+
+      // 🧠 2️⃣ 平行送出所有請求
+      const allPromises = categories.map(fetchCategory);
+      const results = await Promise.all(allPromises);
+
+      // 移除「載入中」訊息
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
+      setIsLoading(false);
+
+      // 🧠 3️⃣ 顯示每個分類的回覆
+      results.forEach(({ category, reply }, index) => {
+        const expertId = selectedExperts[index];
+        const expertName = experts.find((e) => e.id === expertId).name;
+
+        const expertReply = makeExpertReply(expertId);
+        expertReply.text = `${expertName}：${reply}`;
+        expertReply.time = getFormattedTime();
+
+        // 模擬回覆延遲
         setTimeout(() => {
-          const expertId = selectedExperts[index]; // 根據順序匹配專家 ID
-          const expertReply = makeExpertReply(expertId); // 使用 makeExpertReply 生成回覆
-          expertReply.text = `${experts.find((e) => e.id === expertId).name}：${reply.chat_response}`; // 更新回覆內容
-
           setMessages((prev) => [...prev, expertReply]);
-        }, 1000 + index * 500); // 模擬延遲
+        }, 1000 + index * 500);
       });
 
-      // 格式化專家回覆為 "類別:回答"
-      const formattedReplies = response.response.map((reply, index) => {
-        const category = categories[index];
-        return `${category}: ${reply.chat_response}`;
-      });
+      // 🧠 4️⃣ 整理成 quick prompt 格式
+      const formattedReplies = results.map(
+        ({ category, reply }) => `${category}: ${reply}`
+      );
+      changeQuickPrompt(`user:${inputMessage} ${formattedReplies.join(' ')}`);
 
-      // 呼叫 changeQuickPrompt，傳入格式化的回覆
-      changeQuickPrompt(`user:${inputMessage} ${formattedReplies.join(" ")}`);
     } catch (error) {
       console.error('Error fetching expert replies:', error);
+
+      // 移除載入中
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
+      setIsLoading(false);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: t('exportChat.error.serverError'),
+          isOwn: false,
+          time: getFormattedTime(),
+        },
+      ]);
     }
   };
+
 
 
   const handlePromptSend = (promptText) => {
@@ -261,42 +350,88 @@ function ChatRoom({newsData, onClose}, ref) {
   };
 
   const simulateRepliesWithPrompt = async (promptText) => {
+    setIsLoading(true);
+
+    // 加入載入中訊息
+    const loadingMsg = {
+      id: 'loading-' + Date.now(),
+      isLoading: true,
+      isOwn: false,
+      time: getFormattedTime(),
+    };
+    setMessages((prev) => [...prev, loadingMsg]);
+
     try {
-      // 構建請求的資料
+      // 取得選中專家的分類
       const categories = selectedExperts.map(
         (expertId) => experts.find((e) => e.id === expertId).category
       );
-  
-      // 呼叫後端 API
-      const response = await fetchJson('/chat/single', {
-        user_id: user_id,
-        room_id: room_id,
-        prompt: promptText,
-        category: categories,
-        article: newsData.long,
-      });
-  
-      // 處理後端回傳的回覆
-      response.response.forEach((reply, index) => {
-        setTimeout(() => {
-          const expertId = selectedExperts[index];
-          const expertReply = makeExpertReply(expertId);
-          expertReply.text = `${experts.find((e) => e.id === expertId).name}：${reply.chat_response}`;
 
+      // 🧠 每個 category 各自請求
+      const fetchCategory = async (category) => {
+        return fetchJson('/api/chat/single', {
+          story_id: newsData.story_id,
+          user_id,
+          room_id,
+          prompt: promptText,
+          category: [category], // ✅ 每次只傳單一分類
+          article: newsData.long,
+        })
+          .then((res) => ({
+            category,
+            reply: res.response?.[0]?.chat_response || '(無回覆)',
+          }))
+          .catch((err) => ({
+            category,
+            reply: `(錯誤) ${err.message}`,
+          }));
+      };
+
+      // 🧠 平行發送所有請求
+      const allPromises = categories.map(fetchCategory);
+      const results = await Promise.all(allPromises);
+
+      // 移除載入中訊息
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
+      setIsLoading(false);
+
+      // 🧠 顯示每個分類的回覆
+      results.forEach(({ category, reply }, index) => {
+        const expertId = selectedExperts[index];
+        const expertName = experts.find((e) => e.id === expertId).name;
+
+        const expertReply = makeExpertReply(expertId);
+        expertReply.text = `${expertName}：${reply}`;
+        expertReply.time = getFormattedTime();
+
+        // 模擬輸出延遲，讓畫面看起來自然
+        setTimeout(() => {
           setMessages((prev) => [...prev, expertReply]);
         }, 1000 + index * 500);
       });
 
-      // 格式化專家回覆為 "類別:回答"
-      const formattedReplies = response.response.map((reply, index) => {
-        const category = categories[index];
-        return `${category}: ${reply.chat_response}`;
-      });
+      // 🧠 整合成 quick prompt 格式
+      const formattedReplies = results.map(
+        ({ category, reply }) => `${category}: ${reply}`
+      );
+      changeQuickPrompt(`user:${promptText} ${formattedReplies.join(' ')}`);
 
-      // 呼叫 changeQuickPrompt，傳入格式化的回覆
-      changeQuickPrompt(`user:${promptText} ${formattedReplies.join(" ")}`);
     } catch (error) {
       console.error('Error fetching expert replies:', error);
+
+      // 移除載入訊息
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
+      setIsLoading(false);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: t('exportChat.error.serverError'),
+          isOwn: false,
+          time: getFormattedTime(),
+        },
+      ]);
     }
   };
 
@@ -318,68 +453,7 @@ function ChatRoom({newsData, onClose}, ref) {
     if (e.key === 'Enter') handleSendMessage();
   };
 
-  const handleProofButtonClick = async () => {
-    try {
-      const response = await fetchJson('/proof/single_news', {
-        story_id: newsData.story_id,
-      });
 
-      // Format the response into a more structured format
-      let formattedResponse = "### 📋 新聞內容溯源驗證報告\n\n";
-      
-      if (response && response.length > 0) {        
-        response.forEach((item, index) => {
-          formattedResponse += `#### 📖 內容片段 ${index + 1}\n`;
-          formattedResponse += `**原文：** ${item.sentence}\n\n`;
-          
-          if (item.source && item.source.length > 0) {
-            formattedResponse += `**📚 相關來源：**\n`;
-            item.source.forEach((src, srcIndex) => {
-              formattedResponse += `${srcIndex + 1}. **[${src.title}](${src.url})** *來源：${src.media}*\n`;
-            });
-          } else {
-            formattedResponse += `<div class="verification-status warning">⚠️ 此片段暫無找到相關來源</div>\n`;
-          }
-          
-          formattedResponse += "\n---\n\n";
-        });
-        
-        formattedResponse += "**💡 說明：** 以上資料來自系統自動比對，建議進一步查證確認。\n";
-      } else {
-        formattedResponse += `<div class="verification-status error">❌ 查無相關來源資料</div>\n\n`;
-        formattedResponse += "**建議：** 請檢查新聞來源的可信度或嘗試其他查證方式。\n";
-      }
-
-      // Add the formatted response to the proof messages container
-      setProofMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          text: formattedResponse,
-          isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
-      
-      // Switch to proof mode to show the verification results
-      setShowProofMode(true);
-    } catch (error) {
-      console.error('Error fetching proof data:', error);
-      
-      const errorMessage = `### ❌ 溯源驗證失敗\n\n<div class="verification-status error">系統錯誤</div>\n\n**錯誤原因：** 無法連接到驗證服務\n\n**建議：** 請稍後再試或聯繫系統管理員`;
-      
-      setProofMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          text: errorMessage,
-          isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
-      setShowProofMode(true);
-    }
-  };
 
   return (
     <div className="chat">
@@ -388,30 +462,20 @@ function ChatRoom({newsData, onClose}, ref) {
           <div className="chat__icon">🤖</div>
           <div>
             <h3 className="chat__title">
-              {showProofMode ? "溯源驗證結果" : "AI 專家討論室"}
+              {t('exportChat.titles.chat')}
             </h3>
             <p className="chat__subtitle">
-              {showProofMode ? "新聞內容溯源查核" : `${selectedExperts.length} 位專家在線`}
+              {t('exportChat.subtitles.chat', { count: selectedExperts.length })}
             </p>
           </div>      
         </div>
         <div className="chat__headerRight">
-          {/* 模式切換按鈕 */}
-          {showProofMode && (
-            <button 
-              className="chat-mode-switch-btn"
-              onClick={() => setShowProofMode(false)}
-              title="返回專家聊天"
-            >
-              返回聊天
-            </button>
-          )}
           {/* 關閉聊天室按鈕 - 採用FloatingChat樣式 */}
           {onClose && (
             <button 
               className="chat-close-btn"
               onClick={onClose}
-              title="關閉聊天室"
+              title={t('exportChat.tooltips.closeChat')}
             >
               ✕
             </button>
@@ -419,15 +483,14 @@ function ChatRoom({newsData, onClose}, ref) {
         </div>
       </div>
 
-      {!showProofMode && (
-        <div className="chat__expertSelector">
+      <div className="chat__expertSelector">
           <div className="dropdown" ref={dropdownRef}>
             <button
               type="button"
               className="dropdown__btn"
               onClick={() => setIsDropdownOpen((v) => !v)}
             >
-              <span>選擇專家</span>
+              <span>{t('exportChat.buttons.selectExperts')}</span>
               {selectedExperts.length > 0 && <span className="selectedCount">{selectedExperts.length}</span>}
               <span className={`dropdown__icon ${isDropdownOpen ? 'is-open' : ''}`}>▼</span>
             </button>
@@ -461,96 +524,39 @@ function ChatRoom({newsData, onClose}, ref) {
               </div>
             )}
           </div>
-          
-          <button className="proofButton proofButton--inline" onClick={handleProofButtonClick}>
-            🔍 溯源驗證
-          </button>
         </div>
-      )}
 
-      {!showProofMode ? (
-        // 專家聊天室訊息區域
+      {/* 專家聊天室訊息區域 */}
         <div className="messages" data-messages-container>
           {messages.length === 0 && (
             <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💬</div>
-              <h3>歡迎來到 AI 專家討論室</h3>
-              <p>選擇專家並開始討論吧！</p>
+              <h3>{t('exportChat.welcome.chat.title')}</h3>
+              <p>{t('exportChat.welcome.chat.description')}</p>
             </div>
           )}
 
           {messages.map((m) => (
-            <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''}`}>
-              <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>
-                <ReactMarkdown>{m.text}</ReactMarkdown>
+            <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''} ${m.isLoading ? 'message--loading' : ''}`}>
+              <div className={`bubble ${m.isOwn ? 'bubble--own' : ''} ${m.isLoading ? 'bubble--loading' : ''}`}>
+                {m.isLoading ? (
+                  <div className="loading-dots">
+                    <span className="loading-dot"></span>
+                    <span className="loading-dot"></span>
+                    <span className="loading-dot"></span>
+                  </div>
+                ) : (
+                  <ReactMarkdown>{m.text}</ReactMarkdown>
+                )}
               </div>
               <span className="time">{m.time}</span>
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
-      ) : (
-        // 溯源驗證結果區域
-        <div className="messages proof-messages" data-proof-container>
-          {proofMessages.length === 0 && (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '3rem 2rem',
-              color: '#64748b',
-              textAlign: 'center',
-              height: '100%'
-            }}>
-              <div style={{ 
-                fontSize: '4rem', 
-                marginBottom: '1.5rem',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>🔍</div>
-              <h3 style={{ 
-                color: '#3b82f6', 
-                marginBottom: '1rem',
-                fontSize: '1.5rem',
-                fontWeight: '600'
-              }}>溯源驗證查核</h3>
-              <p style={{ 
-                color: '#64748b',
-                fontSize: '1rem',
-                lineHeight: '1.6',
-                maxWidth: '400px'
-              }}>點擊下方「🔍 溯源驗證」按鈕開始查核新聞內容的真實性和來源</p>
-              <div style={{
-                marginTop: '1.5rem',
-                padding: '1rem',
-                background: '#f8faff',
-                borderRadius: '8px',
-                border: '2px solid #e2e8f0',
-                fontSize: '0.9rem',
-                color: '#475569'
-              }}>
-                💡 系統將自動比對新聞內容與可信來源
-              </div>
-            </div>
-          )}
-
-          {proofMessages.map((m) => (
-            <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''} proof-message`}>
-              <div className={`bubble ${m.isOwn ? 'bubble--own' : 'bubble--proof'}`}>
-                <ReactMarkdown>{m.text}</ReactMarkdown>
-              </div>
-              <span className="time">{m.time}</span>
-            </div>
-          ))}
-          <div ref={proofMessagesEndRef} />
-        </div>
-      )}
 
       <div className="prompt">
-        {!showProofMode && quickPrompts.length > 0 && selectedExperts.length > 0 && (
+        {quickPrompts.length > 0 && selectedExperts.length > 0 && (
           <div className="prompt__container">
             {quickPrompts.map((p, i) => (
               <button
@@ -568,25 +574,13 @@ function ChatRoom({newsData, onClose}, ref) {
         
       </div>
 
-      {/* 溯源驗證模式下的操作區域 */}
-      {showProofMode && (
-        <div className="proof-mode-controls">
-          <button 
-            className="proofButton" 
-            onClick={handleProofButtonClick}
-          >
-            重新驗證
-          </button>
-        </div>
-      )}
 
-      {!showProofMode && (
         <div className="input">
           <input
             ref={inputRef}
             type="text"
             className="input__text"
-            placeholder={selectedExperts.length === 0 ? "請先選擇專家..." : "輸入您的問題..."}
+            placeholder={selectedExperts.length === 0 ? t('exportChat.placeholders.selectFirst') : t('exportChat.placeholders.enterQuestion')}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -615,7 +609,6 @@ function ChatRoom({newsData, onClose}, ref) {
             ➤
           </button>
         </div>
-      )}
     </div>
   );
 }

@@ -855,7 +855,7 @@
 .newsDetail .chat-sidebar{
     position: fixed;
     top: 0;
-    right: -400px;
+    right: -500px;
     width: 400px;
     height: 100vh;
     background: #ffffff;
@@ -894,4 +894,120 @@
     justify-content: center;
     border-radius: 50%;
     transition: background 0.2s;
+}
+
+/* 正反方立場點擊樣式 */
+.newsDetail .clickable-point {
+    cursor: pointer;
+}
+
+.newsDetail .clickable-point:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15) !important;
+}
+
+/* 正反方立場彈窗樣式 */
+.newsDetail .position-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.newsDetail .position-modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.newsDetail .position-modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.newsDetail .position-modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.newsDetail .position-modal-title.positive {
+    color: #22c55e;
+}
+
+.newsDetail .position-modal-title.negative {
+    color: #ef4444;
+}
+
+.newsDetail .position-modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #6b7280;
+    transition: background 0.2s, color 0.2s;
+}
+
+.newsDetail .position-modal-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.newsDetail .position-modal-body {
+    padding: 25px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.newsDetail .position-modal-body p {
+    margin: 0;
+    line-height: 1.7;
+    font-size: 1rem;
+    color: #374151;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .newsDetail .position-modal-overlay {
+        padding: 10px;
+    }
+    
+    .newsDetail .position-modal-content {
+        max-height: 90vh;
+    }
+    
+    .newsDetail .position-modal-header {
+        padding: 15px 20px;
+    }
+    
+    .newsDetail .position-modal-body {
+        padding: 20px;
+    }
+    
+    .newsDetail .position-modal-title {
+        font-size: 1.1rem;
+    }
 }

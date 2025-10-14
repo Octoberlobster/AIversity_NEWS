@@ -1,14 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import TopicChatRoom from './TopicChatRoom';
 import UnifiedNewsCard from './UnifiedNewsCard';
 import { useSupabase } from './supabase';
 import { createHeaderVisualization } from './FiveW1HVisualization';
+import { useLanguageFields } from '../utils/useLanguageFields';
 import './../css/SpecialReportDetail.css';
 
 function SpecialReportDetail() {
+  const { t } = useTranslation();
+  const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
   const { id } = useParams();
+  
+  const getLanguageRoute = (path) => {
+    return `/${getCurrentLanguage()}${path}`;
+  };
   const [report, setReport] = useState(null);
   const [branches, setBranches] = useState([]); // 專題分支列表
   const [loading, setLoading] = useState(true);
@@ -17,68 +25,65 @@ function SpecialReportDetail() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const sectionRefs = useRef({});
   const supabase = useSupabase();
-  const headerImageRef = useRef(null);
-  const vizInstanceRef = useRef(null);
   const [is5W1HExpanded, setIs5W1HExpanded] = useState(false);
   const expanded5W1HRef = useRef(null);
   const expandedVizInstanceRef = useRef(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [integrationReport, setIntegrationReport] = useState('');
+  
+  // 專家分析（從資料庫讀取）
+  const [expertAnalysis, setExpertAnalysis] = useState([]);
+  const [analysisLoading, setAnalysisLoading] = useState(true);
+  
+  // 專家分析彈出視窗狀態
+  const [selectedExpert, setSelectedExpert] = useState(null);
+  const [isExpertModalOpen, setIsExpertModalOpen] = useState(false);
 
-  useEffect(() => {
-    const initializeHeaderVisualization = () => {
-      if (headerImageRef.current && !vizInstanceRef.current) {
-        // 使用新的 createHeaderVisualization 函數
-        vizInstanceRef.current = createHeaderVisualization(
-          headerImageRef, 
-          report?.topic_title || "專題分析",
-          false, // isModal
-          report?.topic_id || id // 傳遞 topic_id，如果沒有就用 URL 的 id
-        );
-      }
-    };
+  // 開啟專家分析彈出視窗
+  const openExpertModal = (expert) => {
+    setSelectedExpert(expert);
+    setIsExpertModalOpen(true);
+  };
 
-    // 延遲初始化確保 DOM 就緒
-    const timer = setTimeout(initializeHeaderVisualization, 100);
-    
-    return () => {
-      clearTimeout(timer);
-      // 清理實例
-      if (vizInstanceRef.current) {
-        vizInstanceRef.current = null;
-      }
-    };
-  }, [report?.topic_title, report?.topic_id, id]);
+  // 關閉專家分析彈出視窗
+  const closeExpertModal = () => {
+    setIsExpertModalOpen(false);
+    setTimeout(() => setSelectedExpert(null), 300); // 等待動畫結束後清除
+  };
 
-  // 新增：處理5W1H關聯圖點擊放大
+  // 截斷文字函數
+  const truncateText = (text, maxLength = 48) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  // 處理5W1H關聯圖顯示
   useEffect(() => {
     if (is5W1HExpanded && expanded5W1HRef.current && !expandedVizInstanceRef.current) {
-      // 延遲初始化確保模態框DOM就緒
       const timer = setTimeout(() => {
         if (expanded5W1HRef.current) {
           expandedVizInstanceRef.current = createHeaderVisualization(
             expanded5W1HRef, 
-            report?.topic_title || "專題分析",
-            true, // 標記為模態框模式
-            report?.topic_id || id // 傳遞 topic_id
+            report?.topic_title || t('fiveW1H.defaultTitle'),
+            true,
+            report?.topic_id || id,
+            t,
+            getFieldName
           );
         }
       }, 100);
-      
       return () => clearTimeout(timer);
     }
-  }, [is5W1HExpanded, report?.topic_title, report?.topic_id, id]);
+  }, [is5W1HExpanded, report?.topic_title, report?.topic_id, id, t, getFieldName]);
 
-  // 新增：關閉5W1H關聯圖放大視窗
   const close5W1HExpanded = () => {
     setIs5W1HExpanded(false);
-    // 清理放大的視覺化實例
     if (expandedVizInstanceRef.current) {
       expandedVizInstanceRef.current = null;
     }
   };
 
-  // 新增：點擊5W1H關聯圖放大
   const handle5W1HClick = () => {
     setIs5W1HExpanded(true);
   };
@@ -88,13 +93,57 @@ function SpecialReportDetail() {
     setIsReportModalOpen(true);
     
     // 模擬報告生成過程
-    setIntegrationReport('正在生成報告...');
+    setIntegrationReport(t('specialReportDetail.modal.report.generating'));
     
     // 模擬API調用延遲
     setTimeout(() => {
       setIntegrationReport(report.report || '');
     }, 2000);
   };
+
+  // 載入專家分析資料
+  useEffect(() => {
+    const fetchExpertAnalysis = async () => {
+      if (!id || !supabase) return;
+      
+      setAnalysisLoading(true);
+      
+      try {
+        // 查詢專家分析，支援多語言
+        const analyzeMultiLangFields = ['analyze'];
+        const analyzeSelectFields = getMultiLanguageSelect(analyzeMultiLangFields);
+        
+        const { data, error } = await supabase
+          .from('pro_analyze_topic')
+          .select(`analyze_id, category, ${analyzeSelectFields}`)
+          .eq('topic_id', id);
+        
+        if (error) {
+          console.error(`Error fetching expert analysis for topic ${id}:`, error);
+          setExpertAnalysis([]);
+          setAnalysisLoading(false);
+          return;
+        }
+
+        // 處理多語言分析資料
+        const analysisData = (data || []).map(item => ({
+          analyze_id: item.analyze_id,
+          category: item.category,
+          analyze: item[getFieldName('analyze')] || item.analyze
+        }));
+        
+        setExpertAnalysis(analysisData);
+      } catch (error) {
+        console.error(`Error fetching expert analysis for topic ${id}:`, error);
+        setExpertAnalysis([]);
+      } finally {
+        setAnalysisLoading(false);
+      }
+    };
+
+    fetchExpertAnalysis();
+  }, [id, supabase, getFieldName, getMultiLanguageSelect]);
+
   // 獲取專題詳細資料
   const fetchSpecialReportDetail = async () => {
     try {
@@ -102,9 +151,12 @@ function SpecialReportDetail() {
       setError(null);
 
       // 專題基本資訊
+      const topicMultiLangFields = ['topic_title', 'topic_short', 'topic_long', 'report'];
+      const topicSelectFields = getMultiLanguageSelect(topicMultiLangFields);
+      
       const { data: topicData, error: topicError } = await supabase
         .from('topic')
-        .select('topic_id, topic_title, topic_short, topic_long, generated_date, report')
+        .select(`topic_id, ${topicSelectFields}, generated_date, who_talk`)
         .eq('topic_id', id)
         .single();
       if (topicError) throw new Error(`無法獲取專題資訊: ${topicError.message}`);
@@ -118,16 +170,19 @@ function SpecialReportDetail() {
       if (countError) console.warn('無法獲取新聞數量:', countError);
 
       // 專題分支列表（topic_branch）
+      const branchMultiLangFields = ['topic_branch_title', 'topic_branch_content'];
+      const branchSelectFields = getMultiLanguageSelect(branchMultiLangFields);
+      
       const { data: branchData, error: branchError } = await supabase
         .from('topic_branch')
-        .select('topic_branch_id, topic_id, topic_branch_title, topic_branch_content')
+        .select(`topic_branch_id, topic_id, ${branchSelectFields}`)
         .eq('topic_id', id);
       if (branchError) console.warn('無法獲取分支列表:', branchError);
 
       const normalizedBranches = (branchData || []).map((b, idx) => ({
         id: b.topic_branch_id,
-        name: b.topic_branch_title || `分支 ${idx + 1}`,
-        summary: b.topic_branch_content || ''
+        name: b[getFieldName('topic_branch_title')] || b.topic_branch_title || `分支 ${idx + 1}`,
+        summary: b[getFieldName('topic_branch_content')] || b.topic_branch_content || ''
       }));
 
       // 針對每個分支抓取對應新聞（topic_branch__map -> single_news），並轉為 UnifiedNewsCard 的 customData
@@ -147,9 +202,12 @@ function SpecialReportDetail() {
               return { ...branch, news: [] };
             }
 
+            const newsMultiLangFields = ['news_title', 'ultra_short'];
+            const newsSelectFields = getMultiLanguageSelect(newsMultiLangFields);
+            
             const { data: stories, error: storiesError } = await supabase
               .from('single_news')
-              .select('story_id, news_title, category, generated_date, total_articles, ultra_short')
+              .select(`story_id, ${newsSelectFields}, category, generated_date, total_articles`)
               .in('story_id', storyIds);
             if (storiesError) {
               console.warn(`無法獲取分支 ${branch.id} 的新聞內容:`, storiesError);
@@ -158,12 +216,12 @@ function SpecialReportDetail() {
 
             const customData = (stories || []).map(s => ({
               story_id: s.story_id,
-              title: s.news_title,
+              title: s[getFieldName('news_title')] || s.news_title,
               category: s.category, // 若需中文化，可在這裡自行映射
               date: s.generated_date,
               author: 'Gemini',
               sourceCount: s.total_articles,
-              shortSummary: s.ultra_short,
+              shortSummary: s[getFieldName('ultra_short')] || s.ultra_short,
               relatedNews: [],
               views: 0,
               keywords: [],
@@ -180,12 +238,13 @@ function SpecialReportDetail() {
 
       const reportData = {
         topic_id: topicData.topic_id,
-        topic_title: topicData.topic_title,
-        description: topicData.topic_long || topicData.topic_short || '',
+        topic_title: topicData[getFieldName('topic_title')] || topicData.topic_title,
+        description: topicData[getFieldName('topic_long')] || topicData[getFieldName('topic_short')] || topicData.topic_long || topicData.topic_short || '',
         articles: newsCountData ? newsCountData.length : 0,
         views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
         lastUpdate: topicData.generated_date ? new Date(topicData.generated_date).toLocaleDateString('zh-TW') : '',
-        report: topicData.report || ''
+        report: topicData[getFieldName('report')] || topicData.report || '',
+        who_talk: topicData.who_talk || ''
       };
 
   setReport(reportData);
@@ -204,14 +263,14 @@ function SpecialReportDetail() {
       fetchSpecialReportDetail();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, supabase]);
+  }, [id, supabase, getCurrentLanguage()]);
 
   if (loading) {
     return (
       <div className="srdPage">
         <div className="srdMain">
           <div style={{ textAlign: 'center', padding: '3rem' }}>
-            <h2>載入中...</h2>
+            <h2>{t('specialReportDetail.loading')}</h2>
           </div>
         </div>
       </div>
@@ -223,10 +282,10 @@ function SpecialReportDetail() {
       <div className="srdPage">
         <div className="srdMain">
           <div style={{ textAlign: 'center', padding: '3rem' }}>
-            <h2>專題報導不存在</h2>
-            <p>{error || '請返回專題報導列表'}</p>
-            <Link to="/special-reports" style={{ color: '#667eea' }}>
-              返回專題報導
+            <h2>{t('specialReportDetail.error.notFound')}</h2>
+            <p>{error || t('specialReportDetail.error.fallback')}</p>
+            <Link to={getLanguageRoute("/special-reports")} style={{ color: '#667eea' }}>
+              {t('specialReportDetail.backToList')}
             </Link>
           </div>
         </div>
@@ -250,7 +309,7 @@ function SpecialReportDetail() {
       <button 
         className={`chat-toggle-btn ${isChatOpen ? 'hidden' : ''}`}
         onClick={() => setIsChatOpen(!isChatOpen)}
-        title={isChatOpen ? '關閉聊天室' : '開啟聊天室'}
+        title={isChatOpen ? t('specialReportDetail.chat.close') : t('specialReportDetail.chat.open')}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path 
@@ -267,6 +326,7 @@ function SpecialReportDetail() {
         {/* Header */}
         <div className="srdHeader">
           <div className="srdHeader__content">
+            <br />
             <h1 className="srdHeader__title">{report.topic_title}</h1>
             <p className="srdHeader__summary">{report.description}</p>
             <div className="srdHeader__meta">
@@ -276,25 +336,72 @@ function SpecialReportDetail() {
               </div>
               <div className="srdHeader__metaItem">
                 <span>📄</span>
-                <span>{report.articles} 篇文章</span>
-              </div>
-              <div className="srdHeader__metaItem">
-                <span>👁️</span>
-                <span>{report.views}</span>
+                <span>{report.articles} {t('specialReportDetail.header.articlesCount')}</span>
               </div>
               <button 
                 className="srdHeader__reportBtn"
                 onClick={generateIntegrationReport}
-                title="查看專題整合報告"
+                title={t('specialReportDetail.header.reportButtonTitle')}
               >
-                📊 專題報告
+                📊 {t('specialReportDetail.header.reportButton')}
+              </button>
+              <button 
+                className="srdHeader__5w1hBtn"
+                onClick={handle5W1HClick}
+                title="查看 5W1H 關聯圖"
+              >
+                🔍 5W1H {t('specialReportDetail.header.relationMap')}
               </button>
             </div>
           </div>
-          <div className="srdHeader__image" ref={headerImageRef} onClick={handle5W1HClick} style={{ cursor: 'pointer' }}>
-            <div id="header-mindmap" style={{ width: '100%', height: '100%' }}></div>
-            <div className="srdHeader__imageOverlay">
-              <span className="srdHeader__imageHint">點擊放大</span>
+          
+          {/* 專家分析區塊 - 手風琴模式 */}
+          <div className="srdHeader__expertAnalysis">
+            <h4 className="srdHeader__expertTitle">
+              💡 {t('specialReportDetail.header.expertAnalysis')}
+            </h4>
+            <div className="srdHeader__expertContent">
+              {analysisLoading ? (
+                <div className="srdHeader__analysisLoading">
+                  <div className="srdHeader__spinner"></div>
+                  <span>{t('specialReportDetail.header.loadingAnalysis')}</span>
+                </div>
+              ) : expertAnalysis && expertAnalysis.length > 0 ? (
+                <div className="srdHeader__expertCards">
+                  {expertAnalysis.map((analysis, index) => {
+                    // 確保 analyze 是物件
+                    const analyzeData = typeof analysis.analyze === 'string' 
+                      ? JSON.parse(analysis.analyze) 
+                      : analysis.analyze;
+                    
+                    const expertData = {
+                      ...analysis,
+                      analyzeData
+                    };
+                    
+                    return (
+                      <div 
+                        className="srdHeader__expertCard"
+                        key={analysis.analyze_id || index}
+                        onClick={() => openExpertModal(expertData)}
+                      >
+                        <div className="srdHeader__expertCardHeader">
+                          <span className="srdHeader__categoryTag">
+                            {analyzeData?.Role || analysis.category || t('specialReportDetail.header.expert')}
+                          </span>
+                        </div>
+                        <div className="srdHeader__expertCardPreview">
+                          {truncateText(analyzeData?.Analyze || t('specialReportDetail.header.noContent'))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="srdHeader__noAnalysis">
+                  {t('specialReportDetail.header.noExpertAnalysis')}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -304,10 +411,10 @@ function SpecialReportDetail() {
           {/* Sidebar - 移到左邊 */}
           <aside className="srdSidebar srdSidebar--left">
             <div className="srdSidebarCard">
-              <h3 className="srdSidebarTitle">專題導覽</h3>
+              <h3 className="srdSidebarTitle">{t('specialReportDetail.navigation.title')}</h3>
               <nav className="srdNav">
                 {branches.length === 0 ? (
-                  <div className="srdNavEmpty">尚無分支</div>
+                  <div className="srdNavEmpty">{t('specialReportDetail.navigation.noBranches')}</div>
                 ) : (
                   branches.map((b) => (
                     <button
@@ -341,12 +448,12 @@ function SpecialReportDetail() {
                   <div className="srdSection__meta">
                     <div className="srdSection__metaItem">
                       <span>📄</span>
-                      <span>{branch.news?.length || 0} 篇新聞</span>
+                      <span>{branch.news?.length || 0} {t('specialReportDetail.section.newsCount')}</span>
                     </div>
                     {branch.news?.length > 0 && (
                       <div className="srdSection__metaItem">
                         <span>📊</span>
-                        <span>共 {branch.news.reduce((sum, n) => sum + (n.sourceCount || 0), 0)} 來源</span>
+                        <span>{t('specialReportDetail.section.sourcesTotal', { count: branch.news.reduce((sum, n) => sum + (n.sourceCount || 0), 0) })}</span>
                       </div>
                     )}
                   </div>
@@ -367,7 +474,7 @@ function SpecialReportDetail() {
                         gap: '0.5rem', fontSize: '1.1rem'
                       }}>
                         <span>📭</span>
-                        <span>此分支暫無新聞內容</span>
+                        <span>{t('specialReportDetail.section.noContent')}</span>
                       </div>
                     )}
                   </div>
@@ -381,7 +488,13 @@ function SpecialReportDetail() {
       {/* 側邊聊天室 */}
       <div className={`chat-sidebar ${isChatOpen ? 'open' : ''}`}>
         <div className="chat-sidebar-content">
-          <TopicChatRoom topic_id={id} topic_title={report.topic_title} onClose={() => setIsChatOpen(false)} />
+          <TopicChatRoom 
+            topic_id={id} 
+            topic_title={report.topic_title}
+            topic_who_talk={report.who_talk}
+            topicExperts={expertAnalysis} 
+            onClose={() => setIsChatOpen(false)} 
+          />
         </div>
       </div>
       {/* 新增：5W1H關聯圖放大模態框 */}
@@ -391,12 +504,12 @@ function SpecialReportDetail() {
             <button 
               className="srd5W1HModal__closeBtn" 
               onClick={close5W1HExpanded}
-              aria-label="關閉"
+              aria-label={t('specialReportDetail.modal.5w1h.close')}
             >
               ✕
             </button>
             <div className="srd5W1HModal__title">
-               <h2>{report.topic_title} - 5W1H關聯分析</h2>
+               <h2>{report.topic_title} - {t('specialReportDetail.modal.5w1h.title')}</h2>
             </div>
             <div className="srd5W1HModal__visualization" ref={expanded5W1HRef}>
               <div id="expanded-mindmap" style={{ width: '100%', height: '100%' }}></div>
@@ -410,26 +523,54 @@ function SpecialReportDetail() {
         <div className="srdReportModal" onClick={() => setIsReportModalOpen(false)}>
           <div className="srdReportModal__content" onClick={(e) => e.stopPropagation()}>
             <div className="srdReportModal__header">
-              <h2 className="srdReportModal__title">📊 專題整合分析報告</h2>
+              <h2 className="srdReportModal__title">📊 {t('specialReportDetail.modal.report.title')}</h2>
               <button 
                 className="srdReportModal__close"
                 onClick={() => setIsReportModalOpen(false)}
-                title="關閉報告"
+                title={t('specialReportDetail.modal.report.close')}
               >
                 ✕
               </button>
             </div>
             <div className="srdReportModal__body">
-              {integrationReport === '正在生成報告...' ? (
+              {integrationReport === t('specialReportDetail.modal.report.generating') ? (
                 <div className="srdReportModal__loading">
                   <div className="srdReportModal__spinner"></div>
-                  <p>正在生成專題分析報告，請稍候...</p>
+                  <p>{t('specialReportDetail.modal.report.generatingDetail')}</p>
                 </div>
               ) : (
                 <div className="srdReportModal__report">
                   <ReactMarkdown>{integrationReport}</ReactMarkdown>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 專家分析彈出視窗 */}
+      {isExpertModalOpen && selectedExpert && (
+        <div className="srdExpertModal" onClick={closeExpertModal}>
+          <div className="srdExpertModal__content" onClick={(e) => e.stopPropagation()}>
+            <div className="srdExpertModal__header">
+              <div className="srdExpertModal__title">
+                <span className="srdExpertModal__icon">👤</span>
+                <span className="srdHeader__categoryTag">
+                  {selectedExpert.analyzeData?.Role || selectedExpert.category || t('specialReportDetail.header.expert')}
+                </span>
+              </div>
+              <button 
+                className="srdExpertModal__close"
+                onClick={closeExpertModal}
+                title={t('specialReportDetail.modal.expert.close')}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="srdExpertModal__body">
+              <div className="srdExpertModal__analysis">
+                {selectedExpert.analyzeData?.Analyze || t('specialReportDetail.header.noContent')}
+              </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,381 @@
+{
+  "header": {
+    "brand": "AIversity",
+    "tagline": "AI-Driven News for Deeper Understanding",
+    "menu": {
+      "home": "Home",
+      "specialReports": "Special Reports",
+      "abroad": "Abroad News",
+      "politics": "Politics",
+      "taiwan": "Taiwan",
+      "international": "International",
+      "scienceAndTech": "Science & Technology",
+      "life": "Lifestyle",
+      "sports": "Sports", 
+      "entertainment": "Entertainment",
+      "finance": "Business & Finance",
+      "health": "Health"
+    },
+    "search": {
+      "placeholder": "Search news/keywords..."
+    },
+    "language": {
+      "select": "Select Language"
+    }
+  },
+  "home":{
+    "latestTopic": "Latest Topic",
+    "latestNews": "Latest News",
+    "articles": "Related Articles",
+    "topicpreview": "Topic Preview",
+    "nobranches": "No topic preview available"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadingMore": "Loading more...",
+    "error": "Loading failed",
+    "retry": "Retry",
+    "readMore": "Read more news",
+    "close": "Close",
+    "search": "Search",
+    "noContent": "No content available",
+    "searchError": "Search error occurred",
+    "reporter": "Reporter"
+  },
+  "categorySection": {
+    "title": "Category News",
+    "newsTitle": "{{category}} News",
+    "loading": "Loading...",
+    "error": {
+      "loadFailed": "Failed to load news data",
+      "loadError": "Error occurred while loading news"
+    },
+    "empty": {
+      "categoryNotFound": "Category not found",
+      "noNews": "No {{category}} news available at the moment"
+    },
+    "categories": {
+      "politics": "Politics",
+      "taiwan": "Taiwan",
+      "scienceAndTech": "Science & Technology", 
+      "international": "International",
+      "life": "Lifestyle",
+      "sports": "Sports",
+      "entertainment": "Entertainment",
+      "finance": "Business & Finance",
+      "health": "Health"
+    }
+  },
+  "abroad": {
+    "title": "Abroad News",
+    "selectCountry": "Select Country:",
+    "allCountries": "All Countries",
+    "loading": "Loading...",
+    "loadingMore": "Loading...",
+    "loadMore": "Load More",
+    "error": {
+      "loadFailed": "Failed to load abroad news",
+      "loadError": "Error occurred while loading abroad news",
+      "loadStories": "Failed to load stories data",
+      "loadNews": "Failed to load news data"
+    },
+    "empty": {
+      "categoryNotFound": "Abroad news category not found",
+      "noNews": "No abroad news available",
+      "noCountryNews": "No {{country}} news available"
+    },
+    "countries": {
+      "United States of America": "United States",
+      "Japan": "Japan",
+      "Korea": "Korea",
+      "France": "France",
+      "Germany": "Germany",
+      "Vietnam": "Vietnam",
+      "Philippines": "Philippines",
+      "Indonesia": "Indonesia",
+      "Spain": "Spain",
+      "United Kingdom": "United Kingdom",
+      "Italy": "Italy",
+      "Canada": "Canada",
+      "Australia": "Australia",
+      "Thailand": "Thailand",
+      "Malaysia": "Malaysia",
+      "Singapore": "Singapore"
+    }
+  },
+  "floatingChat": {
+    "title": "Smart Search Assistant",
+    "subtitle": "AI-Powered News Search & Analysis",
+    "description": "🔍 Enter any keywords, questions, or topics, and I'll search for relevant news, provide analytical insights, and recommend related reports",
+    "aria": {
+      "expand": "Expand Smart Search Assistant",
+      "collapse": "Collapse"
+    },
+    "welcome": {
+      "title": "Welcome to Smart Search Assistant",
+      "message": "Please enter the news topics or questions you want to search for"
+    },
+    "placeholders": {
+      "input": "Enter news topics or questions you want to search..."
+    },
+    "prompts": {
+      "recentNews": "What important news has happened recently?"
+    },
+    "error": {
+      "serverError": "Sorry, a server error occurred. Please try again later."
+    },
+    "newsImage": {
+      "alt": "News Image"
+    }
+  },
+  "newsDetail": {
+    "loading": {
+      "terms": "Error loading term definitions",
+      "positions": "Loading...",
+      "data": "Loading data..."
+    },
+    "chat": {
+      "open": "Open Chat",
+      "close": "Close Chat"
+    },
+    "author": "Author: ",
+    "backToHome": "← Back to Home",
+    "positions": {
+      "positive": "Supporting Views",
+      "negative": "Opposing Views", 
+      "noPositive": "No supporting views available",
+      "noNegative": "No opposing views available",
+      "positiveModal": "Supporting Position",
+      "negativeModal": "Opposing Position"
+    },
+    "expertAnalysis": {
+      "title": "Expert Analysis",
+      "noData": "No expert analysis available",
+      "noAnalysis": "No analysis data available",
+      "noContent": "Currently no position data or expert analysis available"
+    },
+    "related": {
+      "news": "Related News",
+      "topics": "Related Topics"
+    },
+    "sources": {
+      "title": "Sources:",
+      "noSources": "(No sources available)",
+      "unknownMedia": "Unknown Media",
+      "showMore": "Show More ({{count}} more)",
+      "showLess": "Show Less"
+    }
+  },
+  "term": {
+    "example": "Usage Example"
+  },
+  "exportChat": {
+    "experts": {
+      "政治專家": "Political Expert",
+      "台灣議題分析師": "Taiwan Issues Analyst",
+      "國際專家": "International Expert",
+      "科技專家": "Technology Expert",
+      "生活達人": "Lifestyle Expert",
+      "體育專家": "Sports Expert",
+      "娛樂專家": "Entertainment Expert",
+      "財經專家": "Finance Expert",
+      "健康顧問": "Health Consultant"
+    },
+    "titles": {
+      "chat": "AI Expert Discussion Room"
+    },
+    "subtitles": {
+      "chat": "{{count}} experts online"
+    },
+    "buttons": {
+      "selectExperts": "Select Experts",
+      "backToChat": "Back to Chat",
+      "close": "Close Chat",
+      "send": "➤"
+    },
+    "welcome": {
+      "chat": {
+        "greeting": "Welcome to the News Assistant, where you can consult multiple experts from different fields simultaneously, use quick prompts to start your first topic.",
+        "title": "Welcome to AI Expert Discussion Room",
+        "description": "Select experts and start discussing!"
+      }
+    },
+    "placeholders": {
+      "selectFirst": "Please select experts first...",
+      "enterQuestion": "Enter your question..."
+    },
+    "error": {
+      "serverError": "Sorry, a server error occurred. Please try again later."
+    },
+    "verification": {
+      "failed": "Source verification failed",
+      "systemError": "System Error",
+      "errorReason": "Error reason:",
+      "cannotConnect": "Unable to connect to verification service",
+      "suggestion": "Suggestion:",
+      "tryLater": "Please try again later or contact system administrator",
+      "checkSource": "Please check the credibility of news sources or try other verification methods."
+    },
+    "tooltips": {
+      "backToChat": "Back to expert chat",
+      "closeChat": "Close chat room"
+    }
+  },
+  "specialReportPage": {
+    "title": "Special Reports",
+    "subtitle": "In-depth exploration of important issues, providing comprehensive and thorough news analysis",
+    "loading": "Loading...",
+    "error": {
+      "loadFailed": "Loading failed: {{error}}",
+      "fetchTopicNews": "Unable to fetch topic news mapping: {{error}}",
+      "fetchTopicDetails": "Unable to fetch topic details: {{error}}",
+      "fetchReports": "Failed to fetch special report data"
+    },
+    "retry": "Reload",
+    "empty": {
+      "noReports": "No special reports available"
+    },
+    "meta": {
+      "articles": "articles",
+      "viewMore": "View Report →"
+    }
+  },
+  "specialReportDetail": {
+    "loading": "Loading...",
+    "error": {
+      "notFound": "Special report not found",
+      "fallback": "Please return to special reports list",
+      "fetchFailed": "Unable to fetch report information: {{error}}",
+      "newsCountFailed": "Unable to fetch news count",
+      "branchFailed": "Unable to fetch branch list",
+      "dataFailed": "Failed to fetch special report details"
+    },
+    "backToList": "Back to Special Reports",
+    "chat": {
+      "open": "Open Chat",
+      "close": "Close Chat"
+    },
+    "header": {
+      "articlesCount": "articles",
+      "reportButton": "Report",
+      "reportButtonTitle": "View integrated analysis report",
+      "clickToEnlarge": "Click to enlarge",
+      "relationMap": "Relation Map",
+      "expertAnalysis": "Expert Analysis",
+      "noExpertAnalysis": "No expert analysis available",
+      "loadingAnalysis": "Loading expert analysis...",
+      "expert": "Expert",
+      "noContent": "No content available",
+      "clickToViewFull": "Click to view full analysis"
+    },
+    "navigation": {
+      "title": "Report Navigation",
+      "noBranches": "No branches available"
+    },
+    "section": {
+      "newsCount": "news articles",
+      "sourcesCount": "sources",
+      "sourcesTotal": "Total {{count}} sources",
+      "noContent": "No content available for this branch"
+    },
+    "modal": {
+      "5w1h": {
+        "title": "5W1H Analysis",
+        "close": "Close"
+      },
+      "report": {
+        "title": "Integrated Analysis Report",
+        "close": "Close Report",
+        "generating": "Generating report...",
+        "generatingDetail": "Generating analysis report, please wait..."
+      },
+      "expert": {
+        "clickToView": "Click to view full analysis",
+        "close": "Close"
+      }
+    }
+  },
+  "topicChat":{
+    "title": "Topic Discussion",
+    "subtitle": "Discuss \"{{topicTitle}}\" with AI assistant",
+    "close": "Close Chat",
+    "welcome": {
+      "title": "Welcome to Topic Discussion Room",
+      "description": "Discuss topics related to \"{{topicTitle}}\" with AI assistant!"
+    },
+    "input": {
+      "placeholder": "Enter your question or viewpoint..."
+    },
+    "error": {
+      "serverError": "Sorry, a server error occurred. Please try again later."
+    },
+    "prompts": {
+      "default": [
+        "How do experts view this issue?",
+        "Future trends of this topic"
+      ],
+      "fixed": {
+        "updates": "What are the recent updates on \"{{topicTitle}}\"?",
+        "content": "What content does \"{{topicTitle}}\" provide?",
+        "opinion": "What are your thoughts on \"{{topicTitle}}\"?"
+      }
+    }
+  },
+  "searchResult":{
+    "loading": {
+      "text": "Searching..."
+    },
+    "error": {
+      "title": "⚠️ Search Error",
+      "emptyQuery": "Please enter search keywords",
+      "noResponse": "Search API did not return valid response",
+      "general": "An error occurred during search",
+      "backToHome": "Back to Home"
+    },
+    "header": {
+      "title": "Search Results: \"{{query}}\"",
+      "resultCount": "Found {{count}} related articles",
+      "keywords": "Search keywords: "
+    },
+    "noResults": {
+      "title": "😔 No related articles found",
+      "suggestion": "Try different keywords or browse the following trending topics:"
+    },
+    "moreButton": {
+      "text": "Show more results ({{count}} articles)"
+    }
+  },
+  "fiveW1H": {
+    "defaultTitle": "Topic Analysis",
+    "centerDescription": "Core Issue Analysis of {{topicTitle}}",
+    "categoryRelatedContent": "Content related to {{category}}",
+    "instructions": "💡 Drag background to move graph, zoom centered, or drag individual nodes to adjust positions",
+    "reloadButton": "Reload",
+    "categories": {
+      "who": {
+        "name": "Who",
+        "description": "People, organizations, and stakeholders involved"
+      },
+      "what": {
+        "name": "What",
+        "description": "Event content and specific actions"
+      },
+      "when": {
+        "name": "When",
+        "description": "Timeline and important milestones"
+      },
+      "where": {
+        "name": "Where",
+        "description": "Location and scope of the event"
+      },
+      "why": {
+        "name": "Why",
+        "description": "Reasons and background of the event"
+      },
+      "how": {
+        "name": "How",
+        "description": "Process and methods of the event"
+      }
+    }
+  }
+}

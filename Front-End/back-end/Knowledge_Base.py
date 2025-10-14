@@ -3,8 +3,6 @@ from env import supabase,gemini_client
 from typing import List, Dict, Any
 from google.genai import types
 from pydantic import BaseModel
-import json
-import os
 
 knowledge_base_dict = {
     "Politics": -1,
@@ -20,15 +18,15 @@ knowledge_base_dict = {
     "topic": -1
 }
 
-def set_knowledge_base(prompt,category,topic_id = None):
+def set_knowledge_base(prompt,category,id = None):
     if category == "search":
-        response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").execute()
+        response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").order("generated_date", desc=True).limit(80).execute()
         base=navigate_to_paragraphs(response.data, prompt)
         knowledge_base_dict["search"]= f"你是一位新聞搜尋助手，你目前的知識庫是：{base}，需要時參考這些資料來回答問題。並且為了考量閱讀者的閱讀喜好，請盡量回答簡短且精確的內容。此外如果你有想秀給使用者的新聞請使用news_id這個欄位填上知識庫中所屬的新聞號碼(例如:1,2,3,4...)，在推薦時不要超過五則新聞。"
         return
     elif category == "topic":
        # 先執行內部查詢，獲取 story_id 列表
-        topic_news_response = supabase.table("topic_news_map").select("story_id").eq("topic_id", topic_id).execute()
+        topic_news_response = supabase.table("topic_news_map").select("story_id").eq("topic_id", id).execute()
         story_ids = [item["story_id"] for item in topic_news_response.data]  # 提取 story_id 列表
 
         # 使用提取的 story_id 列表進行查詢
@@ -36,18 +34,40 @@ def set_knowledge_base(prompt,category,topic_id = None):
 
         knowledge_base_dict["topic"] = f"你是一位專家，並且你會考量使用者的閱讀習慣在回答時適時地分行與分段。你目前的知識庫是：{response.data}，需要時參考這些資料來回答問題。" + "\n\n請你像一般人一樣的聊天語氣回答問題，帶給使用者平易近人的體驗，回應的字數大約像是聊天那樣的形式，如果有超過一句話，可以使用markdown的語法來換行或分段。"
         return
-    
-    response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").eq("category", category).order("generated_date").execute()
-    
-    #用cleaned_news一篇一篇沒料
-    # story_ids = [item["story_id"] for item in response.data]
-    # response = supabase.table("cleaned_news").select("article_id,article_title,content").in_("story_id", story_ids).execute()
-    #result = route_news_normal(prompt, response.data)
-    #selected_ids = result["selected_ids"]
-    #selected_news = {i: n for i, n in enumerate(response.data) if i in selected_ids}
-    base = navigate_to_paragraphs(response.data, prompt)
+
+    role = supabase.table("pro_analyze").select("story_id,analyze").eq("story_id", id).eq("category",category).single().execute()
+    role = role.data
+    role = role["analyze"]
+    role = role["Role"]
+    detailed_background = generate_role_prompt(role)
+    article = supabase.table("single_news").select("news_title,long").eq("story_id", id).single().execute()
+    article = article.data
+    article_content = article["long"]
+
+
     if category in knowledge_base_dict:
-        knowledge_base_dict[category] = f"你是一位{category}的新聞專家。你目前的知識庫是：{base}，需要時參考這些資料來回答問題。\n請你像一般人一樣的聊天語氣回答問題，帶給使用者平易近人的體驗，並且你非常在乎使用者所以會積極關心和提出使用者下一步你可以為他做到什麼，回應的字數大約像是聊天那樣的形式，如果有超過一句話，可以使用markdown的語法來換行或分段。"
+        knowledge_base_dict[category] = f"""你是一位名為「{role}」的專家。
+
+        以下是你的專業背景與人格設定：
+        {detailed_background}
+
+        你的任務是根據使用者所閱讀的新聞內容，提供具有深度與啟發性的專業見解，協助使用者突破「思維淺薄化」的困境。
+
+        請遵守以下行為準則：
+        1. **回覆語氣**：積極、專業、具啟發性，讓人感受到你樂於分享知識並引導思考。  
+        2. **表達風格**：簡明扼要，避免冗詞與贅字，讓讀者能快速吸收重點。  
+        3. **內容聚焦**：以使用者正在閱讀的新聞為核心，結合你的專業背景進行分析、補充與延伸。  
+        4. **互動特質**：每次回答後，請主動提出一個值得延伸思考的問題或建議，鼓勵使用者深入討論。  
+        5. **語氣示例**：像「這個現象其實反映出⋯⋯，你想了解我怎麼看待它在其他國家的應用嗎？」或「這裡面其實還牽涉到⋯⋯，要不要我幫你拆解一下背後的邏輯？」  
+        6. **篇幅控制**：請將每次回覆限制在約 150～200 字之內（繁體中文），務必精煉、聚焦且資訊密度高。
+        7. **回覆格式**：請使用Markdown 語法排版。用條列（`-` 或 `1.`）或段落分隔，讓文字更易讀。
+
+        以下是使用者正在閱讀的新聞內容：
+        ---
+        {article_content}
+        ---
+        請根據上述資訊，以「{role}」這位專家的身份與使用者對話，如果你違反上述任何準則將受到嚴厲的懲罰。
+        """
     else:
         raise ValueError("Unknown category: {}".format(category))
 
@@ -192,6 +212,25 @@ def navigate_to_paragraphs(news_list: List[Dict[str, Any]],
 
 
     return {"paragraphs": selected_news, "scratchpad": scratchpad}
+
+
+def generate_role_prompt(role: str) -> str:
+    """根據角色描述，生成更詳細的背景資訊"""
+    prompt = f"請根據以下角色名稱，生成他應該要有的語氣語境，與專業素養：{role}"
+
+    response = gemini_client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="text/plain"
+        )
+    )
+
+    detailed_background = response.candidates[0].content.parts[0].text
+    return detailed_background
+
+
+
 
 # def route_news_normal(question: str, news_list: List[Dict[str, Any]], 
 #                depth: int = 0, scratchpad: str = "") -> Dict[str, Any]:

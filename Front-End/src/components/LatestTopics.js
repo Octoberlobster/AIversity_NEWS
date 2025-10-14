@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabase } from './supabase';
+import { useTranslation } from 'react-i18next';
+import { useLanguageFields } from '../utils/useLanguageFields';
 import '../css/LatestTopics.css';
 
 function LatestTopics() {
@@ -8,7 +10,20 @@ function LatestTopics() {
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { t } = useTranslation();
+  const { getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
   const supabase = useSupabase();
+
+  // 生成帶語言前綴的路由
+  const getLanguageRoute = (path) => {
+    const langPrefix = currentLanguage === 'zh-TW' ? '/zh-TW' : 
+                      currentLanguage === 'en' ? '/en' : 
+                      currentLanguage === 'jp' ? '/jp' : 
+                      currentLanguage === 'id' ? '/id' : '/zh-TW';
+    return `${langPrefix}${path}`;
+  };
+  
 
   // 獲取最新專題數據
   useEffect(() => {
@@ -191,7 +206,7 @@ function LatestTopics() {
   if (loading) {
     return (
       <div className="latest-topics">
-        <div className="latest-topics-loading">載入中...</div>
+        <div className="latest-topics-loading">{t('common.loading')}</div>
       </div>
     );
   }
@@ -208,7 +223,7 @@ function LatestTopics() {
       <div className="latest-topics-title-section">
         <div className="latest-topics-title-content">
           <span className="star-icon">⭐</span>
-          最新專題
+          {t('home.latestTopic')}
         </div>
       </div>
 
@@ -238,7 +253,7 @@ function LatestTopics() {
                     )}
                     
                     <div className="slide-content">
-                      <Link to={`/special-report/${topic.topic_id}`} className="slide-title-link">
+                      <Link to={getLanguageRoute(`/special-report/${topic.topic_id}`)} className="slide-title-link">
                         <h2 className="slide-title">{topic.topic_title}</h2>
                       </Link>
                       <p className="slide-summary">
@@ -254,7 +269,7 @@ function LatestTopics() {
                           {new Date(topic.generated_date).toLocaleDateString('zh-TW')}
                         </span>
                         <span className="slide-news-count">
-                          {topic.newsCount} 篇相關新聞
+                          {topic.newsCount} {t('home.articles')}
                         </span>
                       </div>
                     </div>
@@ -293,13 +308,13 @@ function LatestTopics() {
         {/* 右側：專題分支 - 仿照側欄卡片樣式 */}
         <div className="topic-sidebar">
           <div className="sidebar-card">
-            <h3 className="sidebar-title">專題預覽</h3>
+            <h3 className="sidebar-title">{t('home.topicpreview')}</h3>
             <div className="branches-list">
               {currentTopic.branches.length > 0 ? (
                 currentTopic.branches.map((branch, index) => (
                   <Link
                     key={branch.id}
-                    to={`/special-report/${currentTopic.topic_id}?branch=${encodeURIComponent(branch.id)}`}
+                    to={getLanguageRoute(`/special-report/${currentTopic.topic_id}?branch=${encodeURIComponent(branch.id)}`)}
                     className="branch-item"
                   >
                     <span className="branch-icon">📰</span>
@@ -308,7 +323,7 @@ function LatestTopics() {
                   </Link>
                 ))
               ) : (
-                <div className="no-branches">暫無專題預覽</div>
+                <div className="no-branches">{t('home.nobranches')}</div> // 如果專題沒有分支，顯示提示
               )}
             </div>
           </div>

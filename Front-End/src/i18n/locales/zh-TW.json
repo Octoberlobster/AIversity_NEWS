@@ -1,0 +1,374 @@
+{
+  "header": {
+    "brand": "AIversity",
+    "tagline": "智能新聞，深度洞察",
+    "menu": {
+      "home": "首頁",
+      "specialReports": "專題報導",
+      "abroad": "國外新聞",
+      "politics": "政治",
+      "taiwan": "台灣",
+      "international": "國際",
+      "scienceAndTech": "科學與科技",
+      "life": "生活",
+      "sports": "體育",
+      "entertainment": "娛樂",
+      "finance": "商業財經",
+      "health": "健康"
+    },
+    "search": {
+      "placeholder": "搜尋新聞/關鍵字..."
+    },
+    "language": {
+      "select": "選擇語言"
+    }
+  },
+  "home":{
+    "latestTopic": "最新專題",
+    "latestNews": "最新新聞",
+    "articles": "篇相關新聞",
+    "topicpreview": "專題預覽",
+    "nobranches": "暫無專題預覽"
+  },
+  "common": {
+    "loading": "載入中...",
+    "loadingMore": "載入更多...",
+    "loadMore": "載入更多",
+    "error": "載入失敗",
+    "retry": "重新載入",
+    "readMore": "閱讀更多新聞",
+    "close": "關閉",
+    "search": "搜尋",
+    "noContent": "暫無內容",
+    "searchError": "搜尋時發生錯誤",
+    "reporter": "記者"
+  },
+  "categorySection": {
+    "title": "分類新聞",
+    "newsTitle": "{{category}}新聞",
+    "loading": "載入中...",
+    "error": {
+      "loadFailed": "無法載入新聞資料",
+      "loadError": "載入新聞時發生錯誤"
+    },
+    "empty": {
+      "categoryNotFound": "找不到該分類的新聞",
+      "noNews": "目前沒有 {{category}} 相關的新聞"
+    },
+    "categories": {
+      "politics": "政治",
+      "taiwan": "台灣", 
+      "scienceAndTech": "科學與科技",
+      "international": "國際",
+      "life": "生活",
+      "sports": "體育",
+      "entertainment": "娛樂",
+      "finance": "商業財經",
+      "health": "健康"
+    }
+  },
+  "abroad": {
+    "title": "國外新聞",
+    "selectCountry": "選擇國家：",
+    "allCountries": "所有國家",
+    "loading": "載入中...",
+    "loadingMore": "載入中...",
+    "loadMore": "載入更多",
+    "error": {
+      "loadFailed": "無法載入國外新聞",
+      "loadError": "載入國外新聞時發生錯誤",
+      "loadStories": "無法載入故事資料",
+      "loadNews": "無法載入新聞資料"
+    },
+    "empty": {
+      "categoryNotFound": "找不到該分類的國外新聞",
+      "noNews": "目前沒有國外新聞",
+      "noCountryNews": "目前沒有{{country}}新聞"
+    },
+    "countries": {
+      "United States of America": "美國",
+      "Japan": "日本",
+      "Korea": "韓國",
+      "France": "法國",
+      "Germany": "德國",
+      "Vietnam": "越南",
+      "Philippines": "菲律賓",
+      "Indonesia": "印尼",
+      "Spain": "西班牙",
+      "United Kingdom": "英國",
+      "Italy": "義大利",
+      "Canada": "加拿大",
+      "Australia": "澳洲",
+      "Thailand": "泰國",
+      "Malaysia": "馬來西亞",
+      "Singapore": "新加坡"
+    }
+  },
+  "floatingChat": {
+    "title": "智慧搜尋助手",
+    "subtitle": "AI 驅動的新聞搜尋與分析",
+    "description": "🔍 輸入任何關鍵字、問題或主題，我將為您搜尋相關新聞、提供分析見解，並推薦相關報導",
+    "aria": {
+      "expand": "展開智慧搜尋助手",
+      "collapse": "收合"
+    },
+    "welcome": {
+      "title": "歡迎使用智慧搜尋助手",
+      "message": "請輸入您想搜尋的新聞主題或問題"
+    },
+    "placeholders": {
+      "input": "輸入您想搜尋的新聞主題或問題..."
+    },
+    "prompts": {
+      "recentNews": "近期有什麼重要的新聞？"
+    },
+    "error": {
+      "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
+    },
+    "newsImage": {
+      "alt": "新聞圖片"
+    }
+  },
+  "newsDetail": {
+    "loading": {
+      "terms": "載入術語定義時發生錯誤",
+      "positions": "載入中...",
+      "data": "正在載入資料..."
+    },
+    "chat": {
+      "open": "開啟聊天室",
+      "close": "關閉聊天室"
+    },
+    "factCheck": {
+      "button": "🔍 溯源驗證"
+    },
+    "backToHome": "← 返回首頁",
+    "author": "記者：",
+    "positions": {
+      "positive": "正方觀點",
+      "negative": "反方觀點",
+      "noPositive": "暫無正方觀點資料",
+      "noNegative": "暫無反方觀點資料",
+      "positiveModal": "正方立場",
+      "negativeModal": "反方立場"
+    },
+    "expertAnalysis": {
+      "title": "專家分析",
+      "noData": "暫無專家分析資料",
+      "noAnalysis": "暫無分析資料",
+      "noContent": "目前沒有正反方立場或專家分析資料"
+    },
+    "related": {
+      "news": "相關新聞",
+      "topics": "相關專題"
+    },
+    "sources": {
+      "title": "資料來源：",
+      "noSources": "（無資料來源）",
+      "unknownMedia": "未知媒體",
+      "showMore": "觀看更多（還有 {{count}} 筆）",
+      "showLess": "收起"
+    }
+  },
+  "term": {
+    "example": "使用情境"
+  },
+  "exportChat": {
+    "titles": {
+      "chat": "AI 專家討論室"
+    },
+    "subtitles": {
+      "chat": "{{count}} 位專家在線"
+    },
+    "buttons": {
+      "selectExperts": "選擇專家",
+      "backToChat": "返回聊天",
+      "close": "關閉聊天室",
+      "send": "➤"
+    },
+    "welcome": {
+      "chat": {
+        "greeting": "歡迎使用新聞小幫手，在這你可以同時詢問多位不同領域的專家，利用快速提示幫助你展開第一個話題。",
+        "title": "歡迎來到 AI 專家討論室",
+        "description": "選擇專家並開始討論吧！"
+      }
+    },
+    "placeholders": {
+      "selectFirst": "請先選擇專家...",
+      "enterQuestion": "輸入您的問題..."
+    },
+    "error": {
+      "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
+    },
+    "verification": {
+      "failed": "溯源驗證失敗",
+      "systemError": "系統錯誤",
+      "errorReason": "錯誤原因：",
+      "cannotConnect": "無法連接到驗證服務",
+      "suggestion": "建議：",
+      "tryLater": "請稍後再試或聯繫系統管理員",
+      "checkSource": "請檢查新聞來源的可信度或嘗試其他查證方式。"
+    },
+    "tooltips": {
+      "backToChat": "返回專家聊天",
+      "closeChat": "關閉聊天室"
+    }
+  },
+  "specialReportPage": {
+    "title": "專題報導",
+    "subtitle": "深入探討重要議題，提供全面而深度的新聞分析",
+    "loading": "載入中...",
+    "error": {
+      "loadFailed": "載入失敗: {{error}}",
+      "fetchTopicNews": "無法獲取專題新聞對應關係: {{error}}",
+      "fetchTopicDetails": "無法獲取專題詳細資訊: {{error}}",
+      "fetchReports": "獲取專題報導資料失敗"
+    },
+    "retry": "重新載入",
+    "empty": {
+      "noReports": "目前沒有專題報導"
+    },
+    "meta": {
+      "articles": "篇文章",
+      "viewMore": "查看專題 →"
+    }
+  },
+  "specialReportDetail": {
+    "loading": "載入中...",
+    "error": {
+      "notFound": "專題報導不存在",
+      "fallback": "請返回專題報導列表",
+      "fetchFailed": "無法獲取專題資訊: {{error}}",
+      "newsCountFailed": "無法獲取新聞數量",
+      "branchFailed": "無法獲取分支列表",
+      "dataFailed": "獲取專題詳細資料失敗"
+    },
+    "backToList": "返回專題報導",
+    "chat": {
+      "open": "開啟聊天室",
+      "close": "關閉聊天室"
+    },
+    "header": {
+      "articlesCount": "篇文章",
+      "reportButton": "專題報告",
+      "reportButtonTitle": "查看專題整合報告",
+      "clickToEnlarge": "點擊放大",
+      "relationMap": "關聯圖",
+      "expertAnalysis": "專家分析",
+      "noExpertAnalysis": "暫無專家分析",
+      "loadingAnalysis": "載入專家分析中...",
+      "expert": "專家",
+      "noContent": "暫無內容",
+      "clickToViewFull": "點擊查看完整分析"
+    },
+    "navigation": {
+      "title": "專題導覽",
+      "noBranches": "尚無分支"
+    },
+    "section": {
+      "newsCount": "篇新聞",
+      "sourcesCount": "來源",
+      "sourcesTotal": "共 {{count}} 來源",
+      "noContent": "此分支暫無新聞內容"
+    },
+    "modal": {
+      "5w1h": {
+        "title": "5W1H關聯分析",
+        "close": "關閉"
+      },
+      "report": {
+        "title": "專題整合分析報告",
+        "close": "關閉報告",
+        "generating": "正在生成報告...",
+        "generatingDetail": "正在生成專題分析報告,請稍候..."
+      },
+      "expert": {
+        "clickToView": "點擊查看完整分析",
+        "close": "關閉"
+      }
+    }
+  },
+  "topicChat":{
+    "title": "專題討論",
+    "subtitle": "與AI助手討論「{{topicTitle}}」",
+    "close": "關閉聊天室",
+    "welcome": {
+      "title": "歡迎來到專題討論室",
+      "description": "與AI助手討論「{{topicTitle}}」相關議題！"
+    },
+    "input": {
+      "placeholder": "輸入您的問題或觀點..."
+    },
+    "error": {
+      "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
+    },
+    "prompts": {
+      "default": [
+        "專家如何看待這個議題？",
+        "這個專題的未來發展趨勢"
+      ],
+      "fixed": {
+        "updates": "「{{topicTitle}}」近期有什麼更新",
+        "content": "「{{topicTitle}}」提供甚麼內容？",
+        "opinion": "你對於「{{topicTitle}}」有什麼看法？"
+      }
+    }
+  },
+  "searchResult":{
+    "loading": {
+      "text": "搜尋中..."
+    },
+    "error": {
+      "title": "⚠️ 搜尋出現問題",
+      "emptyQuery": "請輸入搜尋關鍵字",
+      "noResponse": "搜尋 API 沒有返回有效回應",
+      "general": "搜尋時發生錯誤",
+      "backToHome": "返回首頁"
+    },
+    "header": {
+      "title": "搜尋結果：「{{query}}」",
+      "resultCount": "找到 {{count}} 篇相關新聞",
+      "keywords": "搜尋關鍵字: "
+    },
+    "noResults": {
+      "title": "😔 找不到相關新聞",
+      "suggestion": "嘗試使用不同的關鍵字，或瀏覽以下熱門主題："
+    },
+    "moreButton": {
+      "text": "顯示更多搜尋結果 ({{count}} 篇)"
+    }
+  },
+  "fiveW1H": {
+    "defaultTitle": "專題分析",
+    "centerDescription": "{{topicTitle}}的核心議題分析",
+    "categoryRelatedContent": "涉及{{category}}相關的內容",
+    "instructions": "💡 可以拖動背景移動圖形、縮放以中心為基準，或拖動個別節點調整位置",
+    "reloadButton": "重新載入",
+    "categories": {
+      "who": {
+        "name": "誰",
+        "description": "涉及的人物、組織和利益相關者"
+      },
+      "what": {
+        "name": "什麼",
+        "description": "發生的事件內容和具體行為"
+      },
+      "when": {
+        "name": "何時",
+        "description": "事件發生的時間軸和重要節點"
+      },
+      "where": {
+        "name": "哪裡",
+        "description": "事件發生的地點和範圍"
+      },
+      "why": {
+        "name": "為什麼",
+        "description": "事件發生的原因和背景"
+      },
+      "how": {
+        "name": "如何",
+        "description": "事件的過程和方式"
+      }
+    }
+  }
+}

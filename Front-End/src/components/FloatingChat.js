@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
 import './../css/ChatRoom.css';
 import { useLocation } from 'react-router-dom';
 import { getOrCreateUserId, createRoomId } from './utils.js';
@@ -7,20 +9,56 @@ import { fetchJson } from './api';
 import { supabase } from './supabase.js';
 
 function FloatingChat() {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [quickPrompts, setQuickPrompts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 根據當前語言獲取對應的區域代碼
+  const getCurrentLocale = () => {
+    const currentLang = i18n.language;
+    switch (currentLang) {
+      case 'zh-TW':
+        return 'zh-TW';
+      case 'en':
+        return 'en-US';
+      case 'jp':
+        return 'ja-JP';
+      case 'id':
+        return 'id-ID';
+      default:
+        return 'zh-TW';
+    }
+  };
+
+  // 獲取格式化的時間字符串
+  const getFormattedTime = useCallback(() => {
+    return new Date().toLocaleTimeString(getCurrentLocale(), { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  }, []);
+  
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const location = useLocation();
   const user_id = getOrCreateUserId();
   const roomIdRef = useRef(createRoomId());
   const room_id = roomIdRef.current;
+  
+  // 根據當前路徑獲取語言並生成路由
+  const getLanguageRoute = useCallback((path) => {
+    const pathSegments = location.pathname.split('/');
+    const langCode = pathSegments[1];
+    const currentLang = ['zh-TW', 'en', 'jp', 'id'].includes(langCode) ? langCode : 'zh-TW';
+    return `/${currentLang}${path}`;
+  }, [location.pathname]);
 
-  const fixedPrompts = [
-    "近期有什麼重要的新聞？",
-  ];
+  const fixedPrompts = useMemo(() => [
+    t('floatingChat.prompts.recentNews'),
+  ], [t]);
 
   // 滾動到底
   useEffect(() => {
@@ -32,7 +70,7 @@ function FloatingChat() {
     let isMounted = true;
     const fetchQuickPrompts = async () => {
       try {
-        const response = await fetchJson('/hint_prompt/search', {});
+        const response = await fetchJson('/api/hint_prompt/search', {});
         if (isMounted) {
           const dynamicPrompts = response.Hint_Prompt || [];
           setQuickPrompts([...fixedPrompts, ...dynamicPrompts]);
@@ -48,7 +86,7 @@ function FloatingChat() {
     return () => {
       isMounted = false;
     };
-  }, [user_id]);
+  }, [user_id, fixedPrompts]);
 
   // 詳情頁不顯示
   const isSpecialReportPage = location.pathname.includes('/special-report/');
@@ -61,7 +99,7 @@ function FloatingChat() {
     const text = (customMessage ?? newMessage).trim();
     if (!text) return;
 
-    const now = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+    const now = getFormattedTime();
 
     // 新增使用者訊息
     setMessages((prev) => [
@@ -70,9 +108,21 @@ function FloatingChat() {
     ]);
     setNewMessage('');
 
+    setIsLoading(true);
+    
+    // 添加載入訊息
+    const loadingMsg = {
+      id: 'loading-' + Date.now(),
+      type: 'text',
+      isLoading: true,
+      isOwn: false,
+      time: getFormattedTime(),
+    };
+    setMessages((prev) => [...prev, loadingMsg]);
+
     try {
       // 呼叫後端 API（舊版邏輯）
-      const response = await fetchJson('/chat/search', {
+      const response = await fetchJson('/api/chat/search', {
         user_id: user_id,
         room_id: room_id,
         prompt: text,
@@ -83,6 +133,10 @@ function FloatingChat() {
       const reply = response.response || [];
       console.log('後端回應:', reply);
 
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
+
       // 先處理普通訊息
       const textMessages = reply
         .map((item) => ({
@@ -90,7 +144,7 @@ function FloatingChat() {
           type: 'text',
           text: item.chat_response,
           isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+          time: getFormattedTime(),
         }));
 
       setMessages((prev) => [...prev, ...textMessages]);
@@ -121,7 +175,7 @@ function FloatingChat() {
                   ultra_short: data.ultra_short,
                   newsId,
                   isOwn: false,
-                  time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+                  time: getFormattedTime(),
                 };
               })
             );
@@ -135,13 +189,17 @@ function FloatingChat() {
       }, 1000);
     } catch (error) {
       console.error('Error fetching chat response:', error);
+      // 移除載入訊息
+      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setIsLoading(false);
+      
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
-          text: '抱歉，伺服器發生錯誤，請稍後再試。',
+          text: t('floatingChat.error.serverError'),
           isOwn: false,
-          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+          time: getFormattedTime(),
         },
       ]);
     }
@@ -165,8 +223,8 @@ function FloatingChat() {
             type="button"
             className="fchat__collapsed"
             onClick={toggleChat}
-            aria-label="展開智慧搜尋助手"
-            title="展開智慧搜尋助手"
+            aria-label={t('floatingChat.aria.expand')}
+            title={t('floatingChat.aria.expand')}
           >
             <span className="fchat__icon">🔍</span>
           </button>
@@ -177,8 +235,8 @@ function FloatingChat() {
               <div className="chat__headerLeft">
                 <div className="chat__icon">🔍</div>
                 <div>
-                  <h3 className="chat__title">智慧搜尋助手</h3>
-                  <p className="chat__subtitle">AI 驅動的新聞搜尋與分析</p>
+                  <h3 className="chat__title">{t('floatingChat.title')}</h3>
+                  <p className="chat__subtitle">{t('floatingChat.subtitle')}</p>
                 </div>
               </div>
               <div className="chat__headerRight">
@@ -186,8 +244,8 @@ function FloatingChat() {
                   type="button"
                   className="chat-close-btn"
                   onClick={toggleChat}
-                  aria-label="收合"
-                  title="收合"
+                  aria-label={t('floatingChat.aria.collapse')}
+                  title={t('floatingChat.aria.collapse')}
                 >
                   ×
                 </button>
@@ -196,7 +254,7 @@ function FloatingChat() {
 
             {/* 搜尋說明區 */}
             <div className="chat__expertSelector">
-              🔍 輸入任何關鍵字、問題或主題，我將為您搜尋相關新聞、提供分析見解，並推薦相關報導
+              {t('floatingChat.description')}
             </div>
 
             {/* 訊息區 */}
@@ -204,8 +262,8 @@ function FloatingChat() {
               {messages.length === 0 && (
                 <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-                  <h3>歡迎使用智慧搜尋助手</h3>
-                  <p>請輸入您想搜尋的新聞主題或問題</p>
+                  <h3>{t('floatingChat.welcome.title')}</h3>
+                  <p>{t('floatingChat.welcome.message')}</p>
                 </div>
               )}
 
@@ -215,11 +273,12 @@ function FloatingChat() {
                     <div key={m.id} className="message message--news">
                       <div
                         className="bubble bubble--news"
-                        onClick={() => window.location.href = `/news/${m.newsId}`}
+                        onClick={() => window.open(getLanguageRoute(`/news/${m.newsId}`), '_blank')}
+                        style={{ cursor: 'pointer' }}
                       >
                         <img
                           src={`data:image/png;base64,${m.image}`}
-                          alt="新聞圖片"
+                          alt={t('floatingChat.newsImage.alt')}
                         />
                         <div>
                           <h4>{m.title}</h4>
@@ -233,10 +292,18 @@ function FloatingChat() {
                   return (
                     <div
                       key={m.id}
-                      className={`message ${m.isOwn ? 'message--own' : ''}`}
+                      className={`message ${m.isOwn ? 'message--own' : ''} ${m.isLoading ? 'message--loading' : ''}`}
                     >
-                      <div className={`bubble ${m.isOwn ? 'bubble--own' : ''}`}>
-                        <ReactMarkdown>{m.text}</ReactMarkdown>
+                      <div className={`bubble ${m.isOwn ? 'bubble--own' : ''} ${m.isLoading ? 'bubble--loading' : ''}`}>
+                        {m.isLoading ? (
+                          <div className="loading-dots">
+                            <span className="loading-dot"></span>
+                            <span className="loading-dot"></span>
+                            <span className="loading-dot"></span>
+                          </div>
+                        ) : (
+                          <ReactMarkdown>{m.text}</ReactMarkdown>
+                        )}
                       </div>
                       <span className="message__time">{m.time}</span>
                     </div>
@@ -270,7 +337,7 @@ function FloatingChat() {
                 ref={inputRef}
                 type="text"
                 className="input__text"
-                placeholder="輸入您想搜尋的新聞主題或問題..."
+                placeholder={t('floatingChat.placeholders.input')}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}

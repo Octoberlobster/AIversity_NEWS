@@ -1,32 +1,86 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import './../css/UnifiedNewsCard.css';
 import UnifiedNewsCard from './UnifiedNewsCard';
 import { useSupabase } from './supabase';
 import { imageCache } from './utils/cache';
 
-// 分類配置
-const categories = {
-  '政治': { id: 'Politics', name: '政治', color: '#ef4444' },
-  '台灣': { id: 'Taiwan News', name: '台灣', color: '#10b981' },
-  '科學與科技': { id: 'Science & Technology', name: '科學與科技', color: '#8b5cf6' },
-  '國際': { id: 'International News', name: '國際', color: '#f59e0b' },
-  '生活': { id: 'Lifestyle & Consumer', name: '生活', color: '#06b6d4' },
-  '體育': { id: 'Sports', name: '體育', color: '#059669' },
-  '娛樂': { id: 'Entertainment', name: '娛樂', color: '#ec4899' },
-  '商業財經': { id: 'Business & Finance', name: '商業財經', color: '#10b981' },
-  '健康': { id: 'Health & Wellness', name: '健康', color: '#ef4444' }
-};
-
 function CategorySection({ category }) {
+  const { t } = useTranslation();
+
+  // 基礎分類配置 (語言無關)
+  const categoryConfigs = useMemo(() => ({
+    'politics': { id: 'Politics', color: '#ef4444' },
+    'taiwan': { id: 'Taiwan News', color: '#10b981' },
+    'scienceAndTech': { id: 'Science & Technology', color: '#8b5cf6' },
+    'international': { id: 'International News', color: '#f59e0b' },
+    'life': { id: 'Lifestyle & Consumer', color: '#06b6d4' },
+    'sports': { id: 'Sports', color: '#059669' },
+    'entertainment': { id: 'Entertainment', color: '#ec4899' },
+    'finance': { id: 'Business & Finance', color: '#10b981' },
+    'health': { id: 'Health & Wellness', color: '#ef4444' }
+  }), []);
+
+  // 智能分類匹配 - 根據輸入找到對應的 key
+  const findCategoryKey = useCallback((inputCategory) => {
+    console.log('Finding category key for input:', inputCategory);
+    
+    // 建立所有可能的翻譯對照表（包含中文和英文）
+    const allTranslations = {};
+    for (const [key] of Object.entries(categoryConfigs)) {
+      // 取得中文翻譯（假設 zh-TW 中的翻譯）
+      const zhTranslations = {
+        'politics': '政治',
+        'taiwan': '台灣',
+        'scienceAndTech': '科學與科技', 
+        'international': '國際',
+        'life': '生活',
+        'sports': '體育',
+        'entertainment': '娛樂',
+        'finance': '商業財經',
+        'health': '健康'
+      };
+      
+      // 當前語言的翻譯
+      const currentTranslation = t(`categorySection.categories.${key}`);
+      const zhTranslation = zhTranslations[key];
+      
+      allTranslations[key] = {
+        current: currentTranslation,
+        zh: zhTranslation,
+        dbId: categoryConfigs[key].id
+      };
+      
+      console.log(`Key: ${key}, Current: ${currentTranslation}, ZH: ${zhTranslation}, DB: ${categoryConfigs[key].id}`);
+    }
+    
+    // 嘗試匹配：當前語言翻譯、中文翻譯、或數據庫 ID
+    for (const [key, translations] of Object.entries(allTranslations)) {
+      if (translations.current === inputCategory || 
+          translations.zh === inputCategory || 
+          translations.dbId === inputCategory) {
+        console.log(`✓ Found match: ${key} (matched: ${inputCategory})`);
+        return key;
+      }
+    }
+    
+    console.log('❌ No match found for:', inputCategory);
+    return null; // 找不到匹配
+  }, [categoryConfigs, t]);
+
+  const categoryKey = useMemo(() => findCategoryKey(category), [category, findCategoryKey]);
+  
+  const currentCategory = useMemo(() => {
+    return categoryKey ? {
+      ...categoryConfigs[categoryKey],
+      key: categoryKey,
+      translatedName: t(`categorySection.categories.${categoryKey}`)
+    } : null;
+  }, [categoryKey, categoryConfigs, t]);
   const [newsData, setNewsData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
   const supabaseClient = useSupabase();
-  
-  const currentCategory = categories[category];
   const ITEMS_PER_PAGE = 18;
 
   // 載入圖片的共用函數
@@ -103,14 +157,13 @@ function CategorySection({ category }) {
 
       if (newsError) {
         console.error('Error fetching news:', newsError);
-        setError('無法載入新聞資料');
+        setError(t('categorySection.error.loadFailed'));
         return;
       }
 
       if (!newsData || newsData.length === 0) {
         console.log('No news found for category:', currentCategory.id);
         setNewsData([]);
-        setHasMore(false);
         return;
       }
 
@@ -118,61 +171,16 @@ function CategorySection({ category }) {
       const enhancedData = await loadImagesForNews(newsData);
       
       setNewsData(enhancedData);
-      setCurrentPage(1);
-      setHasMore(newsData.length === ITEMS_PER_PAGE);
       
     } catch (err) {
       console.error('Error in loadInitialNews:', err);
-      setError('載入新聞時發生錯誤');
+      setError(t('categorySection.error.loadError'));
     } finally {
       setLoading(false);
     }
-  }, [currentCategory, supabaseClient, loadImagesForNews]);
+  }, [currentCategory, supabaseClient, loadImagesForNews, t]);
 
-  // 載入更多新聞
-  const loadMoreNews = useCallback(async () => {
-    if (!currentCategory || !supabaseClient || isLoadingMore || !hasMore) return;
 
-    try {
-      setIsLoadingMore(true);
-      
-      const nextPage = currentPage + 1;
-      const offset = (nextPage - 1) * ITEMS_PER_PAGE;
-
-      console.log(`Loading page ${nextPage} for category:`, currentCategory.id);
-
-      // 查詢下一頁新聞
-      const { data: newNewsData, error: newsError } = await supabaseClient
-        .from('single_news')
-        .select('story_id, news_title, ultra_short, generated_date, category')
-        .eq('category', currentCategory.id)
-        .order('generated_date', { ascending: false })
-        .range(offset, offset + ITEMS_PER_PAGE - 1);
-
-      if (newsError) {
-        console.error('Error fetching more news:', newsError);
-        return;
-      }
-
-      if (!newNewsData || newNewsData.length === 0) {
-        setHasMore(false);
-        return;
-      }
-
-      // 載入這一頁的圖片
-      const enhancedNewData = await loadImagesForNews(newNewsData);
-      
-      // 合併到現有資料
-      setNewsData(prevData => [...prevData, ...enhancedNewData]);
-      setCurrentPage(nextPage);
-      setHasMore(newNewsData.length === ITEMS_PER_PAGE);
-
-    } catch (err) {
-      console.error('Error in loadMoreNews:', err);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }, [currentCategory, supabaseClient, isLoadingMore, hasMore, currentPage, loadImagesForNews]);
 
   // 初始載入效果
   useEffect(() => {
@@ -183,9 +191,9 @@ function CategorySection({ category }) {
     return (
       <section className="catSec">
         <div className="catSec__header">
-          <h2 className="catSec__title">分類新聞</h2>
+          <h2 className="catSec__title">{t('categorySection.title')}</h2>
         </div>
-        <div className="catSec__empty">找不到該分類的新聞</div>
+        <div className="catSec__empty">{t('categorySection.empty.categoryNotFound')}</div>
       </section>
     );
   }
@@ -194,9 +202,14 @@ function CategorySection({ category }) {
     return (
       <section className="catSec">
         <div className="catSec__header">
-          <h2 className="catSec__title">{category}新聞</h2>
+          <h2 className="catSec__title">
+            {currentCategory 
+              ? t('categorySection.newsTitle', { category: currentCategory.translatedName })
+              : t('categorySection.newsTitle', { category })
+            }
+          </h2>
         </div>
-        <div className="catSec__loading">載入中...</div>
+        <div className="catSec__loading">{t('categorySection.loading')}</div>
       </section>
     );
   }
@@ -205,7 +218,12 @@ function CategorySection({ category }) {
     return (
       <section className="catSec">
         <div className="catSec__header">
-          <h2 className="catSec__title">{category}新聞</h2>
+          <h2 className="catSec__title">
+            {currentCategory 
+              ? t('categorySection.newsTitle', { category: currentCategory.translatedName })
+              : t('categorySection.newsTitle', { category })
+            }
+          </h2>
         </div>
         <div className="catSec__error">{error}</div>
       </section>
@@ -219,12 +237,20 @@ function CategorySection({ category }) {
     <section className="catSec">
       <div className="catSec__header">
         <h2 className="catSec__title">
-          {category}新聞
+          {currentCategory 
+            ? t('categorySection.newsTitle', { category: currentCategory.translatedName })
+            : t('categorySection.newsTitle', { category })
+          }
         </h2>
       </div>
 
       {newsData.length === 0 ? (
-        <div className="catSec__empty">目前沒有 {category} 相關的新聞</div>
+        <div className="catSec__empty">
+          {currentCategory 
+            ? t('categorySection.empty.noNews', { category: currentCategory.translatedName })
+            : t('categorySection.empty.noNews', { category })
+          }
+        </div>
       ) : (
         <div className="catSec__content">
           <UnifiedNewsCard 

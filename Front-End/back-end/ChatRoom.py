@@ -3,6 +3,7 @@ from google.genai import types
 from env import gemini_client
 import Knowledge_Base
 from Knowledge_Base import StoryMap
+import re
 
 class ChatInfo(BaseModel):
     news_id: list[str]
@@ -63,11 +64,11 @@ class ChatRoom:
         )
         return self.model_dict[category]
 
-    def chat(self, prompt: str, categories: list[str], topic_id = None) -> list[dict]:
+    def chat(self, prompt: str, categories: list[str], id = None) -> list[dict]:
         """對指定分類的模型發送訊息"""
         responses = []
         for category in categories:
-            Knowledge_Base.set_knowledge_base(prompt, category, topic_id)
+            Knowledge_Base.set_knowledge_base(prompt, category, id)
             model = self.create_model(category)
             response = model.send_message(message=prompt)
             # loop response.parsed.news_id and change the news_id with StoryMap
@@ -75,8 +76,20 @@ class ChatRoom:
                 print(type(news_id))
                 print(news_id)
                 response.parsed.news_id[i] = StoryMap.story_map.get(news_id,news_id)
+            #response.parsed.chat_response = clean_markdown_spacing(response.parsed.chat_response)
             responses.append(dict(response.parsed))  # 轉成 dict 加入回應列表
         return responses
+    
+# def clean_markdown_spacing(text: str) -> str:
+#     # 1. 連續三個以上換行只留兩個（保留一行空白）
+#     text = re.sub(r'\n{3,}', '\n\n', text)
+#     # 2. 將「段內列表」前後的多餘空行去除
+#     text = re.sub(r'\n\n(-|\d+\.)', r'\n\1', text)
+#     # ✅ 3. 將連續兩個換行改為一個換行
+#     text = re.sub(r'\n{2,}', '\n', text)
+#     # 4. 去除開頭與結尾多餘空白
+#     text = text.strip()
+#     return text
     
 # category = ["search"]
 # prompt = "我想看體育新聞"
@@ -90,3 +103,9 @@ class ChatRoom:
 # Room = ChatRoom()
 # response = Room.chat(prompt, category,"1e0dcbe6-36c5-4c37-bb16-55cbe7abdfa7")
 # print(Room.model_dict["topic"]._comprehensive_history)
+
+# category = ["Business & Finance"]
+# prompt = "你好，自我介紹"
+# Room = ChatRoom()
+# response = Room.chat(prompt, category,"88690989-f9fe-42a7-aa35-81b8463eda3a")
+# print(response)
