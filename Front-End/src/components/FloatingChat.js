@@ -264,7 +264,11 @@ function FloatingChat() {
                     <div key={m.id} className="message message--news">
                       <div
                         className="bubble bubble--news"
-                        onClick={() => window.location.href = `/news/${m.newsId}`}
+                        onClick={() => {
+                          const currentLang = i18n.language;
+                          const langPrefix = currentLang === 'zh-TW' ? '' : `/${currentLang}`;
+                          window.location.href = `${langPrefix}/news/${m.newsId}`;
+                        }}
                       >
                         <img
                           src={`data:image/png;base64,${m.image}`}

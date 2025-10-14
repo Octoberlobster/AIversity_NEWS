@@ -101,16 +101,28 @@ function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onC
   const roomIdRef = useRef(createRoomId());
   const room_id = roomIdRef.current;
 
-  // 當 topic_who_talk 改變時，清理不在 who_talk 範圍內的已選專家
+  // 當 topic_who_talk 改變時，清理不在 who_talk 範圍內的已選專家，並預選第一個專家
   useEffect(() => {
     const whoTalkArray = parseWhoTalk(topic_who_talk);
 
     if (whoTalkArray.length > 0) {
       setSelectedExperts(prevSelected => {
+        // 過濾出有效的專家
         const validExperts = prevSelected.filter(expertId => {
           const expert = experts.find(e => e.id === expertId);
           return expert && whoTalkArray.includes(expert.category);
         });
+        
+        // 如果沒有已選專家，自動選擇第一個可用的專家
+        if (validExperts.length === 0) {
+          const firstAvailableExpert = experts.find(expert => 
+            whoTalkArray.includes(expert.category)
+          );
+          if (firstAvailableExpert) {
+            return [firstAvailableExpert.id];
+          }
+        }
+        
         return validExperts;
       });
     }

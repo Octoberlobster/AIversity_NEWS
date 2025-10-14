@@ -112,7 +112,7 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
 
 
 
-  // 當 newsData 改變時，清理不在 who_talk 範圍內的已選專家
+  // 當 newsData 改變時,清理不在 who_talk 範圍內的已選專家
   useEffect(() => {
     const whoTalkArray = parseWhoTalk(newsData?.who_talk);
 
@@ -122,6 +122,17 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
           const expert = experts.find(e => e.id === expertId);
           return expert && whoTalkArray.includes(expert.category);
         });
+        
+        // 自動選擇第一個符合條件的專家(如果目前沒有選中任何專家)
+        if (validExperts.length === 0) {
+          const firstAvailableExpert = experts.find(expert => 
+            whoTalkArray.includes(expert.category)
+          );
+          if (firstAvailableExpert) {
+            return [firstAvailableExpert.id];
+          }
+        }
+        
         return validExperts;
       });
     }
@@ -191,7 +202,12 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
       const filteredExperts = experts
         .filter((expert) => expert.category === newsData.category)
         .map((expert) => expert.id);
-      setSelectedExperts(filteredExperts);
+      
+      // 自動選擇第一個符合條件的專家
+      if (filteredExperts.length > 0) {
+        setSelectedExperts([filteredExperts[0]]);
+      }
+      
       setMessages([t('exportChat.welcome.chat.greeting')].map(text => ({
         id: Date.now() + Math.random(),
         text,
