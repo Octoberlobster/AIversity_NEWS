@@ -10,7 +10,7 @@ def main():
         "It’s just that she’s been there, done that in her younger years.",
         "That’s why now, at 58, she’s attending fashion shows and film premieres with a blissfully bare face."
     ]
-    target_language = "ja"  # 目標語言：日文
+    target_language = "zh-TW"  # 目標語言：日文
 
     # 發送 POST 請求
     payload = {
