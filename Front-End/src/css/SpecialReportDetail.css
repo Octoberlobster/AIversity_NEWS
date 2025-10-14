@@ -23,16 +23,22 @@
 .srdHeader {
   background: #fff;
   border-radius: 16px;
-  padding: 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   margin-bottom: 2rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 6fr 4fr;
   gap: 2rem;
-  align-items: center;
+  align-items: start;
 }
 @media (max-width: 1200px) {
-  .srdHeader { grid-template-columns: 1fr; text-align: center; }
+  .srdHeader { 
+    grid-template-columns: 1fr; 
+    text-align: center; 
+  }
 }
 
 .srdHeader__content { display: flex; flex-direction: column; gap: 1rem; }
@@ -64,23 +70,457 @@
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-.srdHeader__image {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 2px solid #e0e6ed;
-  border-radius: 12px;
-  height: 300px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+/* 5W1H關聯圖按鈕 */
+.srdHeader__5w1hBtn {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem 1rem;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
 }
 
-/* Header 內的 5W1H 視覺化樣式 */
-#header-mindmap {
+.srdHeader__5w1hBtn:hover {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+/* 專家分析區塊 */
+.srdHeader__expertAnalysis {
+  background: linear-gradient(135deg, #fefefe 0%, #f9fafb 100%);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+  position: relative;
+  overflow: hidden;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.srdHeader__expertAnalysis::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+}
+
+.srdHeader__expertTitle {
+  margin: 0 0 0.3rem 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: center;
+  position: relative;
+  padding-bottom: 0.3rem;
+  flex-shrink: 0;
+}
+
+
+
+.srdHeader__expertContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+/* 自定義滾動條樣式 */
+.srdHeader__expertContent::-webkit-scrollbar {
+  width: 5px;
+}
+
+.srdHeader__expertContent::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.srdHeader__expertContent::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 3px;
+}
+
+.srdHeader__expertContent::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+/* ===== 專家分析預覽卡片 ===== */
+.srdHeader__expertCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.1rem;
+  align-items: stretch;
+}
+
+.srdHeader__expertCard {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.srdHeader__expertCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.srdHeader__expertCard:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.18);
+  transform: translateY(-3px);
+}
+
+.srdHeader__expertCard:hover::before {
+  transform: scaleX(1);
+}
+
+.srdHeader__expertCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.srdHeader__expandIcon {
+  font-size: 1.1rem;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.srdHeader__expertCard:hover .srdHeader__expandIcon {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.srdHeader__expertCardPreview {
+  color: #4b5563;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  line-clamp: 4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+/* ===== 專家分析彈出視窗 ===== */
+.srdExpertModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: srdModalFadeIn 0.25s ease;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes srdModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.srdExpertModal.closing {
+  animation: srdModalFadeOut 0.2s ease;
+}
+
+@keyframes srdModalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.srdExpertModal__content {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: srdModalSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes srdModalSlideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.srdExpertModal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.75rem 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  background: linear-gradient(135deg, #f8fafc, #ffffff);
+  flex-shrink: 0;
+}
+
+.srdExpertModal__title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.srdExpertModal__icon {
+  font-size: 1.5rem;
+}
+
+.srdExpertModal__close {
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.srdExpertModal__close:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  transform: rotate(90deg);
+}
+
+.srdExpertModal__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  background: #ffffff;
+}
+
+.srdExpertModal__body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.srdExpertModal__body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.srdExpertModal__body::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 4px;
+}
+
+.srdExpertModal__body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+.srdExpertModal__analysis {
+  color: #334155;
+  font-size: 1rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* 手風琴容器 */
+.srdHeader__accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* 手風琴項目 */
+.srdHeader__accordionItem {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.srdHeader__accordionItem:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.srdHeader__accordionItem.expanded {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+}
+
+/* 手風琴標題列（可點擊） */
+.srdHeader__accordionHeader {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.srdHeader__accordionHeader:hover {
+  background: #f9fafb;
+}
+
+.srdHeader__accordionItem.expanded .srdHeader__accordionHeader {
+  background: linear-gradient(135deg, #f0f7ff, #f9fafb);
+}
+
+.srdHeader__accordionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.srdHeader__accordionIcon {
+  color: #3b82f6;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* 手風琴內容區 */
+.srdHeader__accordionContent {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  padding: 0 1rem;
+}
+
+.srdHeader__accordionContent.show {
+  max-height: 1000px;
+  padding: 0 1rem 1rem 1rem;
+}
+
+.srdHeader__categoryTag {
+  display: inline-block;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 0.3rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.srdHeader__analysisText {
+  color: #374151;
+  line-height: 1.6;
+  font-size: 0.88rem;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+.srdHeader__noAnalysis {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 2px dashed #d1d5db;
+  font-size: 0.9rem;
+}
+
+/* 載入動畫 */
+.srdHeader__analysisLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.srdHeader__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Header 內的 5W1H 視覺化樣式（已移除，改為按鈕驅動） */
+/* .srdHeader__image 樣式已移除 */
+
+/* 模態框中的 5W1H 視覺化樣式 */
+#expanded-mindmap {
   width: 100%;
   height: 100%;
   position: relative;
 }
 
+#expanded-mindmap .fivew1h-container,
 #header-mindmap .fivew1h-container {
   background: transparent;
   border-radius: 0;
@@ -92,6 +532,11 @@
 }
 
 /* 隱藏不需要的元素 */
+#expanded-mindmap .fivew1h-title,
+#expanded-mindmap .fivew1h-subtitle,
+#expanded-mindmap .fivew1h-instructions,
+#expanded-mindmap .fivew1h-legend,
+#expanded-mindmap .fivew1h-controls,
 #header-mindmap .fivew1h-title,
 #header-mindmap .fivew1h-subtitle,
 #header-mindmap .fivew1h-instructions,
@@ -100,6 +545,7 @@
   display: none;
 }
 
+#expanded-mindmap .fivew1h-graph,
 #header-mindmap .fivew1h-graph {
   flex: 1;
   border: none;
@@ -108,32 +554,38 @@
   margin: 0;
 }
 
-/* 調整節點樣式以適配 header */
+/* 調整節點樣式以適配顯示 */
+#expanded-mindmap .node,
 #header-mindmap .node {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
 }
 
+#expanded-mindmap .node:hover,
 #header-mindmap .node:hover {
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25));
   transform: scale(1.03);
 }
 
+#expanded-mindmap .text,
 #header-mindmap .text {
   font-size: 9px !important;
   font-weight: 600;
 }
 
+#expanded-mindmap .text-center,
 #header-mindmap .text-center { 
   font-size: 11px !important; 
   font-weight: bold;
 }
 
+#expanded-mindmap .text-5w1h,
 #header-mindmap .text-5w1h { 
   font-size: 8px !important; 
   font-weight: 600;
 }
 
 /* 工具提示樣式調整 */
+#expanded-mindmap .fivew1h-tooltip,
 #header-mindmap .fivew1h-tooltip {
   font-size: 11px;
   padding: 8px 10px;
@@ -824,6 +1276,40 @@
     font-size: 1rem;
   }
   
+  .srdHeader__expertAnalysis {
+    padding: 1rem;
+    max-height: none;
+  }
+  
+  .srdHeader__accordionHeader {
+    padding: 0.875rem;
+  }
+  
+  .srdHeader__accordionContent.show {
+    padding: 0 0.875rem 0.875rem 0.875rem;
+  }
+  
+  .srdHeader__categoryTag {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.625rem;
+  }
+  
+  .srdHeader__analysisText {
+    font-size: 0.85rem;
+  }
+  
+  .srdHeader__expertTitle {
+    font-size: 1rem;
+  }
+  
+  .srdHeader__analysisItem {
+    padding: 0.875rem;
+  }
+  
+  .srdHeader__analysisText {
+    font-size: 0.85rem;
+  }
+  
   .chat-sidebar {
     right: -100%;
   }
@@ -1246,6 +1732,28 @@
   }
   
   .srdReportModal__body {
+    padding: 1.5rem;
+  }
+  
+  /* 專家卡片在小螢幕上改為單欄 */
+  .srdHeader__expertCards {
+    grid-template-columns: 1fr;
+  }
+  
+  .srdExpertModal__content {
+    width: 95%;
+    max-width: 95vw;
+  }
+  
+  .srdExpertModal__header {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .srdExpertModal__title {
+    font-size: 1.1rem;
+  }
+  
+  .srdExpertModal__body {
     padding: 1.5rem;
   }
 }

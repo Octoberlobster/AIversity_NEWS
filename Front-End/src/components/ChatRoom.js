@@ -227,8 +227,8 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
 
   const simulateReplies = async () => {
     setIsLoading(true);
-    
-    // 添加載入訊息
+
+    // 加入「載入中」訊息
     const loadingMsg = {
       id: 'loading-' + Date.now(),
       isLoading: true,
@@ -236,60 +236,81 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
       time: getFormattedTime(),
     };
     setMessages((prev) => [...prev, loadingMsg]);
-    
+
     try {
-      // 構建請求的資料
+      // 取得分類（categories）
       const categories = selectedExperts.map(
         (expertId) => experts.find((e) => e.id === expertId).category
       );
-  
-      // 呼叫後端 API
-      const response = await fetchJson('/chat/single', {
-        story_id: newsData.story_id,
-        user_id: user_id,
-        room_id: room_id,
-        prompt: inputMessage,
-        category: categories,
-        article: newsData.long,
-      });
-  
-      // 移除載入訊息
-      setMessages((prev) => prev.filter(m => !m.isLoading));
+
+      // 🧠 1️⃣ 依每個 category 建立單獨請求
+      const fetchCategory = async (category) => {
+        return fetchJson('/chat/single', {
+          story_id: newsData.story_id,
+          user_id,
+          room_id,
+          prompt: inputMessage,
+          category: [category], // ✅ 每次只送一個分類
+          article: newsData.long,
+        })
+          .then((res) => ({
+            category,
+            reply: res.response?.[0]?.chat_response || '(無回覆)',
+          }))
+          .catch((err) => ({
+            category,
+            reply: `(錯誤) ${err.message}`,
+          }));
+      };
+
+      // 🧠 2️⃣ 平行送出所有請求
+      const allPromises = categories.map(fetchCategory);
+      const results = await Promise.all(allPromises);
+
+      // 移除「載入中」訊息
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
       setIsLoading(false);
-      
-      // 處理後端回傳的回覆
-      response.response.forEach((reply, index) => {
+
+      // 🧠 3️⃣ 顯示每個分類的回覆
+      results.forEach(({ category, reply }, index) => {
+        const expertId = selectedExperts[index];
+        const expertName = experts.find((e) => e.id === expertId).name;
+
+        const expertReply = makeExpertReply(expertId);
+        expertReply.text = `${expertName}：${reply}`;
+        expertReply.time = getFormattedTime();
+
+        // 模擬回覆延遲
         setTimeout(() => {
-          const expertId = selectedExperts[index]; // 根據順序匹配專家 ID
-          const expertReply = makeExpertReply(expertId); // 使用 makeExpertReply 生成回覆
-          expertReply.text = `${experts.find((e) => e.id === expertId).name}：${reply.chat_response}`; // 更新回覆內容
-
           setMessages((prev) => [...prev, expertReply]);
-        }, 1000 + index * 500); // 模擬延遲
+        }, 1000 + index * 500);
       });
 
-      // 格式化專家回覆為 "類別:回答"
-      const formattedReplies = response.response.map((reply, index) => {
-        const category = categories[index];
-        return `${category}: ${reply.chat_response}`;
-      });
+      // 🧠 4️⃣ 整理成 quick prompt 格式
+      const formattedReplies = results.map(
+        ({ category, reply }) => `${category}: ${reply}`
+      );
+      changeQuickPrompt(`user:${inputMessage} ${formattedReplies.join(' ')}`);
 
-      // 呼叫 changeQuickPrompt，傳入格式化的回覆
-      changeQuickPrompt(`user:${inputMessage} ${formattedReplies.join(" ")}`);
     } catch (error) {
       console.error('Error fetching expert replies:', error);
-      // 移除載入訊息
-      setMessages((prev) => prev.filter(m => !m.isLoading));
+
+      // 移除載入中
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
       setIsLoading(false);
-      
-      setMessages((prev) => [...prev, {
-        id: Date.now(),
-        text: t('exportChat.error.serverError'),
-        isOwn: false,
-        time: getFormattedTime(),
-      }]);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: t('exportChat.error.serverError'),
+          isOwn: false,
+          time: getFormattedTime(),
+        },
+      ]);
     }
   };
+
 
 
   const handlePromptSend = (promptText) => {
@@ -314,8 +335,8 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
 
   const simulateRepliesWithPrompt = async (promptText) => {
     setIsLoading(true);
-    
-    // 添加載入訊息
+
+    // 加入載入中訊息
     const loadingMsg = {
       id: 'loading-' + Date.now(),
       isLoading: true,
@@ -323,58 +344,78 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
       time: getFormattedTime(),
     };
     setMessages((prev) => [...prev, loadingMsg]);
-    
+
     try {
-      // 構建請求的資料
+      // 取得選中專家的分類
       const categories = selectedExperts.map(
         (expertId) => experts.find((e) => e.id === expertId).category
       );
-  
-      // 呼叫後端 API
-      const response = await fetchJson('/chat/single', {
-        story_id: newsData.story_id,
-        user_id: user_id,
-        room_id: room_id,
-        prompt: promptText,
-        category: categories,
-        article: newsData.long,
-      });
-  
-      // 移除載入訊息
-      setMessages((prev) => prev.filter(m => !m.isLoading));
-      setIsLoading(false);
-      
-      // 處理後端回傳的回覆
-      response.response.forEach((reply, index) => {
-        setTimeout(() => {
-          const expertId = selectedExperts[index];
-          const expertReply = makeExpertReply(expertId);
-          expertReply.text = `${experts.find((e) => e.id === expertId).name}：${reply.chat_response}`;
 
+      // 🧠 每個 category 各自請求
+      const fetchCategory = async (category) => {
+        return fetchJson('/chat/single', {
+          story_id: newsData.story_id,
+          user_id,
+          room_id,
+          prompt: promptText,
+          category: [category], // ✅ 每次只傳單一分類
+          article: newsData.long,
+        })
+          .then((res) => ({
+            category,
+            reply: res.response?.[0]?.chat_response || '(無回覆)',
+          }))
+          .catch((err) => ({
+            category,
+            reply: `(錯誤) ${err.message}`,
+          }));
+      };
+
+      // 🧠 平行發送所有請求
+      const allPromises = categories.map(fetchCategory);
+      const results = await Promise.all(allPromises);
+
+      // 移除載入中訊息
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
+      setIsLoading(false);
+
+      // 🧠 顯示每個分類的回覆
+      results.forEach(({ category, reply }, index) => {
+        const expertId = selectedExperts[index];
+        const expertName = experts.find((e) => e.id === expertId).name;
+
+        const expertReply = makeExpertReply(expertId);
+        expertReply.text = `${expertName}：${reply}`;
+        expertReply.time = getFormattedTime();
+
+        // 模擬輸出延遲，讓畫面看起來自然
+        setTimeout(() => {
           setMessages((prev) => [...prev, expertReply]);
         }, 1000 + index * 500);
       });
 
-      // 格式化專家回覆為 "類別:回答"
-      const formattedReplies = response.response.map((reply, index) => {
-        const category = categories[index];
-        return `${category}: ${reply.chat_response}`;
-      });
+      // 🧠 整合成 quick prompt 格式
+      const formattedReplies = results.map(
+        ({ category, reply }) => `${category}: ${reply}`
+      );
+      changeQuickPrompt(`user:${promptText} ${formattedReplies.join(' ')}`);
 
-      // 呼叫 changeQuickPrompt，傳入格式化的回覆
-      changeQuickPrompt(`user:${promptText} ${formattedReplies.join(" ")}`);
     } catch (error) {
       console.error('Error fetching expert replies:', error);
+
       // 移除載入訊息
-      setMessages((prev) => prev.filter(m => !m.isLoading));
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
       setIsLoading(false);
-      
-      setMessages((prev) => [...prev, {
-        id: Date.now(),
-        text: t('exportChat.error.serverError'),
-        isOwn: false,
-        time: getFormattedTime(),
-      }]);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: t('exportChat.error.serverError'),
+          isOwn: false,
+          time: getFormattedTime(),
+        },
+      ]);
     }
   };
 

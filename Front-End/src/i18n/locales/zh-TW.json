@@ -252,7 +252,14 @@
       "articlesCount": "篇文章",
       "reportButton": "專題報告",
       "reportButtonTitle": "查看專題整合報告",
-      "clickToEnlarge": "點擊放大"
+      "clickToEnlarge": "點擊放大",
+      "relationMap": "關聯圖",
+      "expertAnalysis": "專家分析",
+      "noExpertAnalysis": "暫無專家分析",
+      "loadingAnalysis": "載入專家分析中...",
+      "expert": "專家",
+      "noContent": "暫無內容",
+      "clickToViewFull": "點擊查看完整分析"
     },
     "navigation": {
       "title": "專題導覽",
@@ -273,7 +280,11 @@
         "title": "專題整合分析報告",
         "close": "關閉報告",
         "generating": "正在生成報告...",
-        "generatingDetail": "正在生成專題分析報告，請稍候..."
+        "generatingDetail": "正在生成專題分析報告,請稍候..."
+      },
+      "expert": {
+        "clickToView": "點擊查看完整分析",
+        "close": "關閉"
       }
     }
   },

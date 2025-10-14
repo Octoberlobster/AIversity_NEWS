@@ -263,7 +263,14 @@
       "articlesCount": "件の記事",
       "reportButton": "特集レポート",
       "reportButtonTitle": "特集統合レポートを表示",
-      "clickToEnlarge": "クリックして拡大"
+      "clickToEnlarge": "クリックして拡大",
+      "relationMap": "関連図",
+      "expertAnalysis": "専門家分析",
+      "noExpertAnalysis": "専門家分析がありません",
+      "loadingAnalysis": "専門家分析を読み込み中...",
+      "expert": "専門家",
+      "noContent": "コンテンツがありません",
+      "clickToViewFull": "クリックして完全な分析を表示"
     },
     "navigation": {
       "title": "特集ナビゲーション",
@@ -285,6 +292,10 @@
         "close": "レポートを閉じる",
         "generating": "レポートを生成中...",
         "generatingDetail": "特集分析レポートを生成中です。しばらくお待ちください..."
+      },
+      "expert": {
+        "clickToView": "クリックして完全な分析を表示",
+        "close": "閉じる"
       }
     }
   },

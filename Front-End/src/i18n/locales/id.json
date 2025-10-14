@@ -265,7 +265,14 @@
       "articlesCount": "artikel",
       "reportButton": "Laporan Topik",
       "reportButtonTitle": "Lihat laporan terintegrasi topik",
-      "clickToEnlarge": "Klik untuk memperbesar"
+      "clickToEnlarge": "Klik untuk memperbesar",
+      "relationMap": "Peta Hubungan",
+      "expertAnalysis": "Analisis Ahli",
+      "noExpertAnalysis": "Tidak ada analisis ahli",
+      "loadingAnalysis": "Memuat analisis ahli...",
+      "expert": "Ahli",
+      "noContent": "Tidak ada konten",
+      "clickToViewFull": "Klik untuk melihat analisis lengkap"
     },
     "navigation": {
       "title": "Navigasi Topik",
@@ -287,6 +294,10 @@
         "close": "Tutup Laporan",
         "generating": "Menghasilkan laporan...",
         "generatingDetail": "Menghasilkan laporan analisis topik, harap tunggu..."
+      },
+      "expert": {
+        "clickToView": "Klik untuk melihat analisis lengkap",
+        "close": "Tutup"
       }
     }
   },

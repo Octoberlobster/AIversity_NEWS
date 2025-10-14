@@ -259,7 +259,14 @@
       "articlesCount": "articles",
       "reportButton": "Report",
       "reportButtonTitle": "View integrated analysis report",
-      "clickToEnlarge": "Click to enlarge"
+      "clickToEnlarge": "Click to enlarge",
+      "relationMap": "Relation Map",
+      "expertAnalysis": "Expert Analysis",
+      "noExpertAnalysis": "No expert analysis available",
+      "loadingAnalysis": "Loading expert analysis...",
+      "expert": "Expert",
+      "noContent": "No content available",
+      "clickToViewFull": "Click to view full analysis"
     },
     "navigation": {
       "title": "Report Navigation",
@@ -281,6 +288,10 @@
         "close": "Close Report",
         "generating": "Generating report...",
         "generatingDetail": "Generating analysis report, please wait..."
+      },
+      "expert": {
+        "clickToView": "Click to view full analysis",
+        "close": "Close"
       }
     }
   },

@@ -25,72 +25,65 @@ function SpecialReportDetail() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const sectionRefs = useRef({});
   const supabase = useSupabase();
-  const headerImageRef = useRef(null);
-  const vizInstanceRef = useRef(null);
   const [is5W1HExpanded, setIs5W1HExpanded] = useState(false);
   const expanded5W1HRef = useRef(null);
   const expandedVizInstanceRef = useRef(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [integrationReport, setIntegrationReport] = useState('');
+  
+  // 專家分析（從資料庫讀取）
+  const [expertAnalysis, setExpertAnalysis] = useState([]);
+  const [analysisLoading, setAnalysisLoading] = useState(true);
+  
+  // 專家分析彈出視窗狀態
+  const [selectedExpert, setSelectedExpert] = useState(null);
+  const [isExpertModalOpen, setIsExpertModalOpen] = useState(false);
 
-  useEffect(() => {
-    const initializeHeaderVisualization = () => {
-      if (headerImageRef.current && !vizInstanceRef.current) {
-        // 使用新的 createHeaderVisualization 函數
-        vizInstanceRef.current = createHeaderVisualization(
-          headerImageRef, 
-          report?.topic_title || t('fiveW1H.defaultTitle'),
-          false, // isModal
-          report?.topic_id || id, // 傳遞 topic_id，如果沒有就用 URL 的 id
-          t, // 傳遞翻譯函數
-          getFieldName // 傳遞 getFieldName 函數
-        );
-      }
-    };
+  // 開啟專家分析彈出視窗
+  const openExpertModal = (expert) => {
+    setSelectedExpert(expert);
+    setIsExpertModalOpen(true);
+  };
 
-    // 延遲初始化確保 DOM 就緒
-    const timer = setTimeout(initializeHeaderVisualization, 100);
-    
-    return () => {
-      clearTimeout(timer);
-      // 清理實例
-      if (vizInstanceRef.current) {
-        vizInstanceRef.current = null;
-      }
-    };
-  }, [report?.topic_title, report?.topic_id, id, t, getFieldName]);
+  // 關閉專家分析彈出視窗
+  const closeExpertModal = () => {
+    setIsExpertModalOpen(false);
+    setTimeout(() => setSelectedExpert(null), 300); // 等待動畫結束後清除
+  };
 
-  // 新增：處理5W1H關聯圖點擊放大
+  // 截斷文字函數
+  const truncateText = (text, maxLength = 48) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  // 處理5W1H關聯圖顯示
   useEffect(() => {
     if (is5W1HExpanded && expanded5W1HRef.current && !expandedVizInstanceRef.current) {
-      // 延遲初始化確保模態框DOM就緒
       const timer = setTimeout(() => {
         if (expanded5W1HRef.current) {
           expandedVizInstanceRef.current = createHeaderVisualization(
             expanded5W1HRef, 
             report?.topic_title || t('fiveW1H.defaultTitle'),
-            true, // 標記為模態框模式
-            report?.topic_id || id, // 傳遞 topic_id
-            t, // 傳遞翻譯函數
-            getFieldName // 傳遞 getFieldName 函數
+            true,
+            report?.topic_id || id,
+            t,
+            getFieldName
           );
         }
       }, 100);
-      
       return () => clearTimeout(timer);
     }
   }, [is5W1HExpanded, report?.topic_title, report?.topic_id, id, t, getFieldName]);
 
-  // 新增：關閉5W1H關聯圖放大視窗
   const close5W1HExpanded = () => {
     setIs5W1HExpanded(false);
-    // 清理放大的視覺化實例
     if (expandedVizInstanceRef.current) {
       expandedVizInstanceRef.current = null;
     }
   };
 
-  // 新增：點擊5W1H關聯圖放大
   const handle5W1HClick = () => {
     setIs5W1HExpanded(true);
   };
@@ -107,6 +100,50 @@ function SpecialReportDetail() {
       setIntegrationReport(report.report || '');
     }, 2000);
   };
+
+  // 載入專家分析資料
+  useEffect(() => {
+    const fetchExpertAnalysis = async () => {
+      if (!id || !supabase) return;
+      
+      setAnalysisLoading(true);
+      
+      try {
+        // 查詢專家分析，支援多語言
+        const analyzeMultiLangFields = ['analyze'];
+        const analyzeSelectFields = getMultiLanguageSelect(analyzeMultiLangFields);
+        
+        const { data, error } = await supabase
+          .from('pro_analyze_topic')
+          .select(`analyze_id, category, ${analyzeSelectFields}`)
+          .eq('topic_id', id);
+        
+        if (error) {
+          console.error(`Error fetching expert analysis for topic ${id}:`, error);
+          setExpertAnalysis([]);
+          setAnalysisLoading(false);
+          return;
+        }
+
+        // 處理多語言分析資料
+        const analysisData = (data || []).map(item => ({
+          analyze_id: item.analyze_id,
+          category: item.category,
+          analyze: item[getFieldName('analyze')] || item.analyze
+        }));
+        
+        setExpertAnalysis(analysisData);
+      } catch (error) {
+        console.error(`Error fetching expert analysis for topic ${id}:`, error);
+        setExpertAnalysis([]);
+      } finally {
+        setAnalysisLoading(false);
+      }
+    };
+
+    fetchExpertAnalysis();
+  }, [id, supabase, getFieldName, getMultiLanguageSelect]);
+
   // 獲取專題詳細資料
   const fetchSpecialReportDetail = async () => {
     try {
@@ -288,6 +325,7 @@ function SpecialReportDetail() {
         {/* Header */}
         <div className="srdHeader">
           <div className="srdHeader__content">
+            <br />
             <h1 className="srdHeader__title">{report.topic_title}</h1>
             <p className="srdHeader__summary">{report.description}</p>
             <div className="srdHeader__meta">
@@ -299,10 +337,6 @@ function SpecialReportDetail() {
                 <span>📄</span>
                 <span>{report.articles} {t('specialReportDetail.header.articlesCount')}</span>
               </div>
-              <div className="srdHeader__metaItem">
-                <span>👁️</span>
-                <span>{report.views}</span>
-              </div>
               <button 
                 className="srdHeader__reportBtn"
                 onClick={generateIntegrationReport}
@@ -310,12 +344,63 @@ function SpecialReportDetail() {
               >
                 📊 {t('specialReportDetail.header.reportButton')}
               </button>
+              <button 
+                className="srdHeader__5w1hBtn"
+                onClick={handle5W1HClick}
+                title="查看 5W1H 關聯圖"
+              >
+                🔍 5W1H {t('specialReportDetail.header.relationMap')}
+              </button>
             </div>
           </div>
-          <div className="srdHeader__image" ref={headerImageRef} onClick={handle5W1HClick} style={{ cursor: 'pointer' }}>
-            <div id="header-mindmap" style={{ width: '100%', height: '100%' }}></div>
-            <div className="srdHeader__imageOverlay">
-              <span className="srdHeader__imageHint">{t('specialReportDetail.header.clickToEnlarge')}</span>
+          
+          {/* 專家分析區塊 - 手風琴模式 */}
+          <div className="srdHeader__expertAnalysis">
+            <h4 className="srdHeader__expertTitle">
+              💡 {t('specialReportDetail.header.expertAnalysis')}
+            </h4>
+            <div className="srdHeader__expertContent">
+              {analysisLoading ? (
+                <div className="srdHeader__analysisLoading">
+                  <div className="srdHeader__spinner"></div>
+                  <span>{t('specialReportDetail.header.loadingAnalysis')}</span>
+                </div>
+              ) : expertAnalysis && expertAnalysis.length > 0 ? (
+                <div className="srdHeader__expertCards">
+                  {expertAnalysis.map((analysis, index) => {
+                    // 確保 analyze 是物件
+                    const analyzeData = typeof analysis.analyze === 'string' 
+                      ? JSON.parse(analysis.analyze) 
+                      : analysis.analyze;
+                    
+                    const expertData = {
+                      ...analysis,
+                      analyzeData
+                    };
+                    
+                    return (
+                      <div 
+                        className="srdHeader__expertCard"
+                        key={analysis.analyze_id || index}
+                        onClick={() => openExpertModal(expertData)}
+                      >
+                        <div className="srdHeader__expertCardHeader">
+                          <span className="srdHeader__categoryTag">
+                            {analyzeData?.Role || analysis.category || t('specialReportDetail.header.expert')}
+                          </span>
+                        </div>
+                        <div className="srdHeader__expertCardPreview">
+                          {truncateText(analyzeData?.Analyze || t('specialReportDetail.header.noContent'))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="srdHeader__noAnalysis">
+                  {t('specialReportDetail.header.noExpertAnalysis')}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -451,6 +536,34 @@ function SpecialReportDetail() {
                   <ReactMarkdown>{integrationReport}</ReactMarkdown>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 專家分析彈出視窗 */}
+      {isExpertModalOpen && selectedExpert && (
+        <div className="srdExpertModal" onClick={closeExpertModal}>
+          <div className="srdExpertModal__content" onClick={(e) => e.stopPropagation()}>
+            <div className="srdExpertModal__header">
+              <div className="srdExpertModal__title">
+                <span className="srdExpertModal__icon">👤</span>
+                <span className="srdHeader__categoryTag">
+                  {selectedExpert.analyzeData?.Role || selectedExpert.category || t('specialReportDetail.header.expert')}
+                </span>
+              </div>
+              <button 
+                className="srdExpertModal__close"
+                onClick={closeExpertModal}
+                title={t('specialReportDetail.modal.expert.close')}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="srdExpertModal__body">
+              <div className="srdExpertModal__analysis">
+                {selectedExpert.analyzeData?.Analyze || t('specialReportDetail.header.noContent')}
+              </div>
             </div>
           </div>
         </div>
