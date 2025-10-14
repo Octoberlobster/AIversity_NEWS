@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 user_sessions = {}
 
-@app.route("/chat/single", methods=["POST"])
+@app.route("/api/chat/single", methods=["POST"])
 def chat():
     data = request.json  # 取得前端傳來的 JSON
     user_id = data.get("user_id")
@@ -36,7 +36,7 @@ def chat():
     print(response)
     return jsonify({"response": response})
 
-@app.route("/hint_prompt/single", methods=["POST"])
+@app.route("/api/hint_prompt/single", methods=["POST"])
 def hint_Prompt():
     data = request.json
     user_id = data.get("user_id")
@@ -66,7 +66,7 @@ def hint_Prompt():
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
     
-@app.route("/chat/search", methods=["POST"])
+@app.route("/api/chat/search", methods=["POST"])
 def chat_search():
     data = request.json
     user_id = data.get("user_id")
@@ -92,7 +92,7 @@ def chat_search():
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route("/hint_prompt/search", methods=["POST"])
+@app.route("/api/hint_prompt/search", methods=["POST"])
 def hint_Prompt_search():
     try:
         response = Hint_Prompt_Search.generate_hint_prompt()
@@ -102,7 +102,7 @@ def hint_Prompt_search():
         print("fuck me right now")
         return jsonify({"error": str(e)}), 500
 
-@app.route("/chat/topic", methods=["POST"])
+@app.route("/api/chat/topic", methods=["POST"])
 def chat_topic():
     data = request.json
     user_id = data.get("user_id")
@@ -125,7 +125,7 @@ def chat_topic():
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route("/hint_prompt/topic", methods=["POST"])
+@app.route("/api/hint_prompt/topic", methods=["POST"])
 def hint_prompt_topic():
     data = request.json
     topic_id = data.get("topic_id")
@@ -153,7 +153,7 @@ def hint_prompt_topic():
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route("/Advanced_Search_Service/search",methods=["POST"])
+@app.route("/api/Advanced_Search_Service/search",methods=["POST"])
 def advanced_search():
     data = request.json
     query = data.get("query")

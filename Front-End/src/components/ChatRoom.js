@@ -143,7 +143,7 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
         (expertId) => experts.find((e) => e.id === expertId).category
       );
 
-      const response = await fetchJson('/hint_prompt/single', {
+      const response = await fetchJson('/api/hint_prompt/single', {
         option : options,
         user_id: user_id,
         room_id: room_id,
@@ -245,7 +245,7 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
 
       // 🧠 1️⃣ 依每個 category 建立單獨請求
       const fetchCategory = async (category) => {
-        return fetchJson('/chat/single', {
+        return fetchJson('/api/chat/single', {
           story_id: newsData.story_id,
           user_id,
           room_id,
@@ -353,7 +353,7 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
 
       // 🧠 每個 category 各自請求
       const fetchCategory = async (category) => {
-        return fetchJson('/chat/single', {
+        return fetchJson('/api/chat/single', {
           story_id: newsData.story_id,
           user_id,
           room_id,

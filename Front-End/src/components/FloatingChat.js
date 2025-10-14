@@ -61,7 +61,7 @@ function FloatingChat() {
     let isMounted = true;
     const fetchQuickPrompts = async () => {
       try {
-        const response = await fetchJson('/hint_prompt/search', {});
+        const response = await fetchJson('/api/hint_prompt/search', {});
         if (isMounted) {
           const dynamicPrompts = response.Hint_Prompt || [];
           setQuickPrompts([...fixedPrompts, ...dynamicPrompts]);
@@ -113,7 +113,7 @@ function FloatingChat() {
 
     try {
       // 呼叫後端 API（舊版邏輯）
-      const response = await fetchJson('/chat/search', {
+      const response = await fetchJson('/api/chat/search', {
         user_id: user_id,
         room_id: room_id,
         prompt: text,

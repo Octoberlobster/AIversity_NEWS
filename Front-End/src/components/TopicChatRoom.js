@@ -154,7 +154,7 @@ function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onC
         (expertId) => experts.find((e) => e.id === expertId).category
       );
 
-      const response = await fetchJson('/hint_prompt/topic', {
+      const response = await fetchJson('/api/hint_prompt/topic', {
         topic_id: topic_id,
         room_id: room_id,
         user_id: user_id,
@@ -235,7 +235,7 @@ function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onC
 
       // 🧠 每個 category 各自請求
       const fetchCategory = async (category) => {
-        return fetchJson('/chat/topic', {
+        return fetchJson('/api/chat/topic', {
           topic_id: topic_id,
           room_id: room_id,
           user_id: user_id,

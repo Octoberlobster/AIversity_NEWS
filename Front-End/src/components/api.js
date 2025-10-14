@@ -19,7 +19,7 @@ export async function fetchJson(path, body) {
 // 搜尋新聞功能 - 調用 Advanced_Search_Service API
 export async function searchNews(query) {
   //console.log('searchNews called with query:', query);
-  return await fetchJson('/Advanced_Search_Service/search', { query });
+  return await fetchJson('/api/Advanced_Search_Service/search', { query });
 }
 
 /**
