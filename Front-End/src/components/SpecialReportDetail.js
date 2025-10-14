@@ -156,7 +156,7 @@ function SpecialReportDetail() {
       
       const { data: topicData, error: topicError } = await supabase
         .from('topic')
-        .select(`topic_id, ${topicSelectFields}, generated_date`)
+        .select(`topic_id, ${topicSelectFields}, generated_date, who_talk`)
         .eq('topic_id', id)
         .single();
       if (topicError) throw new Error(`無法獲取專題資訊: ${topicError.message}`);
@@ -243,7 +243,8 @@ function SpecialReportDetail() {
         articles: newsCountData ? newsCountData.length : 0,
         views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
         lastUpdate: topicData.generated_date ? new Date(topicData.generated_date).toLocaleDateString('zh-TW') : '',
-        report: topicData[getFieldName('report')] || topicData.report || ''
+        report: topicData[getFieldName('report')] || topicData.report || '',
+        who_talk: topicData.who_talk || ''
       };
 
   setReport(reportData);
@@ -487,7 +488,13 @@ function SpecialReportDetail() {
       {/* 側邊聊天室 */}
       <div className={`chat-sidebar ${isChatOpen ? 'open' : ''}`}>
         <div className="chat-sidebar-content">
-          <TopicChatRoom topic_id={id} topic_title={report.topic_title} onClose={() => setIsChatOpen(false)} />
+          <TopicChatRoom 
+            topic_id={id} 
+            topic_title={report.topic_title}
+            topic_who_talk={report.who_talk}
+            topicExperts={expertAnalysis} 
+            onClose={() => setIsChatOpen(false)} 
+          />
         </div>
       </div>
       {/* 新增：5W1H關聯圖放大模態框 */}

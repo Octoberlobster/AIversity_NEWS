@@ -6,10 +6,66 @@ import { fetchJson } from './api';
 import './../css/ChatRoom.css';
 import ReactMarkdown from 'react-markdown';
 
-function TopicChatRoom({topic_id, topic_title, onClose}) {
+const experts = [
+  { id: 1, name: "政治專家", category: "Politics" },
+  { id: 2, name: "台灣議題分析師", category: "Taiwan News" },
+  { id: 3, name: "國際專家", category: "International News" },
+  { id: 4, name: "科技專家", category: "Science & Technology" },
+  { id: 5, name: "生活達人", category: "Lifestyle & Consumer News" },
+  { id: 6, name: "體育專家", category: "Sports" },
+  { id: 7, name: "娛樂專家", category: "Entertainment" },
+  { id: 8, name: "財經專家", category: "Business & Finance" },
+  { id: 9, name: "健康顧問", category: "Health & Wellness" },
+];
+
+// 輔助函數：安全地解析 who_talk
+const parseWhoTalk = (whoTalk) => {
+  if (!whoTalk) return [];
+  
+  if (Array.isArray(whoTalk)) {
+    return whoTalk;
+  }
+  
+  if (typeof whoTalk === 'string') {
+    try {
+      const parsed = JSON.parse(whoTalk);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error('Error parsing who_talk JSON:', error);
+      return [];
+    }
+  }
+  
+  // 如果是物件，可能有嵌套的結構
+  if (typeof whoTalk === 'object' && whoTalk !== null) {
+    // 如果是 {who_talk: [...]} 的格式
+    if (whoTalk.who_talk && Array.isArray(whoTalk.who_talk)) {
+      return whoTalk.who_talk;
+    }
+  }
+  
+  return [];
+};
+
+function updateExpertNamesByTopicExperts(topicExperts) {
+  if (!Array.isArray(topicExperts)) return;
+
+  topicExperts.forEach(item => {
+    if (!item || !item.category) return;
+
+    const expert = experts.find(e => e.category === item.category);
+    if (expert && item.analyze?.Role) {
+      expert.name = item.analyze.Role;
+    }
+  });
+}
+
+function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onClose}) {
   const { t } = useTranslation();
+  const [selectedExperts, setSelectedExperts] = useState([]);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // 根據當前語言獲取對應的區域代碼
   const getCurrentLocale = () => {
@@ -39,10 +95,42 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
   const [quickPrompts, setQuickPrompts] = useState([]);
   
   const messagesEndRef = useRef(null);
+  const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const user_id = getOrCreateUserId();
   const roomIdRef = useRef(createRoomId());
   const room_id = roomIdRef.current;
+
+  // 當 topic_who_talk 改變時，清理不在 who_talk 範圍內的已選專家
+  useEffect(() => {
+    const whoTalkArray = parseWhoTalk(topic_who_talk);
+
+    if (whoTalkArray.length > 0) {
+      setSelectedExperts(prevSelected => {
+        const validExperts = prevSelected.filter(expertId => {
+          const expert = experts.find(e => e.id === expertId);
+          return expert && whoTalkArray.includes(expert.category);
+        });
+        return validExperts;
+      });
+    }
+  }, [topic_who_talk]);
+
+  // 點擊外部關閉下拉
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsDropdownOpen(false);
+    };
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDropdownOpen]);
+
+  // 更新專家名稱
+  useEffect(() => {
+    updateExpertNamesByTopicExperts(topicExperts);
+  }, [topicExperts]);
 
   // 自動滾到最底
   useEffect(() => {
@@ -62,10 +150,15 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
     ]; // 固定的 prompt
 
     try {
+      const options = selectedExperts.map(
+        (expertId) => experts.find((e) => e.id === expertId).category
+      );
+
       const response = await fetchJson('/hint_prompt/topic', {
         topic_id: topic_id,
         room_id: room_id,
         user_id: user_id,
+        option: options,
         chat_content: chat_content
       });
       console.log('Fetched quick prompts:', response);
@@ -81,14 +174,28 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
         ...fixedPrompts,
       ]);
     }
-  }, [topic_id, topic_title, room_id, user_id, t]);
+  }, [topic_id, topic_title, room_id, user_id, selectedExperts, t]);
 
   useEffect(() => {
-    loadQuickPrompts();
-  }, [loadQuickPrompts]); // 現在可以安全地添加 loadQuickPrompts 作為依賴
+    if (selectedExperts.length > 0) {
+      loadQuickPrompts();
+    }
+  }, [selectedExperts, loadQuickPrompts]);
+
+  const toggleExpert = (id) => {
+    setSelectedExperts((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
 
   const handlePromptSend = (promptText) => {
     if (!promptText.trim()) {
+      return;
+    }
+    
+    // 如果沒有選擇專家，提醒用戶
+    if (selectedExperts.length === 0) {
+      alert('請先選擇至少一位專家來回答您的問題');
       return;
     }
     
@@ -121,32 +228,61 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
     setMessages((prev) => [...prev, loadingMsg]);
     
     try {
-      const response = await fetchJson('/chat/topic', {
-        topic_id: topic_id,
-        room_id: room_id,
-        user_id: user_id,
-        prompt: promptText,
-      });
-      
-      console.log(response);
+      // 取得選中專家的分類
+      const categories = selectedExperts.map(
+        (expertId) => experts.find((e) => e.id === expertId).category
+      );
+
+      // 🧠 每個 category 各自請求
+      const fetchCategory = async (category) => {
+        return fetchJson('/chat/topic', {
+          topic_id: topic_id,
+          room_id: room_id,
+          user_id: user_id,
+          prompt: promptText,
+          category: [category], // ✅ 每次只傳單一分類
+        })
+          .then((res) => ({
+            category,
+            reply: res.response?.[0]?.chat_response || '(無回覆)',
+          }))
+          .catch((err) => ({
+            category,
+            reply: `(錯誤) ${err.message}`,
+          }));
+      };
+
+      // 🧠 平行發送所有請求
+      const allPromises = categories.map(fetchCategory);
+      const results = await Promise.all(allPromises);
       
       // 移除載入訊息
       setMessages((prev) => prev.filter(m => !m.isLoading));
       setIsLoading(false);
       
-      // 處理AI回覆
-      setTimeout(() => {
-        const reply = {
-          id: Date.now() + 1,
-          text: response.response[0].chat_response,
+      // 🧠 顯示每個分類的回覆
+      results.forEach(({ category, reply }, index) => {
+        const expertId = selectedExperts[index];
+        const expertName = experts.find((e) => e.id === expertId).name;
+
+        const expertReply = {
+          id: Date.now() + expertId,
+          text: `${expertName}：${reply}`,
           isOwn: false,
           time: getFormattedTime()
         };
-        setMessages((prev) => [...prev, reply]);
-      }, 1000);
-      
-      // 更新快速提示
-      loadQuickPrompts("user:" + promptText + " assistant:" + response.response[0].chat_response);
+
+        // 模擬輸出延遲
+        setTimeout(() => {
+          setMessages((prev) => [...prev, expertReply]);
+        }, 1000 + index * 500);
+      });
+
+      // 🧠 整合成 quick prompt 格式
+      const formattedReplies = results.map(
+        ({ category, reply }) => `${category}: ${reply}`
+      );
+      loadQuickPrompts(`user:${promptText} ${formattedReplies.join(' ')}`);
     } catch (error) {
       console.error('Error fetching response:', error);
       // 移除載入訊息
@@ -164,6 +300,12 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
+
+    // 如果沒有選擇專家，提醒用戶
+    if (selectedExperts.length === 0) {
+      alert('請先選擇至少一位專家來回答您的問題');
+      return;
+    }
 
     const userMsg = {
       id: Date.now(),
@@ -190,7 +332,12 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
           <div className="chat__icon">💬</div>
           <div>
             <h3 className="chat__title">{t('topicChat.title')}</h3>
-            <p className="chat__subtitle">{t('topicChat.subtitle', { topicTitle: topic_title })}</p>
+            <p className="chat__subtitle">
+              {selectedExperts.length > 0 
+                ? t('exportChat.subtitles.chat', { count: selectedExperts.length })
+                : t('topicChat.subtitle', { topicTitle: topic_title })
+              }
+            </p>
           </div>      
         </div>
         <div className="chat__headerRight">
@@ -203,6 +350,50 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
             >
               ✕
             </button>
+          )}
+        </div>
+      </div>
+
+      {/* 專家選擇器 */}
+      <div className="chat__expertSelector">
+        <div className="dropdown" ref={dropdownRef}>
+          <button
+            type="button"
+            className="dropdown__btn"
+            onClick={() => setIsDropdownOpen((v) => !v)}
+          >
+            <span>{t('exportChat.buttons.selectExperts')}</span>
+            {selectedExperts.length > 0 && <span className="selectedCount">{selectedExperts.length}</span>}
+            <span className={`dropdown__icon ${isDropdownOpen ? 'is-open' : ''}`}>▼</span>
+          </button>
+
+          {isDropdownOpen && (
+            <div className="dropdown__menu">
+              {experts
+                .filter(expert => {
+                  const whoTalkArray = parseWhoTalk(topic_who_talk);
+                  
+                  // 如果沒有有效的 who_talk 資料，顯示所有專家
+                  if (whoTalkArray.length === 0) {
+                    return true;
+                  }
+                  
+                  return whoTalkArray.includes(expert.category);
+                })
+                .map((expert) => {
+                  const checked = selectedExperts.includes(expert.id);
+                  return (
+                    <div
+                      key={expert.id}
+                      className="dropdown__item"
+                      onClick={() => toggleExpert(expert.id)}
+                    >
+                      <span>{expert.name}</span>
+                      <span className={`checkbox ${checked ? 'is-checked' : ''}`} />
+                    </div>
+                  );
+                })}
+            </div>
           )}
         </div>
       </div>
@@ -238,7 +429,7 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
 
       {/* 快速提示區域 */}
       <div className="prompt">
-        {quickPrompts.length > 0 && (
+        {quickPrompts.length > 0 && selectedExperts.length > 0 && (
           <div className="prompt__container">
             {quickPrompts.map((p, i) => (
               <button
@@ -260,7 +451,7 @@ function TopicChatRoom({topic_id, topic_title, onClose}) {
           ref={inputRef}
           type="text"
           className="input__text"
-          placeholder={t('topicChat.input.placeholder')}
+          placeholder={selectedExperts.length === 0 ? t('exportChat.placeholders.selectFirst') : t('topicChat.input.placeholder')}
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
