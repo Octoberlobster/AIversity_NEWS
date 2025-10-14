@@ -40,12 +40,21 @@ function FloatingChat() {
       minute: '2-digit' 
     });
   }, []);
+  
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const location = useLocation();
   const user_id = getOrCreateUserId();
   const roomIdRef = useRef(createRoomId());
   const room_id = roomIdRef.current;
+  
+  // 根據當前路徑獲取語言並生成路由
+  const getLanguageRoute = useCallback((path) => {
+    const pathSegments = location.pathname.split('/');
+    const langCode = pathSegments[1];
+    const currentLang = ['zh-TW', 'en', 'jp', 'id'].includes(langCode) ? langCode : 'zh-TW';
+    return `/${currentLang}${path}`;
+  }, [location.pathname]);
 
   const fixedPrompts = useMemo(() => [
     t('floatingChat.prompts.recentNews'),
@@ -264,11 +273,8 @@ function FloatingChat() {
                     <div key={m.id} className="message message--news">
                       <div
                         className="bubble bubble--news"
-                        onClick={() => {
-                          const currentLang = i18n.language;
-                          const langPrefix = currentLang === 'zh-TW' ? '' : `/${currentLang}`;
-                          window.location.href = `${langPrefix}/news/${m.newsId}`;
-                        }}
+                        onClick={() => window.open(getLanguageRoute(`/news/${m.newsId}`), '_blank')}
+                        style={{ cursor: 'pointer' }}
                       >
                         <img
                           src={`data:image/png;base64,${m.image}`}
