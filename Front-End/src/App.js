@@ -12,7 +12,7 @@ import SearchResultsPage from './components/SearchResultsPage';
 import SpecialReportPage from './components/SpecialReportPage';
 import SpecialReportDetail from './components/SpecialReportDetail';
 //import AdminDashboard from './components/admin/AdminDashboard';
-//import AbroadNewsPage from './components/AbroadNewsPage';
+import AbroadNewsPage from './components/AbroadNewsPage';
 import { SupabaseProvider } from './components/supabase';
 import './i18n'; 
 import './css/App.css';
@@ -89,7 +89,7 @@ function App() {
               <Route path="category/Health & Wellness" element={<CategorySection category="健康" />} />
               <Route path="special-reports" element={<SpecialReportPage />} />
               <Route path="special-report/:id" element={<SpecialReportDetail />} />
-              {/*<Route path="abroad" element={<AbroadNewsPage />} />*/}
+              <Route path="abroad" element={<AbroadNewsPage />} />
             </Route>
           ))}
         </Routes>
