@@ -277,9 +277,12 @@ function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onC
         const expertId = selectedExperts[index];
         const expertName = experts.find((e) => e.id === expertId).name;
 
+        // 將字串中的 \n 轉換成真正的換行符
+        const formattedReply = reply.replace(/\\n/g, '\n');
+
         const expertReply = {
           id: Date.now() + expertId,
-          text: `${expertName}：${reply}`,
+          text: `**${expertName}：**\n\n${formattedReply}`,
           isOwn: false,
           time: getFormattedTime()
         };

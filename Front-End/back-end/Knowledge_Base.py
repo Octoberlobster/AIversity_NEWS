@@ -15,24 +15,77 @@ knowledge_base_dict = {
     "Business & Finance": -1,
     "Health & Wellness": -1,
     "search": -1,
-    "topic": -1
 }
 
-def set_knowledge_base(prompt,category,id = None):
+def set_knowledge_base(prompt,category,id = None,topic_flag = False):
     if category == "search":
-        response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").order("generated_date", desc=True).limit(80).execute()
+        response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").order("generated_date", desc=True).limit(60).execute()
         base=navigate_to_paragraphs(response.data, prompt)
-        knowledge_base_dict["search"]= f"你是一位新聞搜尋助手，你目前的知識庫是：{base}，需要時參考這些資料來回答問題。並且為了考量閱讀者的閱讀喜好，請盡量回答簡短且精確的內容。此外如果你有想秀給使用者的新聞請使用news_id這個欄位填上知識庫中所屬的新聞號碼(例如:1,2,3,4...)，在推薦時不要超過五則新聞。"
+        knowledge_base_dict["search"] = f"""
+            # 角色與任務
+            你是一位專業的新聞搜尋助手。你的任務是根據我提供的最新新聞資料庫，簡潔且精確地回答我的問題。
+
+            # 知識庫
+            ---
+            {base}
+            ---
+
+            # 輸出格式與規則
+            你的輸出必須嚴格遵守以下兩個部分的要求：`chat_response` 和 `news_id`。
+
+            1.  **`chat_response` (給使用者的文字回覆)**:
+                -   這是你直接與使用者對話的內容，必須自然、流暢。
+                -   **最重要的規則：** 在這段文字中，**絕對不可以**提及或出現 `news_id`、`新聞編號` 或任何類似的內部識別碼。使用者不應該看到這些技術細節。
+                -   錯誤範例：「關於國際局勢，您可以參考新聞(news_id:10)。」
+                -   正確範例：「關於國際局勢，最近有一則關於中東衝突的新聞值得關注。」
+
+            2.  **`news_id` (相關新聞ID列表)**:
+                -   如果你在 `chat_response` 中有參考或推薦任何新聞，請將這些新聞的 `news_id` (例如: 1, 2, 3...) 組成一個列表放在這裡。
+                -   這個列表最多只能包含 5 個 `news_id`。
+
+            請根據上述規則生成你的回覆。
+        """
         return
-    elif category == "topic":
-       # 先執行內部查詢，獲取 story_id 列表
+    elif topic_flag:
+        # 先執行內部查詢，獲取 story_id 列表
+        role = supabase.table("pro_analyze_topic").select("topic_id,analyze").eq("topic_id", id).eq("category",category).single().execute()
+        role = role.data
+        role = role["analyze"]
+        role = role["Role"]
+        detailed_background = generate_role_prompt(role)
+
         topic_news_response = supabase.table("topic_news_map").select("story_id").eq("topic_id", id).execute()
         story_ids = [item["story_id"] for item in topic_news_response.data]  # 提取 story_id 列表
 
         # 使用提取的 story_id 列表進行查詢
-        response = supabase.table("single_news").select("short").in_("story_id", story_ids).execute()
+        topic_news = supabase.table("single_news").select("short").in_("story_id", story_ids).execute()
 
-        knowledge_base_dict["topic"] = f"你是一位專家，並且你會考量使用者的閱讀習慣在回答時適時地分行與分段。你目前的知識庫是：{response.data}，需要時參考這些資料來回答問題。" + "\n\n請你像一般人一樣的聊天語氣回答問題，帶給使用者平易近人的體驗，回應的字數大約像是聊天那樣的形式，如果有超過一句話，可以使用markdown的語法來換行或分段。"
+        articles_content = "\n".join([news["short"] for news in topic_news.data])
+        if category in knowledge_base_dict:
+            knowledge_base_dict[category] = f"""你是一位名為「{role}」的專家。
+
+            以下是你的專業背景與人格設定：
+            {detailed_background}
+
+            你的任務是根據使用者所閱讀的新聞內容，提供具有深度與啟發性的專業見解，協助使用者突破「思維淺薄化」的困境。
+
+            請遵守以下行為準則：
+            1. **回覆語氣**：積極、專業、具啟發性，讓人感受到你樂於分享知識並引導思考。  
+            2. **表達風格**：簡明扼要，避免冗詞與贅字，讓讀者能快速吸收重點。  
+            3. **內容聚焦**：以使用者正在閱讀的新聞為核心，結合你的專業背景進行分析、補充與延伸。  
+            4. **互動特質**：每次回答後，請主動提出一個值得延伸思考的問題或建議，鼓勵使用者深入討論。  
+            5. **語氣示例**：像「這個現象其實反映出⋯⋯，你想了解我怎麼看待它在其他國家的應用嗎？」或「這裡面其實還牽涉到⋯⋯，要不要我幫你拆解一下背後的邏輯？」  
+            6. **篇幅控制**：請將每次回覆限制在約 150～200 字之內（繁體中文），務必精煉、聚焦且資訊密度高。
+            7. **回覆格式**：請使用Markdown 語法排版。用條列（`-` 或 `1.`）或段落分隔，讓文字更易讀。
+
+            以下是使用者正在閱讀的新聞內容：
+            ---
+            {articles_content}
+            ---
+            請根據上述資訊，以「{role}」這位專家的身份與使用者對話，如果你違反上述任何準則將受到嚴厲的懲罰。
+            """
+        else:
+            raise ValueError("Unknown category: {}".format(category))
         return
 
     role = supabase.table("pro_analyze").select("story_id,analyze").eq("story_id", id).eq("category",category).single().execute()

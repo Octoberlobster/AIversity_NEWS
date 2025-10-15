@@ -109,17 +109,20 @@ def chat_topic():
     room_id = data.get("room_id")
     topic_id = data.get("topic_id")
     prompt = data.get("prompt")
+    categories = data.get("category")
 
     if not user_id or not room_id or not topic_id or not prompt:
         return jsonify({"error": "Missing required fields"}), 400
 
-    key = (user_id, room_id,"chat")
+    key = (user_id, room_id,"chat_topic")
     if key not in user_sessions:
         user_sessions[key] = ChatRoom()
     room = user_sessions[key]
 
     try:
-        response = room.chat(prompt, ["topic"],topic_id)
+        response = room.chat(prompt, categories, topic_id,topic_flag = True)
+        if user_sessions[(user_id,room_id,"hint_prompt_topic")]:
+            user_sessions[(user_id,room_id,"hint_prompt_topic")].refresh_hint_prompt()
         return jsonify({"response": response})
     except Exception as e:
         print(f"Error: {e}")
@@ -131,23 +134,23 @@ def hint_prompt_topic():
     topic_id = data.get("topic_id")
     user_id = data.get("user_id")
     room_id = data.get("room_id")
+    option = data.get("option")
     chat_content = data.get("chat_content")
     if not topic_id or not user_id or not room_id:
         return jsonify({"error": "Missing 'topic_id', 'user_id' or 'room_id'"}), 400
 
-    key = (user_id, room_id,"hint_prompt")
+    key = (user_id, room_id,"hint_prompt_topic")
     if key not in user_sessions:
         user_sessions[key] = Hint_Prompt_Topic()
+        user_sessions[key].chat_content = chat_content or ""
+    else:
+        user_sessions[key].append_to_chat_content(chat_content or "")
     generator = user_sessions[key]
     generator.topic_id = topic_id
 
-    if not chat_content:
-        prompt = "幫助使用者開始聊天"
-    else:
-        prompt = chat_content
 
     try:
-        response = generator.generate_hint_prompt(prompt)
+        response = generator.generate_hint_prompt(tuple(option), topic_id, generator.chat_content)
         return jsonify(response)
     except Exception as e:
         print(f"Error: {e}")
