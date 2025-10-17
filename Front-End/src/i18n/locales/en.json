@@ -16,6 +16,12 @@
       "finance": "Business & Finance",
       "health": "Health"
     },
+    "countries": {
+      "taiwan": "Taiwan",
+      "usa": "USA",
+      "japan": "Japan",
+      "indonesia": "Indonesia"
+    },
     "search": {
       "placeholder": "Search news/keywords..."
     },

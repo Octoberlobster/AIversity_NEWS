@@ -16,6 +16,12 @@
       "finance": "Bisnis & Keuangan",
       "health": "Kesehatan"
     },
+    "countries": {
+      "taiwan": "Taiwan",
+      "usa": "Amerika Serikat",
+      "japan": "Jepang",
+      "indonesia": "Indonesia"
+    },
     "search": {
       "placeholder": "Cari berita/kata kunci..."
     },

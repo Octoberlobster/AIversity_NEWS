@@ -16,6 +16,12 @@
       "finance": "商業財經",
       "health": "健康"
     },
+    "countries": {
+      "taiwan": "臺灣",
+      "usa": "美國",
+      "japan": "日本",
+      "indonesia": "印尼"
+    },
     "search": {
       "placeholder": "搜尋新聞/關鍵字..."
     },

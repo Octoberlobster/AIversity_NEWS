@@ -16,6 +16,12 @@
       "finance": "ビジネス・経済",
       "health": "健康"
     },
+    "countries": {
+      "taiwan": "台湾",
+      "usa": "アメリカ",
+      "japan": "日本",
+      "indonesia": "インドネシア"
+    },
     "search": {
       "placeholder": "ニュース/キーワードを検索..."
     },

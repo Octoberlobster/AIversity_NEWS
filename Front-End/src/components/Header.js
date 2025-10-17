@@ -9,16 +9,40 @@ function Header() {
   const domains = useMemo(() => [
     { id: '/', label: t('header.menu.home'), path: '/'},
     { id: 'project', label: t('header.menu.specialReports'), path: '/special-reports'},
-    { id: 'abroad', label: t('header.menu.abroad'), path: '/abroad'},
-    { id: 'politics', label: t('header.menu.politics'), path: '/category/Politics' },
-    { id: 'taiwan', label: t('header.menu.taiwan'), path: '/category/Taiwan News' },
+  ], [t]);
+
+  const categories = [
     { id: 'international', label: t('header.menu.international'), path: '/category/International News' },
+    { id: 'politics', label: t('header.menu.politics'), path: '/category/Politics' },
     { id: 'scienceandtech', label: t('header.menu.scienceAndTech'), path: '/category/Science & Technology' },
     { id: 'life', label: t('header.menu.life'), path: '/category/Lifestyle & Consumer' },
     { id: 'sports', label: t('header.menu.sports'), path: '/category/Sports' },
     { id: 'entertainment', label: t('header.menu.entertainment'), path: '/category/Entertainment' },
     { id: 'finance', label: t('header.menu.finance'), path: '/category/Business & Finance' },
     { id: 'health', label: t('header.menu.health'), path: '/category/Health & Wellness' },
+  ];
+  // 定義國家及其分類
+  const countries = useMemo(() => [
+    {
+      id: 'taiwan',
+      label: t('header.countries.taiwan'),
+      categories: categories
+    },
+    {
+      id: 'usa',
+      label: t('header.countries.usa'),
+      categories: categories
+    },
+    {
+      id: 'japan',
+      label: t('header.countries.japan'),
+      categories: categories
+    },
+    {
+      id: 'indonesia',
+      label: t('header.countries.indonesia'),
+      categories: categories
+    },
   ], [t]);
 
   // 定義語言選單陣列，使用 i18n 翻譯
@@ -31,6 +55,7 @@ function Header() {
 
   const [activeDomain, setActiveDomain] = useState(domains[0].id);
   const [search, setSearch] = useState('');
+  const [hoveredCountry, setHoveredCountry] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -146,6 +171,38 @@ function Header() {
               {domain.label}
             </Link>
           ))}
+          
+          {countries.map((country) => (
+            <span
+              key={country.id}
+              className="tagLink countryLink"
+              onMouseEnter={() => setHoveredCountry(country.id)}
+            >
+              {country.label}
+            </span>
+          ))}
+        </div>
+        
+        <div 
+          className="categoryDropdownWrapper"
+          onMouseLeave={() => setHoveredCountry(null)}
+        >
+          {hoveredCountry && (
+            <div className="categoryDropdown">
+              {countries
+                .find((country) => country.id === hoveredCountry)
+                ?.categories.map((category) => (
+                  <Link
+                    key={category.id}
+                    to={`/${selectedLanguage}${category.path}`}
+                    className="categoryLink"
+                    onClick={() => setActiveDomain(category.id)}
+                  >
+                    {category.label}
+                  </Link>
+                ))}
+            </div>
+          )}
         </div>
       </div>
     </header>
