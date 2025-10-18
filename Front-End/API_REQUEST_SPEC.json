@@ -1,0 +1,20 @@
+{
+    "story_id":"",
+    "language":"",
+    "current_experts":[
+      {
+        "analyze_id":"",
+        "category":"",
+        "analyze":{
+          "Role":"",
+          "Analyze":""
+        }
+      }
+    ],
+    "experts_to_regenerate":[
+        {
+            "analyze_id":"",
+            "category":""
+        }
+    ]
+}

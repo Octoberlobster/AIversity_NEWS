@@ -49,7 +49,7 @@ function HomePage() {
           <h2 className="sectionTitle">
             {t('home.latestNews')}
           </h2>
-          <UnifiedNewsCard instanceId="main_news_list" />
+          <UnifiedNewsCard instanceId="main_news_list" showTaiwanOnly={true} />
         </div>
       </div>
     </>

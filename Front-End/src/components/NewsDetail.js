@@ -98,6 +98,20 @@ function NewsDetail() {
     setModalContent({ type: '', content: '' });
   };
 
+  // 處理更換專家
+  const handleChangeExpert = async (analyzeId, category) => {
+    console.log('更換專家:', { analyzeId, category, storyId: id });
+    // TODO: 實作換專家邏輯
+    // 這裡會呼叫後端 API
+  };
+
+  // 處理換一批專家
+  const handleRefreshAllExperts = async () => {
+    console.log('換一批專家:', { storyId: id, expertCount: expertAnalysis.length });
+    // TODO: 實作換一批邏輯
+    // 這裡會呼叫後端 API 重新生成所有專家
+  };
+
   // 確保頁面載入時滾動到頂部，語言切換時也要重置
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -830,18 +844,42 @@ function NewsDetail() {
               </div>
             ) : showContent === 'expert' ? (
               <div className="expertAnalysisSection">
-                <h4 className="expertAnalysisTitle">{t('newsDetail.expertAnalysis.title')}</h4>
+                <div className="expertAnalysisTitleBar">
+                  <h4 className="expertAnalysisTitle">{t('newsDetail.expertAnalysis.title')}</h4>
+                  <button 
+                    className="refreshAllExpertsBtn"
+                    onClick={handleRefreshAllExperts}
+                    title="重新生成所有專家觀點"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 4v6h6M23 20v-6h-6" />
+                      <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                    </svg>
+                    換一批
+                  </button>
+                </div>
                 <div className="expertAnalysisContent">
                   {expertAnalysis && expertAnalysis.length > 0 ? (
                     expertAnalysis.map((analysis, index) => {
                       
                       return (
                         <div className="analysisItem" key={analysis.analyze_id || index}>
-                          {
+                          <div className="analysisHeader">
                             <div className="analysisCategory">
                               <span className="categoryTag">{analysis.analyze.Role}</span>
                             </div>
-                          }
+                            <button 
+                              className="changeExpertBtn"
+                              onClick={() => handleChangeExpert(analysis.analyze_id, analysis.category)}
+                              title="更換專家觀點"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M1 4v6h6M23 20v-6h-6" />
+                                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                              </svg>
+                              換專家
+                            </button>
+                          </div>
                           <div className="analysisText">
                             {analysis.analyze.Analyze}
                           </div>
