@@ -1,5 +1,0 @@
-google-generativeai
-python-dotenv
-tqdm
-postgrest-py>=0.7.0
-supabase-py>=1.0.0

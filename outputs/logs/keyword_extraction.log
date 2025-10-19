@@ -1,389 +1,513 @@
-2025-08-22 15:28:42,987 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
-2025-08-22 15:28:43,226 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
-2025-08-22 15:28:43,226 - INFO - ================================================================================
-2025-08-22 15:28:43,226 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
-2025-08-22 15:28:43,227 - INFO - ================================================================================
-2025-08-22 15:28:43,227 - INFO - === 讀取合併資料 ===
-2025-08-22 15:28:43,227 - INFO - 讀取 single_news 資料...
-2025-08-22 15:28:43,482 - INFO - 讀取所有資料
-2025-08-22 15:28:44,020 - INFO - 成功讀取 85 筆新聞資料
-2025-08-22 15:28:44,023 - INFO - 讀取 term_map 資料...
-2025-08-22 15:28:44,287 - INFO - 成功讀取 268 筆 term_map 資料
-2025-08-22 15:28:44,288 - INFO - 組織 term_map: 48 個不同的 story_id
-2025-08-22 15:28:44,288 - INFO - 合併完成: 85 筆新聞資料
-2025-08-22 15:28:44,288 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
-2025-08-22 15:31:21,487 - INFO - ✓ 階段一完成：共提取 490 個不重複關鍵字。
-2025-08-22 15:31:21,487 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
-2025-08-22 15:33:12,281 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 15:39:38,360 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 15:40:58,641 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 15:43:44,913 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 15:50:48,925 - INFO - ✓ 階段二完成：共成功解釋 490 個詞彙。
-2025-08-22 15:50:48,925 - INFO - === 階段三：檢查重複性並準備插入 ===
-2025-08-22 15:50:48,925 - INFO - === 檢查 term_map 重複性 ===
-2025-08-22 15:50:50,841 - INFO - === 階段四：執行資料庫插入 ===
-2025-08-22 15:50:50,841 - INFO - === 開始插入 term 資料 ===
-2025-08-22 15:50:50,842 - INFO - 準備插入 463 筆資料到 term 表
-2025-08-22 15:50:51,296 - INFO - ✓ 批次 1: 成功插入 50 筆
-2025-08-22 15:50:51,531 - INFO - ✓ 批次 2: 成功插入 50 筆
-2025-08-22 15:50:51,968 - INFO - ✓ 批次 3: 成功插入 50 筆
-2025-08-22 15:50:52,180 - INFO - ✓ 批次 4: 成功插入 50 筆
-2025-08-22 15:50:52,376 - INFO - ✓ 批次 5: 成功插入 50 筆
-2025-08-22 15:50:52,603 - INFO - ✓ 批次 6: 成功插入 50 筆
-2025-08-22 15:50:52,835 - INFO - ✓ 批次 7: 成功插入 50 筆
-2025-08-22 15:50:53,047 - INFO - ✓ 批次 8: 成功插入 50 筆
-2025-08-22 15:50:53,275 - INFO - ✓ 批次 9: 成功插入 50 筆
-2025-08-22 15:50:53,457 - INFO - ✓ 批次 10: 成功插入 13 筆
-2025-08-22 15:50:53,458 - INFO - term 插入結果:
-2025-08-22 15:50:53,458 - INFO -   成功: 463 筆
-2025-08-22 15:50:53,459 - INFO -   失敗: 0 筆
-2025-08-22 15:50:53,459 - INFO - === 開始插入 term_map 資料 ===
-2025-08-22 15:50:53,460 - INFO - 準備插入 538 筆資料到 term_map 表
-2025-08-22 15:50:53,675 - INFO - ✓ 批次 1: 成功插入 100 筆
-2025-08-22 15:50:53,847 - INFO - ✓ 批次 2: 成功插入 100 筆
-2025-08-22 15:50:54,017 - INFO - ✓ 批次 3: 成功插入 100 筆
-2025-08-22 15:50:54,228 - INFO - ✓ 批次 4: 成功插入 100 筆
-2025-08-22 15:50:54,409 - INFO - ✓ 批次 5: 成功插入 100 筆
-2025-08-22 15:50:54,591 - INFO - ✓ 批次 6: 成功插入 38 筆
-2025-08-22 15:50:54,592 - INFO - term_map 插入結果:
-2025-08-22 15:50:54,593 - INFO -   成功: 538 筆
-2025-08-22 15:50:54,593 - INFO -   失敗: 0 筆
-2025-08-22 15:50:54,594 - INFO - ================================================================================
-2025-08-22 15:50:54,595 - INFO -   執行完成摘要
-2025-08-22 15:50:54,595 - INFO - ================================================================================
-2025-08-22 15:50:54,596 - INFO - ✓ 處理新聞數量: 83
-2025-08-22 15:50:54,596 - INFO - ✓ 不重複關鍵字: 490
-2025-08-22 15:50:54,596 - INFO - ✓ 成功解釋詞彙: 490
-2025-08-22 15:50:54,596 - INFO - ✓ 成功 插入 term 表: 463 個新關鍵字
-2025-08-22 15:50:54,597 - INFO - ✓ 成功 插入 term_map 表: 538 筆新組合
-2025-08-22 15:50:54,597 - INFO - ================================================================================
-2025-08-22 23:38:25,859 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
-2025-08-22 23:38:26,107 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
-2025-08-22 23:38:26,108 - INFO - ================================================================================
-2025-08-22 23:38:26,108 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
-2025-08-22 23:38:26,108 - INFO - ================================================================================
-2025-08-22 23:38:26,108 - INFO - === 讀取合併資料 ===
-2025-08-22 23:38:26,108 - INFO - 讀取 single_news 資料...
-2025-08-22 23:38:26,358 - INFO - 讀取所有資料
-2025-08-22 23:38:26,809 - INFO - 成功讀取 40 筆新聞資料
-2025-08-22 23:38:26,809 - INFO - 讀取 term_map 資料...
-2025-08-22 23:38:27,015 - INFO - 成功讀取 806 筆 term_map 資料
-2025-08-22 23:38:27,017 - INFO - 組織 term_map: 129 個不同的 story_id
-2025-08-22 23:38:27,017 - INFO - 合併完成: 40 筆新聞資料
-2025-08-22 23:38:27,017 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
-2025-08-22 23:39:02,487 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 23:39:45,902 - INFO - ✓ 階段一完成：共提取 261 個不重複關鍵字。
-2025-08-22 23:39:45,902 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
-2025-08-22 23:42:18,780 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 23:45:59,038 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 23:46:50,819 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 23:47:41,074 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 23:48:48,272 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-22 23:50:06,761 - WARNING - ✗ JSON 解析錯誤 (嘗試 1/3): Unterminated string starting at: line 7 column 21 (char 183)
-2025-08-22 23:50:50,977 - INFO - ✓ 階段二完成：共成功解釋 261 個詞彙。
-2025-08-22 23:50:50,978 - INFO - === 階段三：檢查重複性並準備插入 ===
-2025-08-22 23:50:50,978 - INFO - === 檢查 term_map 重複性 ===
-2025-08-22 23:50:52,644 - INFO - === 階段四：執行資料庫插入 ===
-2025-08-22 23:50:52,644 - INFO - === 開始插入 term 資料 ===
-2025-08-22 23:50:52,644 - INFO - 準備插入 185 筆資料到 term 表
-2025-08-22 23:50:52,984 - INFO - ✓ 批次 1: 成功插入 50 筆
-2025-08-22 23:50:53,263 - INFO - ✓ 批次 2: 成功插入 50 筆
-2025-08-22 23:50:53,621 - INFO - ✓ 批次 3: 成功插入 50 筆
-2025-08-22 23:50:54,810 - INFO - ✓ 批次 4: 成功插入 35 筆
-2025-08-22 23:50:54,810 - INFO - term 插入結果:
-2025-08-22 23:50:54,810 - INFO -   成功: 185 筆
-2025-08-22 23:50:54,810 - INFO -   失敗: 0 筆
-2025-08-22 23:50:54,810 - INFO - === 開始插入 term_map 資料 ===
-2025-08-22 23:50:54,810 - INFO - 準備插入 228 筆資料到 term_map 表
-2025-08-22 23:50:55,094 - INFO - ✓ 批次 1: 成功插入 100 筆
-2025-08-22 23:50:55,349 - INFO - ✓ 批次 2: 成功插入 100 筆
-2025-08-22 23:50:55,583 - INFO - ✓ 批次 3: 成功插入 28 筆
-2025-08-22 23:50:55,583 - INFO - term_map 插入結果:
-2025-08-22 23:50:55,583 - INFO -   成功: 228 筆
-2025-08-22 23:50:55,583 - INFO -   失敗: 0 筆
-2025-08-22 23:50:55,583 - INFO - ================================================================================
-2025-08-22 23:50:55,584 - INFO -   執行完成摘要
-2025-08-22 23:50:55,584 - INFO - ================================================================================
-2025-08-22 23:50:55,584 - INFO - ✓ 處理新聞數量: 40
-2025-08-22 23:50:55,584 - INFO - ✓ 不重複關鍵字: 261
-2025-08-22 23:50:55,584 - INFO - ✓ 成功解釋詞彙: 261
-2025-08-22 23:50:55,584 - INFO - ✓ 成功 插入 term 表: 185 個新關鍵字
-2025-08-22 23:50:55,584 - INFO - ✓ 成功 插入 term_map 表: 228 筆新組合
-2025-08-22 23:50:55,584 - INFO - ================================================================================
-2025-08-23 06:41:59,293 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
-2025-08-23 06:42:00,045 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
-2025-08-23 06:42:00,046 - INFO - ================================================================================
-2025-08-23 06:42:00,046 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
-2025-08-23 06:42:00,046 - INFO - ================================================================================
-2025-08-23 06:42:00,046 - INFO - === 讀取合併資料 ===
-2025-08-23 06:42:00,047 - INFO - 讀取 single_news 資料...
-2025-08-23 06:42:00,832 - INFO - 讀取所有資料
-2025-08-23 06:42:01,457 - INFO - 成功讀取 9 筆新聞資料
-2025-08-23 06:42:01,457 - INFO - 讀取 term_map 資料...
-2025-08-23 06:42:01,881 - INFO - 成功讀取 1000 筆 term_map 資料
-2025-08-23 06:42:01,882 - INFO - 組織 term_map: 155 個不同的 story_id
-2025-08-23 06:42:01,883 - INFO - 合併完成: 9 筆新聞資料
-2025-08-23 06:42:01,883 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
-2025-08-23 06:42:19,751 - INFO - ✓ 階段一完成：共提取 97 個不重複關鍵字。
-2025-08-23 06:42:19,752 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
-2025-08-23 06:42:27,116 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-23 06:46:10,840 - INFO - ✓ 階段二完成：共成功解釋 97 個詞彙。
-2025-08-23 06:46:10,841 - INFO - === 階段三：檢查重複性並準備插入 ===
-2025-08-23 06:46:10,842 - INFO - === 檢查 term_map 重複性 ===
-2025-08-23 06:46:11,959 - INFO - === 階段四：執行資料庫插入 ===
-2025-08-23 06:46:11,959 - INFO - === 開始插入 term 資料 ===
-2025-08-23 06:46:11,959 - INFO - 準備插入 35 筆資料到 term 表
-2025-08-23 06:46:12,188 - INFO - ✓ 批次 1: 成功插入 35 筆
-2025-08-23 06:46:12,189 - INFO - term 插入結果:
-2025-08-23 06:46:12,189 - INFO -   成功: 35 筆
-2025-08-23 06:46:12,189 - INFO -   失敗: 0 筆
-2025-08-23 06:46:12,189 - INFO - === 開始插入 term_map 資料 ===
-2025-08-23 06:46:12,189 - INFO - 準備插入 40 筆資料到 term_map 表
-2025-08-23 06:46:12,392 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_map_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (story_id, term)=(14efea4d-8739-4187-99b1-639f818bccf6, 能登半島地震) already exists.'}
-2025-08-23 06:46:12,393 - INFO - term_map 插入結果:
-2025-08-23 06:46:12,393 - INFO -   成功: 0 筆
-2025-08-23 06:46:12,394 - INFO -   失敗: 40 筆
-2025-08-23 06:46:12,394 - INFO - ================================================================================
-2025-08-23 06:46:12,394 - INFO -   執行完成摘要
-2025-08-23 06:46:12,394 - INFO - ================================================================================
-2025-08-23 06:46:12,394 - INFO - ✓ 處理新聞數量: 9
-2025-08-23 06:46:12,395 - INFO - ✓ 不重複關鍵字: 97
-2025-08-23 06:46:12,395 - INFO - ✓ 成功解釋詞彙: 97
-2025-08-23 06:46:12,395 - INFO - ✓ 成功 插入 term 表: 35 個新關鍵字
-2025-08-23 06:46:12,395 - INFO - ✗ 失敗 插入 term_map 表: 40 筆新組合
-2025-08-23 06:46:12,395 - INFO - ================================================================================
-2025-08-24 20:36:20,322 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
-2025-08-24 20:36:20,640 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
-2025-08-24 20:36:20,640 - INFO - ================================================================================
-2025-08-24 20:36:20,641 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
-2025-08-24 20:36:20,641 - INFO - ================================================================================
-2025-08-24 20:36:20,641 - INFO - === 讀取合併資料 ===
-2025-08-24 20:36:20,641 - INFO - 讀取 single_news 資料...
-2025-08-24 20:36:21,001 - INFO - 讀取所有資料
-2025-08-24 20:36:21,603 - INFO - 成功讀取 60 筆新聞資料
-2025-08-24 20:36:21,603 - INFO - 讀取 term_map 資料...
-2025-08-24 20:36:21,899 - INFO - 成功讀取 1000 筆 term_map 資料
-2025-08-24 20:36:21,900 - INFO - 組織 term_map: 155 個不同的 story_id
-2025-08-24 20:36:21,900 - INFO - 合併完成: 60 筆新聞資料
-2025-08-24 20:36:21,900 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
-2025-08-24 20:46:25,631 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
-2025-08-24 20:46:25,941 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
-2025-08-24 20:46:25,941 - INFO - ================================================================================
-2025-08-24 20:46:25,942 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
-2025-08-24 20:46:25,942 - INFO - ================================================================================
-2025-08-24 20:46:25,942 - INFO - === 讀取合併資料 ===
-2025-08-24 20:46:25,942 - INFO - 讀取 single_news 資料...
-2025-08-24 20:46:26,287 - INFO - 讀取所有資料
-2025-08-24 20:46:26,753 - INFO - 成功讀取 15 筆新聞資料
-2025-08-24 20:46:26,753 - INFO - 讀取 term_map 資料...
-2025-08-24 20:46:27,060 - INFO - 成功讀取 1000 筆 term_map 資料
-2025-08-24 20:46:27,061 - INFO - 組織 term_map: 155 個不同的 story_id
-2025-08-24 20:46:27,061 - INFO - 合併完成: 15 筆新聞資料
-2025-08-24 20:46:27,062 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
-2025-08-24 20:46:53,550 - INFO - ✓ 階段一完成：共提取 98 個不重複關鍵字。
-2025-08-24 20:46:53,550 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
-2025-08-24 20:46:56,652 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-24 20:48:10,541 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-24 20:49:12,618 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-24 20:49:46,205 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-24 20:50:25,648 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-24 20:50:33,682 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-24 20:50:51,904 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-24 20:51:18,003 - INFO - ✓ 階段二完成：共成功解釋 98 個詞彙。
-2025-08-24 20:51:18,003 - INFO - === 階段三：檢查重複性並準備插入 ===
-2025-08-24 20:51:18,003 - INFO - === 檢查 term_map 重複性 ===
-2025-08-24 20:51:19,003 - INFO - === 階段四：執行資料庫插入 ===
-2025-08-24 20:51:19,003 - INFO - === 開始插入 term 資料 ===
-2025-08-24 20:51:19,004 - INFO - 準備插入 77 筆資料到 term 表
-2025-08-24 20:51:19,263 - INFO - ✓ 批次 1: 成功插入 50 筆
-2025-08-24 20:51:19,482 - INFO - ✓ 批次 2: 成功插入 27 筆
-2025-08-24 20:51:19,482 - INFO - term 插入結果:
-2025-08-24 20:51:19,482 - INFO -   成功: 77 筆
-2025-08-24 20:51:19,483 - INFO -   失敗: 0 筆
-2025-08-24 20:51:19,483 - INFO - === 開始插入 term_map 資料 ===
-2025-08-24 20:51:19,484 - INFO - 準備插入 101 筆資料到 term_map 表
-2025-08-24 20:51:19,735 - INFO - ✓ 批次 1: 成功插入 100 筆
-2025-08-24 20:51:19,935 - INFO - ✓ 批次 2: 成功插入 1 筆
-2025-08-24 20:51:19,936 - INFO - term_map 插入結果:
-2025-08-24 20:51:19,936 - INFO -   成功: 101 筆
-2025-08-24 20:51:19,937 - INFO -   失敗: 0 筆
-2025-08-24 20:51:19,939 - INFO - ================================================================================
-2025-08-24 20:51:19,941 - INFO -   執行完成摘要
-2025-08-24 20:51:19,942 - INFO - ================================================================================
-2025-08-24 20:51:19,942 - INFO - ✓ 處理新聞數量: 14
-2025-08-24 20:51:19,943 - INFO - ✓ 不重複關鍵字: 98
-2025-08-24 20:51:19,943 - INFO - ✓ 成功解釋詞彙: 98
-2025-08-24 20:51:19,943 - INFO - ✓ 成功 插入 term 表: 77 個新關鍵字
-2025-08-24 20:51:19,944 - INFO - ✓ 成功 插入 term_map 表: 101 筆新組合
-2025-08-24 20:51:19,944 - INFO - ================================================================================
-2025-08-26 08:51:55,017 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
-2025-08-26 08:51:55,499 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
-2025-08-26 08:51:55,499 - INFO - ================================================================================
-2025-08-26 08:51:55,500 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
-2025-08-26 08:51:55,500 - INFO - ================================================================================
-2025-08-26 08:51:55,500 - INFO - === 讀取合併資料 ===
-2025-08-26 08:51:55,500 - INFO - 讀取 single_news 資料...
-2025-08-26 08:51:56,091 - INFO - 讀取所有資料
-2025-08-26 08:51:56,776 - INFO - 成功讀取 112 筆新聞資料
-2025-08-26 08:51:56,776 - INFO - 讀取 term_map 資料...
-2025-08-26 08:51:56,975 - INFO - 成功讀取 1000 筆 term_map 資料
-2025-08-26 08:51:56,976 - INFO - 組織 term_map: 155 個不同的 story_id
-2025-08-26 08:51:56,976 - INFO - 合併完成: 112 筆新聞資料
-2025-08-26 08:51:56,976 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
-2025-08-26 08:55:21,513 - INFO - ✓ 階段一完成：共提取 573 個不重複關鍵字。
-2025-08-26 08:55:21,513 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
-2025-08-26 08:58:19,797 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:03:35,058 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:06:23,832 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:06:27,003 - WARNING - ✗ JSON 解析錯誤 (嘗試 2/3): Unterminated string starting at: line 7 column 21 (char 205)
-2025-08-26 09:08:24,753 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:09:39,329 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:14:50,500 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:17:01,368 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:17:19,574 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:17:27,173 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:17:31,241 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:17:34,823 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:17:35,824 - WARNING - ⚠ 未能成功解釋詞彙：'電子類股'
-2025-08-26 09:17:39,563 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:17:42,506 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:17:46,750 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:17:47,751 - WARNING - ⚠ 未能成功解釋詞彙：'震源深度'
-2025-08-26 09:18:00,043 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:18:22,833 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting
-2025-08-26 09:18:50,882 - INFO - ✓ 階段二完成：共成功解釋 571 個詞彙。
-2025-08-26 09:18:50,882 - INFO - === 階段三：檢查重複性並準備插入 ===
-2025-08-26 09:18:50,882 - INFO - === 檢查 term_map 重複性 ===
-2025-08-26 09:18:52,821 - INFO - === 階段四：執行資料庫插入 ===
-2025-08-26 09:18:52,822 - INFO - === 開始插入 term 資料 ===
-2025-08-26 09:18:52,822 - INFO - 準備插入 485 筆資料到 term 表
-2025-08-26 09:18:53,461 - INFO - ✓ 批次 1: 成功插入 50 筆
-2025-08-26 09:18:53,692 - INFO - ✓ 批次 2: 成功插入 50 筆
-2025-08-26 09:18:54,086 - INFO - ✓ 批次 3: 成功插入 50 筆
-2025-08-26 09:18:54,314 - INFO - ✓ 批次 4: 成功插入 50 筆
-2025-08-26 09:18:54,555 - INFO - ✓ 批次 5: 成功插入 50 筆
-2025-08-26 09:18:54,772 - INFO - ✓ 批次 6: 成功插入 50 筆
-2025-08-26 09:18:54,989 - INFO - ✓ 批次 7: 成功插入 50 筆
-2025-08-26 09:18:55,191 - INFO - ✓ 批次 8: 成功插入 50 筆
-2025-08-26 09:18:55,412 - INFO - ✓ 批次 9: 成功插入 50 筆
-2025-08-26 09:18:55,644 - ERROR - ✗ 批次 10 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(黑水專案) already exists.'}
-2025-08-26 09:18:55,644 - INFO - term 插入結果:
-2025-08-26 09:18:55,645 - INFO -   成功: 450 筆
-2025-08-26 09:18:55,645 - INFO -   失敗: 35 筆
-2025-08-26 09:18:55,645 - INFO - === 開始插入 term_map 資料 ===
-2025-08-26 09:18:55,645 - INFO - 準備插入 666 筆資料到 term_map 表
-2025-08-26 09:18:56,328 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_map_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (story_id, term)=(adc9fbcf-9844-4267-8dd5-2e3cc6df0841, 黑水專案) already exists.'}
-2025-08-26 09:18:56,589 - ERROR - ✗ 批次 2 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(黑洞) is not present in table "term".'}
-2025-08-26 09:18:56,798 - ERROR - ✗ 批次 3 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(類魂遊戲) is not present in table "term".'}
-2025-08-26 09:18:57,007 - ERROR - ✗ 批次 4 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(鴿派訊號) is not present in table "term".'}
-2025-08-26 09:18:57,287 - ERROR - ✗ 批次 5 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_map_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (story_id, term)=(7cc78889-5a4a-4920-b9fd-817097379d03, 貨幣政策) already exists.'}
-2025-08-26 09:18:57,467 - ERROR - ✗ 批次 6 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(高EQ) is not present in table "term".'}
-2025-08-26 09:18:57,673 - ERROR - ✗ 批次 7 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(都市計畫) is not present in table "term".'}
-2025-08-26 09:18:57,673 - INFO - term_map 插入結果:
-2025-08-26 09:18:57,673 - INFO -   成功: 0 筆
-2025-08-26 09:18:57,674 - INFO -   失敗: 666 筆
-2025-08-26 09:18:57,674 - INFO - ================================================================================
-2025-08-26 09:18:57,674 - INFO -   執行完成摘要
-2025-08-26 09:18:57,674 - INFO - ================================================================================
-2025-08-26 09:18:57,674 - INFO - ✓ 處理新聞數量: 111
-2025-08-26 09:18:57,674 - INFO - ✓ 不重複關鍵字: 573
-2025-08-26 09:18:57,674 - INFO - ✓ 成功解釋詞彙: 571
-2025-08-26 09:18:57,675 - INFO - ✗ 失敗 插入 term 表: 485 個新關鍵字
-2025-08-26 09:18:57,675 - INFO - ✗ 失敗 插入 term_map 表: 666 筆新組合
-2025-08-26 09:18:57,675 - INFO - ================================================================================
-2025-08-26 12:54:37,704 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
-2025-08-26 12:54:38,059 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
-2025-08-26 12:54:38,059 - INFO - ================================================================================
-2025-08-26 12:54:38,060 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
-2025-08-26 12:54:38,060 - INFO - ================================================================================
-2025-08-26 12:54:38,061 - INFO - === 讀取合併資料 ===
-2025-08-26 12:54:38,061 - INFO - 讀取 single_news 資料...
-2025-08-26 12:54:38,377 - INFO - 讀取所有資料
-2025-08-26 12:54:38,923 - INFO - 成功讀取 69 筆新聞資料
-2025-08-26 12:54:38,924 - INFO - 讀取 term_map 資料...
-2025-08-26 12:54:39,288 - INFO - 成功讀取 1000 筆 term_map 資料
-2025-08-26 12:54:39,289 - INFO - 組織 term_map: 155 個不同的 story_id
-2025-08-26 12:54:39,289 - INFO - 合併完成: 69 筆新聞資料
-2025-08-26 12:54:39,289 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
-2025-08-26 13:01:49,631 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
-2025-08-26 13:01:49,892 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
-2025-08-26 13:01:49,893 - INFO - ================================================================================
-2025-08-26 13:01:49,893 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
-2025-08-26 13:01:49,893 - INFO - ================================================================================
-2025-08-26 13:01:49,893 - INFO - === 讀取合併資料 ===
-2025-08-26 13:01:49,894 - INFO - 讀取 single_news 資料...
-2025-08-26 13:01:50,183 - INFO - 讀取所有資料
-2025-08-26 13:01:50,464 - INFO - 成功讀取 7 筆新聞資料
-2025-08-26 13:01:50,464 - INFO - 讀取 term_map 資料...
-2025-08-26 13:01:50,702 - INFO - 成功讀取 1000 筆 term_map 資料
-2025-08-26 13:01:50,703 - INFO - 組織 term_map: 155 個不同的 story_id
-2025-08-26 13:01:50,703 - INFO - 合併完成: 7 筆新聞資料
-2025-08-26 13:01:50,703 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
-2025-08-26 13:02:03,510 - INFO - ✓ 階段一完成：共提取 31 個不重複關鍵字。
-2025-08-26 13:02:03,510 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
-2025-08-26 13:03:10,509 - INFO - ✓ 階段二完成：共成功解釋 31 個詞彙。
-2025-08-26 13:03:10,509 - INFO - === 階段三：檢查重複性並準備插入 ===
-2025-08-26 13:03:10,510 - INFO - === 檢查 term_map 重複性 ===
-2025-08-26 13:03:11,193 - INFO - === 階段四：執行資料庫插入 ===
-2025-08-26 13:03:11,193 - INFO - === 開始插入 term 資料 ===
-2025-08-26 13:03:11,194 - INFO - 準備插入 24 筆資料到 term 表
-2025-08-26 13:03:11,446 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(熱帶擾動) already exists.'}
-2025-08-26 13:03:11,447 - INFO - term 插入結果:
-2025-08-26 13:03:11,447 - INFO -   成功: 0 筆
-2025-08-26 13:03:11,447 - INFO -   失敗: 24 筆
-2025-08-26 13:03:11,447 - INFO - === 開始插入 term_map 資料 ===
-2025-08-26 13:03:11,447 - INFO - 準備插入 31 筆資料到 term_map 表
-2025-08-26 13:03:11,634 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_map_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (story_id, term)=(c996c828-0a40-4169-99d9-450aca409f1a, 聯準會) already exists.'}
-2025-08-26 13:03:11,635 - INFO - term_map 插入結果:
-2025-08-26 13:03:11,635 - INFO -   成功: 0 筆
-2025-08-26 13:03:11,635 - INFO -   失敗: 31 筆
-2025-08-26 13:03:11,635 - INFO - ================================================================================
-2025-08-26 13:03:11,635 - INFO -   執行完成摘要
-2025-08-26 13:03:11,636 - INFO - ================================================================================
-2025-08-26 13:03:11,636 - INFO - ✓ 處理新聞數量: 7
-2025-08-26 13:03:11,636 - INFO - ✓ 不重複關鍵字: 31
-2025-08-26 13:03:11,636 - INFO - ✓ 成功解釋詞彙: 31
-2025-08-26 13:03:11,636 - INFO - ✗ 失敗 插入 term 表: 24 個新關鍵字
-2025-08-26 13:03:11,637 - INFO - ✗ 失敗 插入 term_map 表: 31 筆新組合
-2025-08-26 13:03:11,637 - INFO - ================================================================================
-2025-08-26 22:41:06,892 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
-2025-08-26 22:41:07,148 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
-2025-08-26 22:41:07,148 - INFO - ================================================================================
-2025-08-26 22:41:07,148 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
-2025-08-26 22:41:07,148 - INFO - ================================================================================
-2025-08-26 22:41:07,148 - INFO - === 讀取合併資料 ===
-2025-08-26 22:41:07,148 - INFO - 讀取 single_news 資料...
-2025-08-26 22:41:07,455 - INFO - 讀取所有資料
-2025-08-26 22:41:07,977 - INFO - 成功讀取 1 筆新聞資料
-2025-08-26 22:41:07,977 - INFO - 讀取 term_map 資料...
-2025-08-26 22:41:08,244 - INFO - 成功讀取 1000 筆 term_map 資料
-2025-08-26 22:41:08,244 - INFO - 組織 term_map: 155 個不同的 story_id
-2025-08-26 22:41:08,244 - INFO - 合併完成: 1 筆新聞資料
-2025-08-26 22:41:08,244 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
-2025-08-26 22:41:10,309 - INFO - ✓ 階段一完成：共提取 5 個不重複關鍵字。
-2025-08-26 22:41:10,309 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
-2025-08-26 22:41:22,519 - INFO - ✓ 階段二完成：共成功解釋 5 個詞彙。
-2025-08-26 22:41:22,519 - INFO - === 階段三：檢查重複性並準備插入 ===
-2025-08-26 22:41:22,519 - INFO - === 檢查 term_map 重複性 ===
-2025-08-26 22:41:23,380 - INFO - === 階段四：執行資料庫插入 ===
-2025-08-26 22:41:23,380 - INFO - === 開始插入 term 資料 ===
-2025-08-26 22:41:23,380 - INFO - 準備插入 4 筆資料到 term 表
-2025-08-26 22:41:23,589 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(鋼絞線) already exists.'}
-2025-08-26 22:41:23,589 - INFO - term 插入結果:
-2025-08-26 22:41:23,590 - INFO -   成功: 0 筆
-2025-08-26 22:41:23,590 - INFO -   失敗: 4 筆
-2025-08-26 22:41:23,590 - INFO - === 開始插入 term_map 資料 ===
-2025-08-26 22:41:23,590 - INFO - 準備插入 5 筆資料到 term_map 表
-2025-08-26 22:41:23,781 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(錨梁) is not present in table "term".'}
-2025-08-26 22:41:23,781 - INFO - term_map 插入結果:
-2025-08-26 22:41:23,781 - INFO -   成功: 0 筆
-2025-08-26 22:41:23,781 - INFO -   失敗: 5 筆
-2025-08-26 22:41:23,781 - INFO - ================================================================================
-2025-08-26 22:41:23,781 - INFO -   執行完成摘要
-2025-08-26 22:41:23,782 - INFO - ================================================================================
-2025-08-26 22:41:23,782 - INFO - ✓ 處理新聞數量: 1
-2025-08-26 22:41:23,782 - INFO - ✓ 不重複關鍵字: 5
-2025-08-26 22:41:23,782 - INFO - ✓ 成功解釋詞彙: 5
-2025-08-26 22:41:23,782 - INFO - ✗ 失敗 插入 term 表: 4 個新關鍵字
-2025-08-26 22:41:23,782 - INFO - ✗ 失敗 插入 term_map 表: 5 筆新組合
-2025-08-26 22:41:23,782 - INFO - ================================================================================
+2025-08-29 21:25:25,160 - INFO - ✓ Gemini API (gemini-2.5-flash-lite) 初始化成功
+2025-08-29 21:25:25,479 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-08-29 21:25:25,480 - INFO - ================================================================================
+2025-08-29 21:25:25,481 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-08-29 21:25:25,481 - INFO - ================================================================================
+2025-08-29 21:25:25,481 - INFO - === 讀取合併資料 ===
+2025-08-29 21:25:25,482 - INFO - 讀取 single_news 資料...
+2025-08-29 21:25:25,762 - INFO - 讀取所有資料
+2025-08-29 21:25:26,419 - INFO - 成功讀取 107 筆新聞資料
+2025-08-29 21:25:26,422 - INFO - 讀取 term_map 資料...
+2025-08-29 21:25:26,653 - INFO - 成功讀取 1000 筆 term_map 資料
+2025-08-29 21:25:26,654 - INFO - 組織 term_map: 155 個不同的 story_id
+2025-08-29 21:25:26,655 - INFO - 合併完成: 107 筆新聞資料
+2025-08-29 21:25:26,655 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-08-29 21:28:23,507 - INFO - ✓ 階段一完成：共提取 546 個不重複關鍵字。
+2025-08-29 21:28:23,507 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-08-29 21:29:30,602 - WARNING - ✗ JSON 解析錯誤 (嘗試 1/3): Invalid control character at: line 7 column 60 (char 223)
+2025-08-29 21:47:45,363 - INFO - ✓ 階段二完成：共成功解釋 546 個詞彙。
+2025-08-29 21:47:45,364 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-08-29 21:47:45,365 - INFO - === 檢查 term_map 重複性 ===
+2025-08-29 21:47:47,655 - INFO - === 階段四：執行資料庫插入 ===
+2025-08-29 21:47:47,656 - INFO - === 開始插入 term 資料 ===
+2025-08-29 21:47:47,656 - INFO - 準備插入 480 筆資料到 term 表
+2025-08-29 21:47:48,172 - INFO - ✓ 批次 1: 成功插入 50 筆
+2025-08-29 21:47:48,704 - INFO - ✓ 批次 2: 成功插入 50 筆
+2025-08-29 21:47:49,052 - INFO - ✓ 批次 3: 成功插入 50 筆
+2025-08-29 21:47:49,420 - INFO - ✓ 批次 4: 成功插入 50 筆
+2025-08-29 21:47:49,776 - INFO - ✓ 批次 5: 成功插入 50 筆
+2025-08-29 21:47:50,127 - ERROR - ✗ 批次 6 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(熱帶性低氣壓) already exists.'}
+2025-08-29 21:47:50,366 - ERROR - ✗ 批次 7 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(終結者) already exists.'}
+2025-08-29 21:47:50,598 - ERROR - ✗ 批次 8 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(腰椎壓迫性骨折) already exists.'}
+2025-08-29 21:47:50,828 - ERROR - ✗ 批次 9 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(輝達) already exists.'}
+2025-08-29 21:47:51,061 - ERROR - ✗ 批次 10 發生錯誤: {'message': 'duplicate key value violates unique constraint "term_pkey"', 'code': '23505', 'hint': None, 'details': 'Key (term)=(骨質疏鬆) already exists.'}
+2025-08-29 21:47:51,062 - INFO - term 插入結果:
+2025-08-29 21:47:51,062 - INFO -   成功: 250 筆
+2025-08-29 21:47:51,063 - INFO -   失敗: 230 筆
+2025-08-29 21:47:51,063 - INFO - === 開始插入 term_map 資料 ===
+2025-08-29 21:47:51,064 - INFO - 準備插入 609 筆資料到 term_map 表
+2025-08-29 21:47:51,358 - ERROR - ✗ 批次 1 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(體育部) is not present in table "term".'}
+2025-08-29 21:47:51,648 - ERROR - ✗ 批次 2 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(航、港、船、遊) is not present in table "term".'}
+2025-08-29 21:47:51,898 - ERROR - ✗ 批次 3 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(誹謗) is not present in table "term".'}
+2025-08-29 21:47:52,230 - ERROR - ✗ 批次 4 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(颱風窩) is not present in table "term".'}
+2025-08-29 21:47:52,549 - ERROR - ✗ 批次 5 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(跨班次搭乘) is not present in table "term".'}
+2025-08-29 21:47:52,843 - ERROR - ✗ 批次 6 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(註冊) is not present in table "term".'}
+2025-08-29 21:47:53,094 - ERROR - ✗ 批次 7 發生錯誤: {'message': 'insert or update on table "term_map" violates foreign key constraint "term_map_term_fkey"', 'code': '23503', 'hint': None, 'details': 'Key (term)=(靜息態腦活動) is not present in table "term".'}
+2025-08-29 21:47:53,094 - INFO - term_map 插入結果:
+2025-08-29 21:47:53,095 - INFO -   成功: 0 筆
+2025-08-29 21:47:53,095 - INFO -   失敗: 609 筆
+2025-08-29 21:47:53,096 - INFO - ================================================================================
+2025-08-29 21:47:53,096 - INFO -   執行完成摘要
+2025-08-29 21:47:53,096 - INFO - ================================================================================
+2025-08-29 21:47:53,096 - INFO - ✓ 處理新聞數量: 107
+2025-08-29 21:47:53,097 - INFO - ✓ 不重複關鍵字: 546
+2025-08-29 21:47:53,097 - INFO - ✓ 成功解釋詞彙: 546
+2025-08-29 21:47:53,097 - INFO - ✗ 失敗 插入 term 表: 480 個新關鍵字
+2025-08-29 21:47:53,097 - INFO - ✗ 失敗 插入 term_map 表: 609 筆新組合
+2025-08-29 21:47:53,097 - INFO - ================================================================================
+2025-09-16 00:45:42,255 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-09-16 00:45:42,520 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-09-16 00:45:42,520 - INFO - ================================================================================
+2025-09-16 00:45:42,520 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-09-16 00:45:42,520 - INFO - ================================================================================
+2025-09-16 00:45:42,520 - INFO - === 讀取合併資料 ===
+2025-09-16 00:45:42,521 - INFO - 讀取 single_news 資料...
+2025-09-16 00:45:42,722 - INFO - 讀取所有資料
+2025-09-16 00:45:43,273 - INFO - 成功讀取 66 筆新聞資料
+2025-09-16 00:45:43,273 - INFO - 讀取 term_map 資料...
+2025-09-16 00:45:43,802 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 414, 'hint': 'Refer to full message for details', 'details': "b'<html>\\r\\n<head><title>414 Request-URI Too Large</title></head>\\r\\n<body>\\r\\n<center><h1>414 Request-URI Too Large</h1></center>\\r\\n<hr><center>cloudflare</center>\\r\\n</body>\\r\\n</html>\\r\\n'"}
+2025-09-16 00:45:43,802 - INFO - 合併完成: 66 筆新聞資料
+2025-09-16 00:45:43,802 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-09-16 00:48:18,222 - INFO - ✓ 階段一完成：共提取 617 個不重複關鍵字。
+2025-09-16 00:48:18,222 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-09-16 01:14:00,507 - INFO - ✓ 階段二完成：共成功解釋 617 個詞彙。
+2025-09-16 01:14:00,507 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-09-16 01:14:56,195 - INFO - === 階段四：執行資料庫插入 ===
+2025-09-16 01:15:02,866 - INFO - ================================================================================
+2025-09-16 01:15:02,867 - INFO -   執行完成摘要
+2025-09-16 01:15:02,868 - INFO - ================================================================================
+2025-09-16 01:15:02,868 - INFO - ✓ 處理新聞數量: 66
+2025-09-16 01:15:02,868 - INFO - ✓ 不重複關鍵字: 617
+2025-09-16 01:15:02,868 - INFO - ✓ 成功解釋詞彙: 617
+2025-09-16 01:15:02,869 - INFO - ✓ 成功 插入 term 表: 566 個新關鍵字
+2025-09-16 01:15:02,869 - INFO - ✗ 失敗 插入 term_map 表: 714 筆新組合
+2025-09-16 01:15:02,869 - INFO - ================================================================================
+2025-09-18 11:12:27,742 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-09-18 11:12:28,815 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-09-18 11:12:28,816 - INFO - ================================================================================
+2025-09-18 11:12:28,816 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-09-18 11:12:28,817 - INFO - ================================================================================
+2025-09-18 11:12:28,818 - INFO - === 讀取合併資料 ===
+2025-09-18 11:12:28,818 - INFO - 讀取 single_news 資料...
+2025-09-18 11:12:29,929 - INFO - 讀取所有資料
+2025-09-18 11:12:30,160 - INFO - 成功讀取 1 筆新聞資料
+2025-09-18 11:12:30,161 - INFO - 讀取 term_map 資料...
+2025-09-18 11:12:31,011 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 414, 'hint': 'Refer to full message for details', 'details': "b'<html>\\r\\n<head><title>414 Request-URI Too Large</title></head>\\r\\n<body>\\r\\n<center><h1>414 Request-URI Too Large</h1></center>\\r\\n<hr><center>cloudflare</center>\\r\\n</body>\\r\\n</html>\\r\\n'"}
+2025-09-18 11:12:31,012 - INFO - 合併完成: 1 筆新聞資料
+2025-09-18 11:12:31,013 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-09-18 11:12:33,616 - INFO - ✓ 階段一完成：共提取 9 個不重複關鍵字。
+2025-09-18 11:12:33,617 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-09-18 11:12:53,002 - INFO - ✓ 階段二完成：共成功解釋 9 個詞彙。
+2025-09-18 11:12:53,003 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-09-18 11:12:53,680 - INFO - === 階段四：執行資料庫插入 ===
+2025-09-18 11:12:54,186 - INFO - ================================================================================
+2025-09-18 11:12:54,187 - INFO -   執行完成摘要
+2025-09-18 11:12:54,188 - INFO - ================================================================================
+2025-09-18 11:12:54,190 - INFO - ✓ 處理新聞數量: 1
+2025-09-18 11:12:54,191 - INFO - ✓ 不重複關鍵字: 9
+2025-09-18 11:12:54,192 - INFO - ✓ 成功解釋詞彙: 9
+2025-09-18 11:12:54,193 - INFO - ✓ 成功 插入 term 表: 9 個新關鍵字
+2025-09-18 11:12:54,194 - INFO - ✓ 成功 插入 term_map 表: 9 筆新組合
+2025-09-18 11:12:54,195 - INFO - ================================================================================
+2025-09-24 11:20:41,763 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-09-24 11:20:42,175 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-09-24 11:20:42,176 - INFO - ================================================================================
+2025-09-24 11:20:42,176 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-09-24 11:20:42,177 - INFO - ================================================================================
+2025-09-24 11:20:42,177 - INFO - === 讀取合併資料 ===
+2025-09-24 11:20:42,178 - INFO - 讀取 single_news 資料...
+2025-09-24 11:20:42,608 - INFO - 讀取所有資料
+2025-09-24 11:20:44,222 - INFO - 成功讀取 2 筆新聞資料
+2025-09-24 11:20:44,222 - INFO - 讀取 term_map 資料...
+2025-09-24 11:20:46,008 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 414, 'hint': 'Refer to full message for details', 'details': "b'<html>\\r\\n<head><title>414 Request-URI Too Large</title></head>\\r\\n<body>\\r\\n<center><h1>414 Request-URI Too Large</h1></center>\\r\\n<hr><center>cloudflare</center>\\r\\n</body>\\r\\n</html>\\r\\n'"}
+2025-09-24 11:20:46,009 - INFO - 合併完成: 2 筆新聞資料
+2025-09-24 11:20:46,009 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-09-24 11:20:53,425 - INFO - ✓ 階段一完成：共提取 24 個不重複關鍵字。
+2025-09-24 11:20:53,426 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-09-24 11:21:41,050 - INFO - ✓ 階段二完成：共成功解釋 24 個詞彙。
+2025-09-24 11:21:41,051 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-09-24 11:22:13,493 - INFO - === 階段四：執行資料庫插入 ===
+2025-09-24 11:22:15,890 - INFO - ================================================================================
+2025-09-24 11:22:15,890 - INFO -   執行完成摘要
+2025-09-24 11:22:15,891 - INFO - ================================================================================
+2025-09-24 11:22:15,891 - INFO - ✓ 處理新聞數量: 2
+2025-09-24 11:22:15,892 - INFO - ✓ 不重複關鍵字: 24
+2025-09-24 11:22:15,892 - INFO - ✓ 成功解釋詞彙: 24
+2025-09-24 11:22:15,893 - INFO - ✓ 成功 插入 term 表: 24 個新關鍵字
+2025-09-24 11:22:15,893 - INFO - ✓ 成功 插入 term_map 表: 24 筆新組合
+2025-09-24 11:22:15,894 - INFO - ================================================================================
+2025-09-28 00:48:29,180 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-09-28 00:48:29,385 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-09-28 00:48:29,386 - INFO - ================================================================================
+2025-09-28 00:48:29,386 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-09-28 00:48:29,386 - INFO - ================================================================================
+2025-09-28 00:48:29,386 - INFO - === 讀取合併資料 ===
+2025-09-28 00:48:29,387 - INFO - 讀取 single_news 資料...
+2025-09-28 00:48:29,600 - INFO - 讀取所有資料
+2025-09-28 00:48:30,068 - INFO - 成功讀取 160 筆新聞資料
+2025-09-28 00:48:30,068 - INFO - 讀取 term_map 資料...
+2025-09-28 00:48:30,480 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 414, 'hint': 'Refer to full message for details', 'details': "b'<html>\\r\\n<head><title>414 Request-URI Too Large</title></head>\\r\\n<body>\\r\\n<center><h1>414 Request-URI Too Large</h1></center>\\r\\n<hr><center>cloudflare</center>\\r\\n</body>\\r\\n</html>\\r\\n'"}
+2025-09-28 00:48:30,481 - INFO - 合併完成: 160 筆新聞資料
+2025-09-28 00:48:30,481 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-09-28 00:48:33,120 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:48:35,624 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:48:49,415 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:48:57,149 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:48:59,668 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:00,922 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:03,061 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:05,468 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:06,585 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:08,694 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:10,810 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:12,088 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:14,216 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:17,735 - INFO - ✓ 階段一完成：共提取 11 個不重複關鍵字。
+2025-09-28 00:49:17,735 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-09-28 00:49:17,815 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:19,888 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:21,971 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:22,972 - WARNING - ⚠ 未能成功解釋詞彙：'刑事嫌疑'
+2025-09-28 00:49:23,290 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:25,378 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:27,431 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:28,432 - WARNING - ⚠ 未能成功解釋詞彙：'司法公正透明'
+2025-09-28 00:49:28,557 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:30,646 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:32,700 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:33,702 - WARNING - ⚠ 未能成功解釋詞彙：'實境秀'
+2025-09-28 00:49:35,463 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 500 INTERNAL. {'error': {'code': 500, 'message': 'Internal error encountered.', 'status': 'INTERNAL'}}
+2025-09-28 00:49:37,524 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:39,602 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:40,603 - WARNING - ⚠ 未能成功解釋詞彙：'新幹線'
+2025-09-28 00:49:40,673 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:42,744 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:46,584 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:48,649 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:50,721 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 00:49:51,722 - WARNING - ⚠ 未能成功解釋詞彙：'權力介入'
+2025-09-28 00:49:59,617 - INFO - ✓ 階段二完成：共成功解釋 6 個詞彙。
+2025-09-28 00:49:59,617 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-09-28 00:50:00,843 - INFO - === 階段四：執行資料庫插入 ===
+2025-09-28 00:50:01,783 - INFO - ================================================================================
+2025-09-28 00:50:01,783 - INFO -   執行完成摘要
+2025-09-28 00:50:01,784 - INFO - ================================================================================
+2025-09-28 00:50:01,784 - INFO - ✓ 處理新聞數量: 6
+2025-09-28 00:50:01,785 - INFO - ✓ 不重複關鍵字: 11
+2025-09-28 00:50:01,785 - INFO - ✓ 成功解釋詞彙: 6
+2025-09-28 00:50:01,785 - INFO - ✓ 成功 插入 term 表: 6 個新關鍵字
+2025-09-28 00:50:01,786 - INFO - ✓ 成功 插入 term_map 表: 6 筆新組合
+2025-09-28 00:50:01,786 - INFO - ================================================================================
+2025-09-28 17:24:01,395 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-09-28 17:24:02,491 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-09-28 17:24:02,492 - INFO - ================================================================================
+2025-09-28 17:24:02,492 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-09-28 17:24:02,493 - INFO - ================================================================================
+2025-09-28 17:24:02,494 - INFO - === 讀取合併資料 ===
+2025-09-28 17:24:02,494 - INFO - 讀取 single_news 資料...
+2025-09-28 17:24:03,537 - INFO - 讀取所有資料
+2025-09-28 17:24:03,965 - INFO - 成功讀取 207 筆新聞資料
+2025-09-28 17:24:03,967 - INFO - 讀取 term_map 資料...
+2025-09-28 17:24:04,709 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 414, 'hint': 'Refer to full message for details', 'details': "b'<html>\\r\\n<head><title>414 Request-URI Too Large</title></head>\\r\\n<body>\\r\\n<center><h1>414 Request-URI Too Large</h1></center>\\r\\n<hr><center>cloudflare</center>\\r\\n</body>\\r\\n</html>\\r\\n'"}
+2025-09-28 17:24:04,711 - INFO - 合併完成: 207 筆新聞資料
+2025-09-28 17:24:04,712 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-09-28 17:24:08,365 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:22,072 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:29,473 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:40,184 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:42,435 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:46,086 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:48,260 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:50,444 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:51,753 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:53,794 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:55,950 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:57,179 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:24:59,250 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:26,567 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:27,616 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:31,489 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:33,562 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:38,795 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:40,839 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:42,882 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:43,938 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:45,979 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:49,834 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:51,885 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:25:58,996 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:26:04,573 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:26:10,162 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:26:12,206 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:26:21,075 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:26:26,081 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:26:42,533 - INFO - ✓ 階段一完成：共提取 260 個不重複關鍵字。
+2025-09-28 17:26:42,534 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-09-28 17:26:46,551 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:14,628 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:24,756 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:29,657 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:31,908 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:33,988 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:34,990 - WARNING - ⚠ 未能成功解釋詞彙：'N700ST'
+2025-09-28 17:27:35,287 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:43,782 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:47,901 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:50,023 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:54,116 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:56,172 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:58,264 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:27:59,266 - WARNING - ⚠ 未能成功解釋詞彙：'Semi-Humanoid'
+2025-09-28 17:27:59,350 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:01,433 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:03,486 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:04,488 - WARNING - ⚠ 未能成功解釋詞彙：'T91步槍'
+2025-09-28 17:28:06,879 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:13,198 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:15,264 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:17,315 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:18,317 - WARNING - ⚠ 未能成功解釋詞彙：'世界大賽冠軍'
+2025-09-28 17:28:18,362 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:20,414 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:22,453 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:23,455 - WARNING - ⚠ 未能成功解釋詞彙：'中共官方媒體'
+2025-09-28 17:28:25,481 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:29,603 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:33,511 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:37,461 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:41,657 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:28:52,722 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:11,127 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:16,159 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:18,221 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:29,913 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:31,980 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:34,388 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:35,389 - WARNING - ⚠ 未能成功解釋詞彙：'國聯'
+2025-09-28 17:30:35,618 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:37,724 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:46,962 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:49,059 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:51,286 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:52,287 - WARNING - ⚠ 未能成功解釋詞彙：'國際文化交流'
+2025-09-28 17:30:54,285 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:56,320 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:58,554 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:30:59,556 - WARNING - ⚠ 未能成功解釋詞彙：'基礎設施'
+2025-09-28 17:30:59,606 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:01,649 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:03,715 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:04,717 - WARNING - ⚠ 未能成功解釋詞彙：'堰塞湖'
+2025-09-28 17:31:06,663 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:08,738 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:10,777 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:11,778 - WARNING - ⚠ 未能成功解釋詞彙：'外交部'
+2025-09-28 17:31:11,840 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:13,884 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:17,840 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:19,875 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:27,763 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:31,662 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:33,696 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:35,743 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:36,745 - WARNING - ⚠ 未能成功解釋詞彙：'天文台'
+2025-09-28 17:31:38,481 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:31:50,488 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:32:02,009 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:32:07,980 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:32:25,417 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:32:31,569 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:32:49,505 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:32:53,571 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:32:55,612 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:06,763 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:09,263 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:18,537 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:20,651 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:22,690 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:23,691 - WARNING - ⚠ 未能成功解釋詞彙：'數位化轉型'
+2025-09-28 17:33:23,825 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:26,218 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:28,297 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:29,298 - WARNING - ⚠ 未能成功解釋詞彙：'數位工具查詢'
+2025-09-28 17:33:29,598 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:31,851 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:44,375 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:46,411 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:48,454 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:49,456 - WARNING - ⚠ 未能成功解釋詞彙：'文化部'
+2025-09-28 17:33:49,536 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:51,635 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:53,699 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:54,701 - WARNING - ⚠ 未能成功解釋詞彙：'新幹線'
+2025-09-28 17:33:54,743 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:56,797 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:58,833 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:33:59,835 - WARNING - ⚠ 未能成功解釋詞彙：'日立東芝聯盟'
+2025-09-28 17:33:59,929 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:01,971 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:05,836 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:10,009 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:12,059 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:14,098 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:15,100 - WARNING - ⚠ 未能成功解釋詞彙：'智慧倉儲'
+2025-09-28 17:34:17,230 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:19,349 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:21,385 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:22,386 - WARNING - ⚠ 未能成功解釋詞彙：'暫扣令'
+2025-09-28 17:34:26,338 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:42,199 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:44,235 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:34:50,104 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:35:06,011 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:35:29,320 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:35:52,157 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:11,249 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:13,364 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 2/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:15,393 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 3/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:16,395 - WARNING - ⚠ 未能成功解釋詞彙：'統治力'
+2025-09-28 17:36:22,497 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:30,158 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:34,459 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:38,440 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:42,577 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:48,637 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:52,531 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:36:56,504 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:37:06,223 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:38:29,844 - INFO - ✓ 階段二完成：共成功解釋 241 個詞彙。
+2025-09-28 17:38:29,845 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-09-28 17:38:32,445 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 17:38:41,667 - INFO - === 階段四：執行資料庫插入 ===
+2025-09-28 17:38:44,076 - INFO - ================================================================================
+2025-09-28 17:38:44,076 - INFO -   執行完成摘要
+2025-09-28 17:38:44,077 - INFO - ================================================================================
+2025-09-28 17:38:44,078 - INFO - ✓ 處理新聞數量: 47
+2025-09-28 17:38:44,078 - INFO - ✓ 不重複關鍵字: 260
+2025-09-28 17:38:44,079 - INFO - ✓ 成功解釋詞彙: 241
+2025-09-28 17:38:44,079 - INFO - ✓ 成功 插入 term 表: 229 個新關鍵字
+2025-09-28 17:38:44,080 - INFO - ✗ 失敗 插入 term_map 表: 249 筆新組合
+2025-09-28 17:38:44,080 - INFO - ================================================================================
+2025-09-30 13:20:49,902 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-09-30 13:20:50,195 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-09-30 13:20:50,195 - INFO - ================================================================================
+2025-09-30 13:20:50,196 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-09-30 13:20:50,196 - INFO - ================================================================================
+2025-09-30 13:20:50,196 - INFO - === 讀取合併資料 ===
+2025-09-30 13:20:50,197 - INFO - 讀取 single_news 資料...
+2025-09-30 13:20:50,574 - INFO - 讀取所有資料
+2025-09-30 13:20:51,677 - INFO - 成功讀取 460 筆新聞資料
+2025-09-30 13:20:51,678 - INFO - 讀取 term_map 資料...
+2025-09-30 13:20:52,264 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 414, 'hint': 'Refer to full message for details', 'details': "b'<html>\\r\\n<head><title>414 Request-URI Too Large</title></head>\\r\\n<body>\\r\\n<center><h1>414 Request-URI Too Large</h1></center>\\r\\n<hr><center>cloudflare</center>\\r\\n</body>\\r\\n</html>\\r\\n'"}
+2025-09-30 13:20:52,265 - INFO - 合併完成: 460 筆新聞資料
+2025-09-30 13:20:52,268 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-09-30 13:31:41,792 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-30 13:32:15,678 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-30 13:32:49,649 - WARNING - ✗ API 呼叫時發生錯誤 (嘗試 1/3): 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-30 13:33:55,852 - INFO - ✓ 階段一完成：共提取 2855 個不重複關鍵字。
+2025-09-30 13:33:55,852 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-10-12 23:22:03,109 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-10-12 23:22:03,369 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-10-12 23:22:03,370 - INFO - ================================================================================
+2025-10-12 23:22:03,371 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-10-12 23:22:03,371 - INFO - ================================================================================
+2025-10-12 23:22:03,371 - INFO - === 讀取合併資料 ===
+2025-10-12 23:22:03,372 - INFO - 讀取 single_news 資料...
+2025-10-12 23:22:03,585 - INFO - 讀取所有資料
+2025-10-12 23:22:06,157 - INFO - 成功讀取 166 筆新聞資料
+2025-10-12 23:22:06,158 - INFO - 讀取 term_map 資料...
+2025-10-12 23:22:07,383 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 400, 'hint': 'Refer to full message for details', 'details': "b'Bad Request'"}
+2025-10-12 23:22:07,384 - INFO - 合併完成: 166 筆新聞資料
+2025-10-12 23:22:07,384 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-10-12 23:27:23,103 - INFO - ✓ 階段一完成：共提取 1140 個不重複關鍵字。
+2025-10-12 23:27:23,104 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-10-13 00:09:39,422 - INFO - ✓ 階段二完成：共成功解釋 1140 個詞彙。
+2025-10-13 00:09:39,480 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-10-13 00:10:30,681 - INFO - === 階段四：執行資料庫插入 ===
+2025-10-13 00:10:38,993 - INFO - ================================================================================
+2025-10-13 00:10:38,993 - INFO -   執行完成摘要
+2025-10-13 00:10:38,994 - INFO - ================================================================================
+2025-10-13 00:10:38,994 - INFO - ✓ 處理新聞數量: 166
+2025-10-13 00:10:38,994 - INFO - ✓ 不重複關鍵字: 1140
+2025-10-13 00:10:38,994 - INFO - ✓ 成功解釋詞彙: 1140
+2025-10-13 00:10:38,995 - INFO - ✓ 成功 插入 term 表: 1086 個新關鍵字
+2025-10-13 00:10:38,995 - INFO - ✗ 失敗 插入 term_map 表: 1286 筆新組合
+2025-10-13 00:10:38,995 - INFO - ================================================================================
+2025-10-13 03:24:23,662 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-10-13 03:24:23,899 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-10-13 03:24:23,899 - INFO - ================================================================================
+2025-10-13 03:24:23,899 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-10-13 03:24:23,899 - INFO - ================================================================================
+2025-10-13 03:24:23,900 - INFO - === 讀取合併資料 ===
+2025-10-13 03:24:23,900 - INFO - 讀取 single_news 資料...
+2025-10-13 03:24:24,101 - INFO - 讀取所有資料
+2025-10-13 03:24:24,864 - INFO - 成功讀取 359 筆新聞資料
+2025-10-13 03:24:24,868 - INFO - 讀取 term_map 資料...
+2025-10-13 03:24:25,448 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 400, 'hint': 'Refer to full message for details', 'details': "b'Bad Request'"}
+2025-10-13 03:24:25,449 - INFO - 合併完成: 359 筆新聞資料
+2025-10-13 03:24:25,449 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-10-13 03:34:38,373 - INFO - ✓ 階段一完成：共提取 2431 個不重複關鍵字。
+2025-10-13 03:34:38,373 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-10-13 03:42:48,233 - WARNING - ✗ JSON 解析錯誤 (嘗試 1/3): Unterminated string starting at: line 3 column 19 (char 41)
+2025-10-13 04:13:47,592 - WARNING - ✗ JSON 解析錯誤 (嘗試 1/3): Unterminated string starting at: line 3 column 17 (char 39)
+2025-10-13 04:48:05,707 - WARNING - ✗ JSON 解析錯誤 (嘗試 1/3): Unterminated string starting at: line 2 column 13 (char 14)
+2025-10-13 04:59:19,459 - WARNING - ✗ JSON 解析錯誤 (嘗試 1/3): Unterminated string starting at: line 7 column 21 (char 183)
+2025-10-13 05:00:12,519 - INFO - ✓ 階段二完成：共成功解釋 2431 個詞彙。
+2025-10-13 05:00:12,520 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-10-13 05:02:59,678 - INFO - === 階段四：執行資料庫插入 ===
+2025-10-13 05:03:12,159 - INFO - ================================================================================
+2025-10-13 05:03:12,160 - INFO -   執行完成摘要
+2025-10-13 05:03:12,160 - INFO - ================================================================================
+2025-10-13 05:03:12,161 - INFO - ✓ 處理新聞數量: 359
+2025-10-13 05:03:12,161 - INFO - ✓ 不重複關鍵字: 2431
+2025-10-13 05:03:12,161 - INFO - ✓ 成功解釋詞彙: 2431
+2025-10-13 05:03:12,161 - INFO - ✓ 成功 插入 term 表: 2193 個新關鍵字
+2025-10-13 05:03:12,161 - INFO - ✗ 失敗 插入 term_map 表: 3049 筆新組合
+2025-10-13 05:03:12,162 - INFO - ================================================================================
+2025-10-13 10:52:30,107 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-10-13 10:52:30,339 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-10-13 10:52:30,339 - INFO - ================================================================================
+2025-10-13 10:52:30,339 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-10-13 10:52:30,339 - INFO - ================================================================================
+2025-10-13 10:52:30,340 - INFO - === 讀取合併資料 ===
+2025-10-13 10:52:30,340 - INFO - 讀取 single_news 資料...
+2025-10-13 10:52:30,575 - INFO - 讀取所有資料
+2025-10-13 10:52:31,352 - INFO - 成功讀取 222 筆新聞資料
+2025-10-13 10:52:31,352 - INFO - 讀取 term_map 資料...
+2025-10-13 10:52:31,966 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 400, 'hint': 'Refer to full message for details', 'details': "b'Bad Request'"}
+2025-10-13 10:52:31,966 - INFO - 合併完成: 222 筆新聞資料
+2025-10-13 10:52:31,967 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-10-13 10:58:49,098 - INFO - ✓ 階段一完成：共提取 1607 個不重複關鍵字。
+2025-10-13 10:58:49,098 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-10-13 11:41:53,758 - WARNING - ✗ JSON 解析錯誤 (嘗試 1/3): Invalid control character at: line 3 column 85 (char 106)
+2025-10-13 11:47:59,388 - WARNING - ✗ JSON 解析錯誤 (嘗試 1/3): Invalid control character at: line 7 column 49 (char 206)
+2025-10-13 11:52:40,212 - INFO - ✓ 階段二完成：共成功解釋 1607 個詞彙。
+2025-10-13 11:52:40,213 - INFO - === 階段三：檢查重複性並準備插入 ===
+2025-10-13 11:54:28,031 - INFO - === 階段四：執行資料庫插入 ===
+2025-10-13 11:54:38,968 - INFO - ================================================================================
+2025-10-13 11:54:38,968 - INFO -   執行完成摘要
+2025-10-13 11:54:38,968 - INFO - ================================================================================
+2025-10-13 11:54:38,969 - INFO - ✓ 處理新聞數量: 222
+2025-10-13 11:54:38,969 - INFO - ✓ 不重複關鍵字: 1607
+2025-10-13 11:54:38,969 - INFO - ✓ 成功解釋詞彙: 1607
+2025-10-13 11:54:38,969 - INFO - ✓ 成功 插入 term 表: 1455 個新關鍵字
+2025-10-13 11:54:38,969 - INFO - ✗ 失敗 插入 term_map 表: 1901 筆新組合
+2025-10-13 11:54:38,969 - INFO - ================================================================================
+2025-10-16 06:02:11,993 - INFO - ✓ Gemini Client 初始化成功，使用模型 gemini-2.5-flash-lite
+2025-10-16 06:02:12,199 - INFO - ✓ Supabase 連線 (https://iiqimdwocmqtiudfezlh.supabase.co) 初始化成功
+2025-10-16 06:02:12,200 - INFO - ================================================================================
+2025-10-16 06:02:12,200 - INFO -   困難關鍵字提取系統 - 可存入資料庫版本
+2025-10-16 06:02:12,200 - INFO - ================================================================================
+2025-10-16 06:02:12,200 - INFO - === 讀取合併資料 ===
+2025-10-16 06:02:12,200 - INFO - 讀取 single_news 資料...
+2025-10-16 06:02:12,400 - INFO - 讀取所有資料
+2025-10-16 06:02:13,690 - INFO - 成功讀取 580 筆新聞資料
+2025-10-16 06:02:13,690 - INFO - 讀取 term_map 資料...
+2025-10-16 06:02:14,174 - ERROR - 讀取 term_map 資料時發生錯誤: {'message': 'JSON could not be generated', 'code': 400, 'hint': 'Refer to full message for details', 'details': "b'Bad Request'"}
+2025-10-16 06:02:14,176 - INFO - 合併完成: 580 筆新聞資料
+2025-10-16 06:02:14,177 - INFO - === 階段一：從新聞中提取困難關鍵字 ===
+2025-10-16 06:20:28,346 - INFO - ✓ 階段一完成：共提取 3751 個不重複關鍵字。
+2025-10-16 06:20:28,346 - INFO - === 階段二：為關鍵字生成解釋與範例 ===
+2025-10-16 08:03:40,114 - WARNING - ✗ JSON 解析錯誤 (嘗試 1/3): Unterminated string starting at: line 7 column 15 (char 164)
+2025-10-16 08:39:02,673 - INFO - ✓ 階段二完成：共成功解釋 3751 個詞彙。
+2025-10-16 08:39:02,673 - INFO - === 階段三：檢查重複性並準備插入 ===

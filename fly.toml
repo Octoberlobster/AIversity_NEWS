@@ -1,0 +1,19 @@
+# fly.toml app configuration file generated for news-scripts-job on 2025-09-05T02:23:36+08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'news-scripts-job'
+primary_region = 'sin'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[env]
+  PYTHONUNBUFFERED = '1'
+
+[processes]
+  run = 'python3 schedule_test.py'
+
+[[vm]]
+  size = 'shared-cpu-1x'

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: playwright-service
+    env: docker
+    plan: free
+    autoDeploy: true
+    region: singapore   # 或 oregon/frankfurt，看你要哪個節點
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"

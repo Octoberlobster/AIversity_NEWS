@@ -44,7 +44,7 @@ class SupabaseClient:
         """
         try:
             # 1. 拉取所有 stories
-            stories_response = self.client.table('stories').select('*').execute()
+            stories_response = self.client.table('stories').select('*').range(0, 1000).execute()
             stories = stories_response.data
             
             logger.info(f"從 stories 表拉取到 {len(stories)} 筆資料")

@@ -15,8 +15,20 @@ class RelativeNews(BaseModel):
     relatives: List[RelativeItem]
 
 response = supabase.table("single_news").select("story_id,category,short,generated_date").execute()
-constraints = supabase.table("relative_news").select("src_story_id").execute()
-constraints = constraints.data
+
+all_data = []
+batch_size = 1000
+start = 1000
+
+while True:
+    temp = supabase.table("relative_news").select("src_story_id").range(start, start + batch_size - 1).execute()
+    if not temp.data:
+        break
+    all_data.extend([row["src_story_id"] for row in temp.data])
+    start += batch_size
+
+# 去重
+constraints = list(set(all_data))
 
 data = response.data
 
@@ -51,7 +63,7 @@ def filter_related_news(current_story: dict, all_stories: list[dict]) -> list[di
 請判斷哪些候選新聞與當前新聞「相關」，並回傳各個相關新聞的編號和相關的原因。
 確保回傳的編號個數與原因個數一致，要呈現1對1的狀態。
 在撰寫理由時，請不要提及「當前新聞」或「候選新聞」這些詞彙，而是直接描述，因為這是給使用者看的，希望能夠讓使用者理解為什麼這些新聞是相關的。
-最多回傳 3 個相關新聞。
+最多回傳 3 個相關新聞，如果違反將會受到嚴厲懲罰。
 
 當前新聞：
 {current_short}
@@ -61,7 +73,7 @@ def filter_related_news(current_story: dict, all_stories: list[dict]) -> list[di
 """
 
     response = gemini_client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash-lite",
         contents=prompt,
         config=genai.types.GenerateContentConfig(
             response_mime_type="application/json",
@@ -93,9 +105,19 @@ def filter_related_news(current_story: dict, all_stories: list[dict]) -> list[di
 
     return results
 
+# print(data[0])
+# one = filter_related_news(data[0], data[1:])
+# print(one)
+# #insert database
+# response = (
+#     supabase.table("relative_news")
+#     .insert({"id": str(uuid.uuid4()),"reason":one[0]["reason"], "src_story_id": data[0]["story_id"], "dst_story_id": one[0]["story_id"]})
+#     .execute()
+# )
+
 for i, current_story in enumerate(data):
-    #constraints is a list like [{src_story_id},....]
-    if any(constraint["src_story_id"] == current_story["story_id"] for constraint in constraints):
+    #constraints is a list like [0,1,2,3,4,5]
+    if current_story["story_id"] in constraints:
         print(f"Skipping {current_story['story_id']} as it already exists in constraints.")
         continue
     # 將當前新聞與其他新聞進行相關性篩選
@@ -118,4 +140,4 @@ for i, current_story in enumerate(data):
             .execute()
         )
     print(i)
-    time.sleep(15)
+    time.sleep(5)

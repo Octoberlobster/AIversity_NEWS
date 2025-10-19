@@ -58,14 +58,14 @@ sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 LIMIT = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
 
 MODEL_ID = getattr(core, 'DEFAULT_MODEL_ID', None) or 'gemini-2.0-flash-preview-image-generation'
-RETRY_TIMES = 3
-SLEEP_BETWEEN = 0.6
+RETRY_TIMES = 5          # 比原本多一點
+SLEEP_BETWEEN = 8       # 每次等 5 秒以上再試
 
 print(f"Connecting to Supabase: {SUPABASE_URL}")
 print(f"Fetching up to {LIMIT} rows from table 'single_news'...")
 
 # 先嘗試選取常見欄位
-resp = sb.table('single_news').select('story_id,news_title,long').limit(LIMIT).execute()
+resp = sb.table('single_news').select('story_id,news_title,long').order("generated_date", desc=True).limit(LIMIT).execute()
 if getattr(resp, 'error', None):
     print("嘗試選取 (story_id,news_title,long) 發生錯誤，改為 select('*') 以檢視欄位：", resp.error)
     resp = sb.table('single_news').select('*').limit(LIMIT).execute()
@@ -76,7 +76,7 @@ if not rows:
     raise SystemExit(0)
 
 # 初始化 Gemini client
-gen_client = genai.Client()
+gen_client = genai.Client(location="asia-east1")
 
 insert_count = 0
 fail_count = 0
@@ -116,6 +116,7 @@ for i, r in enumerate(rows, start=1):
     prompt = core._prompt_photoreal_no_text(title or '', content or '', category='')
 
     img_bytes = core._gen_image_bytes_with_retry(gen_client, prompt, MODEL_ID, RETRY_TIMES, SLEEP_BETWEEN)
+    time.sleep(2)  # 避免速率限制
     if not img_bytes:
         print(f"第 {i} 筆（story_id={story_id}）生成失敗，跳過")
         fail_count += 1
