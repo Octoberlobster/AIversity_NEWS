@@ -3,23 +3,68 @@ export const API_BASE =
   process.env.REACT_APP_API_BASE || 'http://localhost:5000';
 
 export async function fetchJson(path, body) {
-  //console.log('fetchJson', path, JSON.stringify(body));
+  console.log('fetchJson 請求:', path, JSON.stringify(body, null, 2));
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
+  console.log('fetchJson 回應狀態:', res.status, res.statusText);
   if (!res.ok) {
     const txt = await res.text();
+    console.error('fetchJson 錯誤回應:', txt);
     throw new Error(res.status + ' ' + txt);
   }
-  return res.json();
+  const data = await res.json();
+  console.log('fetchJson 回應資料:', data);
+  return data;
 }
 
 // 搜尋新聞功能 - 調用 Advanced_Search_Service API
 export async function searchNews(query) {
   //console.log('searchNews called with query:', query);
   return await fetchJson('/api/Advanced_Search_Service/search', { query });
+}
+
+// 換專家功能 - 調用專家更換 API
+export async function changeExperts(userId, roomId, storyId, language, currentExperts, expertsToRegenerate) {
+  console.log('changeExperts 被呼叫，參數:', {
+    userId,
+    roomId,
+    storyId,
+    language,
+    currentExperts,
+    expertsToRegenerate
+  });
+
+  const requestBody = {
+    user_id: userId,
+    room_id: roomId,
+    story_id: storyId,
+    language: language,
+    current_experts: currentExperts,
+    experts_to_regenerate: expertsToRegenerate
+  };
+
+  console.log('準備送出的請求 body:', JSON.stringify(requestBody, null, 2));
+
+  const result = await fetchJson('/api/experts/change', requestBody);
+  
+  console.log('changeExperts 收到結果:', result);
+  
+  // 處理後端回傳的資料結構 (可能有 success_response 包裝)
+  if (result.success_response) {
+    console.log('檢測到 success_response 包裝，解包中...');
+    return result.success_response;
+  }
+  
+  // 處理錯誤回應
+  if (result.error_response) {
+    console.error('檢測到 error_response:', result.error_response);
+    throw new Error(result.error_response.error || '換專家失敗');
+  }
+  
+  return result;
 }
 
 /**

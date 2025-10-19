@@ -5,6 +5,8 @@ from flask import Flask, request, jsonify
 from ChatRoom import ChatRoom
 from Hint_Prompt_Single import Hint_Prompt_Single
 from Hint_Prompt_Topic import Hint_Prompt_Topic
+import Change_experts  # <-- 【新增】導入新檔案
+import uuid             # <-- 【新增】導入 uuid
 
 app = Flask(__name__)
 CORS(app)
@@ -166,6 +168,77 @@ def advanced_search():
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
+
+# --- 【新增】更換專家的 API 路由 (使用 Session) ---
+@app.route("/api/experts/change", methods=["POST"])
+def change_experts_route():
+    data = request.json
+    
+    # 1. 解析前端傳來的必要欄位
+    user_id = data.get("user_id")
+    room_id = data.get("room_id")
+    story_id = data.get("story_id")
+    language = data.get("language")
+    current_experts = data.get("current_experts") # 初始的專家列表
+    experts_to_regenerate = data.get("experts_to_regenerate") # 要換掉的專家
+
+    # 2. 基礎欄位驗證
+    if not all([user_id, room_id, story_id, language, current_experts, experts_to_regenerate]):
+        error_payload = {"success": False, "error": "Missing required fields", "error_code": "400"}
+        return jsonify({"success_response": None, "error_response": error_payload}), 400
+
+    # 3. 驗證是否"只換一個"
+    if len(experts_to_regenerate) != 1:
+        error_payload = {"success": False, "error": "Must regenerate exactly one expert per call", "error_code": "400"}
+        return jsonify({"success_response": None, "error_response": error_payload}), 400
+
+    try:
+        target = experts_to_regenerate[0]
+        target_category = target.get("category")
+        old_analyze_id = target.get("analyze_id")
+
+        if not target_category or not old_analyze_id:
+            error_payload = {"success": False, "error": "Invalid 'experts_to_regenerate' structure", "error_code": "400"}
+            return jsonify({"success_response": None, "error_response": error_payload}), 400
+
+        # 4. Session 管理 (使用 story_id 確保 session 是針對特定文章的)
+        key = (user_id, room_id, story_id, "expert_regenerator")
+
+        if key not in user_sessions:
+            # 如果是第一次請求，建立新的 Regenerator 實例並儲存
+            user_sessions[key] = Change_experts.ExpertRegenerator(current_experts, story_id)
+        
+        generator = user_sessions[key]
+
+        # 5. 呼叫 chat model 產生新專家
+        # new_analyze_obj 是一個 NewExpertResponse Pydantic 物件 (包含 Role 和 Analyze)
+        new_analyze_obj = generator.regenerate_one_expert(language, target_category)
+
+        # 6. 構建成功回傳格式
+        new_id = str(uuid.uuid4())
+        response_expert = {
+            "analyze_id": new_id,
+            "category": target_category,
+            "analyze": {
+                "Role": new_analyze_obj.Role,
+                "Analyze": new_analyze_obj.Analyze
+            }
+        }
+
+        success_payload = {
+            "success": True,
+            "experts": [response_expert],
+            "replaced_ids": [old_analyze_id]
+        }
+        
+        print("更換專家成功:", success_payload)
+        
+        return jsonify({"success_response": success_payload, "error_response": None})
+
+    except Exception as e:
+        # 捕捉 Pydantic 驗證錯誤或 Gemini API 錯誤
+        error_payload = {"success": False, "error": str(e), "error_code": "500"}
+        return jsonify({"success_response": None, "error_response": error_payload}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
