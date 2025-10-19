@@ -557,7 +557,7 @@ def demo_with_custom_requirements():
     按照具體需求進行演示的函數，並上傳到Supabase
     """
     analyzer = NewsAnalyzer()
-    keyword = "京華城案"  # 你可以改成其他關鍵字
+    keyword = "2025以色列伊朗衝突"  # 你可以改成其他關鍵字
     # 二戰終戰80週年
     # 大罷免
 

@@ -34,7 +34,14 @@ class TopicComprehensiveReporter:
             所有topic的列表
         """
         try:
-            response = self.supabase.table("topic").select("*").execute()
+            # response = self.supabase.table("topic").select("*").execute()
+            response = (
+                self.supabase
+                .table("topic")
+                .select("*")
+                .eq("topic_id", "3d4df804-6f6a-4254-b7e7-ad3f18f9cbee")
+                .execute()
+            )
             return response.data
         except Exception as e:
             print(f"取得所有topics時發生錯誤: {e}")
@@ -94,12 +101,12 @@ class TopicComprehensiveReporter:
         
         # 建立系統指令
         system_instruction = """
-        你是一位專業的新聞編輯，負責將多篇相關新聞整合成一篇完整的綜合報導。
+        你是一位專業的新聞編輯，負責將多篇相關新聞整合成一篇完整的專題整合分析報告。
         
         任務要求：
         1. 仔細分析所有提供的新聞內容
         2. 按時間順序梳理事件發展脈絡
-        3. 撰寫一篇流暢的新聞報導，分為四個段落(每段約200~250字，不用寫字數)
+        3. 撰寫一篇流暢的專題整合分析報告，分為四個段落(必須做到每段約150~180字，不用寫字數)
         4. 保持客觀且平衡的新聞寫作風格
         5. 以markdown格式輸出
 
@@ -112,39 +119,39 @@ class TopicComprehensiveReporter:
         
         # 建立用戶提示
         user_prompt = f"""
-        請根據以下資訊撰寫關於「{topic_info['topic_title']}」的綜合新聞報導：
-        
-        Topic資訊：
-        - ID: {topic_info['topic_id']}
-        - 標題: {topic_info['topic_title']}
-        
-        相關新聞數量: {len(news_data)}篇
-        
-        新聞摘要：
+        請根據以下資訊，撰寫一篇關於「{topic_info['topic_title']}」的專題整合分析報告。
+        重點是：文章必須有深度，但排版要讓讀者容易掃讀、不會覺得冗長。
+
+        【Topic 資訊】
+        ID: {topic_info['topic_id']}
+        標題: {topic_info['topic_title']}
+        相關新聞數量: {len(news_data)} 篇
+
+        【新聞摘要】
         {json.dumps(news_summaries, ensure_ascii=False, indent=2)}
 
-        請按照以下markdown格式輸出完整的新聞報導：
+        輸出格式（Markdown），只需輸出markdown中的內容
+        新聞標題（簡潔有力，15–20字）
+        幫我分成5個段落，每段約150–180字
+        每段前面加上小標題（5–10字）
+        最後一段是可能影響（約100字）
 
-        # 新聞標題（簡潔有力，15-20字）
-        ## 新聞內容
-
-        {json.dumps(news_summaries, ensure_ascii=False, indent=2)}
-
-        寫作注意事項：
-        1. 每段都要有明確的主題和完整的論述(要有標題)
-        2. 段落間要有邏輯連接，形成完整報導
-        3. 使用正式的新聞用語，避免口語化表達
-        4. 確保所有信息都基於提供的新聞資料
-        5. 字數要求必須嚴格遵守
+        寫作規則
+        全文 800–1000字。
+        段落之間必須留白，避免文字牆。
+        小標題必須新聞化，並適度用 emoji 或符號提升辨識度。
+        段落開頭要有「鉤子句」，並以粗體標示。
+        文字風格：專業新聞體，避免口語或情緒化。
         """
         
         try:
             response = self.gemini_client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash-lite",
                 contents=user_prompt,
                 config={
                     "system_instruction": system_instruction,
                     "response_mime_type": "text/plain",  # 改為純文字
+                    
                 }
             )
             

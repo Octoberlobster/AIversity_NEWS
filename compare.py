@@ -59,8 +59,8 @@ def get_article_text(page, selectors=None):
 def get_hash(text: str):
     return hashlib.md5(text.encode("utf-8")).hexdigest()
 
-# 從 Supabase 拿前 100 筆 stories
-response = supabase.table("stories").select("story_id, story_url").order("crawl_date", desc=True).limit(100).execute()
+# 從 Supabase 拿前 300 筆 stories
+response = supabase.table("stories").select("story_id, story_url").order("crawl_date", desc=True).limit(300).execute()
 stories = response.data
 
 with sync_playwright() as p:
