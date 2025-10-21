@@ -50,6 +50,7 @@
     "reporter": "記者"
   },
   "categorySection": {
+    "news": "新聞",
     "title": "分類新聞",
     "newsTitle": "{{category}}新聞",
     "loading": "載入中...",

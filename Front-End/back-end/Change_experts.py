@@ -1,5 +1,6 @@
 import uuid
 import logging
+import random  # <-- 【新增】導入 random
 from pydantic import BaseModel, ValidationError
 from typing import List, Dict, Any, Literal
 from google.genai import types
@@ -79,6 +80,9 @@ class ExpertRegenerator:
         if not self.article_content:
             logger.error(f"Failed to fetch article for story_id: {story_id}. Expert generation will fail.")
         
+        self.current_categories = set() # <-- 【新增】追蹤目前有哪些類別
+        self.all_categories = list(category_description.keys()) # <-- 【新增】所有可用類別
+        
         self._create_model(current_experts)
 
     def _get_article(self, story_id: str) -> str:
@@ -102,6 +106,7 @@ class ExpertRegenerator:
         """
         
         existing_experts_str = ""
+        self.current_categories = set() # <-- 【修改】初始化
         for expert_data in current_experts:
             try:
                 # 驗證傳入的專家結構
@@ -109,6 +114,7 @@ class ExpertRegenerator:
                 role = expert.analyze.Role
                 analysis = expert.analyze.Analyze
                 existing_experts_str += f"- {expert.category} 專家: {role} (分析: {analysis})\n"
+                self.current_categories.add(expert.category) # <-- 【新增】將初始類別加入 set
             except ValidationError as e:
                 logger.warning(f"Skipping invalid expert data during init: {expert_data} | Error: {e}")
 
@@ -145,9 +151,9 @@ class ExpertRegenerator:
             logger.error(f"Failed to create Gemini chat model: {e}")
             self.model = None
 
-    def regenerate_one_expert(self, language: str, target_category: str) -> NewExpertResponse:
+    def regenerate_one_expert(self, language: str, target_category_to_replace: str) -> dict: # <-- 【修改】回傳類型
         """
-        使用已建立的 chat model，生成一位新專家。
+        使用已建立的 chat model，生成一位*不同類別*的新專家。
         """
         
         if not self.article_content:
@@ -156,19 +162,45 @@ class ExpertRegenerator:
         if not self.model:
             raise Exception("Chat model is not initialized, cannot generate expert.")
 
+        # --- 【新增】隨機選取新類別的邏輯 ---
+        # 1. 建立禁用列表 (包含所有已存在的 + 剛剛被換掉的)
+        #    我們也把 chat history 中新產生的類別加入 (雖然 self.current_categories 應該已經做了)
+        forbidden_categories = self.current_categories.union({target_category_to_replace})
+        
+        # 2. 找出所有可用的類別
+        available_categories = [c for c in self.all_categories if c not in forbidden_categories]
+
+        # 3. (Edge Case) 如果可用類別為空 (例如已產生 9 個專家)
+        if not available_categories:
+            logger.warning(f"No available categories left. Picking from all categories except the one being replaced.")
+            available_categories = [c for c in self.all_categories if c != target_category_to_replace]
+            # (Ultimate Edge Case) 如果連這樣都找不到 (例如總共只有1個類別)
+            if not available_categories:
+                available_categories = self.all_categories
+        
+        # 4. 隨機選一個新類別
+        new_category = random.choice(available_categories)
+        logger.info(f"Regenerating expert: Replacing '{target_category_to_replace}' with randomly selected '{new_category}'")
+        # --- 【新增邏輯結束】 ---
+
         output_language = language_map.get(language, "繁體中文")
-        category_desc = category_description.get(target_category, "一般分析")
+        category_desc = category_description.get(new_category, "一般分析") # <-- 【修改】使用 new_category
 
         prompt = f"""
         文章：
         ---
         {self.article_content}
         ---
-        請根據上述文章和你的規則，為「{target_category}」({category_desc}) 類別產生一位新的專家。
+        請根據上述文章和你的規則，為「{new_category}」({category_desc}) 類別產生一位新的專家。
         
         # 輸出語言
         - **必須**使用「{output_language}」進行回答。
         """
 
         response = self.model.send_message(message=prompt)
-        return response.parsed # 傳回 NewExpertResponse 物件
+        
+        # 【新增】將新產生的類別加入追蹤, 避免下次再選到
+        self.current_categories.add(new_category) 
+        
+        # 【修改】回傳 Pydantic 物件和新類別的名稱
+        return {"new_expert": response.parsed, "new_category": new_category}

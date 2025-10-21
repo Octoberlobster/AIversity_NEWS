@@ -50,6 +50,7 @@
     "reporter": "Wartawan"
   },
   "categorySection": {
+    "news": "Berita",
     "title": "Berita Kategori",
     "newsTitle": "Berita {{category}}",
     "loading": "Memuat...",

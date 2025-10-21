@@ -49,6 +49,7 @@
     "reporter": "Reporter"
   },
   "categorySection": {
+    "news": "News",
     "title": "Category News",
     "newsTitle": "{{category}} News",
     "loading": "Loading...",
