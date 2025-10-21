@@ -60,7 +60,7 @@
     },
     "empty": {
       "categoryNotFound": "找不到該分類的新聞",
-      "noNews": "目前沒有 {{category}} 相關的新聞"
+      "noNews": "目前沒有 {{category}}"
     },
     "categories": {
       "politics": "政治",

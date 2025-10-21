@@ -930,12 +930,6 @@ function NewsDetail() {
               <mark
                 key={`highlight-${i}`}
                 className="highlight-text"
-                style={{ 
-                  backgroundColor: '#ffeb3b', 
-                  padding: '2px 4px', 
-                  borderRadius: '3px',
-                  fontWeight: 'bold'
-                }}
               >
                 {part}
               </mark>
@@ -949,7 +943,49 @@ function NewsDetail() {
       if (termsPattern && Array.isArray(processedLine)) {
         processedLine = processedLine.map((part, partIndex) => {
           if (React.isValidElement(part)) {
-            // 如果已經是 React 元素（highlight），直接返回
+            // 如果已經是 React 元素（highlight），需要檢查其內容是否包含術語
+            const highlightText = part.props.children;
+            if (typeof highlightText === 'string') {
+              // 檢查 highlight 文字中是否包含術語
+              const hasTerms = terms.some(term => highlightText.includes(term));
+              if (hasTerms) {
+                // 如果包含術語，需要重新處理這個 highlight 文字
+                // 保持整個 highlight 為一個連續的方框
+                const processedParts = highlightText.split(termsPattern).map((termPart, termIndex) => {
+                  if (terms.includes(termPart)) {
+                    // 只有第一次出現的 term 才高亮
+                    if (!seenTerms.has(termPart)) {
+                      seenTerms.add(termPart);
+                      return (
+                        <strong
+                          key={`highlight-term-${partIndex}-${termIndex}`}
+                          className="term term--clickable"
+                          onClick={(e) => handleTermClick(termPart, e)}
+                        >
+                          {termPart}
+                        </strong>
+                      );
+                    } else {
+                      // 已經出現過的 term 不高亮
+                      return <React.Fragment key={`highlight-text-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
+                    }
+                  }
+                  // 非術語部分
+                  return <React.Fragment key={`highlight-text-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
+                });
+                
+                // 用一個連續的 mark 包裝所有內容
+                return (
+                  <mark
+                    key={`highlight-container-${partIndex}`}
+                    className="highlight-text"
+                  >
+                    {processedParts}
+                  </mark>
+                );
+              }
+            }
+            // 如果不包含術語，直接返回原 highlight
             return part;
           }
           
