@@ -6,7 +6,7 @@ import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { useSupabase } from './supabase';
-import { useLanguageFields } from '../utils/useLanguageFields';
+import { useLanguageFields} from '../utils/useLanguageFields';
 import { changeExperts as changeExpertsAPI } from './api.js';
 
 // 從資料庫動態載入術語定義的函數
@@ -52,6 +52,7 @@ function NewsDetail() {
   const [newsImage, setNewsImage] = useState(null);
   const [newsUrl, setNewsUrl] = useState(null);
   const [newsKeywords, setNewsKeywords] = useState([]);
+  const [highlights, setHighlights] = useState([]);
   const [termDefinitions, setTermDefinitions] = useState({});
   const [newsTerms, setNewsTerms] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
@@ -291,7 +292,6 @@ function NewsDetail() {
 
       // 🧠 3️⃣ 處理結果並更新狀態
       const successResults = results.filter(r => r.success);
-      const failedResults = results.filter(r => !r.success);
 
       if (successResults.length > 0) {
         // 建立新專家的映射表
@@ -631,6 +631,51 @@ function NewsDetail() {
     fetchNewsImage();
   }, [id, supabaseClient, currentLanguage, getFieldName]); // 語言改變時重新載入
 
+  // 載入 highlight（重點）資料 - 支援多語言
+  useEffect(() => {
+    const fetchHighlights = async () => {
+      if (!id || !supabaseClient) return;
+
+      try {
+        const multiLangFields = ['highlight'];
+        const selectFields = getMultiLanguageSelect(multiLangFields);
+
+        const { data, error } = await supabaseClient
+          .from('highlight')
+          .select(selectFields)
+          .eq('story_id', id);
+
+        // log raw response for debugging
+        console.log('fetchHighlights response for story', id, { selectFields, data, error });
+        console.log('highlights data:', data);
+
+        if (error) {
+          console.error(`Error fetching highlights for story ${id}:`, error);
+          setHighlights([]);
+          return;
+        }
+
+        const row = data?.[0];
+        if (!row) {
+          setHighlights([]);
+          return;
+        }
+
+        const raw = row[getFieldName('highlight')] || row.highlight || [];
+        // 如果 raw 是陣列，直接使用；如果是物件且有 highlight 屬性，則使用該屬性
+        const highlightArray = Array.isArray(raw) ? raw : (raw.highlight || []);
+        console.log('processed highlights array:', highlightArray);
+        setHighlights(highlightArray);
+      } catch (error) {
+        console.error(`Error fetching highlights for story ${id}:`, error);
+        setHighlights([]);
+      }
+
+    };
+
+    fetchHighlights();
+  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]);
+
   // 載入新聞來源 URL
   useEffect(() => {
     const fetchNewsUrl = async () => {
@@ -864,30 +909,100 @@ function NewsDetail() {
       : null;
     const seenTerms = new Set(); // 記錄已經高亮過的 terms
 
-    const highlightTermsInLine = (line) => {
-      if (!termsPattern) return line;
+    // 創建 highlights 的正則表達式模式
+    const highlightsPattern = highlights.length
+      ? new RegExp(`(${highlights.map(escapeReg).join('|')})`, 'g')
+      : null;
+    
+    // 調試信息
+    console.log('highlights for rendering:', highlights);
+    console.log('highlightsPattern:', highlightsPattern);
 
-      return line.split(termsPattern).map((part, i) => {
-        if (terms.includes(part)) {
-          // 只有第一次出現的 term 才高亮
-          if (!seenTerms.has(part)) {
-            seenTerms.add(part);
+    const highlightTermsInLine = (line) => {
+      if (!termsPattern && !highlightsPattern) return line;
+
+      // 先處理 highlights（畫重點）
+      let processedLine = line;
+      if (highlightsPattern) {
+        processedLine = processedLine.split(highlightsPattern).map((part, i) => {
+          if (highlights.includes(part)) {
             return (
-              <strong
-                key={`term-${i}`}
-                className="term term--clickable"
-                onClick={(e) => handleTermClick(part, e)}
+              <mark
+                key={`highlight-${i}`}
+                className="highlight-text"
+                style={{ 
+                  backgroundColor: '#ffeb3b', 
+                  padding: '2px 4px', 
+                  borderRadius: '3px',
+                  fontWeight: 'bold'
+                }}
               >
                 {part}
-              </strong>
+              </mark>
             );
-          } else {
-            // 已經出現過的 term 不高亮
-            return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
           }
-        }
-        return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
-      });
+          return <React.Fragment key={`highlight-txt-${i}`}>{part}</React.Fragment>;
+        });
+      }
+
+      // 再處理 terms（術語）
+      if (termsPattern && Array.isArray(processedLine)) {
+        processedLine = processedLine.map((part, partIndex) => {
+          if (React.isValidElement(part)) {
+            // 如果已經是 React 元素（highlight），直接返回
+            return part;
+          }
+          
+          // 處理文字部分中的術語
+          const textContent = typeof part === 'string' ? part : String(part);
+          return textContent.split(termsPattern).map((termPart, termIndex) => {
+            if (terms.includes(termPart)) {
+              // 只有第一次出現的 term 才高亮
+              if (!seenTerms.has(termPart)) {
+                seenTerms.add(termPart);
+                return (
+                  <strong
+                    key={`term-${partIndex}-${termIndex}`}
+                    className="term term--clickable"
+                    onClick={(e) => handleTermClick(termPart, e)}
+                  >
+                    {termPart}
+                  </strong>
+                );
+              } else {
+                // 已經出現過的 term 不高亮
+                return <React.Fragment key={`term-txt-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
+              }
+            }
+            return <React.Fragment key={`term-txt-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
+          });
+        });
+      } else if (termsPattern && typeof processedLine === 'string') {
+        // 如果沒有 highlights，直接處理術語
+        processedLine = processedLine.split(termsPattern).map((part, i) => {
+          if (terms.includes(part)) {
+            // 只有第一次出現的 term 才高亮
+            if (!seenTerms.has(part)) {
+              seenTerms.add(part);
+              return (
+                <strong
+                  key={`term-${i}`}
+                  className="term term--clickable"
+                  onClick={(e) => handleTermClick(part, e)}
+                >
+                  {part}
+                </strong>
+              );
+            } else {
+              // 已經出現過的 term 不高亮
+              return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
+            }
+          }
+          return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
+        });
+      }
+
+      return processedLine;
     };
 
     // 渲染：每段用 <p> 包起來，段內單行換行 → <br/>

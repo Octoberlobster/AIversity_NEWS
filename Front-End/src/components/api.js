@@ -3,20 +3,20 @@ export const API_BASE =
   process.env.REACT_APP_API_BASE || 'http://localhost:5000';
 
 export async function fetchJson(path, body) {
-  console.log('fetchJson 請求:', path, JSON.stringify(body, null, 2));
+  //console.log('fetchJson 請求:', path, JSON.stringify(body, null, 2));
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
-  console.log('fetchJson 回應狀態:', res.status, res.statusText);
+  //console.log('fetchJson 回應狀態:', res.status, res.statusText);
   if (!res.ok) {
     const txt = await res.text();
-    console.error('fetchJson 錯誤回應:', txt);
+    //console.error('fetchJson 錯誤回應:', txt);
     throw new Error(res.status + ' ' + txt);
   }
   const data = await res.json();
-  console.log('fetchJson 回應資料:', data);
+  //console.log('fetchJson 回應資料:', data);
   return data;
 }
 
