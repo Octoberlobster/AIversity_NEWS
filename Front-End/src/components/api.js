@@ -67,6 +67,46 @@ export async function changeExperts(userId, roomId, storyId, language, currentEx
   return result;
 }
 
+export async function changeExpertsTopic(userId, roomId, topicId, language, currentExperts, expertsToRegenerate) {
+  console.log('changeExpertsTopic 被呼叫，參數:', {
+    userId,
+    roomId,
+    topicId,
+    language,
+    currentExperts,
+    expertsToRegenerate
+  });
+
+  const requestBody = {
+    user_id: userId,
+    room_id: roomId,
+    topic_id: topicId,
+    language: language,
+    current_experts: currentExperts,
+    experts_to_regenerate: expertsToRegenerate
+  };
+
+  console.log('準備送出的請求 body:', JSON.stringify(requestBody, null, 2));
+
+  const result = await fetchJson('/api/experts/change_topic', requestBody);
+
+  console.log('changeExpertsTopic 收到結果:', result);
+
+  // 處理後端回傳的資料結構 (可能有 success_response 包裝)
+  if (result.success_response) {
+    console.log('檢測到 success_response 包裝，解包中...');
+    return result.success_response;
+  }
+
+  // 處理錯誤回應
+  if (result.error_response) {
+    console.error('檢測到 error_response:', result.error_response);
+    throw new Error(result.error_response.error || '換專家失敗');
+  }
+
+  return result;
+}
+
 /**
  * 從 Supabase 根據 story_ids 獲取新聞資料（輔助函數）
  */

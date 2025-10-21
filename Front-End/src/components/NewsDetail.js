@@ -188,12 +188,6 @@ function NewsDetail() {
               : expert
           )
         );
-
-        // 顯示成功訊息
-        const message = expertsToRegenerate.length === 1 
-          ? '專家已成功更換!' 
-          : '所有專家已成功更換!';
-        alert(message);
       } else {
         console.error('❌ API 回傳格式錯誤');
         console.error('完整 result:', JSON.stringify(result, null, 2));
@@ -202,7 +196,6 @@ function NewsDetail() {
     } catch (error) {
       console.error('❌ 更換專家失敗:', error);
       console.error('錯誤堆疊:', error.stack);
-      alert(`更換專家失敗: ${error.message}`);
     } finally {
       // 移除所有生成標記
       const regenerateIds = expertsToRegenerate.map(e => e.analyze_id);
@@ -331,17 +324,9 @@ function NewsDetail() {
         );
       }
 
-      // 顯示結果訊息
-      if (failedResults.length === 0) {
-        alert('所有專家已成功更換!');
-      } else {
-        alert(`部分專家更換成功 (${successResults.length}/${results.length})\n失敗: ${failedResults.map(r => r.error).join(', ')}`);
-      }
-
     } catch (error) {
       console.error('❌ 批量更換專家失敗:', error);
       console.error('錯誤堆疊:', error.stack);
-      alert(`批量更換專家失敗: ${error.message}`);
     } finally {
       // 清除所有生成標記
       setGeneratingExperts(new Set());

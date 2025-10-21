@@ -68,6 +68,8 @@ class SupabaseClient:
                 articles_response = self.client.table('cleaned_news').select('*').eq('story_id', story_id).execute()
                 articles = articles_response.data
                 
+                
+                
                 current_article_count = len(articles)
                 logger.info(f"Story {story_id} 對應到 {current_article_count} 篇文章")
                 
@@ -84,6 +86,10 @@ class SupabaseClient:
                             logger.info(f"需要更新 Story {story_id} - 文章數變化 {existing_count} -> {current_article_count}")
                     else:
                         logger.info(f"新的 Story {story_id} - 需要生成摘要")
+                        
+                if len(articles) < 3:
+                    logger.info(f"跳過 Story {story_id} - 文章數少於 3 篇")
+                    should_process = False
                 
                 if not should_process:
                     continue
@@ -192,3 +198,7 @@ class SupabaseClient:
             logger.error(f"Supabase 連線測試失敗: {str(e)}")
             return False
     
+
+if __name__ == "__main__":
+    db_client = SupabaseClient("https://iiqimdwocmqtiudfezlh.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcWltZHdvY21xdGl1ZGZlemxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUwMTc4NzUsImV4cCI6MjA3MDU5Mzg3NX0.PnuFSVtc_gSO9kUcpUXjcIjd1OimjEq6tqBMT5qRgik")
+    db_client.get_stories_with_articles()
