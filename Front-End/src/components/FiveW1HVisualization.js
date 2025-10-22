@@ -1218,15 +1218,15 @@ createMainNodesOverview() {
             transform: scale(1.05);
           }
 
-          .node-center { fill: #e74c3c; stroke: #c0392b; stroke-width: 3px; }
+          .node-center { fill: #ffffffff; stroke: #34495e; stroke-width: 3px; }
           .node-5w1h { stroke: #34495e; stroke-width: 2px; }
-          .node-who { fill: #3498db; }
-          .node-what { fill: #2ecc71; }
-          .node-when { fill: #f39c12; }
-          .node-where { fill: #9b59b6; }
-          .node-why { fill: #e67e22; }
-          .node-how { fill: #1abc9c; }
-          .node-detail { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 1px; }
+          .node-who { fill: #4d555aff; }
+          .node-what { fill: #4d555aff; }
+          .node-when { fill: #4d555aff; }
+          .node-where { fill: #4d555aff; }
+          .node-why { fill: #4d555aff; }
+          .node-how { fill: #4d555aff; }
+          .node-detail { fill: #edecf1ff; stroke: #bdc3c7; stroke-width: 1px; }
 
           .link {
             stroke: #7f8c8d;
@@ -1237,19 +1237,19 @@ createMainNodesOverview() {
           }
 
           .link:hover { stroke-width: 3px; opacity: 1; }
-          .link-center { stroke: #e74c3c; stroke-width: 3px; }
+          .link-center { stroke: #34495e; stroke-width: 3px; }
 
-                     .text {
-             font-family: 'Arial', sans-serif;
-             font-size: 12px;
-             fill: #2c3e50;
-             text-anchor: middle;
-             pointer-events: none;
-             font-weight: 500;
-             opacity: 1 !important;
+          .text {
+            font-family: 'Arial', sans-serif;
+            font-size: 12px;
+            fill: #2c3e50;
+            text-anchor: middle;
+            pointer-events: none;
+            font-weight: 500;
+            opacity: 1 !important;
            }
 
-           .text-center { font-size: 16px; font-weight: bold; fill: white; }
+           .text-center { font-size: 16px; font-weight: bold; fill: #4d555aff; }
            .text-5w1h { font-size: 14px; font-weight: bold; fill: white; }
 
           .fivew1h-tooltip {
