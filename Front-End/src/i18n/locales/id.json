@@ -16,6 +16,12 @@
       "finance": "Bisnis & Keuangan",
       "health": "Kesehatan"
     },
+    "countries": {
+      "taiwan": "Taiwan",
+      "usa": "Amerika Serikat",
+      "japan": "Jepang",
+      "indonesia": "Indonesia"
+    },
     "search": {
       "placeholder": "Cari berita/kata kunci..."
     },
@@ -44,6 +50,7 @@
     "reporter": "Wartawan"
   },
   "categorySection": {
+    "news": "Berita",
     "title": "Berita Kategori",
     "newsTitle": "Berita {{category}}",
     "loading": "Memuat...",
@@ -303,11 +310,11 @@
   },
   "topicChat": {
     "title": "Diskusi Topik",
-    "subtitle": "Diskusikan '{{topicTitle}}' dengan Asisten AI",
+    "subtitle": "Diskusikan '{{topicTitle}}' dengan AI ahli",
     "close": "Tutup Obrolan",
     "welcome": {
       "title": "Selamat Datang di Ruang Diskusi Topik",
-      "description": "Diskusikan isu-isu terkait '{{topicTitle}}' dengan Asisten AI!"
+      "description": "Diskusikan isu-isu terkait '{{topicTitle}}' dengan AI ahli!"
     },
     "input": {
       "placeholder": "Masukkan pertanyaan atau sudut pandang Anda..."

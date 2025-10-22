@@ -16,6 +16,12 @@
       "finance": "Business & Finance",
       "health": "Health"
     },
+    "countries": {
+      "taiwan": "Taiwan",
+      "usa": "USA",
+      "japan": "Japan",
+      "indonesia": "Indonesia"
+    },
     "search": {
       "placeholder": "Search news/keywords..."
     },
@@ -43,6 +49,7 @@
     "reporter": "Reporter"
   },
   "categorySection": {
+    "news": "News",
     "title": "Category News",
     "newsTitle": "{{category}} News",
     "loading": "Loading...",
@@ -297,11 +304,11 @@
   },
   "topicChat":{
     "title": "Topic Discussion",
-    "subtitle": "Discuss \"{{topicTitle}}\" with AI assistant",
+    "subtitle": "Discuss \"{{topicTitle}}\" with AI experts",
     "close": "Close Chat",
     "welcome": {
       "title": "Welcome to Topic Discussion Room",
-      "description": "Discuss topics related to \"{{topicTitle}}\" with AI assistant!"
+      "description": "Discuss topics related to \"{{topicTitle}}\" with AI experts!"
     },
     "input": {
       "placeholder": "Enter your question or viewpoint..."

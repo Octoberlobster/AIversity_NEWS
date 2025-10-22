@@ -24,7 +24,6 @@ class ChatRoom:
             "Business & Finance": -1,
             "Health & Wellness": -1,
             "search": -1,
-            "topic": -1,
         }
 
         self.model_history = {
@@ -38,7 +37,6 @@ class ChatRoom:
             "Business & Finance": [],
             "Health & Wellness": [],
             "search": [],
-            "topic": [],
         }
 
     def create_model(self, category: str):
@@ -64,11 +62,11 @@ class ChatRoom:
         )
         return self.model_dict[category]
 
-    def chat(self, prompt: str, categories: list[str], id = None) -> list[dict]:
+    def chat(self, prompt: str, categories: list[str], id = None, topic_flag = False) -> list[dict]:
         """對指定分類的模型發送訊息"""
         responses = []
         for category in categories:
-            Knowledge_Base.set_knowledge_base(prompt, category, id)
+            Knowledge_Base.set_knowledge_base(prompt, category, id, topic_flag)
             model = self.create_model(category)
             response = model.send_message(message=prompt)
             # loop response.parsed.news_id and change the news_id with StoryMap

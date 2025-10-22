@@ -163,10 +163,13 @@
   background: #fff;
   box-shadow: 0 2px 12px rgba(30,58,138,0.04);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0.2rem 0.5rem;
   border-radius: 0 0 18px 18px;
+  min-height: 48px;
+  transition: all 0.3s ease;
 }
 @media (max-width: 700px) {
   .tagBarWrapper {
@@ -185,6 +188,85 @@
 @media (max-width: 700px) {
   .domainTagBar { gap: 0.5rem; }
 }
+
+/* 國家包裹容器 */
+.countryWrapper {
+  display: inline-block;
+}
+
+.countryLink {
+  cursor: pointer;
+  position: relative;
+}
+
+/* 分類下拉選單的外層包裹容器 */
+.categoryDropdownWrapper {
+  width: 100%;
+  min-height: 0;
+  position: relative;
+}
+
+/* 國家下拉選單容器 */
+.countryDropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* 分類下拉選單 */
+.categoryDropdown {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem;
+  margin-top: 0.5rem;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  animation: slideDown 0.3s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+  }
+}
+
+/* 分類連結 */
+.categoryLink {
+  background: transparent;
+  color: #1e3a8a;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.categoryLink:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.categoryLink:active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
 
 /* 類別標籤（Link） */
 .tagLink {

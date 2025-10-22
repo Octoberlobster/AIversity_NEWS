@@ -9,17 +9,59 @@ function Header() {
   const domains = useMemo(() => [
     { id: '/', label: t('header.menu.home'), path: '/'},
     { id: 'project', label: t('header.menu.specialReports'), path: '/special-reports'},
-    { id: 'abroad', label: t('header.menu.abroad'), path: '/abroad'},
-    { id: 'politics', label: t('header.menu.politics'), path: '/category/Politics' },
-    { id: 'taiwan', label: t('header.menu.taiwan'), path: '/category/Taiwan News' },
-    { id: 'international', label: t('header.menu.international'), path: '/category/International News' },
-    { id: 'scienceandtech', label: t('header.menu.scienceAndTech'), path: '/category/Science & Technology' },
-    { id: 'life', label: t('header.menu.life'), path: '/category/Lifestyle & Consumer' },
-    { id: 'sports', label: t('header.menu.sports'), path: '/category/Sports' },
-    { id: 'entertainment', label: t('header.menu.entertainment'), path: '/category/Entertainment' },
-    { id: 'finance', label: t('header.menu.finance'), path: '/category/Business & Finance' },
-    { id: 'health', label: t('header.menu.health'), path: '/category/Health & Wellness' },
   ], [t]);
+
+  // 定義類別的基本資料（不含路徑）
+  const categoryDefinitions = useMemo(() => [
+    { id: 'international', label: t('header.menu.international'), name: 'International News' },
+    { id: 'politics', label: t('header.menu.politics'), name: 'Politics' },
+    { id: 'scienceandtech', label: t('header.menu.scienceAndTech'), name: 'Science & Technology' },
+    { id: 'life', label: t('header.menu.life'), name: 'Lifestyle & Consumer' },
+    { id: 'sports', label: t('header.menu.sports'), name: 'Sports' },
+    { id: 'entertainment', label: t('header.menu.entertainment'), name: 'Entertainment' },
+    { id: 'finance', label: t('header.menu.finance'), name: 'Business & Finance' },
+    { id: 'health', label: t('header.menu.health'), name: 'Health & Wellness' },
+  ], [t]);
+  
+  // 定義國家及其分類
+  const countries = useMemo(() => [
+    {
+      id: 'taiwan',
+      label: t('header.countries.taiwan'),
+      dbName: 'Taiwan',
+      categories: categoryDefinitions.map(cat => ({
+        ...cat,
+        path: `/category/Taiwan/${cat.name}`
+      }))
+    },
+    {
+      id: 'usa',
+      label: t('header.countries.usa'),
+      dbName: 'United States of America',
+      categories: categoryDefinitions.map(cat => ({
+        ...cat,
+        path: `/category/United States of America/${cat.name}`
+      }))
+    },
+    {
+      id: 'japan',
+      label: t('header.countries.japan'),
+      dbName: 'Japan',
+      categories: categoryDefinitions.map(cat => ({
+        ...cat,
+        path: `/category/Japan/${cat.name}`
+      }))
+    },
+    {
+      id: 'indonesia',
+      label: t('header.countries.indonesia'),
+      dbName: 'Indonesia',
+      categories: categoryDefinitions.map(cat => ({
+        ...cat,
+        path: `/category/Indonesia/${cat.name}`
+      }))
+    },
+  ], [t, categoryDefinitions]);
 
   // 定義語言選單陣列，使用 i18n 翻譯
   const languages = [
@@ -31,6 +73,7 @@ function Header() {
 
   const [activeDomain, setActiveDomain] = useState(domains[0].id);
   const [search, setSearch] = useState('');
+  const [hoveredCountry, setHoveredCountry] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -146,6 +189,39 @@ function Header() {
               {domain.label}
             </Link>
           ))}
+          
+          {countries.map((country) => (
+            <Link
+              key={country.id}
+              to={`/${selectedLanguage}/category/${country.dbName}`}
+              className="tagLink countryLink"
+              onMouseEnter={() => setHoveredCountry(country.id)}
+            >
+              {country.label}
+            </Link>
+          ))}
+        </div>
+        
+        <div 
+          className="categoryDropdownWrapper"
+          onMouseLeave={() => setHoveredCountry(null)}
+        >
+          {hoveredCountry && (
+            <div className="categoryDropdown">
+              {countries
+                .find((country) => country.id === hoveredCountry)
+                ?.categories.map((category) => (
+                  <Link
+                    key={category.id}
+                    to={`/${selectedLanguage}${category.path}`}
+                    className="categoryLink"
+                    onClick={() => setActiveDomain(category.id)}
+                  >
+                    {category.label}
+                  </Link>
+                ))}
+            </div>
+          )}
         </div>
       </div>
     </header>

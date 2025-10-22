@@ -18,6 +18,12 @@ function TermTooltip({ term, definition, example: exampleFromDB, position, onClo
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  // Google 搜尋功能
+  const handleGoogleSearch = () => {
+    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(term)}`;
+    window.open(searchUrl, '_blank', 'noopener,noreferrer');
+  };
   
   // 優先使用資料庫的範例，如果沒有則使用預設範例
   const getFinalExample = () => {
@@ -45,9 +51,24 @@ function TermTooltip({ term, definition, example: exampleFromDB, position, onClo
       >
         <div className="tooltipHeader">
           <h3 className="termTitle" id="term-tooltip-title">{term}</h3>
-          <button type="button" className="closeButton" onClick={onClose} aria-label="關閉">
-            ×
-          </button>
+          <div className="headerButtons">
+            <button 
+              type="button" 
+              className="googleSearchButton" 
+              onClick={handleGoogleSearch}
+              aria-label="在 Google 搜尋"
+              title="在 Google 搜尋"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="M21 21l-4.35-4.35"></path>
+              </svg>
+              <span>Google搜尋</span>
+            </button>
+            <button type="button" className="closeButton" onClick={onClose} aria-label="關閉">
+              ×
+            </button>
+          </div>
         </div>
 
         <p className="definition" id="term-tooltip-definition">{definition}</p>

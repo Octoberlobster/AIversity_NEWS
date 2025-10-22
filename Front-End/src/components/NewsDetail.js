@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import './../css/NewsDetail.css';
 import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
+import { getOrCreateUserId, createRoomId } from './utils.js';
 import { useSupabase } from './supabase';
-import { useLanguageFields } from '../utils/useLanguageFields';
+import { useLanguageFields} from '../utils/useLanguageFields';
+import { changeExperts as changeExpertsAPI } from './api.js';
 
 // 從資料庫動態載入術語定義的函數
 const loadTermDefinitions = async (supabase) => {
@@ -43,7 +45,6 @@ function NewsDetail() {
   // 多語言相關 hooks
   const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
   const currentLanguage = getCurrentLanguage();
-  // 移除了 showLongContent state，直接顯示完整內容
   const [tooltipTerm, setTooltipTerm] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [showAllSources, setShowAllSources] = useState(false);
@@ -51,6 +52,7 @@ function NewsDetail() {
   const [newsImage, setNewsImage] = useState(null);
   const [newsUrl, setNewsUrl] = useState(null);
   const [newsKeywords, setNewsKeywords] = useState([]);
+  const [highlights, setHighlights] = useState([]);
   const [termDefinitions, setTermDefinitions] = useState({});
   const [newsTerms, setNewsTerms] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
@@ -62,6 +64,8 @@ function NewsDetail() {
   const [showContent, setShowContent] = useState('loading'); // 'loading', 'position', 'expert', 'none'
   const [isChatOpen, setIsChatOpen] = useState(false); // 聊天室開關狀態
   const [chatExperts, setChatExperts] = useState([null]); // 聊天室選擇的專家
+  const [generatingExperts, setGeneratingExperts] = useState(new Set()); // 正在生成的專家 ID
+  const [batchGenerating, setBatchGenerating] = useState(false); // 批量生成中
   
   // 正反方立場彈窗相關狀態
   const [showPositionModal, setShowPositionModal] = useState(false);
@@ -96,6 +100,239 @@ function NewsDetail() {
   const closeModal = () => {
     setShowPositionModal(false);
     setModalContent({ type: '', content: '' });
+  };
+
+  // 語言代碼映射 (前端 -> 後端)
+  const mapLanguageCode = (frontendLang) => {
+    const languageMap = {
+      'zh-TW': 'zh-TW',
+      'en': 'en-US',
+      'jp': 'ja-JP',
+      'id': 'id-ID'
+    };
+    return languageMap[frontendLang] || 'zh-TW';
+  };
+
+  // 通用的專家更換函數 - 支援單個或批量更換
+  const changeExperts = async (expertsToRegenerate) => {
+    try {
+      console.log('=== 開始更換專家流程 ===');
+      console.log('要更換的專家:', expertsToRegenerate);
+      
+      // 標記正在生成的專家
+      const regenerateIds = expertsToRegenerate.map(e => e.analyze_id);
+      setGeneratingExperts(prev => new Set([...prev, ...regenerateIds]));
+
+      // 生成或取得 user_id 和 room_id
+      const userId = getOrCreateUserId();
+      const roomId = createRoomId(userId, id);
+      console.log('userId:', userId);
+      console.log('roomId:', roomId);
+      console.log('storyId:', id);
+      console.log('language:', mapLanguageCode(currentLanguage));
+
+      // 準備當前專家資料
+      const currentExperts = expertAnalysis.map(expert => ({
+        analyze_id: expert.analyze_id,
+        category: expert.category,
+        analyze: expert.analyze
+      }));
+      console.log('當前所有專家:', currentExperts);
+
+      // 呼叫 api.js 中的函數
+      console.log('準備呼叫 changeExpertsAPI...');
+      const result = await changeExpertsAPI(
+        userId,
+        roomId,
+        id,
+        mapLanguageCode(currentLanguage),
+        currentExperts,
+        expertsToRegenerate
+      );
+
+      console.log('=== 收到 API 回傳結果 ===');
+      console.log('result:', result);
+      console.log('result.success:', result.success);
+      console.log('result.experts:', result.experts);
+      console.log('result.replaced_ids:', result.replaced_ids);
+
+      if (result.success && result.experts && result.experts.length > 0) {
+        console.log('✅ API 呼叫成功，開始更新狀態');
+        
+        // 建立新專家的映射表 (用 replaced_ids 來對應)
+        const newExpertsMap = new Map();
+        if (result.replaced_ids && result.replaced_ids.length === result.experts.length) {
+          result.replaced_ids.forEach((oldId, index) => {
+            newExpertsMap.set(oldId, result.experts[index]);
+            console.log(`映射: ${oldId} → ${result.experts[index].analyze_id}`);
+          });
+        }
+        
+        console.log('新專家映射表:', newExpertsMap);
+        
+        // 更新專家分析狀態
+        setExpertAnalysis(prevExperts => {
+          const updated = prevExperts.map(expert => 
+            newExpertsMap.has(expert.analyze_id) 
+              ? newExpertsMap.get(expert.analyze_id) 
+              : expert
+          );
+          console.log('更新後的 expertAnalysis:', updated);
+          return updated;
+        });
+
+        // 同步更新聊天室專家狀態
+        setChatExperts(prevExperts => 
+          prevExperts.map(expert => 
+            expert && newExpertsMap.has(expert.analyze_id)
+              ? newExpertsMap.get(expert.analyze_id)
+              : expert
+          )
+        );
+      } else {
+        console.error('❌ API 回傳格式錯誤');
+        console.error('完整 result:', JSON.stringify(result, null, 2));
+        throw new Error('API 回傳資料格式錯誤');
+      }
+    } catch (error) {
+      console.error('❌ 更換專家失敗:', error);
+      console.error('錯誤堆疊:', error.stack);
+    } finally {
+      // 移除所有生成標記
+      const regenerateIds = expertsToRegenerate.map(e => e.analyze_id);
+      setGeneratingExperts(prev => {
+        const newSet = new Set(prev);
+        regenerateIds.forEach(id => newSet.delete(id));
+        return newSet;
+      });
+      console.log('=== 更換專家流程結束 ===');
+    }
+  };
+
+  // 處理更換單個專家
+  const handleChangeExpert = async (analyzeId, category) => {
+    // 防止重複生成
+    if (generatingExperts.has(analyzeId) || batchGenerating) {
+      return;
+    }
+
+    // 呼叫通用函數,傳入單個專家的陣列
+    await changeExperts([
+      {
+        analyze_id: analyzeId,
+        category: category
+      }
+    ]);
+  };
+
+  // 處理換一批專家 (平行發送多個 API 請求)
+  const handleRefreshAllExperts = async () => {
+    if (batchGenerating || expertAnalysis.length === 0 || generatingExperts.size > 0) {
+      return;
+    }
+
+    try {
+      console.log('=== 開始批量更換所有專家 ===');
+      setBatchGenerating(true);
+
+      // 標記所有專家為生成中
+      const allExpertIds = expertAnalysis.map(e => e.analyze_id);
+      setGeneratingExperts(new Set(allExpertIds));
+
+      // 生成或取得 user_id 和 room_id
+      const userId = getOrCreateUserId();
+      const roomId = createRoomId(userId, id);
+
+      // 準備當前專家資料
+      const currentExperts = expertAnalysis.map(expert => ({
+        analyze_id: expert.analyze_id,
+        category: expert.category,
+        analyze: expert.analyze
+      }));
+
+      // 🧠 1️⃣ 為每個專家建立單獨的 API 請求
+      const fetchSingleExpert = async (expert) => {
+        console.log(`正在更換專家: ${expert.category} (${expert.analyze_id})`);
+        
+        return changeExpertsAPI(
+          userId,
+          roomId,
+          id,
+          mapLanguageCode(currentLanguage),
+          currentExperts,
+          [{
+            analyze_id: expert.analyze_id,
+            category: expert.category
+          }]
+        )
+          .then((result) => {
+            console.log(`✅ 專家 ${expert.category} 更換成功:`, result);
+            return {
+              success: true,
+              oldId: expert.analyze_id,
+              newExpert: result.success_response?.experts?.[0] || result.experts?.[0],
+            };
+          })
+          .catch((error) => {
+            console.error(`❌ 專家 ${expert.category} 更換失敗:`, error);
+            return {
+              success: false,
+              oldId: expert.analyze_id,
+              error: error.message,
+            };
+          });
+      };
+
+      // 🧠 2️⃣ 平行發送所有請求
+      console.log('平行發送 API 請求...');
+      const allPromises = expertAnalysis.map(fetchSingleExpert);
+      const results = await Promise.all(allPromises);
+
+      console.log('所有 API 請求完成:', results);
+
+      // 🧠 3️⃣ 處理結果並更新狀態
+      const successResults = results.filter(r => r.success);
+
+      if (successResults.length > 0) {
+        // 建立新專家的映射表
+        const newExpertsMap = new Map();
+        successResults.forEach(({ oldId, newExpert }) => {
+          if (newExpert) {
+            newExpertsMap.set(oldId, newExpert);
+            console.log(`映射: ${oldId} → ${newExpert.analyze_id}`);
+          }
+        });
+
+        // 更新專家分析狀態
+        setExpertAnalysis(prevExperts => {
+          const updated = prevExperts.map(expert =>
+            newExpertsMap.has(expert.analyze_id)
+              ? newExpertsMap.get(expert.analyze_id)
+              : expert
+          );
+          console.log('批量更新後的 expertAnalysis:', updated);
+          return updated;
+        });
+
+        // 同步更新聊天室專家狀態
+        setChatExperts(prevExperts =>
+          prevExperts.map(expert =>
+            expert && newExpertsMap.has(expert.analyze_id)
+              ? newExpertsMap.get(expert.analyze_id)
+              : expert
+          )
+        );
+      }
+
+    } catch (error) {
+      console.error('❌ 批量更換專家失敗:', error);
+      console.error('錯誤堆疊:', error.stack);
+    } finally {
+      // 清除所有生成標記
+      setGeneratingExperts(new Set());
+      setBatchGenerating(false);
+      console.log('=== 批量更換專家流程結束 ===');
+    }
   };
 
   // 確保頁面載入時滾動到頂部，語言切換時也要重置
@@ -394,6 +631,51 @@ function NewsDetail() {
     fetchNewsImage();
   }, [id, supabaseClient, currentLanguage, getFieldName]); // 語言改變時重新載入
 
+  // 載入 highlight（重點）資料 - 支援多語言
+  useEffect(() => {
+    const fetchHighlights = async () => {
+      if (!id || !supabaseClient) return;
+
+      try {
+        const multiLangFields = ['highlight'];
+        const selectFields = getMultiLanguageSelect(multiLangFields);
+
+        const { data, error } = await supabaseClient
+          .from('highlight')
+          .select(selectFields)
+          .eq('story_id', id);
+
+        // log raw response for debugging
+        console.log('fetchHighlights response for story', id, { selectFields, data, error });
+        console.log('highlights data:', data);
+
+        if (error) {
+          console.error(`Error fetching highlights for story ${id}:`, error);
+          setHighlights([]);
+          return;
+        }
+
+        const row = data?.[0];
+        if (!row) {
+          setHighlights([]);
+          return;
+        }
+
+        const raw = row[getFieldName('highlight')] || row.highlight || [];
+        // 如果 raw 是陣列，直接使用；如果是物件且有 highlight 屬性，則使用該屬性
+        const highlightArray = Array.isArray(raw) ? raw : (raw.highlight || []);
+        console.log('processed highlights array:', highlightArray);
+        setHighlights(highlightArray);
+      } catch (error) {
+        console.error(`Error fetching highlights for story ${id}:`, error);
+        setHighlights([]);
+      }
+
+    };
+
+    fetchHighlights();
+  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]);
+
   // 載入新聞來源 URL
   useEffect(() => {
     const fetchNewsUrl = async () => {
@@ -627,30 +909,136 @@ function NewsDetail() {
       : null;
     const seenTerms = new Set(); // 記錄已經高亮過的 terms
 
-    const highlightTermsInLine = (line) => {
-      if (!termsPattern) return line;
+    // 創建 highlights 的正則表達式模式
+    const highlightsPattern = highlights.length
+      ? new RegExp(`(${highlights.map(escapeReg).join('|')})`, 'g')
+      : null;
+    
+    // 調試信息
+    console.log('highlights for rendering:', highlights);
+    console.log('highlightsPattern:', highlightsPattern);
 
-      return line.split(termsPattern).map((part, i) => {
-        if (terms.includes(part)) {
-          // 只有第一次出現的 term 才高亮
-          if (!seenTerms.has(part)) {
-            seenTerms.add(part);
+    const highlightTermsInLine = (line) => {
+      if (!termsPattern && !highlightsPattern) return line;
+
+      // 先處理 highlights（畫重點）
+      let processedLine = line;
+      if (highlightsPattern) {
+        processedLine = processedLine.split(highlightsPattern).map((part, i) => {
+          if (highlights.includes(part)) {
             return (
-              <strong
-                key={`term-${i}`}
-                className="term term--clickable"
-                onClick={(e) => handleTermClick(part, e)}
+              <mark
+                key={`highlight-${i}`}
+                className="highlight-text"
               >
                 {part}
-              </strong>
+              </mark>
             );
-          } else {
-            // 已經出現過的 term 不高亮
-            return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
           }
-        }
-        return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
-      });
+          return <React.Fragment key={`highlight-txt-${i}`}>{part}</React.Fragment>;
+        });
+      }
+
+      // 再處理 terms（術語）
+      if (termsPattern && Array.isArray(processedLine)) {
+        processedLine = processedLine.map((part, partIndex) => {
+          if (React.isValidElement(part)) {
+            // 如果已經是 React 元素（highlight），需要檢查其內容是否包含術語
+            const highlightText = part.props.children;
+            if (typeof highlightText === 'string') {
+              // 檢查 highlight 文字中是否包含術語
+              const hasTerms = terms.some(term => highlightText.includes(term));
+              if (hasTerms) {
+                // 如果包含術語，需要重新處理這個 highlight 文字
+                // 保持整個 highlight 為一個連續的方框
+                const processedParts = highlightText.split(termsPattern).map((termPart, termIndex) => {
+                  if (terms.includes(termPart)) {
+                    // 只有第一次出現的 term 才高亮
+                    if (!seenTerms.has(termPart)) {
+                      seenTerms.add(termPart);
+                      return (
+                        <strong
+                          key={`highlight-term-${partIndex}-${termIndex}`}
+                          className="term term--clickable"
+                          onClick={(e) => handleTermClick(termPart, e)}
+                        >
+                          {termPart}
+                        </strong>
+                      );
+                    } else {
+                      // 已經出現過的 term 不高亮
+                      return <React.Fragment key={`highlight-text-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
+                    }
+                  }
+                  // 非術語部分
+                  return <React.Fragment key={`highlight-text-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
+                });
+                
+                // 用一個連續的 mark 包裝所有內容
+                return (
+                  <mark
+                    key={`highlight-container-${partIndex}`}
+                    className="highlight-text"
+                  >
+                    {processedParts}
+                  </mark>
+                );
+              }
+            }
+            // 如果不包含術語，直接返回原 highlight
+            return part;
+          }
+          
+          // 處理文字部分中的術語
+          const textContent = typeof part === 'string' ? part : String(part);
+          return textContent.split(termsPattern).map((termPart, termIndex) => {
+            if (terms.includes(termPart)) {
+              // 只有第一次出現的 term 才高亮
+              if (!seenTerms.has(termPart)) {
+                seenTerms.add(termPart);
+                return (
+                  <strong
+                    key={`term-${partIndex}-${termIndex}`}
+                    className="term term--clickable"
+                    onClick={(e) => handleTermClick(termPart, e)}
+                  >
+                    {termPart}
+                  </strong>
+                );
+              } else {
+                // 已經出現過的 term 不高亮
+                return <React.Fragment key={`term-txt-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
+              }
+            }
+            return <React.Fragment key={`term-txt-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
+          });
+        });
+      } else if (termsPattern && typeof processedLine === 'string') {
+        // 如果沒有 highlights，直接處理術語
+        processedLine = processedLine.split(termsPattern).map((part, i) => {
+          if (terms.includes(part)) {
+            // 只有第一次出現的 term 才高亮
+            if (!seenTerms.has(part)) {
+              seenTerms.add(part);
+              return (
+                <strong
+                  key={`term-${i}`}
+                  className="term term--clickable"
+                  onClick={(e) => handleTermClick(part, e)}
+                >
+                  {part}
+                </strong>
+              );
+            } else {
+              // 已經出現過的 term 不高亮
+              return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
+            }
+          }
+          return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
+        });
+      }
+
+      return processedLine;
     };
 
     // 渲染：每段用 <p> 包起來，段內單行換行 → <br/>
@@ -830,18 +1218,47 @@ function NewsDetail() {
               </div>
             ) : showContent === 'expert' ? (
               <div className="expertAnalysisSection">
-                <h4 className="expertAnalysisTitle">{t('newsDetail.expertAnalysis.title')}</h4>
+                <div className="expertAnalysisTitleBar">
+                  <h4 className="expertAnalysisTitle">{t('newsDetail.expertAnalysis.title')}</h4>
+                  <button 
+                    className="refreshAllExpertsBtn"
+                    onClick={handleRefreshAllExperts}
+                    disabled={batchGenerating || generatingExperts.size > 0}
+                    title="重新生成所有專家觀點"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" 
+                         className={batchGenerating ? 'rotating' : ''}>
+                      <path d="M1 4v6h6M23 20v-6h-6" />
+                      <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                    </svg>
+                    {batchGenerating ? '生成中...' : '換一批'}
+                  </button>
+                </div>
                 <div className="expertAnalysisContent">
                   {expertAnalysis && expertAnalysis.length > 0 ? (
                     expertAnalysis.map((analysis, index) => {
+                      const isGenerating = generatingExperts.has(analysis.analyze_id);
                       
                       return (
                         <div className="analysisItem" key={analysis.analyze_id || index}>
-                          {
+                          <div className="analysisHeader">
                             <div className="analysisCategory">
                               <span className="categoryTag">{analysis.analyze.Role}</span>
                             </div>
-                          }
+                            <button 
+                              className="changeExpertBtn"
+                              onClick={() => handleChangeExpert(analysis.analyze_id, analysis.category)}
+                              disabled={isGenerating || batchGenerating}
+                              title="更換專家觀點"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                   className={isGenerating ? 'rotating' : ''}>
+                                <path d="M1 4v6h6M23 20v-6h-6" />
+                                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                              </svg>
+                              {isGenerating ? '生成中...' : '換專家'}
+                            </button>
+                          </div>
                           <div className="analysisText">
                             {analysis.analyze.Analyze}
                           </div>

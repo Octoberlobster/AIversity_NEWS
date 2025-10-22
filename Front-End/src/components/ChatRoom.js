@@ -235,7 +235,7 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
     const expert = experts.find((e) => e.id === expertId);
     return {
       id: Date.now() + expertId,
-      text: `${expert.name}：${expertReplies[expertId]}`,
+      text: `**${expert.name}：**\n\n${expertReplies[expertId]}`,
       isOwn: false,
       time: getFormattedTime(),
     };
@@ -292,8 +292,11 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
         const expertId = selectedExperts[index];
         const expertName = experts.find((e) => e.id === expertId).name;
 
+        // 將字串中的 \n 轉換成真正的換行符
+        const formattedReply = reply.replace(/\\n/g, '\n');
+
         const expertReply = makeExpertReply(expertId);
-        expertReply.text = `${expertName}：${reply}`;
+        expertReply.text = `${expertName}：${formattedReply}`;
         expertReply.time = getFormattedTime();
 
         // 模擬回覆延遲
@@ -400,8 +403,11 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
         const expertId = selectedExperts[index];
         const expertName = experts.find((e) => e.id === expertId).name;
 
+        // 將字串中的 \n 轉換成真正的換行符
+        const formattedReply = reply.replace(/\\n/g, '\n');
+
         const expertReply = makeExpertReply(expertId);
-        expertReply.text = `${expertName}：${reply}`;
+        expertReply.text = `${expertName}：${formattedReply}`;
         expertReply.time = getFormattedTime();
 
         // 模擬輸出延遲，讓畫面看起來自然

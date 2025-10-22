@@ -11,7 +11,7 @@ import KeywordNewsPage from './components/KeywordNewsPage';
 import SearchResultsPage from './components/SearchResultsPage';
 import SpecialReportPage from './components/SpecialReportPage';
 import SpecialReportDetail from './components/SpecialReportDetail';
-import AdminDashboard from './components/admin/AdminDashboard';
+//import AdminDashboard from './components/admin/AdminDashboard';
 import AbroadNewsPage from './components/AbroadNewsPage';
 import { SupabaseProvider } from './components/supabase';
 import './i18n'; 
@@ -49,7 +49,7 @@ function HomePage() {
           <h2 className="sectionTitle">
             {t('home.latestNews')}
           </h2>
-          <UnifiedNewsCard instanceId="main_news_list" />
+          <UnifiedNewsCard instanceId="main_news_list" showTaiwanOnly={true} />
         </div>
       </div>
     </>
@@ -65,7 +65,7 @@ function App() {
           <Route path="/" element={<Navigate to="/zh-TW/" replace />} />
           
           {/* 管理後台路由 - 獨立介面 */}
-          <Route path="/admin/*" element={<AdminDashboard />} />
+          {/*<Route path="/admin/*" element={<AdminDashboard />} />*/}
           
           {/* 多語言路由 */}
           {["zh-TW", "en", "jp", "id"].map(lang => (
@@ -78,15 +78,19 @@ function App() {
               <Route path="news/:id" element={<NewsDetail />} />
               <Route path="keyword/:keyword" element={<KeywordNewsPage />} />
               <Route path="search/:query" element={<SearchResultsPage />} />
-              <Route path="category/Politics" element={<CategorySection category="政治" />} />
-              <Route path="category/Taiwan News" element={<CategorySection category="台灣" />} />
-              <Route path="category/International News" element={<CategorySection category="國際" />} />
-              <Route path="category/Science & Technology" element={<CategorySection category="科學與科技" />} />
-              <Route path="category/Lifestyle & Consumer" element={<CategorySection category="生活" />} />
-              <Route path="category/Sports" element={<CategorySection category="體育" />} />
-              <Route path="category/Entertainment" element={<CategorySection category="娛樂" />} />
-              <Route path="category/Business & Finance" element={<CategorySection category="商業財經" />} />
-              <Route path="category/Health & Wellness" element={<CategorySection category="健康" />} />
+              
+              {/* 國家路由 - 顯示該國所有新聞 */}
+              <Route path="category/Taiwan" element={<CategorySection country="Taiwan" />} />
+              <Route path="category/United States of America" element={<CategorySection country="USA" />} />
+              <Route path="category/Japan" element={<CategorySection country="Japan" />} />
+              <Route path="category/Indonesia" element={<CategorySection country="Indonesia" />} />
+              
+              {/* 國家+類別路由 - 顯示該國特定類別的新聞 */}
+              <Route path="category/Taiwan/:categoryName" element={<CategorySection country="Taiwan" />} />
+              <Route path="category/United States of America/:categoryName" element={<CategorySection country="USA" />} />
+              <Route path="category/Japan/:categoryName" element={<CategorySection country="Japan" />} />
+              <Route path="category/Indonesia/:categoryName" element={<CategorySection country="Indonesia" />} />
+              
               <Route path="special-reports" element={<SpecialReportPage />} />
               <Route path="special-report/:id" element={<SpecialReportDetail />} />
               <Route path="abroad" element={<AbroadNewsPage />} />

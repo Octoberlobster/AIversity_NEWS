@@ -6,7 +6,7 @@ import { useSupabase } from "./supabase";
 import { newsCache, imageCache } from "./utils/cache";
 import { useLanguageFields } from '../utils/useLanguageFields';
 
-function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
+function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, showTaiwanOnly = false }) {
   const [newsData, setNewsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
@@ -30,34 +30,88 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
         data = customData;
       } else {
         // 檢查快取
-        const cacheKey = `news_initial_${ITEMS_PER_PAGE}`;
+        const cacheKey = `news_initial_${ITEMS_PER_PAGE}_${showTaiwanOnly ? 'taiwan' : 'all'}`;
         const cachedData = newsCache.get(cacheKey);
         
         if (cachedData) {
           setNewsData(cachedData);
           setCurrentPage(1);
-          setHasMore(cachedData.length === ITEMS_PER_PAGE); // 從快取載入時，customData 一定是 undefined
+          setHasMore(cachedData.length === ITEMS_PER_PAGE);
           setIsLoading(false);
           return;
         }
 
         const newsMultiLangFields = getMultiLanguageSelect(["news_title", "ultra_short"]);
 
-        const { data: fetchedData, error } = await supabaseClient
-          .from("single_news")
-          .select(`story_id, generated_date, ${newsMultiLangFields}`)
-          .order("generated_date", { ascending: false })
-          .limit(ITEMS_PER_PAGE);
+        let fetchedData;
+        
+        if (showTaiwanOnly) {
+          // 首頁模式：先從 stories 表獲取 Taiwan 的 story_id
+          console.log('首頁模式：載入臺灣新聞...');
+          
+          // 第一步：從 stories 獲取 Taiwan 的 story_id
+          const { data: taiwanStories, error: storiesError } = await supabaseClient
+            .from('stories')
+            .select('story_id')
+            .or('country.eq.Taiwan,country.eq.taiwan')
+            .order('story_id', { ascending: false })
+            .limit(ITEMS_PER_PAGE * 3); // 多拿一些以防某些 story_id 在 single_news 中不存在
 
-        if (error) {
-          console.error("Error fetching news:", error);
-          setIsLoading(false);
-          return;
+          if (storiesError) {
+            console.error('Error fetching Taiwan stories:', storiesError);
+            setIsLoading(false);
+            return;
+          }
+
+          console.log(`從 stories 獲取到 ${taiwanStories.length} 個臺灣 story_id`);
+
+          if (!taiwanStories || taiwanStories.length === 0) {
+            console.warn('沒有找到臺灣的新聞');
+            setNewsData([]);
+            setHasMore(false);
+            setIsLoading(false);
+            return;
+          }
+
+          // 第二步：根據 story_id 從 single_news 獲取新聞內容
+          const taiwanStoryIds = taiwanStories.map(s => s.story_id);
+          
+          const { data: newsData, error: newsError } = await supabaseClient
+            .from('single_news')
+            .select(`story_id, generated_date, ${newsMultiLangFields}`)
+            .in('story_id', taiwanStoryIds)
+            .order('generated_date', { ascending: false })
+            .limit(ITEMS_PER_PAGE);
+
+          if (newsError) {
+            console.error('Error fetching Taiwan news from single_news:', newsError);
+            setIsLoading(false);
+            return;
+          }
+
+          console.log(`從 single_news 獲取到 ${newsData?.length || 0} 筆臺灣新聞`);
+          fetchedData = newsData;
+          
+        } else {
+          // 一般模式：直接從 single_news 獲取所有新聞
+          const { data: newsData, error } = await supabaseClient
+            .from("single_news")
+            .select(`story_id, generated_date, ${newsMultiLangFields}`)
+            .order("generated_date", { ascending: false })
+            .limit(ITEMS_PER_PAGE);
+
+          if (error) {
+            console.error("Error fetching news:", error);
+            setIsLoading(false);
+            return;
+          }
+          fetchedData = newsData;
         }
+        
         data = fetchedData;
       }
 
-      // 批量獲取所有新聞的圖片 - 優化性能
+      // 批量獲取所有新聞的圖片 - 分批查詢以避免過載
       const storyIds = data.map(news => news.story_id);
       
       // 檢查圖片快取
@@ -71,59 +125,99 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
           uncachedStoryIds.push(storyId);
         }
       });
+      
+      console.log(`[ImageCache] Total: ${storyIds.length}, Cached: ${Object.keys(cachedImages).length}, Need to fetch: ${uncachedStoryIds.length}`);
 
-      // 只查詢未快取的圖片
-      let imageMap = { ...cachedImages };
-      if (uncachedStoryIds.length > 0) {
-        const { data: imagesData, error: imagesError } = await supabaseClient
-          .from('generated_image')
-          .select('story_id, image')
-          .in('story_id', uncachedStoryIds);
-
-        if (!imagesError && imagesData) {
-          imagesData.forEach(imageItem => {
-            if (!imageMap[imageItem.story_id] && imageItem.image) {
-              // 清理 base64 字串，移除可能的換行符和空白字符
-              const cleanBase64 = imageItem.image.replace(/\s/g, '');
-              // 將純 base64 字串轉換為完整的 data URL
-              const imageUrl = `data:image/png;base64,${cleanBase64}`;
-              
-              imageMap[imageItem.story_id] = imageUrl;
-              // 快取圖片
-              imageCache.set(`image_${imageItem.story_id}`, imageUrl);
-            }
-          });
-        }
-      }
-
-      // 組合新聞資料與圖片
-      const enhancedData = data.map(news => ({
+      // 🎯 方案1: 先顯示文字內容,圖片用 placeholder
+      const initialData = data.map(news => ({
         ...news,
         title: news[getFieldName("news_title")] || news.news_title || news.title,
         shortSummary: news[getFieldName("ultra_short")] || news.ultra_short || news.shortSummary,
-        date: news.date || new Date(news.generated_date).toLocaleDateString("zh-TW"),
-        imageUrl: news.imageUrl || imageMap[news.story_id] || "/api/placeholder/300/200"
+        date: news.generated_date,
+        imageUrl: cachedImages[news.story_id] || "https://placehold.co/300x200/e5e7eb/9ca3af?text=載入中...",
+        isImageLoading: !cachedImages[news.story_id] // 標記圖片是否在載入中
       }));
 
-      // 快取結果
-      if (!customData) {
-        const cacheKey = `news_initial_${ITEMS_PER_PAGE}`;
-        newsCache.set(cacheKey, enhancedData);
-      }
-
-      setNewsData(enhancedData);
+      // 立即顯示內容 (文字 + placeholder)
+      setNewsData(initialData);
       setCurrentPage(1);
-      setHasMore(enhancedData.length === ITEMS_PER_PAGE && !customData); // 如果使用 customData，不允許載入更多
+      setHasMore(initialData.length === ITEMS_PER_PAGE && !customData);
+      setIsLoading(false); // 文字內容已載入,關閉載入狀態
       
       if (onNewsCountUpdate) {
-        onNewsCountUpdate(enhancedData.length);
+        onNewsCountUpdate(initialData.length);
+      }
+
+      // 🎯 方案3: 背景並行載入圖片,載入完成後逐步更新
+      if (uncachedStoryIds.length > 0) {
+        const CONCURRENT_LIMIT = 3; // 每次並行載入圖片數量
+        const DELAY_BETWEEN_BATCHES = 0; // 批次間延遲
+        
+        // 分批處理
+        for (let i = 0; i < uncachedStoryIds.length; i += CONCURRENT_LIMIT) {
+          const batch = uncachedStoryIds.slice(i, i + CONCURRENT_LIMIT);
+          
+          // 並行載入這一批的圖片
+          const batchPromises = batch.map(storyId => 
+            supabaseClient
+              .from('generated_image')
+              .select('story_id, image')
+              .eq('story_id', storyId)
+              .single()
+              .then(({ data, error }) => ({ data, error, storyId }))
+              .catch(error => ({ data: null, error, storyId }))
+          );
+          
+          // 等待這一批完成
+          const results = await Promise.allSettled(batchPromises);
+          
+          // 處理結果 - 每載入一張就立即更新對應卡片
+          results.forEach(result => {
+            if (result.status === 'fulfilled' && result.value.data && result.value.data.image) {
+              const imageItem = result.value.data;
+              const cleanBase64 = imageItem.image.replace(/\s/g, '');
+              const imageUrl = `data:image/png;base64,${cleanBase64}`;
+              
+              // 快取圖片
+              imageCache.set(`image_${imageItem.story_id}`, imageUrl);
+              
+              // 🌟 立即更新該新聞的圖片 (漸進式顯示)
+              setNewsData(prevData => 
+                prevData.map(news => 
+                  news.story_id === imageItem.story_id 
+                    ? { ...news, imageUrl, isImageLoading: false }
+                    : news
+                )
+              );
+            } else if (result.status === 'rejected' || result.value.error) {
+              console.error(`Error fetching image for story ${result.value?.storyId}:`, result.value?.error || result.reason);
+            }
+          });
+          
+          // 批次之間加入延遲 (除了最後一批)
+          if (i + CONCURRENT_LIMIT < uncachedStoryIds.length) {
+            await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_BATCHES));
+          }
+        }
+      }
+
+      // 快取結果 (在圖片載入完成後)
+      if (!customData) {
+        const cacheKey = `news_initial_${ITEMS_PER_PAGE}_${showTaiwanOnly ? 'taiwan' : 'all'}`;
+        // 注意: 延遲快取,確保圖片都載入完成
+        setTimeout(() => {
+          setNewsData(currentData => {
+            newsCache.set(cacheKey, currentData);
+            return currentData;
+          });
+        }, 1000);
       }
 
     } catch (error) {
       console.error("Error in loadInitialData:", error);
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [supabaseClient, customData, onNewsCountUpdate, ITEMS_PER_PAGE, getMultiLanguageSelect, getFieldName]);
+  }, [supabaseClient, customData, onNewsCountUpdate, ITEMS_PER_PAGE, getMultiLanguageSelect, getFieldName, showTaiwanOnly]);
 
   useEffect(() => {
     // 初始載入第一頁數據
@@ -142,58 +236,155 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
       
       console.log(`[loadMoreNews] Loading page ${nextPage}, offset: ${offset}`);
 
-      const { data: fetchedData, error } = await supabaseClient
-        .from("single_news")
-        .select(getMultiLanguageSelect("story_id, generated_date", ["news_title", "ultra_short"]))
-        .order("generated_date", { ascending: false })
-        .range(offset, offset + ITEMS_PER_PAGE - 1);
+      let fetchedData;
 
-      if (error) {
-        console.error("Error fetching more news:", error);
-        setIsLoading(false);
-        return;
+      if (showTaiwanOnly) {
+        // 首頁模式：先從 stories 獲取更多 Taiwan 的 story_id
+        console.log('首頁模式：載入更多臺灣新聞...');
+        
+        // 第一步：從 stories 獲取 Taiwan 的 story_id（跳過已載入的）
+        const { data: taiwanStories, error: storiesError } = await supabaseClient
+          .from('stories')
+          .select('story_id')
+          .or('country.eq.Taiwan,country.eq.taiwan')
+          .order('story_id', { ascending: false })
+          .range(offset, offset + ITEMS_PER_PAGE * 2 - 1); // 多拿一些以防某些 story_id 在 single_news 中不存在
+
+        if (storiesError) {
+          console.error('Error fetching more Taiwan stories:', storiesError);
+          setIsLoading(false);
+          return;
+        }
+
+        if (!taiwanStories || taiwanStories.length === 0) {
+          console.log('沒有更多臺灣新聞了');
+          setHasMore(false);
+          setIsLoading(false);
+          return;
+        }
+
+        // 第二步：根據 story_id 從 single_news 獲取新聞內容
+        const taiwanStoryIds = taiwanStories.map(s => s.story_id);
+        
+        const { data: newsData, error: newsError } = await supabaseClient
+          .from('single_news')
+          .select(getMultiLanguageSelect("story_id, generated_date", ["news_title", "ultra_short"]))
+          .in('story_id', taiwanStoryIds)
+          .order('generated_date', { ascending: false })
+          .limit(ITEMS_PER_PAGE);
+
+        if (newsError) {
+          console.error('Error fetching more Taiwan news from single_news:', newsError);
+          setIsLoading(false);
+          return;
+        }
+
+        fetchedData = newsData;
+      } else {
+        // 一般模式：直接從 single_news 獲取
+        const { data: newsData, error } = await supabaseClient
+          .from("single_news")
+          .select(getMultiLanguageSelect("story_id, generated_date", ["news_title", "ultra_short"]))
+          .order("generated_date", { ascending: false })
+          .range(offset, offset + ITEMS_PER_PAGE - 1);
+
+        if (error) {
+          console.error("Error fetching more news:", error);
+          setIsLoading(false);
+          return;
+        }
+
+        fetchedData = newsData;
       }
 
-      // 批量獲取新聞圖片
+      // 批量獲取新聞圖片 - 分批處理,每批最多3張圖片
       const storyIds = fetchedData.map(news => news.story_id);
-      const { data: imagesData, error: imagesError } = await supabaseClient
-        .from('generated_image')
-        .select('story_id, image')
-        .in('story_id', storyIds);
-
-      // 建立圖片映射表
-      const imageMap = {};
-      if (!imagesError && imagesData) {
-        imagesData.forEach(imageItem => {
-          if (!imageMap[imageItem.story_id] && imageItem.image) {
-            // 清理 base64 字串，移除可能的換行符和空白字符
-            const cleanBase64 = imageItem.image.replace(/\s/g, '');
-            // 將純 base64 字串轉換為完整的 data URL
-            imageMap[imageItem.story_id] = `data:image/png;base64,${cleanBase64}`;
-          }
-        });
-      }
-
-      // 組合新數據
-      const newEnhancedData = fetchedData.map(news => ({
+      
+      // 檢查圖片快取
+      const uncachedStoryIds = [];
+      const cachedImages = {};
+      storyIds.forEach(storyId => {
+        const cached = imageCache.get(`image_${storyId}`);
+        if (cached) {
+          cachedImages[storyId] = cached;
+        } else {
+          uncachedStoryIds.push(storyId);
+        }
+      });
+      
+      console.log(`[LoadMore ImageCache] Total: ${storyIds.length}, Cached: ${Object.keys(cachedImages).length}, Need to fetch: ${uncachedStoryIds.length}`);
+      
+      // 🎯 方案1: 先顯示新載入的文字內容
+      const initialNewData = fetchedData.map(news => ({
         ...news,
         title: news[getFieldName("news_title")] || news.news_title || news.title,
         shortSummary: news[getFieldName("ultra_short")] || news.ultra_short || news.shortSummary,
-        date: news.date || new Date(news.generated_date).toLocaleDateString("zh-TW"),
-        imageUrl: news.imageUrl || imageMap[news.story_id] || "/api/placeholder/300/200"
+        date: news.generated_date,
+        imageUrl: cachedImages[news.story_id] || "https://placehold.co/300x200/e5e7eb/9ca3af?text=載入中...",
+        isImageLoading: !cachedImages[news.story_id]
       }));
 
-      // 合併新數據到現有數據
-      console.log(`[loadMoreNews] Merging ${newEnhancedData.length} new items to existing ${newsData.length} items`);
-      console.log(`[loadMoreNews] New story_ids:`, newEnhancedData.map(n => n.story_id));
-      console.log(`[loadMoreNews] Existing story_ids:`, newsData.map(n => n.story_id));
-      
-      setNewsData(prevData => [...prevData, ...newEnhancedData]);
+      // 立即顯示新內容 (文字 + placeholder)
+      setNewsData(prevData => [...prevData, ...initialNewData]);
       setCurrentPage(nextPage);
-      setHasMore(newEnhancedData.length === ITEMS_PER_PAGE);
-
+      setHasMore(initialNewData.length === ITEMS_PER_PAGE);
+      setIsLoading(false); // 文字內容已載入,關閉載入狀態
+      
       if (onNewsCountUpdate) {
-        onNewsCountUpdate(newsData.length + newEnhancedData.length);
+        onNewsCountUpdate(newsData.length + initialNewData.length);
+      }
+      
+      // 🎯 方案3: 背景並行載入圖片
+      if (uncachedStoryIds.length > 0) {
+        const CONCURRENT_LIMIT = 9; // 每次並行載入圖片數量
+        const DELAY_BETWEEN_BATCHES = 0; // 批次間延遲
+        
+        // 分批處理
+        for (let i = 0; i < uncachedStoryIds.length; i += CONCURRENT_LIMIT) {
+          const batch = uncachedStoryIds.slice(i, i + CONCURRENT_LIMIT);
+          
+          // 並行載入這一批的圖片
+          const batchPromises = batch.map(storyId => 
+            supabaseClient
+              .from('generated_image')
+              .select('story_id, image')
+              .eq('story_id', storyId)
+              .single()
+              .then(({ data, error }) => ({ data, error, storyId }))
+              .catch(error => ({ data: null, error, storyId }))
+          );
+          
+          // 等待這一批完成
+          const results = await Promise.allSettled(batchPromises);
+          
+          // 處理結果 - 每載入一張就立即更新對應卡片
+          results.forEach(result => {
+            if (result.status === 'fulfilled' && result.value.data && result.value.data.image) {
+              const imageItem = result.value.data;
+              const cleanBase64 = imageItem.image.replace(/\s/g, '');
+              const imageUrl = `data:image/png;base64,${cleanBase64}`;
+              
+              // 快取圖片
+              imageCache.set(`image_${imageItem.story_id}`, imageUrl);
+              
+              // 🌟 立即更新該新聞的圖片 (漸進式顯示)
+              setNewsData(prevData => 
+                prevData.map(news => 
+                  news.story_id === imageItem.story_id 
+                    ? { ...news, imageUrl, isImageLoading: false }
+                    : news
+                )
+              );
+            } else if (result.status === 'rejected' || result.value.error) {
+              console.error(`Error fetching image for story ${result.value?.storyId}:`, result.value?.error || result.reason);
+            }
+          });
+          
+          // 批次之間加入延遲 (除了最後一批)
+          if (i + CONCURRENT_LIMIT < uncachedStoryIds.length) {
+            await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_BATCHES));
+          }
+        }
       }
 
     } catch (error) {
@@ -241,7 +432,8 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate }) {
                     objectFit: 'cover'
                   }}
                   onError={(e) => {
-                    e.target.src = "/api/placeholder/300/200";
+                    // 如果圖片載入失敗,使用簡單的 placeholder
+                    e.target.src = "https://placehold.co/300x200/e5e7eb/9ca3af?text=圖片載入失敗";
                   }}
                 />
               </Link>

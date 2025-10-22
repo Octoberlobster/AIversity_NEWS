@@ -7,6 +7,8 @@ import UnifiedNewsCard from './UnifiedNewsCard';
 import { useSupabase } from './supabase';
 import { createHeaderVisualization } from './FiveW1HVisualization';
 import { useLanguageFields } from '../utils/useLanguageFields';
+import { getOrCreateUserId, createRoomId } from './utils.js';
+import { changeExpertsTopic } from './api.js';
 import './../css/SpecialReportDetail.css';
 
 function SpecialReportDetail() {
@@ -34,6 +36,8 @@ function SpecialReportDetail() {
   // 專家分析（從資料庫讀取）
   const [expertAnalysis, setExpertAnalysis] = useState([]);
   const [analysisLoading, setAnalysisLoading] = useState(true);
+  const [generatingExperts, setGeneratingExperts] = useState(new Set()); // 正在生成的專家 ID
+  const [batchGenerating, setBatchGenerating] = useState(false); // 批量生成中
   
   // 專家分析彈出視窗狀態
   const [selectedExpert, setSelectedExpert] = useState(null);
@@ -99,6 +103,217 @@ function SpecialReportDetail() {
     setTimeout(() => {
       setIntegrationReport(report.report || '');
     }, 2000);
+  };
+
+  // 語言代碼映射 (前端 -> 後端)
+  const mapLanguageCode = (frontendLang) => {
+    const languageMap = {
+      'zh-TW': 'zh-TW',
+      'en': 'en-US',
+      'jp': 'ja-JP',
+      'id': 'id-ID'
+    };
+    return languageMap[frontendLang] || 'zh-TW';
+  };
+
+  // 通用的專家更換函數 - 支援單個或批量更換
+  const changeExperts = async (expertsToRegenerate) => {
+    try {
+      console.log('=== 開始更換專題專家流程 ===');
+      console.log('要更換的專家:', expertsToRegenerate);
+      
+      // 標記正在生成的專家
+      const regenerateIds = expertsToRegenerate.map(e => e.analyze_id);
+      setGeneratingExperts(prev => new Set([...prev, ...regenerateIds]));
+
+      // 生成或取得 user_id 和 room_id
+      const userId = getOrCreateUserId();
+      const roomId = createRoomId(userId, id);
+      console.log('userId:', userId);
+      console.log('roomId:', roomId);
+      console.log('topicId:', id);
+
+      // 準備當前專家資料
+      const currentExperts = expertAnalysis.map(expert => ({
+        analyze_id: expert.analyze_id,
+        category: expert.category,
+        analyze: expert.analyze
+      }));
+      console.log('當前所有專家:', currentExperts);
+
+      // 呼叫 api.js 中的函數
+      console.log('準備呼叫 changeExpertsTopic...');
+      const result = await changeExpertsTopic(
+        userId,
+        roomId,
+        id,
+        mapLanguageCode(getCurrentLanguage()),
+        currentExperts,
+        expertsToRegenerate
+      );
+
+      console.log('=== 收到 API 回傳結果 ===');
+      console.log('result:', result);
+
+      if (result.success && result.experts && result.experts.length > 0) {
+        console.log('✅ API 呼叫成功，開始更新狀態');
+        
+        // 建立新專家的映射表 (用 replaced_ids 來對應)
+        const newExpertsMap = new Map();
+        if (result.replaced_ids && result.replaced_ids.length === result.experts.length) {
+          result.replaced_ids.forEach((oldId, index) => {
+            newExpertsMap.set(oldId, result.experts[index]);
+            console.log(`映射: ${oldId} → ${result.experts[index].analyze_id}`);
+          });
+        }
+        
+        console.log('新專家映射表:', newExpertsMap);
+        
+        // 更新專家分析狀態
+        setExpertAnalysis(prevExperts => {
+          const updated = prevExperts.map(expert => 
+            newExpertsMap.has(expert.analyze_id) 
+              ? newExpertsMap.get(expert.analyze_id) 
+              : expert
+          );
+          console.log('更新後的 expertAnalysis:', updated);
+          return updated;
+        });
+      } else {
+        console.error('❌ API 回傳格式錯誤');
+        console.error('完整 result:', JSON.stringify(result, null, 2));
+        throw new Error('API 回傳資料格式錯誤');
+      }
+    } catch (error) {
+      console.error('❌ 更換專家失敗:', error);
+      console.error('錯誤堆疊:', error.stack);
+    } finally {
+      // 移除所有生成標記
+      const regenerateIds = expertsToRegenerate.map(e => e.analyze_id);
+      setGeneratingExperts(prev => {
+        const newSet = new Set(prev);
+        regenerateIds.forEach(id => newSet.delete(id));
+        return newSet;
+      });
+      console.log('=== 更換專題專家流程結束 ===');
+    }
+  };
+
+  // 處理更換單個專家
+  const handleChangeExpert = async (analyzeId, category) => {
+    // 防止重複生成
+    if (generatingExperts.has(analyzeId) || batchGenerating) {
+      return;
+    }
+
+    // 呼叫通用函數,傳入單個專家的陣列
+    await changeExperts([
+      {
+        analyze_id: analyzeId,
+        category: category
+      }
+    ]);
+  };
+
+  // 處理換一批專家 (平行發送多個 API 請求)
+  const handleRefreshAllExperts = async () => {
+    if (batchGenerating || expertAnalysis.length === 0 || generatingExperts.size > 0) {
+      return;
+    }
+
+    try {
+      console.log('=== 開始批量更換所有專題專家 ===');
+      setBatchGenerating(true);
+
+      // 標記所有專家為生成中
+      const allExpertIds = expertAnalysis.map(e => e.analyze_id);
+      setGeneratingExperts(new Set(allExpertIds));
+
+      // 生成或取得 user_id 和 room_id
+      const userId = getOrCreateUserId();
+      const roomId = createRoomId(userId, id);
+
+      // 準備當前專家資料
+      const currentExperts = expertAnalysis.map(expert => ({
+        analyze_id: expert.analyze_id,
+        category: expert.category,
+        analyze: expert.analyze
+      }));
+
+      // 🧠 1️⃣ 為每個專家建立單獨的 API 請求
+      const fetchSingleExpert = async (expert) => {
+        console.log(`正在更換專題專家: ${expert.category} (${expert.analyze_id})`);
+
+        return changeExpertsTopic(
+          userId,
+          roomId,
+          id,
+          mapLanguageCode(getCurrentLanguage()),
+          currentExperts,
+          [{
+            analyze_id: expert.analyze_id,
+            category: expert.category
+          }]
+        )
+          .then((result) => {
+            console.log(`✅ 專題專家 ${expert.category} 更換成功:`, result);
+            return {
+              success: true,
+              oldId: expert.analyze_id,
+              newExpert: result.success_response?.experts?.[0] || result.experts?.[0],
+            };
+          })
+          .catch((error) => {
+            console.error(`❌ 專題專家 ${expert.category} 更換失敗:`, error);
+            return {
+              success: false,
+              oldId: expert.analyze_id,
+              error: error.message,
+            };
+          });
+      };
+
+      // 🧠 2️⃣ 平行發送所有請求
+      console.log('平行發送 API 請求...');
+      const allPromises = expertAnalysis.map(fetchSingleExpert);
+      const results = await Promise.all(allPromises);
+
+      console.log('所有 API 請求完成:', results);
+
+      // 🧠 3️⃣ 處理結果並更新狀態
+      const successResults = results.filter(r => r.success);
+      const failedResults = results.filter(r => !r.success);
+
+      if (successResults.length > 0) {
+        // 建立新專家的映射表
+        const newExpertsMap = new Map();
+        successResults.forEach(({ oldId, newExpert }) => {
+          if (newExpert) {
+            newExpertsMap.set(oldId, newExpert);
+            console.log(`映射: ${oldId} → ${newExpert.analyze_id}`);
+          }
+        });
+
+        // 更新專家分析狀態
+        setExpertAnalysis(prevExperts => {
+          const updated = prevExperts.map(expert =>
+            newExpertsMap.has(expert.analyze_id)
+              ? newExpertsMap.get(expert.analyze_id)
+              : expert
+          );
+          console.log('批量更新後的 expertAnalysis:', updated);
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error('❌ 批量更換專題專家失敗:', error);
+      console.error('錯誤堆疊:', error.stack);
+    } finally {
+      // 清除所有生成標記
+      setGeneratingExperts(new Set());
+      setBatchGenerating(false);
+      console.log('=== 批量更換專題專家流程結束 ===');
+    }
   };
 
   // 載入專家分析資料
@@ -357,9 +572,26 @@ function SpecialReportDetail() {
           
           {/* 專家分析區塊 - 手風琴模式 */}
           <div className="srdHeader__expertAnalysis">
-            <h4 className="srdHeader__expertTitle">
-              💡 {t('specialReportDetail.header.expertAnalysis')}
-            </h4>
+            <div className="srdHeader__expertTitleBar">
+              <h4 className="srdHeader__expertTitle">
+                💡 {t('specialReportDetail.header.expertAnalysis')}
+              </h4>
+              {expertAnalysis && expertAnalysis.length > 0 && (
+                <button 
+                  className="srdHeader__refreshAllExpertsBtn"
+                  onClick={handleRefreshAllExperts}
+                  disabled={batchGenerating || generatingExperts.size > 0}
+                  title="重新生成所有專家觀點"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" 
+                       className={batchGenerating ? 'rotating' : ''}>
+                    <path d="M1 4v6h6M23 20v-6h-6" />
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                  </svg>
+                  {batchGenerating ? '生成中...' : '換一批'}
+                </button>
+              )}
+            </div>
             <div className="srdHeader__expertContent">
               {analysisLoading ? (
                 <div className="srdHeader__analysisLoading">
@@ -378,19 +610,36 @@ function SpecialReportDetail() {
                       ...analysis,
                       analyzeData
                     };
+
+                    const isGenerating = generatingExperts.has(analysis.analyze_id);
                     
                     return (
                       <div 
                         className="srdHeader__expertCard"
                         key={analysis.analyze_id || index}
-                        onClick={() => openExpertModal(expertData)}
                       >
                         <div className="srdHeader__expertCardHeader">
-                          <span className="srdHeader__categoryTag">
+                          <span className="srdHeader__categoryTag" onClick={() => openExpertModal(expertData)}>
                             {analyzeData?.Role || analysis.category || t('specialReportDetail.header.expert')}
                           </span>
+                          <button 
+                            className="srdHeader__changeExpertBtn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleChangeExpert(analysis.analyze_id, analysis.category);
+                            }}
+                            disabled={isGenerating || batchGenerating}
+                            title="更換專家觀點"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                 className={isGenerating ? 'rotating' : ''}>
+                              <path d="M1 4v6h6M23 20v-6h-6" />
+                              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                            </svg>
+                            {isGenerating ? '生成中...' : '換專家'}
+                          </button>
                         </div>
-                        <div className="srdHeader__expertCardPreview">
+                        <div className="srdHeader__expertCardPreview" onClick={() => openExpertModal(expertData)}>
                           {truncateText(analyzeData?.Analyze || t('specialReportDetail.header.noContent'))}
                         </div>
                       </div>

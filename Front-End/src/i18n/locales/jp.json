@@ -16,6 +16,12 @@
       "finance": "ビジネス・経済",
       "health": "健康"
     },
+    "countries": {
+      "taiwan": "台湾",
+      "usa": "アメリカ",
+      "japan": "日本",
+      "indonesia": "インドネシア"
+    },
     "search": {
       "placeholder": "ニュース/キーワードを検索..."
     },
@@ -44,6 +50,7 @@
     "reporter": "記者"
   },
   "categorySection": {
+    "news": "ニュース",
     "title": "カテゴリ別ニュース",
     "newsTitle": "{{category}}ニュース",
     "loading": "読み込み中...",
@@ -301,11 +308,11 @@
   },
   "topicChat": {
     "title": "特集ディスカッション",
-    "subtitle": "AIアシスタントと「{{topicTitle}}」についてディスカッション",
+    "subtitle": "AI専門家と「{{topicTitle}}」についてディスカッション",
     "close": "チャットを閉じる",
     "welcome": {
       "title": "特集ディスカッションルームへようこそ",
-      "description": "AIアシスタントと「{{topicTitle}}」関連の議題についてディスカッションしましょう！"
+      "description": "AI専門家と「{{topicTitle}}」関連の議題についてディスカッションしましょう！"
     },
     "input": {
       "placeholder": "質問や意見を入力してください..."
