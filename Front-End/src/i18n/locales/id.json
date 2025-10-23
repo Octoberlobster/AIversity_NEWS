@@ -1,7 +1,7 @@
 {
   "header": {
     "brand": "AIversity",
-    "tagline": "Berita Cerdas, Wawasan Mendalam",
+  "tagline": "Berita Cerdas, Wawasan Mendalam",
     "menu": {
       "home": "Beranda",
       "specialReports": "Laporan Khusus",
@@ -163,7 +163,12 @@
       "title": "Analisis Ahli",
       "noData": "Belum ada data analisis ahli",
       "noAnalysis": "Belum ada data analisis",
-      "noContent": "Saat ini tidak ada data posisi pro/kontra atau analisis ahli"
+      "noContent": "Saat ini tidak ada data posisi pro/kontra atau analisis ahli",
+      "refreshAll": "Perbarui Semua",
+      "changeExpert": "Ganti Ahli",
+      "generating": "Membuat...",
+      "refreshAllTitle": "Regenerasi semua perspektif ahli",
+      "changeExpertTitle": "Ubah perspektif ahli"
     },
     "related": {
       "news": "Berita Terkait",
@@ -193,7 +198,7 @@
       "健康顧問": "Konsultan Kesehatan"
     },
     "titles": {
-      "chat": "Ruang Diskusi Pakar AI",
+      "chat": "Asisten Ahli AI",
       "proof": "Hasil Cek Fakta"
     },
     "subtitles": {

@@ -565,6 +565,7 @@ function NewsDetail() {
           const title = row[getFieldName('news_title')] || row.news_title;
           const short = row[getFieldName('ultra_short')] || row.short;
           const long = row[getFieldName('long')] || row.long;
+
           
           // 多語言資料處理完成
           
@@ -582,7 +583,22 @@ function NewsDetail() {
             who_talk: row.who_talk,
             position_flag: row.position_flag
           });
-          
+
+          console.log('新聞資料載入完成:', {
+            title,
+            date: row.generated_date,
+            author: 'Gemini',
+            short,
+            long,
+            terms: [],
+            keywords: [],
+            source: [],
+            category: row.category,
+            story_id: row.story_id,
+            who_talk: row.who_talk,
+            position_flag: row.position_flag
+          });
+
           // 根據 position_flag 決定要載入的內容類型
           if (row.position_flag) {
             // 有正反方立場，同時載入正反方資料和專家分析，但優先顯示正反方
@@ -744,7 +760,8 @@ function NewsDetail() {
             dst_story_id,
             ${reasonSelectFields}
           `)
-          .eq('src_story_id', id);
+          .eq('src_story_id', id)
+          .limit(3);
 
         if (relatedError) {
           console.error('Error fetching related news:', relatedError);
@@ -1224,14 +1241,14 @@ function NewsDetail() {
                     className="refreshAllExpertsBtn"
                     onClick={handleRefreshAllExperts}
                     disabled={batchGenerating || generatingExperts.size > 0}
-                    title="重新生成所有專家觀點"
+                    title={t('newsDetail.expertAnalysis.refreshAllTitle')}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" 
                          className={batchGenerating ? 'rotating' : ''}>
                       <path d="M1 4v6h6M23 20v-6h-6" />
                       <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
                     </svg>
-                    {batchGenerating ? '生成中...' : '換一批'}
+                    {batchGenerating ? t('newsDetail.expertAnalysis.generating') : t('newsDetail.expertAnalysis.refreshAll')}
                   </button>
                 </div>
                 <div className="expertAnalysisContent">
@@ -1249,14 +1266,14 @@ function NewsDetail() {
                               className="changeExpertBtn"
                               onClick={() => handleChangeExpert(analysis.analyze_id, analysis.category)}
                               disabled={isGenerating || batchGenerating}
-                              title="更換專家觀點"
+                              title={t('newsDetail.expertAnalysis.changeExpertTitle')}
                             >
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                                    className={isGenerating ? 'rotating' : ''}>
                                 <path d="M1 4v6h6M23 20v-6h-6" />
                                 <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
                               </svg>
-                              {isGenerating ? '生成中...' : '換專家'}
+                              {isGenerating ? t('newsDetail.expertAnalysis.generating') : t('newsDetail.expertAnalysis.changeExpert')}
                             </button>
                           </div>
                           <div className="analysisText">

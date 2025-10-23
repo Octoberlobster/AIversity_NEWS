@@ -1,7 +1,7 @@
 {
   "header": {
     "brand": "AIversity",
-    "tagline": "智能新聞，深度洞察",
+    "tagline": "智慧新聞，深度洞察",
     "menu": {
       "home": "首頁",
       "specialReports": "專題報導",
@@ -163,7 +163,12 @@
       "title": "專家分析",
       "noData": "暫無專家分析資料",
       "noAnalysis": "暫無分析資料",
-      "noContent": "目前沒有正反方立場或專家分析資料"
+      "noContent": "目前沒有正反方立場或專家分析資料",
+      "refreshAll": "換一批",
+      "changeExpert": "換專家",
+      "generating": "生成中...",
+      "refreshAllTitle": "重新生成所有專家觀點",
+      "changeExpertTitle": "更換專家觀點"
     },
     "related": {
       "news": "相關新聞",
@@ -182,7 +187,7 @@
   },
   "exportChat": {
     "titles": {
-      "chat": "AI 專家討論室"
+      "chat": "AI 專家小幫手"
     },
     "subtitles": {
       "chat": "{{count}} 位專家在線"

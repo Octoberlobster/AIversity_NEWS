@@ -1,7 +1,7 @@
 {
   "header": {
     "brand": "AIversity",
-    "tagline": "AI-Driven News for Deeper Understanding",
+  "tagline": "Smart News, Deep Insights",
     "menu": {
       "home": "Home",
       "specialReports": "Special Reports",
@@ -159,7 +159,12 @@
       "title": "Expert Analysis",
       "noData": "No expert analysis available",
       "noAnalysis": "No analysis data available",
-      "noContent": "Currently no position data or expert analysis available"
+      "noContent": "Currently no position data or expert analysis available",
+      "refreshAll": "Refresh All",
+      "changeExpert": "Change Expert",
+      "generating": "Generating...",
+      "refreshAllTitle": "Regenerate all expert perspectives",
+      "changeExpertTitle": "Change expert perspective"
     },
     "related": {
       "news": "Related News",
@@ -189,7 +194,7 @@
       "健康顧問": "Health Consultant"
     },
     "titles": {
-      "chat": "AI Expert Discussion Room"
+      "chat": "AI Expert Assistant"
     },
     "subtitles": {
       "chat": "{{count}} experts online"

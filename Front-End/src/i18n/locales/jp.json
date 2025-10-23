@@ -1,7 +1,7 @@
 {
   "header": {
     "brand": "AIversity",
-    "tagline": "インテリジェントニュース、深い洞察",
+  "tagline": "スマートニュース、深い洞察",
     "menu": {
       "home": "ホーム",
       "specialReports": "特集記事",
@@ -163,7 +163,12 @@
       "title": "専門家分析",
       "noData": "専門家分析のデータは現在ありません",
       "noAnalysis": "分析データは現在ありません",
-      "noContent": "現在、賛成・反対の立場または専門家分析のデータはありません"
+      "noContent": "現在、賛成・反対の立場または専門家分析のデータはありません",
+      "refreshAll": "一括更新",
+      "changeExpert": "専門家変更",
+      "generating": "生成中...",
+      "refreshAllTitle": "すべての専門家の視点を再生成",
+      "changeExpertTitle": "専門家の視点を変更"
     },
     "related": {
       "news": "関連ニュース",
@@ -193,7 +198,7 @@
       "健康顧問": "健康コンサルタント"
     },
     "titles": {
-      "chat": "AI専門家ディスカッションルーム"
+      "chat": "AI専門家アシスタント"
     },
     "subtitles": {
       "chat": "{{count}}人の専門家がオンライン"
