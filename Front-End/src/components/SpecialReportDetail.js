@@ -429,11 +429,13 @@ function SpecialReportDetail() {
               return { ...branch, news: [] };
             }
 
+          
+
             const customData = (stories || []).map(s => ({
               story_id: s.story_id,
               title: s[getFieldName('news_title')] || s.news_title,
               category: s.category, // 若需中文化，可在這裡自行映射
-              date: s.generated_date,
+              generated_date: s.generated_date,
               author: 'Gemini',
               sourceCount: s.total_articles,
               shortSummary: s[getFieldName('ultra_short')] || s.ultra_short,
@@ -442,6 +444,8 @@ function SpecialReportDetail() {
               keywords: [],
               terms: []
             }));
+
+            console.log('customData:', customData);
 
             return { ...branch, news: customData };
           } catch (e) {

@@ -52,11 +52,9 @@ function NewsDetail() {
   const [newsImage, setNewsImage] = useState(null);
   const [newsUrl, setNewsUrl] = useState(null);
   const [newsKeywords, setNewsKeywords] = useState([]);
-  const [highlights, setHighlights] = useState([]);
   const [termDefinitions, setTermDefinitions] = useState({});
   const [newsTerms, setNewsTerms] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
-  const [relatedTopics, setRelatedTopics] = useState([]);
   const [positionData, setPositionData] = useState({ positive: [], negative: [] }); // 正反方立場資料
   const [positionLoading, setPositionLoading] = useState(true); // 正反方立場載入狀態
   const [expertAnalysis, setExpertAnalysis] = useState([]); // 專家分析資料
@@ -648,49 +646,7 @@ function NewsDetail() {
   }, [id, supabaseClient, currentLanguage, getFieldName]); // 語言改變時重新載入
 
   // 載入 highlight（重點）資料 - 支援多語言
-  useEffect(() => {
-    const fetchHighlights = async () => {
-      if (!id || !supabaseClient) return;
-
-      try {
-        const multiLangFields = ['highlight'];
-        const selectFields = getMultiLanguageSelect(multiLangFields);
-
-        const { data, error } = await supabaseClient
-          .from('highlight')
-          .select(selectFields)
-          .eq('story_id', id);
-
-        // log raw response for debugging
-        console.log('fetchHighlights response for story', id, { selectFields, data, error });
-        console.log('highlights data:', data);
-
-        if (error) {
-          console.error(`Error fetching highlights for story ${id}:`, error);
-          setHighlights([]);
-          return;
-        }
-
-        const row = data?.[0];
-        if (!row) {
-          setHighlights([]);
-          return;
-        }
-
-        const raw = row[getFieldName('highlight')] || row.highlight || [];
-        // 如果 raw 是陣列，直接使用；如果是物件且有 highlight 屬性，則使用該屬性
-        const highlightArray = Array.isArray(raw) ? raw : (raw.highlight || []);
-        console.log('processed highlights array:', highlightArray);
-        setHighlights(highlightArray);
-      } catch (error) {
-        console.error(`Error fetching highlights for story ${id}:`, error);
-        setHighlights([]);
-      }
-
-    };
-
-    fetchHighlights();
-  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]);
+  // highlights feature removed per request
 
   // 載入新聞來源 URL
   useEffect(() => {
@@ -825,86 +781,6 @@ function NewsDetail() {
     fetchRelatedNews();
   }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
 
-  // 載入相關專題
-  useEffect(() => {
-    const fetchRelatedTopics = async () => {
-      if (!id || !supabaseClient) return;
-      
-      try {
-        // 準備 reason 的多語言欄位查詢
-        const reasonMultiLangFields = ['reason'];
-        const reasonSelectFields = getMultiLanguageSelect(reasonMultiLangFields);
-        
-        // 查詢相關專題 - 找出以當前新聞為 src_story_id 的相關專題
-        const { data: relatedData, error: relatedError } = await supabaseClient
-          .from('relative_topics')
-          .select(`
-            dst_topic_id,
-            ${reasonSelectFields}
-          `)
-          .eq('src_story_id', id);
-
-        if (relatedError) {
-          console.error('Error fetching related topics:', relatedError);
-          setRelatedTopics([]);
-          return;
-        }
-
-        // 如果有相關專題，再查詢對應的專題標題
-        if (!relatedData || relatedData.length === 0) {
-          setRelatedTopics([]);
-          return;
-        }
-
-        // 獲取所有目標專題的 topic_id
-        const targetTopicIds = relatedData.map(item => item.dst_topic_id);
-        
-        // 查詢目標專題的詳細資料，支援多語言
-        const topicMultiLangFields = ['topic_title'];
-        const topicSelectFields = getMultiLanguageSelect(topicMultiLangFields);
-        
-        const { data: topicData, error: topicError } = await supabaseClient
-          .from('topic')
-          .select(`topic_id, ${topicSelectFields}`)
-          .in('topic_id', targetTopicIds);
-
-        if (topicError) {
-          console.error('Error fetching related topic titles:', topicError);
-          setRelatedTopics([]);
-          return;
-        }
-
-        // 合併資料並進行資料清理
-        const related = relatedData.map(relatedItem => {
-          const topicItem = topicData?.find(t => t.topic_id === relatedItem.dst_topic_id);
-          
-          // 資料清理：如果 reason 過長，可能是錯誤的內容，截短它
-          let reason = relatedItem[getFieldName('reason')] || relatedItem.reason || '無相關性說明';
-          if (reason.length > 200) {
-            reason = reason.substring(0, 200) + '...';
-          }
-          
-          // 使用多語言標題，如果不存在則使用原標題作為 fallback
-          let title = topicItem ? (topicItem[getFieldName('topic_title')] || topicItem.topic_title) : '';
-          if (!title || !title.trim()) {
-            title = `專題 ID: ${relatedItem.dst_topic_id}`;
-          }
-          
-          return {
-            id: relatedItem.dst_topic_id,
-            title: title.trim(),
-            relevance: reason.trim()
-          };
-        });
-        setRelatedTopics(related);
-      } catch (error) {
-        console.error('Error fetching related topics:', error);
-        setRelatedTopics([]);
-      }
-    };
-
-    fetchRelatedTopics();
-  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
 
   // 名詞解釋 tooltip
   const handleTermClick = (term, e) => {
@@ -926,136 +802,29 @@ function NewsDetail() {
       : null;
     const seenTerms = new Set(); // 記錄已經高亮過的 terms
 
-    // 創建 highlights 的正則表達式模式
-    const highlightsPattern = highlights.length
-      ? new RegExp(`(${highlights.map(escapeReg).join('|')})`, 'g')
-      : null;
-    
-    // 調試信息
-    console.log('highlights for rendering:', highlights);
-    console.log('highlightsPattern:', highlightsPattern);
-
     const highlightTermsInLine = (line) => {
-      if (!termsPattern && !highlightsPattern) return line;
+      if (!termsPattern) return line;
 
-      // 先處理 highlights（畫重點）
-      let processedLine = line;
-      if (highlightsPattern) {
-        processedLine = processedLine.split(highlightsPattern).map((part, i) => {
-          if (highlights.includes(part)) {
+      // 只處理術語（terms），不再處理 highlights
+      return line.split(termsPattern).map((part, i) => {
+        if (terms.includes(part)) {
+          if (!seenTerms.has(part)) {
+            seenTerms.add(part);
             return (
-              <mark
-                key={`highlight-${i}`}
-                className="highlight-text"
+              <strong
+                key={`term-${i}`}
+                className="term term--clickable"
+                onClick={(e) => handleTermClick(part, e)}
               >
                 {part}
-              </mark>
+              </strong>
             );
+          } else {
+            return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
           }
-          return <React.Fragment key={`highlight-txt-${i}`}>{part}</React.Fragment>;
-        });
-      }
-
-      // 再處理 terms（術語）
-      if (termsPattern && Array.isArray(processedLine)) {
-        processedLine = processedLine.map((part, partIndex) => {
-          if (React.isValidElement(part)) {
-            // 如果已經是 React 元素（highlight），需要檢查其內容是否包含術語
-            const highlightText = part.props.children;
-            if (typeof highlightText === 'string') {
-              // 檢查 highlight 文字中是否包含術語
-              const hasTerms = terms.some(term => highlightText.includes(term));
-              if (hasTerms) {
-                // 如果包含術語，需要重新處理這個 highlight 文字
-                // 保持整個 highlight 為一個連續的方框
-                const processedParts = highlightText.split(termsPattern).map((termPart, termIndex) => {
-                  if (terms.includes(termPart)) {
-                    // 只有第一次出現的 term 才高亮
-                    if (!seenTerms.has(termPart)) {
-                      seenTerms.add(termPart);
-                      return (
-                        <strong
-                          key={`highlight-term-${partIndex}-${termIndex}`}
-                          className="term term--clickable"
-                          onClick={(e) => handleTermClick(termPart, e)}
-                        >
-                          {termPart}
-                        </strong>
-                      );
-                    } else {
-                      // 已經出現過的 term 不高亮
-                      return <React.Fragment key={`highlight-text-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
-                    }
-                  }
-                  // 非術語部分
-                  return <React.Fragment key={`highlight-text-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
-                });
-                
-                // 用一個連續的 mark 包裝所有內容
-                return (
-                  <mark
-                    key={`highlight-container-${partIndex}`}
-                    className="highlight-text"
-                  >
-                    {processedParts}
-                  </mark>
-                );
-              }
-            }
-            // 如果不包含術語，直接返回原 highlight
-            return part;
-          }
-          
-          // 處理文字部分中的術語
-          const textContent = typeof part === 'string' ? part : String(part);
-          return textContent.split(termsPattern).map((termPart, termIndex) => {
-            if (terms.includes(termPart)) {
-              // 只有第一次出現的 term 才高亮
-              if (!seenTerms.has(termPart)) {
-                seenTerms.add(termPart);
-                return (
-                  <strong
-                    key={`term-${partIndex}-${termIndex}`}
-                    className="term term--clickable"
-                    onClick={(e) => handleTermClick(termPart, e)}
-                  >
-                    {termPart}
-                  </strong>
-                );
-              } else {
-                // 已經出現過的 term 不高亮
-                return <React.Fragment key={`term-txt-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
-              }
-            }
-            return <React.Fragment key={`term-txt-${partIndex}-${termIndex}`}>{termPart}</React.Fragment>;
-          });
-        });
-      } else if (termsPattern && typeof processedLine === 'string') {
-        // 如果沒有 highlights，直接處理術語
-        processedLine = processedLine.split(termsPattern).map((part, i) => {
-          if (terms.includes(part)) {
-            // 只有第一次出現的 term 才高亮
-            if (!seenTerms.has(part)) {
-              seenTerms.add(part);
-              return (
-                <strong
-                  key={`term-${i}`}
-                  className="term term--clickable"
-                  onClick={(e) => handleTermClick(part, e)}
-                >
-                  {part}
-                </strong>
-              );
-            } else {
-              // 已經出現過的 term 不高亮
-              return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
-            }
-          }
-          return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
-        });
-      }
-
-      return processedLine;
+        }
+        return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
+      });
     };
 
     // 渲染：每段用 <p> 包起來，段內單行換行 → <br/>
@@ -1142,7 +911,6 @@ function NewsDetail() {
               <h2 className="articleTitle">{newsData.title}</h2>
               <div className="articleInfo">
                 <span className="articleDate">{newsData.date}</span>
-                <span className="articleAuthor">{t('newsDetail.author')}{newsData.author}</span>
                 {newsKeywords && newsKeywords.length > 0 && (
                   <div className="articleKeywords">
                     {newsKeywords.map((kw, index) => (
@@ -1302,7 +1070,7 @@ function NewsDetail() {
       </div>
 
       {/* 相關內容區塊 - 移動到資料來源上面 */}
-      {((relatedNews && relatedNews.length > 0) || (relatedTopics && relatedTopics.length > 0)) && (
+      {((relatedNews && relatedNews.length > 0)) && (
         <div className="relatedSection relatedSection--main">
           <div className="container">
             <div className="relatedGrid relatedGrid--horizontal">
@@ -1321,24 +1089,7 @@ function NewsDetail() {
                     ))}
                   </div>
                 </div>
-              )}
-              
-              {/* 相關專題 */}
-              {relatedTopics && relatedTopics.length > 0 && (
-                <div className="relatedColumn">
-                  <h5 className="sectionTitle">{t('newsDetail.related.topics')}</h5>
-                  <div className="relatedItems">
-                    {relatedTopics.map(item => (
-                      <div className="relatedItem" key={`topic-${item.id}`}>
-                        <Link to={getLanguageRoute(`/special-report/${item.id}`)}>
-                          {item.title}
-                        </Link>
-                        <div className="relevanceText">{item.relevance}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              )}  
             </div>
           </div>
         </div>

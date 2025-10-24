@@ -5,8 +5,8 @@ from flask import Flask, request, jsonify
 from ChatRoom import ChatRoom
 from Hint_Prompt_Single import Hint_Prompt_Single
 from Hint_Prompt_Topic import Hint_Prompt_Topic
-import Change_experts 
-import Change_experts_Topic 
+import Change_experts  
+import Change_Experts_Topic  
 import uuid             
 
 app = Flask(__name__)
@@ -170,6 +170,7 @@ def advanced_search():
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
+# --- 【修改】更換 "單篇" 專家的 API 路由 (使用 Session) ---
 @app.route("/api/experts/change", methods=["POST"])
 def change_experts_route():
     data = request.json
@@ -194,10 +195,11 @@ def change_experts_route():
 
     try:
         target = experts_to_regenerate[0]
-        target_category = target.get("category")
+        # 【修改】我們仍需 "被換掉" 的類別名稱，以傳入 random 選擇器
+        target_category_to_replace = target.get("category")
         old_analyze_id = target.get("analyze_id")
 
-        if not target_category or not old_analyze_id:
+        if not target_category_to_replace or not old_analyze_id:
             error_payload = {"success": False, "error": "Invalid 'experts_to_regenerate' structure", "error_code": "400"}
             return jsonify({"success_response": None, "error_response": error_payload}), 400
 
@@ -210,15 +212,18 @@ def change_experts_route():
         
         generator = user_sessions[key]
 
-        # 5. 呼叫 chat model 產生新專家
-        # new_analyze_obj 是一個 NewExpertResponse Pydantic 物件 (包含 Role 和 Analyze)
-        new_analyze_obj = generator.regenerate_one_expert(language, target_category)
+        # 5. 【修改】呼叫 chat model 產生新專家 (包含隨機類別)
+        # generation_result 是一個 dict: {"new_expert": NewExpertResponse, "new_category": "..."}
+        generation_result = generator.regenerate_one_expert(language, target_category_to_replace)
+        
+        new_analyze_obj = generation_result["new_expert"]
+        new_category = generation_result["new_category"] # <-- 【新增】獲取隨機選中的類別
 
-        # 6. 構建成功回傳格式
+        # 6. 【修改】構建成功回傳格式
         new_id = str(uuid.uuid4())
         response_expert = {
             "analyze_id": new_id,
-            "category": target_category,
+            "category": new_category, # <-- 【修改】使用隨機選中的 new_category
             "analyze": {
                 "Role": new_analyze_obj.Role,
                 "Analyze": new_analyze_obj.Analyze
@@ -238,6 +243,7 @@ def change_experts_route():
         error_payload = {"success": False, "error": str(e), "error_code": "500"}
         return jsonify({"success_response": None, "error_response": error_payload}), 500
 
+# --- 【修改】更換 "專題" 專家的 API 路由 (使用 Session) ---
 @app.route("/api/experts/change_topic", methods=["POST"])
 def change_experts_topic_route():
     data = request.json
@@ -245,13 +251,13 @@ def change_experts_topic_route():
     # 1. 解析前端傳來的必要欄位
     user_id = data.get("user_id")
     room_id = data.get("room_id")
-    topic_id = data.get("topic_id") # <-- 修改
+    topic_id = data.get("topic_id") 
     language = data.get("language")
-    current_experts = data.get("current_experts") # 初始的專家列表
-    experts_to_regenerate = data.get("experts_to_regenerate") # 要換掉的專家
+    current_experts = data.get("current_experts") 
+    experts_to_regenerate = data.get("experts_to_regenerate") 
 
     # 2. 基礎欄位驗證
-    if not all([user_id, room_id, topic_id, language, current_experts, experts_to_regenerate]): # <-- 修改
+    if not all([user_id, room_id, topic_id, language, current_experts, experts_to_regenerate]): 
         error_payload = {"success": False, "error": "Missing required fields", "error_code": "400"}
         return jsonify({"success_response": None, "error_response": error_payload}), 400
 
@@ -262,30 +268,34 @@ def change_experts_topic_route():
 
     try:
         target = experts_to_regenerate[0]
-        target_category = target.get("category")
+        # 【修改】我們仍需 "被換掉" 的類別名稱
+        target_category_to_replace = target.get("category")
         old_analyze_id = target.get("analyze_id")
 
-        if not target_category or not old_analyze_id:
+        if not target_category_to_replace or not old_analyze_id:
             error_payload = {"success": False, "error": "Invalid 'experts_to_regenerate' structure", "error_code": "400"}
             return jsonify({"success_response": None, "error_response": error_payload}), 400
 
         # 4. Session 管理 (使用 topic_id 確保 session 是針對特定專題的)
-        key = (user_id, room_id, topic_id, "topic_expert_regenerator") # <-- 修改 key
+        key = (user_id, room_id, topic_id, "topic_expert_regenerator") 
 
         if key not in user_sessions:
             # 如果是第一次請求，建立新的 Regenerator 實例並儲存
-            user_sessions[key] = Change_experts_Topic.TopicExpertRegenerator(current_experts, topic_id) # <-- 修改 Class
+            user_sessions[key] = Change_Experts_Topic.TopicExpertRegenerator(current_experts, topic_id) 
         
         generator = user_sessions[key]
 
-        # 5. 呼叫 chat model 產生新專家
-        new_analyze_obj = generator.regenerate_one_expert(language, target_category)
+        # 5. 【修改】呼叫 chat model 產生新專家 (包含隨機類別)
+        generation_result = generator.regenerate_one_expert(language, target_category_to_replace)
+        
+        new_analyze_obj = generation_result["new_expert"]
+        new_category = generation_result["new_category"] # <-- 【新增】獲取隨機選中的類別
 
-        # 6. 構建成功回傳格式
+        # 6. 【修改】構建成功回傳格式
         new_id = str(uuid.uuid4())
         response_expert = {
             "analyze_id": new_id,
-            "category": target_category,
+            "category": new_category, # <-- 【修改】使用隨機選中的 new_category
             "analyze": {
                 "Role": new_analyze_obj.Role,
                 "Analyze": new_analyze_obj.Analyze
@@ -304,7 +314,7 @@ def change_experts_topic_route():
         # 捕捉 Pydantic 驗證錯誤或 Gemini API 錯誤
         error_payload = {"success": False, "error": str(e), "error_code": "500"}
         return jsonify({"success_response": None, "error_response": error_payload}), 500
-    
+# --- 【修改結束】 ---
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
