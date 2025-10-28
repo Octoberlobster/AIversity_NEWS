@@ -6,7 +6,7 @@ from ChatRoom import ChatRoom
 from Hint_Prompt_Single import Hint_Prompt_Single
 from Hint_Prompt_Topic import Hint_Prompt_Topic
 import Change_experts  
-import Change_Experts_Topic  
+import Change_experts_Topic  
 import uuid             
 
 app = Flask(__name__)
@@ -281,7 +281,7 @@ def change_experts_topic_route():
 
         if key not in user_sessions:
             # 如果是第一次請求，建立新的 Regenerator 實例並儲存
-            user_sessions[key] = Change_Experts_Topic.TopicExpertRegenerator(current_experts, topic_id) 
+            user_sessions[key] = Change_experts_Topic.TopicExpertRegenerator(current_experts, topic_id) 
         
         generator = user_sessions[key]
 

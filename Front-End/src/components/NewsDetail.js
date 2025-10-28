@@ -911,87 +911,119 @@ function NewsDetail() {
       const partKey = `part${pi + 1}`;
       const articleIds = attribution?.[partKey] || [];
       
+      // 過濾出真實存在的來源
+      const validSources = articleIds
+        .map((articleId) => sourceArticles[articleId])
+        .filter(article => article && article.url && article.url !== '#');
+      
       return (
-        <React.Fragment key={`p-${pi}`}>
-          <p>
-            {lines.map((line, li) => (
-              <React.Fragment key={`l-${pi}-${li}`}>
-                {highlightTermsInLine(line)}
-                {li < lines.length - 1 && <br />}
-              </React.Fragment>
-            ))}
-          </p>
+        <p key={`p-${pi}`}>
+          {lines.map((line, li) => (
+            <React.Fragment key={`l-${pi}-${li}`}>
+              {highlightTermsInLine(line)}
+              {li < lines.length - 1 && <br />}
+            </React.Fragment>
+          ))}
           
-          {/* 顯示該段落的來源連結 - 小圖標樣式 */}
-          {(() => {
-            // 過濾出真實存在的來源
-            const validSources = articleIds
-              .map((articleId, idx) => ({ articleId, idx, article: sourceArticles[articleId] }))
-              .filter(item => item.article && item.article.url && item.article.url !== '#');
-            
-            if (validSources.length === 0) return null;
-            
+          {/* 在段落內部顯示來源連結圖標 */}
+          {validSources.length > 0 && (() => {
             return (
-              <div className="paragraph-sources-compact">
-                {validSources.map(({ articleId, idx, article }) => (
-                  <div 
-                    key={`source-${pi}-${idx}`} 
-                    className="source-badge-wrapper"
+              <span className="paragraph-sources-inline">
+                <span 
+                  className="source-badge-wrapper"
+                  onMouseEnter={(e) => {
+                    const wrapper = e.currentTarget;
+                    const tooltip = wrapper.querySelector('.source-tooltip');
+                    const arrow = tooltip.querySelector('.source-tooltip-arrow');
+                    const rect = wrapper.getBoundingClientRect();
+                    const tooltipWidth = 420;
+                    
+                    // 計算位置
+                    let left = rect.left + rect.width / 2;
+                    let transformX = '-50%';
+                    let arrowLeft = '50%';
+                    
+                    if (left - tooltipWidth / 2 < 10) {
+                      const offset = rect.left + rect.width / 2 - 10;
+                      left = 10;
+                      transformX = '0';
+                      arrowLeft = `${Math.max(20, offset)}px`;
+                    } else if (left + tooltipWidth / 2 > window.innerWidth - 10) {
+                      const offset = rect.left + rect.width / 2 - (window.innerWidth - 10);
+                      left = window.innerWidth - 10;
+                      transformX = '-100%';
+                      arrowLeft = `${tooltipWidth + offset - 20}px`;
+                    }
+                    
+                    tooltip.style.left = `${left}px`;
+                    tooltip.style.top = `${rect.top - 10}px`;
+                    tooltip.style.transform = `translate(${transformX}, -100%)`;
+                    arrow.style.left = arrowLeft;
+                    
+                    // 添加 active 類
+                    tooltip.classList.add('tooltip-active');
+                    
+                    // 設置定時器ID到元素上
+                    if (wrapper._hideTimer) {
+                      clearTimeout(wrapper._hideTimer);
+                      delete wrapper._hideTimer;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    const wrapper = e.currentTarget;
+                    const tooltip = wrapper.querySelector('.source-tooltip');
+                    
+                    // 延遲隱藏
+                    wrapper._hideTimer = setTimeout(() => {
+                      tooltip.classList.remove('tooltip-active');
+                    }, 100);
+                  }}
+                >
+                  <span className="source-badge" title={`參考 ${validSources.length} 個來源`}>
+                    [{validSources.length}]
+                  </span>
+                  <span 
+                    className="source-tooltip"
                     onMouseEnter={(e) => {
-                      const tooltip = e.currentTarget.querySelector('.source-tooltip');
-                      const arrow = tooltip.querySelector('.source-tooltip-arrow');
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const tooltipWidth = 300; // 預估 tooltip 寬度
+                      const wrapper = e.currentTarget.closest('.source-badge-wrapper');
+                      const tooltip = e.currentTarget;
                       
-                      // 計算基本位置
-                      let left = rect.left + rect.width / 2;
-                      let transformX = '-50%';
-                      let arrowLeft = '50%';
-                      
-                      // 檢查左邊界
-                      if (left - tooltipWidth / 2 < 10) {
-                        const offset = rect.left + rect.width / 2 - 10;
-                        left = 10;
-                        transformX = '0';
-                        arrowLeft = `${Math.max(20, offset)}px`;
-                      }
-                      // 檢查右邊界
-                      else if (left + tooltipWidth / 2 > window.innerWidth - 10) {
-                        const offset = rect.left + rect.width / 2 - (window.innerWidth - 10);
-                        left = window.innerWidth - 10;
-                        transformX = '-100%';
-                        arrowLeft = `${tooltipWidth + offset - 20}px`;
+                      // 取消隱藏定時器
+                      if (wrapper._hideTimer) {
+                        clearTimeout(wrapper._hideTimer);
+                        delete wrapper._hideTimer;
                       }
                       
-                      tooltip.style.left = `${left}px`;
-                      tooltip.style.top = `${rect.top - 10}px`;
-                      tooltip.style.transform = `translate(${transformX}, -100%)`;
-                      arrow.style.left = arrowLeft;
+                      // 確保顯示
+                      tooltip.classList.add('tooltip-active');
+                    }}
+                    onMouseLeave={(e) => {
+                      const wrapper = e.currentTarget.closest('.source-badge-wrapper');
+                      const tooltip = e.currentTarget;
+                      
+                      // 延遲隱藏
+                      wrapper._hideTimer = setTimeout(() => {
+                        tooltip.classList.remove('tooltip-active');
+                      }, 50);
                     }}
                   >
-                    <a
-                      href={article.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="source-badge"
-                      title={`${article.media}: ${article.title}`}
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                      </svg>
-                    </a>
-                    <div className="source-tooltip">
-                      <div className="source-tooltip-media">{article.media}</div>
-                      <div className="source-tooltip-title">{article.title}</div>
-                      <div className="source-tooltip-arrow"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    <span className="source-tooltip-header">參考來源</span>
+                    <span className="source-tooltip-list">{validSources.map((article, idx) => (
+                      <a
+                        key={`source-link-${pi}-${idx}`}
+                        href={article.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="source-tooltip-item"
+                      ><span className="source-tooltip-media">{article.media}</span><span className="source-tooltip-title">{article.title}</span></a>
+                    ))}</span>
+                    <span className="source-tooltip-arrow"></span>
+                  </span>
+                </span>
+              </span>
             );
           })()}
-        </React.Fragment>
+        </p>
       );
     });
   };
