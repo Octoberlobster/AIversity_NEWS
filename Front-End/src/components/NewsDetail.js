@@ -52,6 +52,8 @@ function NewsDetail() {
   const [newsImage, setNewsImage] = useState(null);
   const [newsUrl, setNewsUrl] = useState(null);
   const [newsKeywords, setNewsKeywords] = useState([]);
+  const [attribution, setAttribution] = useState(null); // 歸因資料 {"part1": ["article_id1"], ...}
+  const [sourceArticles, setSourceArticles] = useState({}); // 來源文章詳細資訊 {article_id: {title, url, media}}
   const [termDefinitions, setTermDefinitions] = useState({});
   const [newsTerms, setNewsTerms] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
@@ -551,7 +553,7 @@ function NewsDetail() {
       // 同時選取原欄位和多語言欄位
       const { data, error } = await supabaseClient
         .from('single_news')
-        .select(`${selectFields}, generated_date, category, story_id, who_talk, position_flag`)
+        .select(`${selectFields}, generated_date, category, story_id, who_talk, position_flag, attribution`)
         .eq('story_id', id);
         
       if (error) {
@@ -581,6 +583,23 @@ function NewsDetail() {
             who_talk: row.who_talk,
             position_flag: row.position_flag
           });
+          
+          // 解析 attribution 數據
+          if (row.attribution) {
+            try {
+              const attributionData = typeof row.attribution === 'string' 
+                ? JSON.parse(row.attribution) 
+                : row.attribution;
+              setAttribution(attributionData);
+              const partCount = Object.keys(attributionData).length;
+              console.log('✅ 歸因資料載入完成:', partCount, '個段落');
+            } catch (e) {
+              console.error('❌ 解析歸因資料失敗:', e);
+              setAttribution(null);
+            }
+          } else {
+            setAttribution(null);
+          }
 
           console.log('新聞資料載入完成:', {
             title,
@@ -613,6 +632,63 @@ function NewsDetail() {
 
     fetchNewsData();
   }, [id, supabaseClient, currentLanguage, getMultiLanguageSelect, getFieldName]); // 語言改變時重新載入
+
+  // 載入來源文章詳細資訊
+  useEffect(() => {
+    const fetchSourceArticles = async () => {
+      if (!attribution || !supabaseClient || !id) return;
+
+      try {
+        // 收集所有的 article_id
+        const allArticleIds = new Set();
+        Object.values(attribution).forEach(ids => {
+          if (Array.isArray(ids)) {
+            ids.forEach(articleId => allArticleIds.add(articleId));
+          }
+        });
+
+        if (allArticleIds.size === 0) {
+          setSourceArticles({});
+          return;
+        }
+
+        const articleIdsArray = Array.from(allArticleIds);
+        console.log('📋 載入來源文章:', articleIdsArray.length, '篇');
+
+        // 從 cleaned_news 表獲取來源文章資訊
+        const { data, error } = await supabaseClient
+          .from('cleaned_news')
+          .select('article_id, article_title, article_url, media')
+          .in('article_id', articleIdsArray);
+
+        if (error) {
+          console.error('❌ 獲取來源文章失敗:', error);
+          setSourceArticles({});
+          return;
+        }
+
+        // 轉換為物件格式 {article_id: {title, url, media}}
+        const articlesMap = {};
+        if (data) {
+          data.forEach(article => {
+            articlesMap[article.article_id] = {
+              title: article.article_title || '無標題',
+              url: article.article_url || '#',
+              media: article.media || '未知來源'
+            };
+          });
+        }
+
+        console.log('✅ 來源文章載入完成:', Object.keys(articlesMap).length, '篇');
+        setSourceArticles(articlesMap);
+      } catch (e) {
+        console.error('❌ 載入來源文章時發生錯誤:', e);
+        setSourceArticles({});
+      }
+    };
+
+    fetchSourceArticles();
+  }, [attribution, supabaseClient, id]);
 
   // 載入新聞圖片
   useEffect(() => {
@@ -830,15 +906,92 @@ function NewsDetail() {
     // 渲染：每段用 <p> 包起來，段內單行換行 → <br/>
     return paragraphs.map((para, pi) => {
       const lines = para.split(/\r?\n/);
+      
+      // 獲取該段落的來源資訊 (part1, part2, ...)
+      const partKey = `part${pi + 1}`;
+      const articleIds = attribution?.[partKey] || [];
+      
       return (
-        <p key={`p-${pi}`}>
-          {lines.map((line, li) => (
-            <React.Fragment key={`l-${pi}-${li}`}>
-              {highlightTermsInLine(line)}
-              {li < lines.length - 1 && <br />}
-            </React.Fragment>
-          ))}
-        </p>
+        <React.Fragment key={`p-${pi}`}>
+          <p>
+            {lines.map((line, li) => (
+              <React.Fragment key={`l-${pi}-${li}`}>
+                {highlightTermsInLine(line)}
+                {li < lines.length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </p>
+          
+          {/* 顯示該段落的來源連結 - 小圖標樣式 */}
+          {(() => {
+            // 過濾出真實存在的來源
+            const validSources = articleIds
+              .map((articleId, idx) => ({ articleId, idx, article: sourceArticles[articleId] }))
+              .filter(item => item.article && item.article.url && item.article.url !== '#');
+            
+            if (validSources.length === 0) return null;
+            
+            return (
+              <div className="paragraph-sources-compact">
+                {validSources.map(({ articleId, idx, article }) => (
+                  <div 
+                    key={`source-${pi}-${idx}`} 
+                    className="source-badge-wrapper"
+                    onMouseEnter={(e) => {
+                      const tooltip = e.currentTarget.querySelector('.source-tooltip');
+                      const arrow = tooltip.querySelector('.source-tooltip-arrow');
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const tooltipWidth = 300; // 預估 tooltip 寬度
+                      
+                      // 計算基本位置
+                      let left = rect.left + rect.width / 2;
+                      let transformX = '-50%';
+                      let arrowLeft = '50%';
+                      
+                      // 檢查左邊界
+                      if (left - tooltipWidth / 2 < 10) {
+                        const offset = rect.left + rect.width / 2 - 10;
+                        left = 10;
+                        transformX = '0';
+                        arrowLeft = `${Math.max(20, offset)}px`;
+                      }
+                      // 檢查右邊界
+                      else if (left + tooltipWidth / 2 > window.innerWidth - 10) {
+                        const offset = rect.left + rect.width / 2 - (window.innerWidth - 10);
+                        left = window.innerWidth - 10;
+                        transformX = '-100%';
+                        arrowLeft = `${tooltipWidth + offset - 20}px`;
+                      }
+                      
+                      tooltip.style.left = `${left}px`;
+                      tooltip.style.top = `${rect.top - 10}px`;
+                      tooltip.style.transform = `translate(${transformX}, -100%)`;
+                      arrow.style.left = arrowLeft;
+                    }}
+                  >
+                    <a
+                      href={article.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="source-badge"
+                      title={`${article.media}: ${article.title}`}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                      </svg>
+                    </a>
+                    <div className="source-tooltip">
+                      <div className="source-tooltip-media">{article.media}</div>
+                      <div className="source-tooltip-title">{article.title}</div>
+                      <div className="source-tooltip-arrow"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </React.Fragment>
       );
     });
   };
