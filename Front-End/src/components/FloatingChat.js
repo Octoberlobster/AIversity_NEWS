@@ -8,16 +8,25 @@ import { getOrCreateUserId, createRoomId } from './utils.js';
 import { fetchJson } from './api';
 import { supabase } from './supabase.js';
 
+// <<< REMOVED: Default prompts constant >>>
+
 function FloatingChat() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // Get t function
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [quickPrompts, setQuickPrompts] = useState([]);
+  const [quickPrompts, setQuickPrompts] = useState([]); // Initialize as empty
   const [isLoading, setIsLoading] = useState(false);
 
+  // <<< MODIFIED: Use t() for default prompts >>>
+  const DEFAULT_QUICK_PROMPTS = useMemo(() => [
+    t('floatingChat.prompts.default1'),
+    t('floatingChat.prompts.default2'),
+  ], [t]);
+
+
   // 根據當前語言獲取對應的區域代碼
-  const getCurrentLocale = () => {
+  const getCurrentLocale = useCallback(() => {
     const currentLang = i18n.language;
     switch (currentLang) {
       case 'zh-TW':
@@ -31,23 +40,23 @@ function FloatingChat() {
       default:
         return 'zh-TW';
     }
-  };
+  }, [i18n.language]);
 
   // 獲取格式化的時間字符串
   const getFormattedTime = useCallback(() => {
-    return new Date().toLocaleTimeString(getCurrentLocale(), { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date().toLocaleTimeString(getCurrentLocale(), {
+      hour: '2-digit',
+      minute: '2-digit'
     });
-  }, []);
-  
+  }, [getCurrentLocale]);
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const location = useLocation();
   const user_id = getOrCreateUserId();
   const roomIdRef = useRef(createRoomId());
   const room_id = roomIdRef.current;
-  
+
   // 根據當前路徑獲取語言並生成路由
   const getLanguageRoute = useCallback((path) => {
     const pathSegments = location.pathname.split('/');
@@ -70,30 +79,47 @@ function FloatingChat() {
     let isMounted = true;
     const fetchQuickPrompts = async () => {
       try {
-        const response = await fetchJson('/api/hint_prompt/search', {});
+        const response = await fetchJson('/api/hint_prompt/search', {
+          language: getCurrentLocale()
+        });
         if (isMounted) {
           const dynamicPrompts = response.Hint_Prompt || [];
-          setQuickPrompts([...fixedPrompts, ...dynamicPrompts]);
+          // <<< MODIFIED: Combine fetched with fixed >>>
+          setQuickPrompts([...fixedPrompts, ...dynamicPrompts].filter(p => p && p.trim())); // Filter empty prompts
         }
       } catch (error) {
         if (isMounted) {
           console.error('Error fetching quick prompts:', error);
-          setQuickPrompts([...fixedPrompts]);
+          // <<< MODIFIED: Use fixed + default prompts on error >>>
+          setQuickPrompts([...fixedPrompts, ...DEFAULT_QUICK_PROMPTS].filter(p => p && p.trim())); // Filter empty prompts
         }
       }
     };
+    // <<< MODIFIED: Add default prompts immediately >>>
+    setQuickPrompts([...fixedPrompts, ...DEFAULT_QUICK_PROMPTS].filter(p => p && p.trim())); // Show defaults initially and filter
     fetchQuickPrompts();
+
     return () => {
       isMounted = false;
     };
-  }, [user_id, fixedPrompts]);
+     // <<< MODIFIED: Run only when fixedPrompts or language changes >>>
+  }, [fixedPrompts, getCurrentLocale, DEFAULT_QUICK_PROMPTS]); // Added DEFAULT_QUICK_PROMPTS to dependencies
 
   // 詳情頁不顯示
   const isSpecialReportPage = location.pathname.includes('/special-report/');
-  const isNewsDetailPage = location.pathname.startsWith('/news/');
+  const isNewsDetailPage = location.pathname.includes('/news/'); // Use includes for broader matching
   if (isSpecialReportPage || isNewsDetailPage) return null;
 
+
   const toggleChat = () => setIsExpanded((v) => !v);
+
+  // 語言後綴映射
+  const LANGUAGE_SUFFIX_MAP = {
+    'zh-TW': '',
+    'en': '_en_lang',
+    'jp': '_jp_lang',
+    'id': '_id_lang'
+  };
 
   const handleSendMessage = async (customMessage = null) => {
     const text = (customMessage ?? newMessage).trim();
@@ -109,7 +135,7 @@ function FloatingChat() {
     setNewMessage('');
 
     setIsLoading(true);
-    
+
     // 添加載入訊息
     const loadingMsg = {
       id: 'loading-' + Date.now(),
@@ -121,12 +147,13 @@ function FloatingChat() {
     setMessages((prev) => [...prev, loadingMsg]);
 
     try {
-      // 呼叫後端 API（舊版邏輯）
+      // 呼叫後端 API
       const response = await fetchJson('/api/chat/search', {
         user_id: user_id,
         room_id: room_id,
         prompt: text,
-        category: ['search'],
+        category: ['search'], // Always 'search' for FloatingChat
+        language: getCurrentLocale(),
       });
 
       // 處理後端回應
@@ -149,50 +176,80 @@ function FloatingChat() {
 
       setMessages((prev) => [...prev, ...textMessages]);
 
+      // 根據 i18n 狀態手動建構查詢
+      const currentLangCode = i18n.language || 'zh-TW';
+      const suffix = LANGUAGE_SUFFIX_MAP[currentLangCode] || '';
+      const titleField = 'news_title' + suffix;
+      const shortField = 'ultra_short' + suffix;
+
+      // 構建 select 查詢字串 (總是包含預設欄位作為 fallback, 加上圖片)
+      const selectFields = `story_id, news_title, ultra_short, generated_image(image)${suffix ? `, ${titleField}, ${shortField}` : ''}`;
+
       // 延遲處理新聞訊息
-      const newsMessages = await Promise.all(
-        reply
-          .filter((item) => item.news_id && Array.isArray(item.news_id))
-          .map(async (item) => {
-            const newsData = await Promise.all(
-              item.news_id.map(async (newsId) => {
-                const { data, error } = await supabase
-                  .from('single_news')
-                  .select('news_title, ultra_short,generated_image(image)')
-                  .eq('story_id', newsId)
-                  .single();
+      const newsMessagesPromises = reply
+        .filter((item) => item.news_id && Array.isArray(item.news_id))
+        .flatMap(item => // Use flatMap to handle potential nested arrays if backend changes
+            item.news_id.map(async (newsId) => {
+                try {
+                    const { data, error } = await supabase
+                      .from('single_news')
+                      .select(selectFields)
+                      .eq('story_id', newsId)
+                      .maybeSingle(); // Use maybeSingle to handle null data gracefully
 
-                if (error) {
-                  console.error('Error fetching news:', error);
-                  return null;
+                    if (error) {
+                      console.error('Error fetching news:', error);
+                      return null;
+                    }
+
+                     if (!data) {
+                         console.warn(`News data not found for story_id: ${newsId}`);
+                         return null;
+                     }
+
+                    // Extract image safely
+                    const imageBase64 = data.generated_image && Array.isArray(data.generated_image) && data.generated_image.length > 0
+                                        ? data.generated_image[0]?.image
+                                        : (data.generated_image && typeof data.generated_image === 'object' ? data.generated_image.image : null);
+
+                    if (!imageBase64) {
+                        console.warn(`Image data not found for story_id: ${newsId}`);
+                        // Optionally return a placeholder or skip
+                    }
+
+
+                    return {
+                      id: newsId + Math.random(), // Use newsId + random for key
+                      type: 'news',
+                      // 優先使用語言欄位，若無則 fallback 至預設欄位
+                      title: data[titleField] || data.news_title || t('floatingChat.newsImage.noTitle'), // Add fallback title
+                      image: imageBase64, // Store base64 string
+                      ultra_short: data[shortField] || data.ultra_short || '', // Add fallback short description
+                      newsId,
+                      isOwn: false,
+                      time: getFormattedTime(),
+                    };
+                } catch (fetchError) {
+                    console.error(`Error processing news ID ${newsId}:`, fetchError);
+                    return null;
                 }
-
-                return {
-                  id: Date.now() + Math.random(),
-                  type: 'news',
-                  title: data.news_title,
-                  image: data.generated_image.image,
-                  ultra_short: data.ultra_short,
-                  newsId,
-                  isOwn: false,
-                  time: getFormattedTime(),
-                };
-              })
-            );
-            return newsData.filter(Boolean);
           })
-      );
+        );
+
+        const resolvedNewsMessages = (await Promise.all(newsMessagesPromises)).filter(Boolean);
+
 
       // 延遲顯示新聞訊息
       setTimeout(() => {
-        setMessages((prev) => [...prev, ...newsMessages.flat()]);
-      }, 1000);
+        setMessages((prev) => [...prev, ...resolvedNewsMessages]);
+      }, 500); // Shorter delay
+
     } catch (error) {
       console.error('Error fetching chat response:', error);
       // 移除載入訊息
       setMessages((prev) => prev.filter(m => !m.isLoading));
       setIsLoading(false);
-      
+
       setMessages((prev) => [
         ...prev,
         {
@@ -206,14 +263,15 @@ function FloatingChat() {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') handleSendMessage();
+    if (e.key === 'Enter' && !isLoading) handleSendMessage(); // Prevent sending while loading
   };
 
   // 新版 handlePromptSend：直接送出，而不是塞進 input
   const handlePromptSend = (promptText) => {
-    if (!promptText.trim()) return;
+    if (!promptText || !promptText.trim() || isLoading) return; // Prevent sending empty/while loading
     handleSendMessage(promptText);
   };
+
 
   return (
     <div className="fchat">
@@ -258,7 +316,7 @@ function FloatingChat() {
             </div>
 
             {/* 訊息區 */}
-            <div className="messages">
+            <div className="messages" data-messages-container> {/* Added data attribute */}
               {messages.length === 0 && (
                 <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
@@ -269,6 +327,8 @@ function FloatingChat() {
 
               {messages.map((m) => {
                 if (m.type === 'news') {
+                   // Skip rendering if image is missing or invalid
+                   if (!m.image) return null;
                   return (
                     <div key={m.id} className="message message--news">
                       <div
@@ -276,16 +336,18 @@ function FloatingChat() {
                         onClick={() => window.open(getLanguageRoute(`/news/${m.newsId}`), '_blank')}
                         style={{ cursor: 'pointer' }}
                       >
+                         {/* <<< MODIFIED: Construct data URL for image >>> */}
                         <img
-                          src={`data:image/png;base64,${m.image}`}
-                          alt={t('floatingChat.newsImage.alt')}
+                           src={`data:image/png;base64,${m.image.replace(/\s/g, '')}`}
+                           alt={t('floatingChat.newsImage.alt')}
+                           onError={(e) => { e.target.style.display = 'none'; }} // Hide broken images
                         />
                         <div>
                           <h4>{m.title}</h4>
                           <p>{m.ultra_short}</p>
                         </div>
                       </div>
-                      <span className="message__time">{m.time}</span>
+                      <span className="time">{m.time}</span> {/* Changed class name */}
                     </div>
                   );
                 } else {
@@ -305,7 +367,7 @@ function FloatingChat() {
                           <ReactMarkdown>{m.text}</ReactMarkdown>
                         )}
                       </div>
-                      <span className="message__time">{m.time}</span>
+                      <span className="time">{m.time}</span> {/* Changed class name */}
                     </div>
                   );
                 }
@@ -314,7 +376,8 @@ function FloatingChat() {
             </div>
 
             {/* 快速提示區 */}
-            {quickPrompts.length > 0 && (
+            {/* <<< MODIFIED: Check quickPrompts length >>> */}
+            {Array.isArray(quickPrompts) && quickPrompts.length > 0 && !isLoading && (
               <div className="prompt">
                 <div className="prompt__container">
                   {quickPrompts.map((p, i) => (
@@ -323,6 +386,8 @@ function FloatingChat() {
                       type="button"
                       className="prompt__item"
                       onClick={() => handlePromptSend(p)}
+                      // <<< ADDED: Prevent sending empty prompts >>>
+                      disabled={!p || !p.trim()}
                     >
                       {p}
                     </button>
@@ -330,6 +395,7 @@ function FloatingChat() {
                 </div>
               </div>
             )}
+
 
             {/* 輸入區 */}
             <div className="input">
@@ -343,13 +409,14 @@ function FloatingChat() {
                 onKeyPress={handleKeyPress}
                 autoComplete="off"
                 spellCheck="false"
+                disabled={isLoading} // Disable input while loading
               />
               <button
                 className="input__send"
                 onClick={() => handleSendMessage()}
-                disabled={!newMessage.trim()}
+                disabled={!newMessage.trim() || isLoading} // Disable button while loading or if input is empty
               >
-                ➤
+                {isLoading ? '...' : '➤'} {/* Show loading indicator */}
               </button>
             </div>
           </div>

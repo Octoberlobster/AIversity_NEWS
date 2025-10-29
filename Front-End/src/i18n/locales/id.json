@@ -27,7 +27,8 @@
     },
     "language": {
       "select": "Pilih Bahasa"
-    }
+    },
+    "aiWarning": "⚠️ AI mungkin membuat kesalahan,\n harap gunakan dengan hati-hati"
   },
   "home": {
     "latestTopic": "Topik Terbaru",
@@ -127,7 +128,9 @@
       "input": "Masukkan topik berita atau pertanyaan Anda..."
     },
     "prompts": {
-      "recentNews": "Apa berita penting baru-baru ini?"
+      "recentNews": "Apa berita penting terbaru?",
+      "default1": "Bagaimana situasi internasional?",
+      "default2": "Adakah perkembangan baru di industri teknologi?"
     },
     "error": {
       "serverError": "Maaf, terjadi kesalahan server. Silakan coba lagi nanti."
@@ -328,15 +331,9 @@
       "serverError": "Maaf, terjadi kesalahan server. Silakan coba lagi nanti."
     },
     "prompts": {
-      "default": [
-        "Bagaimana pandangan para pakar mengenai isu ini?",
-        "Tren perkembangan masa depan dari topik ini"
-      ],
-      "fixed": {
-        "updates": "Apa pembaruan terkini tentang '{{topicTitle}}'?",
-        "content": "Konten apa yang disediakan '{{topicTitle}}'?",
-        "opinion": "Apa pendapat Anda tentang '{{topicTitle}}'?"
-      }
+      "default1": "Apa perkembangan terbaru tentang topik ini: {{topicTitle}}?",
+      "default2": "Jelaskan latar belakang {{topicTitle}} secara mendalam.",
+      "default3": "Apa perspektif berbeda tentang {{topicTitle}}?"
     }
   },
   "searchResult": {
@@ -394,6 +391,13 @@
         "name": "Bagaimana",
         "description": "Proses dan metode peristiwa"
       }
+    }
+  },
+  "chatRoom": {
+    "prompts": {
+      "default1": "Apa poin-poin penting dari berita ini?",
+      "default2": "Bagaimana ini mempengaruhi saya?",
+      "default3": "Apakah ada informasi terkait lainnya?"
     }
   }
 }

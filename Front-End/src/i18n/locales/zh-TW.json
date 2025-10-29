@@ -27,7 +27,8 @@
     },
     "language": {
       "select": "選擇語言"
-    }
+    },
+    "aiWarning": "⚠️ AI 可能會出現錯誤，請謹慎參考"
   },
   "home":{
     "latestTopic": "最新專題",
@@ -127,7 +128,9 @@
       "input": "輸入您想搜尋的新聞主題或問題..."
     },
     "prompts": {
-      "recentNews": "近期有什麼重要的新聞？"
+      "recentNews": "近期有什麼重要的新聞？",
+      "default1": "國際局勢如何？",
+      "default2": "科技業有什麼新動態？"
     },
     "error": {
       "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
@@ -315,15 +318,9 @@
       "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
     },
     "prompts": {
-      "default": [
-        "專家如何看待這個議題？",
-        "這個專題的未來發展趨勢"
-      ],
-      "fixed": {
-        "updates": "「{{topicTitle}}」近期有什麼更新",
-        "content": "「{{topicTitle}}」提供甚麼內容？",
-        "opinion": "你對於「{{topicTitle}}」有什麼看法？"
-      }
+      "default1": "這個專題 {{topicTitle}} 的最新進展是什麼？",
+      "default2": "深入解釋一下 {{topicTitle}} 的背景。",
+      "default3": "關於 {{topicTitle}}，有什麼不同的觀點？"
     }
   },
   "searchResult":{
@@ -381,6 +378,13 @@
         "name": "如何",
         "description": "事件的過程和方式"
       }
+    }
+  },
+  "chatRoom": {
+      "prompts": {
+      "default1": "這則新聞的重點是什麼？",
+      "default2": "這件事對我有什麼影響？",
+      "default3": "有沒有其他相關資訊？"
     }
   }
 }
