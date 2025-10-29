@@ -166,50 +166,56 @@ class NewsEventGrouper:
         
         # 構建提示語
         prompt = f"""
-請分析以下 {len(news_items)} 則新聞，將它們按照**具體、精確**的事件主題進行分組。**極度重要：僅有真正高度相關的新聞才能分在同一組。絕不為了湊數而勉強歸類，寧可分成多個小組，或將單獨的新聞歸入「其他」，也不要創建包含不相關內容的龐雜分組。**
+請分析以下 {len(news_items)} 則新聞，將它們按照**核心事件主題**進行分組。**重要原則：避免過度細分，優先創建較少但更有意義的分組。相關或相似的事件應該合併在同一組。**
 
-**嚴格分組準則：**
-1.  **絕對的共同主題或核心事件**：新聞內容必須圍繞同一核心事件或議題展開，才能歸為一組。
-2.  **高度的內容一致性**：同一組內的新聞應探討事件的相似面向、發展階段或關鍵細節。
-3.  **避免模糊與籠統**：分組標題必須極其具體，清晰指向該組新聞的核心內容。
-4.  **最小組規模**：每組至少需要 2-3 則高度相關的新聞。單獨一則無法找到明確配對的新聞，請歸入「其他相關新聞」。
+**分組準則：**
+1.  **共同主題或核心事件**：新聞內容圍繞同一核心事件或議題展開，才能歸為一組。
+2.  **內容相關性**：同一組內的新聞應探討事件的不同面向、發展階段或關鍵細節。
+3.  **避免過度細分**：除非新聞內容明顯不同，否則應該合併到同一個分組。優先考慮合併相關事件。
+4.  **合理組規模**：每組建議包含 2-6 則新聞，避免創建太多小分組。
 5.  **單一歸屬**：每則新聞只能屬於一個分組。
+6.  **所有新聞必須分組**：確保編號 1 到 {len(news_items)} 的每則新聞都被分配到某個分組中。
+7.  **不要創建「其他」分組**：不要創建「其他」、「其他相關新聞」、「未分類」等籠統分組。
+8.  **控制分組數量**：總分組數應該控制在 3-5 個之間，**至少需要 3 個分組**，除非新聞內容確實太過單一。
 
 新聞資料：
-{chr(1000).join(news_summaries)}
+{chr(10).join(news_summaries)}
 
 請嚴格按照以下 JSON 格式輸出分組結果：
 {{
   "groups": [
     {{
-      "event_title": "**具體事件標題 (嚴格限制在10字以內)**",
-      "event_summary": "簡潔扼要說明該事件核心與關聯性 (80字以內)",
-      "news_indices": [1, 2, 3]
+      "event_title": "**具體事件標題 (10字以內)**",
+      "event_summary": "簡潔說明該事件核心內容 (80字以內)",
+      "news_indices": [1, 2, 3, 4, 5]
     }},
     {{
-      "event_title": "**另一個具體事件標題 (嚴格限制在10字以內)**",
-      "event_summary": "另一個事件的具體說明",
-      "news_indices": [4, 5]
+      "event_title": "**另一個事件標題 (10字以內)**",
+      "event_summary": "另一個事件的說明",
+      "news_indices": [6, 7, 8]
     }}
-    // ... 更多分組
+    // ... 更多分組（但應該盡量少）
   ]
 }}
 
 **評估標準：**
-* **主題的精確性與專一性**：分組必須聚焦於單一、明確的事件或議題。
-* **時間與內容的緊密關聯**：即使是事件的不同發展階段，其核心內容也必須高度重疊。
-* **排除「綜合新聞」類標題**：絕不使用寬泛、概括性的標題，必須是具體的事件指稱。
+* **避免過度細分**：優先將相關事件合併，不要為了細分而細分。
+* **分組的實用性**：每個分組應該有足夠的新聞數量，讓讀者能看到完整的事件全貌。
+* **標題的代表性**：分組標題應該能涵蓋該組大部分新聞的主題。
+* **確保完整分配**：每個新聞編號 (1 到 {len(news_items)}) 都必須出現在某個分組的 news_indices 中。
+* **必須至少3個分組**：除非新聞總數太少或主題過於單一，否則必須創建至少 3 個不同的分組。
 
 **輸出要求：**
 * **僅回傳 JSON 格式的輸出**，不包含任何額外的解釋文字。
-* `event_title` 必須為**高度具體且精煉**的標題，長度嚴格控制在 10 字以內。
+* `event_title` 必須為**具體且精煉**的標題，長度控制在 10 字以內。
 * `news_indices` 為新聞列表中的編號，從 1 開始。
-* 若有新聞無法歸入任何明確、具體的主題組，請統一建立一個名為「**其他相關新聞**」的分組，並為其提供簡要說明。
+* **分組數量應控制在 3-5 個之間**，至少需要 3 個分組。
+* **絕對不要創建「其他」或「未分類」的分組**，所有新聞都必須分配到具體的事件分組中。
 """
 
         try:
             response = self.genai_client.models.generate_content(
-                model='gemini-2.5-flash-lite',
+                model='gemini-2.5-flash',
                 contents=prompt
             )
             result_text = response.text.strip()
@@ -255,16 +261,30 @@ class NewsEventGrouper:
             unused_indices = all_indices - used_news_indices
             
             if unused_indices:
-                # 將未分配的新聞創建為一個額外的分組
-                unused_news = [news_items[idx - 1] for idx in unused_indices]
-                event_groups.append({
-                    'event_id': str(uuid.uuid4()),
-                    'event_title': '其他相關新聞',
-                    'event_summary': f'包含 {len(unused_news)} 則未被其他分支包含的相關新聞',
-                    'news_count': len(unused_news),
-                    'news_items': unused_news
-                })
-                print(f"注意：有 {len(unused_indices)} 則新聞未被 AI 分組，已自動創建「其他相關新聞」分支")
+                print(f"⚠ 發現 {len(unused_indices)} 則新聞未被 AI 分組，正在將其分配到最相關的分組...")
+                
+                # 將每則未分配的新聞分配到最相關的分組
+                for unused_idx in sorted(unused_indices):
+                    unused_news = news_items[unused_idx - 1]
+                    unused_title = unused_news['news_title'][:100]
+                    
+                    # 找到最相關的分組（這裡簡單地分配到第一個分組，實際可以改進為計算相似度）
+                    if event_groups:
+                        # 分配到第一個分組
+                        target_group = event_groups[0]
+                        target_group['news_items'].append(unused_news)
+                        target_group['news_count'] = len(target_group['news_items'])
+                        print(f"  • 新聞 {unused_idx} ({unused_title[:30]}...) 已分配到分組: {target_group['event_title']}")
+                    else:
+                        # 如果沒有任何分組，創建一個新分組
+                        event_groups.append({
+                            'event_id': str(uuid.uuid4()),
+                            'event_title': '相關新聞事件',
+                            'event_summary': '相關新聞事件',
+                            'news_count': 1,
+                            'news_items': [unused_news]
+                        })
+                        print(f"  • 新聞 {unused_idx} ({unused_title[:30]}...) 已建立新分組")
             
             return event_groups
             
@@ -609,7 +629,7 @@ class NewsEventGrouper:
         
         try:
             response = self.genai_client.models.generate_content(
-                model='gemini-1.5-flash',
+                model='gemini-2.5-flash',
                 contents=prompt
             )
             summary = response.text.strip()
@@ -648,7 +668,7 @@ class NewsEventGrouper:
         
         try:
             response = self.genai_client.models.generate_content(
-                model='gemini-1.5-flash',
+                model='gemini-2.5-flash',
                 contents=prompt
             )
             result_text = response.text.strip()
