@@ -1,15 +1,40 @@
 """從 Supabase 撈取 single_news，生成圖片並將 base64 圖片與描述寫回 generated_image 表
 
-用法：
-  python generate_from_supabase.py [limit]
+使用說明（可放任意順序的參數）:
 
-需求：在 Picture_generate_system/.env 設定 SUPABASE_URL 與 SUPABASE_KEY，並設定 GEMINI_API_KEY
-安裝套件：pip install supabase-py postgrest-py python-dotenv google-genai pillow
+    python generate_from_supabase.py [LIMIT] [no-write] [force]
+
+參數說明：
+    LIMIT      - (可選) 整數，限制要處理的新聞筆數。例如 1、3、10。若未提供則處理全部符合條件的新聞。
+    no-write   - (可選) 測試模式：不會寫入資料庫，而是把生成結果存成 JSON 檔案於
+                             generated_image_previews/ 目錄，檔名格式：generated_image_preview_{story_id}.json
+    force      - (可選) 強制模式：忽略已存在於 generated_image 表中的 story_id，會對取出的新聞強制重新生成
+                             （僅建議在測試時使用，避免不小心覆寫或重複產生大量圖片）。
+
+使用範例：
+    python generate_from_supabase.py 3                # 處理前 3 筆（會跳過已生成過的 story_id）
+    python generate_from_supabase.py 1 no-write       # 處理 1 筆並將結果寫為 JSON（不寫入 DB）
+    python generate_from_supabase.py force 1 no-write # 強制處理 1 筆（忽略已生成檢查），並以 JSON 儲存
+    python generate_from_supabase.py no-write         # 處理全部符合條件的新聞，但不寫入 DB（小心耗時）
+
+注意事項：
+    - 執行會使用工作目錄下的 .env 檔（或系統環境）中的 SUPABASE_URL、SUPABASE_KEY 與 GEMINI_API_KEY。
+    - 生成圖片會呼叫 Gemini 圖像 API，可能會產生費用與配額消耗。請確認您同意使用該帳號/金鑰。
+    - 若要避免覆寫/新增資料，請在測試時使用 no-write 模式；若需重生成已存在項目，可搭配 force 使用。
+
+需求/安裝：
+    pip install supabase-py postgrest-py python-dotenv google-genai pillow
+
+輸出位置：
+    - 真正寫入 DB：寫入至 Supabase 的 generated_image 表（欄位 story_id, image (base64), description）
+    - no-write 模式：JSON 檔案存於 generated_image_previews/ 下（包含 prompt、description、image_base64）
+
 """
 import os
 import sys
 import time
 import base64
+import json
 from typing import Optional
 from dotenv import load_dotenv
 
@@ -44,39 +69,139 @@ except Exception:
 
 # 圖片生成相關函數
 def _prompt_photoreal_no_text(news_title: str, news_summary: str, category: str) -> str:
-    """根據新聞標題和摘要，生成不含文字的攝影級寫實事件示意圖提示。"""
+    """根據新聞標題和摘要，生成不含文字的攝影級寫實事件示意圖提示。
+    
+    嚴格要求：
+    1. 絕對禁止任何文字、符號、標誌
+    2. 高解析度專業攝影品質
+    3. 完全基於新聞實際內容生成，不使用隱喻或不相關物件
+    """
+    
+    # 超高解析度與專業攝影品質要求
+    high_quality = (
+        "ULTRA HIGH RESOLUTION, 8K quality, professional photojournalism grade, "
+        "crystal clear focus, razor-sharp details, maximum clarity, "
+        "professional DSLR camera shot, high dynamic range (HDR), "
+        "exceptional image quality, publication-ready, commercial photography standard"
+    )
+    
+    # 專業攝影風格（可依 category 調整）
     category_styles = {
-        "政治": "dramatic, serious, high-contrast, documentary style",
-        "社會": "documentary realism, human-centric",
-        "國際": "cinematic realism with diplomatic symbolism (no flags)",
-        "財經": "neutral corporate tone, high-tech, clean aesthetics",
-        "科技": "futuristic, sleek, innovative, digital aesthetics",
+        "政治": "serious editorial photography, dramatic natural lighting, documentary photojournalism style",
+        "社會": "human-interest documentary style, authentic moments, environmental portrait approach",
+        "國際": "international photojournalism, diplomatic event coverage, architectural context",
+        "財經": "corporate editorial photography, professional business environment, clean modern aesthetics",
+        "科技": "tech editorial photography, innovative spaces, modern industrial design",
     }
-    style_hint = category_styles.get(category or "", "neutral editorial tone with subtle cinematic realism")
-    
-    photo_style = (
-        "photorealistic, realistic photo, cinematic still, natural color grading, "
-        "soft directional lighting, subtle film grain, shallow depth of field, creamy bokeh, "
-        "subject isolation, rule of thirds, foreground/background layering"
+    style_hint = category_styles.get(category or "", "professional editorial photography, authentic documentary approach")
+
+    photo_technique = (
+        "photorealistic, professional photography, cinematic composition, "
+        "natural color grading with accurate white balance, "
+        "professional lighting setup, optimal exposure, "
+        "depth of field control, bokeh quality, "
+        "rule of thirds composition, leading lines, visual hierarchy"
+    )
+
+    # 絕對禁止文字 - 多層次強調
+    absolute_no_text = (
+        "【ABSOLUTE CRITICAL REQUIREMENT - NO TEXT WHATSOEVER】\n"
+        "ZERO TEXT allowed in the image. This is NON-NEGOTIABLE.\n"
+        "NO letters, NO numbers, NO characters of any language (English, Chinese, Japanese, Korean, Arabic, etc.), "
+        "NO words, NO captions, NO labels, NO signs, NO signage, NO banners, NO posters, "
+        "NO billboards, NO newspapers, NO books with visible text, NO screens with text, "
+        "NO UI elements, NO subtitles, NO watermarks, NO logos, NO trademarks, NO brand names, "
+        "NO license plates with readable text, NO nametags, NO badges with text, "
+        "NO graffiti, NO writing of any kind, NO textual overlays, NO typographic elements.\n"
+        "If buildings/locations must appear, show them from angles where signs are NOT visible. "
+        "If documents must appear, show them as blank papers or blur any text completely. "
+        "If screens must appear, show them turned off or with pure abstract patterns only."
+    )
+
+    # 嚴格的否定清單：禁止不相關物件與隱喻道具
+    negative_items = (
+        "【FORBIDDEN OBJECTS】Do NOT include: "
+        "hammers, mallets, gavels, tools, hand tools, construction tools, carpentry tools, "
+        "weapons, guns, knives, swords, mechanical instruments, "
+        "scales of justice (unless the news is specifically about courts/justice system), "
+        "chess pieces, light bulbs, keys, locks (unless directly relevant to the news content), "
+        "clocks, hourglasses (unless about time-related news), "
+        "puzzle pieces, magnifying glasses (unless detective/investigation news), "
+        "arrows, targets, ladders, chains, "
+        "generic metaphorical objects that have no direct connection to the actual news event. "
+        "ONLY include objects and locations that are LITERALLY mentioned or directly implied in the news content."
+    )
+
+    # 基於新聞實際內容的具體場景指示
+    content_based_generation = (
+        f"【CONTENT-BASED GENERATION - STRICT ADHERENCE TO NEWS CONTENT】\n"
+        f"News Title: '{news_title}'\n"
+        f"News Summary: '{news_summary}'\n\n"
+        "REQUIREMENT: Generate ONLY what is directly described or clearly implied in the above news content.\n"
+        "- If the news mentions a specific location (hospital, court, parliament, street, building, etc.), show that location.\n"
+        "- If the news mentions specific objects (medical equipment, vehicles, ballot boxes, etc.), show those objects.\n"
+        "- If the news mentions people in specific roles (doctors, politicians, protesters, etc.), show anonymous figures in those roles "
+        "(rear view, silhouette, or far enough that faces are not identifiable).\n"
+        "- If the news is about an abstract concept (policy, economy, legislation), show the PHYSICAL LOCATION where such activities occur "
+        "(e.g., parliament building exterior, stock exchange hall, government office, business district) "
+        "rather than using symbolic objects.\n"
+        "- Use environmental storytelling: show the ACTUAL SCENE of the event, not metaphors.\n"
+        "- Prefer wide shots or establishing shots that show context and environment.\n"
+        "- If people must be shown, ensure they are anonymous, non-identifiable, "
+        "shot from behind, from a distance, or in silhouette to protect privacy and avoid identification."
+    )
+
+    # 具體場景範例指引（根據常見新聞類型）
+    scene_examples = (
+        "【SCENE EXAMPLES BASED ON NEWS TYPE】\n"
+        "- Election/Voting news → polling station interior, ballot boxes, voting booths, empty civic centers\n"
+        "- Medical/Health news → hospital corridors, medical facilities, clinical environments, ambulances\n"
+        "- Legal/Court news → courtroom interior (empty or with anonymous figures), courthouse architecture\n"
+        "- Political news → parliament/government buildings (exterior or interior), official meeting spaces\n"
+        "- Economic/Business news → modern office buildings, stock exchange, business districts, corporate environments\n"
+        "- Technology news → tech campuses, data centers, modern workspaces, innovation labs\n"
+        "- Social/Community news → public spaces, community centers, street scenes, residential areas\n"
+        "- Environmental news → natural landscapes, urban environments, infrastructure, relevant geographical locations\n"
+        "- Crime/Safety news → urban environments, police stations (exterior), public safety contexts (no graphic content)\n"
+        "- International news → relevant architectural landmarks, diplomatic buildings, international settings"
+    )
+
+    # 超級強調：開頭再次重複禁止文字
+    ultra_critical_no_text = (
+        "!!!CRITICAL OVERRIDE!!! ABSOLUTELY NO TEXT IN THE IMAGE !!!\n"
+        "This is the HIGHEST PRIORITY requirement that OVERRIDES everything else.\n"
+        "NO TEXT means NO TEXT. Not even a single letter, number, or symbol.\n"
+        "Remove ALL signs, labels, writing, captions, subtitles from the scene.\n"
+        "If you see ANY text forming in the image generation, STOP and regenerate without it.\n\n"
     )
     
-    core_subject = (
-        f"A scene representing the core concepts of the news: '{news_title}'. "
-        f"The visual elements should metaphorically or symbolically illustrate the key points from the summary: '{news_summary}'. "
-        f"Focus on generic, non-identifiable persons and symbolic objects to convey the narrative without any text."
-    )
-    
-    no_text = (
-        "CRITICAL: Absolutely NO TEXT of any kind within the image. "
-        "NO letters, NO numbers, NO words, NO captions, NO labels, NO banners, NO signage, NO UI, NO subtitles. "
-        "NO logos, NO trademarks, NO watermarks, NO brand marks."
-    )
-    
+    # 組合最終 prompt - 多次重複禁止文字要求
     prompt = (
-        f"IMPORTANT: {no_text} "
-        f"Generate a scene representing: {core_subject}. "
-        f"Style requirements: {style_hint}, {photo_style}. "
-        f"Image size 1024x625 pixels, aspect ratio 5:3, high clarity, realistic textures and materials."
+        f"{ultra_critical_no_text}"
+        f"{absolute_no_text}\n\n"
+        f"REPEAT: NO TEXT ALLOWED. ZERO TEXT. 絕對不能有任何文字。\n\n"
+        f"{negative_items}\n\n"
+        f"{content_based_generation}\n\n"
+        f"{scene_examples}\n\n"
+        f"【TECHNICAL SPECIFICATIONS】\n"
+        f"{high_quality}\n"
+        f"Photography style: {style_hint}\n"
+        f"Technical approach: {photo_technique}\n"
+        f"Image dimensions: 1024x625 pixels (aspect ratio 5:3)\n"
+        f"Quality requirement: Maximum resolution and clarity, professional grade, publication ready\n\n"
+        f"【FINAL CRITICAL INSTRUCTION - REPEAT】\n"
+        f"⚠️ MOST IMPORTANT: The generated image MUST NOT contain ANY text whatsoever. ⚠️\n"
+        f"NO letters, NO words, NO numbers, NO symbols, NO writing of ANY kind in ANY language.\n"
+        f"If there are signs/billboards in the scene, show them completely blank or remove them entirely.\n"
+        f"If there are screens, show them turned off (black) or with pure solid colors only.\n"
+        f"If there are documents/papers, show them as blank white sheets.\n"
+        f"Shoot from angles that avoid any text that might exist in the environment.\n\n"
+        f"Create a high-resolution, professional photojournalistic image that LITERALLY represents "
+        f"the news event described above. Use ONLY elements directly mentioned or clearly implied "
+        f"in the news content. "
+        f"Prioritize authenticity, clarity, and direct visual representation over symbolic or metaphorical imagery.\n\n"
+        f"FINAL VERIFICATION: Before returning the image, check - is there ANY text visible? If YES, regenerate without text. "
+        f"The image must be 100% text-free. 圖片必須 100% 無文字。"
     )
     return prompt
 
@@ -139,7 +264,18 @@ sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 gen_client = genai.Client()
 
 # 獲取所有新聞，不限制數量
-LIMIT = int(sys.argv[1]) if len(sys.argv) > 1 else None  # 如果有參數則使用，否則不限制
+# 支援參數：LIMIT, no-write, force（參數順序不限）
+args = sys.argv[1:]
+# 找到第一個數字作為 LIMIT（如果有）
+LIMIT = None
+for a in args:
+    if a.isdigit():
+        LIMIT = int(a)
+        break
+# 若傳入 'no-write' 則禁止寫入資料庫（測試模式）
+NO_WRITE = 'no-write' in args
+# 若傳入 'force' 則忽略 existing_story_ids 檢查（強制重生成，僅用於測試）
+FORCE = 'force' in args
 MODEL_ID = 'gemini-2.0-flash-preview-image-generation'
 RETRY_TIMES = 3
 SLEEP_BETWEEN = 0.6
@@ -178,14 +314,17 @@ if existing_resp.data:
 else:
     print("generated_image 表為空或無法讀取")
 
-# 過濾掉已經生成過的新聞
+# 過濾掉已經生成過的新聞（如果沒有 force 標記）
 original_count = len(rows)
-rows = [row for row in rows if row.get('story_id') not in existing_story_ids]
+if not FORCE:
+    rows = [row for row in rows if row.get('story_id') not in existing_story_ids]
+else:
+    print("FORCE 模式：忽略已生成紀錄，將強制對取出的新聞生成圖片（僅用於測試）")
 filtered_count = len(rows)
 print(f"原有 {original_count} 筆新聞，過濾後剩餘 {filtered_count} 筆需要生成圖片")
 
 if not rows:
-    print("所有新聞都已生成過圖片，無需處理")
+    print("所有新聞都已生成過圖片（或過濾後無資料），無需處理")
     raise SystemExit(0)
 
 insert_count = 0
@@ -238,15 +377,33 @@ for i, r in enumerate(rows, start=1):
 
     # 嘗試插入資料庫
     try:
-        ins = sb.table('generated_image').insert(payload).execute()
-        if getattr(ins, 'error', None):
-            print(f"寫入 generated_image 發生錯誤: {ins.error}")
-            fail_count += 1
+        if NO_WRITE:
+            # 測試模式：不寫入資料庫，將結果以 JSON 存檔供檢查
+            out_dir = "generated_image_previews"
+            try:
+                os.makedirs(out_dir, exist_ok=True)
+                preview = {
+                    'story_id': story_id,
+                    'description': description,
+                    'image_base64': b64,
+                    'prompt': prompt
+                }
+                filename = f"{out_dir}/generated_image_preview_{story_id}.json"
+                with open(filename, 'w', encoding='utf-8') as f:
+                    json.dump(preview, f, ensure_ascii=False, indent=2)
+                print(f"[no-write] 已將預覽輸出為 JSON: {filename} (image_len={len(b64)} chars)")
+            except Exception as e:
+                print(f"[no-write] 無法寫入預覽 JSON: {e}")
         else:
-            insert_count += 1
-            print(f"已寫入 generated_image (story_id={story_id})")
-            # 避免速率限制
-            time.sleep(0.5)
+            ins = sb.table('generated_image').insert(payload).execute()
+            if getattr(ins, 'error', None):
+                print(f"寫入 generated_image 發生錯誤: {ins.error}")
+                fail_count += 1
+            else:
+                insert_count += 1
+                print(f"已寫入 generated_image (story_id={story_id})")
+                # 避免速率限制
+                time.sleep(0.5)
     except Exception as e:
         print(f"寫入例外: {e}")
         fail_count += 1
