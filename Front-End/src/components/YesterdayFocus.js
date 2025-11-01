@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useCountry } from './CountryContext';
 import { useSupabase } from './supabase';
 import '../css/YesterdayFocus.css';
@@ -7,7 +7,6 @@ import '../css/YesterdayFocus.css';
 function YesterdayFocus() {
   const { selectedCountry } = useCountry();
   const supabase = useSupabase();
-  const navigate = useNavigate();
   const location = useLocation();
   const [newsData, setNewsData] = useState([]);
 
@@ -34,12 +33,7 @@ function YesterdayFocus() {
 
   const currentCountryDbName = countryDbMap[selectedCountry] || 'Taiwan';
 
-  // 處理新聞點擊
-  const handleNewsClick = (storyId) => {
-    navigate(`/${currentLang}/news/${storyId}`);
-  };
-
-  // 計算昨天的日期（格式：YYYY-MM-DD）
+  // 計算昨天的日期(格式:YYYY-MM-DD)
   useEffect(() => {
     const today = new Date();
     const yesterday = new Date(today);
@@ -174,28 +168,34 @@ function YesterdayFocus() {
         <div className="news-cards-list">
           {newsData.map(news => (
             <div key={news.id} className="news-card-container">
-              {/* 左側：新聞內容 */}
+              {/* 左側:新聞內容 */}
               <div className="card-main">
-                <h3 
-                  className="card-title" 
-                  onClick={() => handleNewsClick(news.id)}
-                  style={{ cursor: 'pointer' }}
+                <a 
+                  href={`/${currentLang}/news/${news.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-title-link"
                 >
-                  {news.title}
-                </h3>
-                <div 
-                  className="card-image"
-                  onClick={() => handleNewsClick(news.id)}
-                  style={{ cursor: 'pointer' }}
+                  <h3 className="card-title">
+                    {news.title}
+                  </h3>
+                </a>
+                <a 
+                  href={`/${currentLang}/news/${news.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-image-link"
                 >
-                  <img 
-                    src={news.image} 
-                    alt={news.title}
-                    onError={(e) => {
-                      e.target.src = 'https://placehold.co/400x250/e5e7eb/9ca3af?text=圖片載入失敗';
-                    }}
-                  />
-                </div>
+                  <div className="card-image">
+                    <img 
+                      src={news.image} 
+                      alt={news.title}
+                      onError={(e) => {
+                        e.target.src = 'https://placehold.co/400x250/e5e7eb/9ca3af?text=圖片載入失敗';
+                      }}
+                    />
+                  </div>
+                </a>
                 <div className="card-content">
                   <p className="card-summary">{news.summary}</p>
                 </div>

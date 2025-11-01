@@ -64,6 +64,8 @@
 .news-card-container {
   display: grid;
   grid-template-columns: 6fr 4fr;
+  grid-auto-rows: min-content;
+  align-items: start;
   gap: 1.5rem;
   background: #fff;
   border-radius: 8px;
@@ -151,6 +153,17 @@
   justify-content: flex-start;
 }
 
+.card-title-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card-image-link {
+  text-decoration: none;
+  display: block;
+}
+
 .card-title {
   font-size: 1.3rem;
   font-weight: 700;
@@ -163,6 +176,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   transition: color 0.2s ease;
+  cursor: pointer;
 }
 
 .card-title:hover {
@@ -179,13 +193,6 @@
   line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.card-date {
-  font-size: 0.85rem;
-  color: #9ca3af;
-  font-weight: 500;
-  align-self: flex-start;
 }
 
 /* 卡片側邊欄 */
