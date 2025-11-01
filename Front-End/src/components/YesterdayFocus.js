@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCountry } from './CountryContext';
-import { useSupabase } from './supabase';
+import { useYesterdayNews, useNewsImages, useRelatedSources } from '../hooks/useYesterdayNews';
 import '../css/YesterdayFocus.css';
 
 function YesterdayFocus() {
   const { selectedCountry } = useCountry();
-  const supabase = useSupabase();
   const location = useLocation();
-  const [newsData, setNewsData] = useState([]);
 
   // 獲取當前語言
   const currentLang = location.pathname.split('/')[1] || 'zh-TW';
@@ -34,129 +32,91 @@ function YesterdayFocus() {
   const currentCountryDbName = countryDbMap[selectedCountry] || 'Taiwan';
 
   // 計算昨天的日期(格式:YYYY-MM-DD)
-  useEffect(() => {
+  const yesterdayDate = useMemo(() => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     
-    // 格式化為 YYYY-MM-DD
     const year = yesterday.getFullYear();
     const month = String(yesterday.getMonth() + 1).padStart(2, '0');
     const day = String(yesterday.getDate()).padStart(2, '0');
-    const yesterdayDate = `${year}-${month}-${day}`;
+    
+    return `${year}-${month}-${day}`;
+  }, []);
 
-    console.log('昨天的日期:', yesterdayDate);
-    console.log('當前選擇的國家:', selectedCountry);
+  // 🎯 第一階段: 載入基本新聞資料 (文字內容)
+  const { 
+    data: basicNewsData = [], 
+    isLoading: isLoadingBasic,
+    error: basicError 
+  } = useYesterdayNews(currentCountryDbName, yesterdayDate);
 
-    // 從 top_ten_news 表拉取資料
-    const fetchYesterdayNews = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('top_ten_news')
-          .select('*')
-          .eq('country', currentCountryDbName)
-          .eq('date', yesterdayDate);
+  // 提取所有 story_ids 用於載入圖片和來源
+  const storyIds = useMemo(() => {
+    return basicNewsData.map(news => news.id);
+  }, [basicNewsData]);
 
-        if (error) {
-          console.error('拉取資料錯誤:', error);
-        } else {
-          console.log('拉取到的資料:', data);
-          
-          // 解析 top_ten_news_id JSON 格式並拉取相關新聞資料
-          if (data && data.length > 0) {
-            const newsPromises = data.map(async (item, index) => {
-              try {
-                // 解析 top_ten_news_id JSON
-                const parsedJson = typeof item.top_ten_news_id === 'string' 
-                  ? JSON.parse(item.top_ten_news_id) 
-                  : item.top_ten_news_id;
-                
-                const storyIds = parsedJson.top_ten_story_ids;
-                console.log(`資料 ${index + 1} 的 story_id 陣列:`, storyIds);
+  // 🎯 第二階段: 背景載入圖片 (延遲執行)
+  const { data: imagesData = {} } = useNewsImages(storyIds);
 
-                // 為每個 story_id 拉取新聞資料
-                const newsDetailsPromises = storyIds.map(async (storyId) => {
-                  try {
-                    // 並行拉取三個表的資料
-                    const [singleNewsRes, imageRes, cleanedNewsRes] = await Promise.all([
-                      // 從 single_news 拉 news_title 和 short
-                      supabase
-                        .from('single_news')
-                        .select('story_id, news_title, short')
-                        .eq('story_id', storyId),
-                      
-                      // 從 generated_image 拉 image
-                      supabase
-                        .from('generated_image')
-                        .select('story_id, image, description')
-                        .eq('story_id', storyId),
-                      
-                      // 從 cleaned_news 拉 article_title、article_url 和 media
-                      supabase
-                        .from('cleaned_news')
-                        .select('story_id, article_title, article_url, media')
-                        .eq('story_id', storyId)
-                    ]);
+  // 🎯 第三階段: 背景載入相關來源 (延遲執行)
+  const { data: sourcesData = {} } = useRelatedSources(storyIds);
 
-                    if (singleNewsRes.data && singleNewsRes.data.length > 0) {
-                      const newsItem = singleNewsRes.data[0];
-                      const newsTitle = newsItem.news_title;
-                      const summary = newsItem.short;
-                      
-                      // 處理圖片 - base64
-                      let imageUrl = null;
-                      if (imageRes.data && imageRes.data.length > 0 && imageRes.data[0].image) {
-                        const cleanBase64 = imageRes.data[0].image.replace(/\s/g, '');
-                        imageUrl = `data:image/png;base64,${cleanBase64}`;
-                      }
-                      
-                      // 拉取相關來源 (cleaned_news)
-                      const relatedSources = cleanedNewsRes.data && cleanedNewsRes.data.length > 0
-                        ? cleanedNewsRes.data.map((news, idx) => ({
-                            id: idx + 1,
-                            media: news.media || new URL(news.article_url).hostname.replace('www.', ''),
-                            name: news.article_title,
-                            url: news.article_url
-                          }))
-                        : [];
+  // 合併所有資料
+  const newsData = useMemo(() => {
+    return basicNewsData.map(news => ({
+      ...news,
+      image: imagesData[news.id] || 'https://placehold.co/400x250/e5e7eb/9ca3af?text=載入中...',
+      relatedSources: sourcesData[news.id] || [],
+    }));
+  }, [basicNewsData, imagesData, sourcesData]);
 
-                      return {
-                        id: storyId,
-                        title: newsTitle,
-                        summary: summary,
-                        image: imageUrl || 'https://placehold.co/400x250/e5e7eb/9ca3af?text=圖片載入失敗',
-                        date: item.date,
-                        relatedSources: relatedSources
-                      };
-                    }
-                  } catch (err) {
-                    console.error(`拉取 story_id ${storyId} 的資料失敗:`, err);
-                    return null;
-                  }
-                });
+  // Debug logging
+  useEffect(() => {
+    console.log('[YesterdayFocus] 狀態更新:', {
+      昨天日期: yesterdayDate,
+      選擇國家: selectedCountry,
+      基本資料數量: basicNewsData.length,
+      已載入圖片數量: Object.keys(imagesData).length,
+      已載入來源數量: Object.keys(sourcesData).length,
+    });
+  }, [yesterdayDate, selectedCountry, basicNewsData.length, imagesData, sourcesData]);
 
-                const newsDetails = (await Promise.all(newsDetailsPromises)).filter(Boolean);
-                return newsDetails;
-              } catch (parseErr) {
-                console.error(`解析第 ${index + 1} 筆資料失敗:`, parseErr);
-                return [];
-              }
-            });
+  // 載入狀態
+  if (isLoadingBasic) {
+    return (
+      <div className="yesterday-focus-container">
+        <div className="focus-wrapper">
+          <h1 className="yesterday-title">{currentCountryLabel}昨日焦點</h1>
+          <div className="loading-container">載入中...</div>
+        </div>
+      </div>
+    );
+  }
 
-            const allNews = (await Promise.all(newsPromises)).flat();
-            console.log('最終拉取的新聞資料:', allNews);
-            setNewsData(allNews);
-          } else {
-            setNewsData([]);
-          }
-        }
-      } catch (err) {
-        console.error('查詢失敗:', err);
-      }
-    };
+  // 錯誤狀態
+  if (basicError) {
+    return (
+      <div className="yesterday-focus-container">
+        <div className="focus-wrapper">
+          <h1 className="yesterday-title">{currentCountryLabel}昨日焦點</h1>
+          <div className="no-content">載入失敗,請稍後再試</div>
+        </div>
+      </div>
+    );
+  }
 
-    fetchYesterdayNews();
-  }, [selectedCountry, currentCountryDbName, supabase]);
+  // 無資料狀態
+  if (newsData.length === 0) {
+    return (
+      <div className="yesterday-focus-container">
+        <div className="focus-wrapper">
+          <h1 className="yesterday-title">{currentCountryLabel}昨日焦點</h1>
+          <div className="no-content">暫無昨日焦點新聞</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="yesterday-focus-container">
@@ -201,25 +161,33 @@ function YesterdayFocus() {
                 </div>
               </div>
 
-              {/* 右側：相關來源側邊欄 */}
+              {/* 右側:相關來源側邊欄 */}
               <div className="card-sidebar">
                 <h4 className="sidebar-title">相關來源</h4>
                 <div className="sources-list">
-                  {news.relatedSources && news.relatedSources.slice(0, 6).map(source => (
-                    <a 
-                      key={`${news.id}-${source.id}`} 
-                      href={source.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="source-item"
-                    >
-                      <span className="source-media">{source.media}</span>
-                      <span className="source-name">{source.name}</span>
-                    </a>
-                  ))}
-                  {news.relatedSources && news.relatedSources.length > 6 && (
-                    <div className="source-more">
-                      <span>...</span>
+                  {news.relatedSources && news.relatedSources.length > 0 ? (
+                    <>
+                      {news.relatedSources.slice(0, 6).map(source => (
+                        <a 
+                          key={`${news.id}-${source.id}`} 
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="source-item"
+                        >
+                          <span className="source-media">{source.media}</span>
+                          <span className="source-name">{source.name}</span>
+                        </a>
+                      ))}
+                      {news.relatedSources.length > 6 && (
+                        <div className="source-more">
+                          <span>...</span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ padding: '0.5rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
+                      載入中...
                     </div>
                   )}
                 </div>

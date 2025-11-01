@@ -16,6 +16,7 @@ import AbroadNewsPage from './components/AbroadNewsPage';
 import YesterdayFocus from './components/YesterdayFocus';
 import { SupabaseProvider } from './components/supabase';
 import { CountryProvider } from './components/CountryContext';
+import { QueryProvider } from './providers/QueryProvider';
 import { useCountry } from './components/CountryContext';
 import './i18n'; 
 import './css/App.css';
@@ -72,10 +73,11 @@ function HomePage() {
 
 function App() {
   return (
-    <SupabaseProvider>
-      <CountryProvider>
-        <Router>
-        <Routes>
+    <QueryProvider>
+      <SupabaseProvider>
+        <CountryProvider>
+          <Router>
+          <Routes>
           {/* 根路由重定向到預設語言 */}
           <Route path="/" element={<Navigate to="/zh-TW/" replace />} />
           
@@ -116,6 +118,7 @@ function App() {
       </Router>
       </CountryProvider>
     </SupabaseProvider>
+    </QueryProvider>
   );
 }
 
