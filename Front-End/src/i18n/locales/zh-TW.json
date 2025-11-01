@@ -4,6 +4,7 @@
     "tagline": "智慧新聞，深度洞察",
     "menu": {
       "home": "首頁",
+      "yesterdayFocus": "昨日焦點",
       "specialReports": "專題報導",
       "abroad": "國外新聞",
       "politics": "政治",
@@ -36,6 +37,11 @@
     "articles": "篇相關新聞",
     "topicpreview": "專題預覽",
     "nobranches": "暫無專題預覽"
+  },
+  "yesterdayFocus": {
+    "title": "昨日焦點",
+    "moreNews": "昨日其他新聞",
+    "relatedSources": "相關來源"
   },
   "common": {
     "loading": "載入中...",

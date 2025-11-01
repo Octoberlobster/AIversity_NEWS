@@ -6,7 +6,7 @@ import { useSupabase } from "./supabase";
 import { newsCache, imageCache } from "./utils/cache";
 import { useLanguageFields } from '../utils/useLanguageFields';
 
-function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, showTaiwanOnly = false }) {
+function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, country = 'Taiwan' }) {
   const [newsData, setNewsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
@@ -30,7 +30,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, showTa
         data = customData;
       } else {
         // 檢查快取
-        const cacheKey = `news_initial_${ITEMS_PER_PAGE}_${showTaiwanOnly ? 'taiwan' : 'all'}`;
+        const cacheKey = `news_initial_${ITEMS_PER_PAGE}_${country}`;
         const cachedData = newsCache.get(cacheKey);
         
         if (cachedData) {
@@ -45,28 +45,28 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, showTa
 
         let fetchedData;
         
-        if (showTaiwanOnly) {
-          // 首頁模式：先從 stories 表獲取 Taiwan 的 story_id
-          console.log('首頁模式：載入臺灣新聞...');
+        if (country && country !== 'all') {
+          // 國家模式：先從 stories 表獲取該國家的 story_id
+          console.log(`首頁模式：載入 ${country} 新聞...`);
           
-          // 第一步：從 stories 獲取 Taiwan 的 story_id
-          const { data: taiwanStories, error: storiesError } = await supabaseClient
+          // 第一步：從 stories 獲取該國家的 story_id
+          const { data: countryStories, error: storiesError } = await supabaseClient
             .from('stories')
             .select('story_id')
-            .or('country.eq.Taiwan,country.eq.taiwan')
+            .or(`country.eq.${country},country.eq.${country.toLowerCase()}`)
             .order('story_id', { ascending: false })
             .limit(ITEMS_PER_PAGE * 3); // 多拿一些以防某些 story_id 在 single_news 中不存在
 
           if (storiesError) {
-            console.error('Error fetching Taiwan stories:', storiesError);
+            console.error(`Error fetching ${country} stories:`, storiesError);
             setIsLoading(false);
             return;
           }
 
-          console.log(`從 stories 獲取到 ${taiwanStories.length} 個臺灣 story_id`);
+          console.log(`從 stories 獲取到 ${countryStories.length} 個 ${country} story_id`);
 
-          if (!taiwanStories || taiwanStories.length === 0) {
-            console.warn('沒有找到臺灣的新聞');
+          if (!countryStories || countryStories.length === 0) {
+            console.warn(`沒有找到 ${country} 的新聞`);
             setNewsData([]);
             setHasMore(false);
             setIsLoading(false);
@@ -74,22 +74,22 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, showTa
           }
 
           // 第二步：根據 story_id 從 single_news 獲取新聞內容
-          const taiwanStoryIds = taiwanStories.map(s => s.story_id);
+          const countryStoryIds = countryStories.map(s => s.story_id);
           
           const { data: newsData, error: newsError } = await supabaseClient
             .from('single_news')
             .select(`story_id, generated_date, ${newsMultiLangFields}`)
-            .in('story_id', taiwanStoryIds)
+            .in('story_id', countryStoryIds)
             .order('generated_date', { ascending: false })
             .limit(ITEMS_PER_PAGE);
 
           if (newsError) {
-            console.error('Error fetching Taiwan news from single_news:', newsError);
+            console.error(`Error fetching ${country} news from single_news:`, newsError);
             setIsLoading(false);
             return;
           }
 
-          console.log(`從 single_news 獲取到 ${newsData?.length || 0} 筆臺灣新聞`);
+          console.log(`從 single_news 獲取到 ${newsData?.length || 0} 筆 ${country} 新聞`);
           fetchedData = newsData;
           
         } else {
@@ -203,7 +203,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, showTa
 
       // 快取結果 (在圖片載入完成後)
       if (!customData) {
-        const cacheKey = `news_initial_${ITEMS_PER_PAGE}_${showTaiwanOnly ? 'taiwan' : 'all'}`;
+        const cacheKey = `news_initial_${ITEMS_PER_PAGE}_${country}`;
         // 注意: 延遲快取,確保圖片都載入完成
         setTimeout(() => {
           setNewsData(currentData => {
@@ -217,7 +217,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, showTa
       console.error("Error in loadInitialData:", error);
       setIsLoading(false);
     }
-  }, [supabaseClient, customData, onNewsCountUpdate, ITEMS_PER_PAGE, getMultiLanguageSelect, getFieldName, showTaiwanOnly]);
+  }, [supabaseClient, customData, onNewsCountUpdate, ITEMS_PER_PAGE, getMultiLanguageSelect, getFieldName, country]);
 
   useEffect(() => {
     // 初始載入第一頁數據
@@ -238,43 +238,43 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, showTa
 
       let fetchedData;
 
-      if (showTaiwanOnly) {
-        // 首頁模式：先從 stories 獲取更多 Taiwan 的 story_id
-        console.log('首頁模式：載入更多臺灣新聞...');
+      if (country && country !== 'all') {
+        // 國家模式：先從 stories 獲取更多該國家的 story_id
+        console.log(`首頁模式：載入更多 ${country} 新聞...`);
         
-        // 第一步：從 stories 獲取 Taiwan 的 story_id（跳過已載入的）
-        const { data: taiwanStories, error: storiesError } = await supabaseClient
+        // 第一步：從 stories 獲取該國家的 story_id（跳過已載入的）
+        const { data: countryStories, error: storiesError } = await supabaseClient
           .from('stories')
           .select('story_id')
-          .or('country.eq.Taiwan,country.eq.taiwan')
+          .or(`country.eq.${country},country.eq.${country.toLowerCase()}`)
           .order('story_id', { ascending: false })
           .range(offset, offset + ITEMS_PER_PAGE * 2 - 1); // 多拿一些以防某些 story_id 在 single_news 中不存在
 
         if (storiesError) {
-          console.error('Error fetching more Taiwan stories:', storiesError);
+          console.error(`Error fetching more ${country} stories:`, storiesError);
           setIsLoading(false);
           return;
         }
 
-        if (!taiwanStories || taiwanStories.length === 0) {
-          console.log('沒有更多臺灣新聞了');
+        if (!countryStories || countryStories.length === 0) {
+          console.log(`沒有更多 ${country} 新聞了`);
           setHasMore(false);
           setIsLoading(false);
           return;
         }
 
         // 第二步：根據 story_id 從 single_news 獲取新聞內容
-        const taiwanStoryIds = taiwanStories.map(s => s.story_id);
+        const countryStoryIds = countryStories.map(s => s.story_id);
         
         const { data: newsData, error: newsError } = await supabaseClient
           .from('single_news')
           .select(getMultiLanguageSelect("story_id, generated_date", ["news_title", "ultra_short"]))
-          .in('story_id', taiwanStoryIds)
+          .in('story_id', countryStoryIds)
           .order('generated_date', { ascending: false })
           .limit(ITEMS_PER_PAGE);
 
         if (newsError) {
-          console.error('Error fetching more Taiwan news from single_news:', newsError);
+          console.error(`Error fetching more ${country} news from single_news:`, newsError);
           setIsLoading(false);
           return;
         }

@@ -4,6 +4,7 @@
   "tagline": "Smart News, Deep Insights",
     "menu": {
       "home": "Home",
+      "yesterdayFocus": "Yesterday's Focus",
       "specialReports": "Special Reports",
       "abroad": "Abroad News",
       "politics": "Politics",
@@ -36,6 +37,11 @@
     "articles": "Related Articles",
     "topicpreview": "Topic Preview",
     "nobranches": "No topic preview available"
+  },
+  "yesterdayFocus": {
+    "title": "Yesterday's Focus",
+    "moreNews": "More News from Yesterday",
+    "relatedSources": "Related Sources"
   },
   "common": {
     "loading": "Loading...",

@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useCountry } from './CountryContext';
 import './../css/Header.css';
 
 function Header() {
   const { t, i18n } = useTranslation();
+  const { selectedCountry, setSelectedCountry } = useCountry();
   
   const domains = useMemo(() => [
     { id: '/', label: t('header.menu.home'), path: '/'},
+    { id: 'yesterday', label: t('header.menu.yesterdayFocus'), path: '/yesterday-focus'},
     { id: 'project', label: t('header.menu.specialReports'), path: '/special-reports'},
   ], [t]);
 
@@ -73,7 +76,6 @@ function Header() {
 
   const [activeDomain, setActiveDomain] = useState(domains[0].id);
   const [search, setSearch] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState('taiwan');
   const [activeCategory, setActiveCategory] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -105,12 +107,22 @@ function Header() {
   const handleCountryChange = (e) => {
     const newCountryId = e.target.value;
     setSelectedCountry(newCountryId);
-    setActiveCategory(null); // 切換國家時清除類別的 active 狀態
-    setActiveDomain(null); // 也清除主導航的 active 狀態
-    const country = countries.find(c => c.id === newCountryId);
-    if (country) {
-      navigate(`/${selectedLanguage}/category/${country.dbName}`);
+    setActiveDomain(null); // 清除主導航的 active 狀態
+    
+    const newCountry = countries.find(c => c.id === newCountryId);
+    if (!newCountry) return;
+    
+    // 如果目前有選中的類別，導航到新國家的相同類別
+    if (activeCategory) {
+      const matchingCategory = newCountry.categories.find(cat => cat.id === activeCategory);
+      if (matchingCategory) {
+        navigate(`/${selectedLanguage}${matchingCategory.path}`);
+        return;
+      }
     }
+    
+    // 如果在首頁或其他頁面，只更新國家狀態，不進行導航
+    // HomePage 會自動根據國家狀態更新新聞內容
   };
 
   // 當路由改變時，更新語言和 active domain
@@ -135,6 +147,9 @@ function Header() {
     // 設定當前 active 的類別
     if (pathWithoutLang === '/') {
       setActiveDomain('/');
+      setActiveCategory(null);
+    } else if (pathWithoutLang.startsWith('/yesterday-focus')) {
+      setActiveDomain('yesterday');
       setActiveCategory(null);
     } else if (pathWithoutLang.startsWith('/special-reports')) {
       setActiveDomain('project');
@@ -170,7 +185,7 @@ function Header() {
       });
       if (domain) setActiveDomain(domain.id);
     }
-  }, [location.pathname, domains, countries, selectedLanguage, i18n]);
+  }, [location.pathname, domains, countries, selectedLanguage, i18n, setSelectedCountry]);
 
   return (
     <header className="header">
@@ -223,22 +238,8 @@ function Header() {
         </div>
       </div>
 
-      <div className="tagBarWrapper">
+      <div className="tagBarWrapper">   
         <div className="domainTagBar">
-          {domains.map((domain) => (
-            <Link
-              key={domain.id}
-              to={`/${selectedLanguage}${domain.path}`}
-              className={`tagLink ${activeDomain === domain.id ? 'is-active' : ''}`}
-              onClick={() => {
-                setActiveDomain(domain.id);
-                setActiveCategory(null);
-              }}
-            >
-              {domain.label}
-            </Link>
-          ))}
-          
           {/* 國家下拉式選單 */}
           <div className="countrySelectWrapper">
             <select 
@@ -253,6 +254,20 @@ function Header() {
               ))}
             </select>
           </div>
+
+          {domains.map((domain) => (
+            <Link
+              key={domain.id}
+              to={`/${selectedLanguage}${domain.path}`}
+              className={`tagLink ${activeDomain === domain.id ? 'is-active' : ''}`}
+              onClick={() => {
+                setActiveDomain(domain.id);
+                setActiveCategory(null);
+              }}
+            >
+              {domain.label}
+            </Link>
+          ))}
           
           {/* 類別標籤 */}
           {countries

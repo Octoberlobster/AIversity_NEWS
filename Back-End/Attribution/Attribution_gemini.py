@@ -221,7 +221,8 @@ def save_attribution_to_db(story_id: str, attribution_json: Dict[str, List[str]]
 if __name__ == "__main__":
     
     print("--- 開始測試 (方法二：Call Gemini API) ---")
-    story_id_to_test = "4dc8514f-523f-46a5-b7e0-78cc320d7873"
+    story_id_to_test = "bad3db95-1117-4b10-8675-80827b3a5102"
+    #4dc8514f-523f-46a5-b7e0-78cc320d7873
     
     # 步驟 1: 執行歸因分析
     annotated_result = attribute_sources_for_story(story_id_to_test)

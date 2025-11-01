@@ -13,7 +13,10 @@ import SpecialReportPage from './components/SpecialReportPage';
 import SpecialReportDetail from './components/SpecialReportDetail';
 //import AdminDashboard from './components/admin/AdminDashboard';
 import AbroadNewsPage from './components/AbroadNewsPage';
+import YesterdayFocus from './components/YesterdayFocus';
 import { SupabaseProvider } from './components/supabase';
+import { CountryProvider } from './components/CountryContext';
+import { useCountry } from './components/CountryContext';
 import './i18n'; 
 import './css/App.css';
 
@@ -40,6 +43,17 @@ function LanguageLayout() {
 // 首頁組件
 function HomePage() {
   const { t } = useTranslation();
+  const { selectedCountry } = useCountry();
+  
+  // 國家 ID 對應到 dbName
+  const countryMap = {
+    'taiwan': 'Taiwan',
+    'usa': 'United States of America',
+    'japan': 'Japan',
+    'indonesia': 'Indonesia'
+  };
+  
+  const currentCountryDbName = countryMap[selectedCountry] || 'Taiwan';
   
   return (
     <>
@@ -49,7 +63,7 @@ function HomePage() {
           <h2 className="sectionTitle">
             {t('home.latestNews')}
           </h2>
-          <UnifiedNewsCard instanceId="main_news_list" showTaiwanOnly={true} />
+          <UnifiedNewsCard instanceId="main_news_list" country={currentCountryDbName} />
         </div>
       </div>
     </>
@@ -59,7 +73,8 @@ function HomePage() {
 function App() {
   return (
     <SupabaseProvider>
-      <Router>
+      <CountryProvider>
+        <Router>
         <Routes>
           {/* 根路由重定向到預設語言 */}
           <Route path="/" element={<Navigate to="/zh-TW/" replace />} />
@@ -93,11 +108,13 @@ function App() {
               
               <Route path="special-reports" element={<SpecialReportPage />} />
               <Route path="special-report/:id" element={<SpecialReportDetail />} />
+              <Route path="yesterday-focus" element={<YesterdayFocus />} />
               <Route path="abroad" element={<AbroadNewsPage />} />
             </Route>
           ))}
         </Routes>
       </Router>
+      </CountryProvider>
     </SupabaseProvider>
   );
 }

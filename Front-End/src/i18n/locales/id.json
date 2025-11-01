@@ -4,6 +4,7 @@
   "tagline": "Berita Cerdas, Wawasan Mendalam",
     "menu": {
       "home": "Beranda",
+      "yesterdayFocus": "Fokus Kemarin",
       "specialReports": "Laporan Khusus",
       "abroad": "Berita Luar Negeri",
       "politics": "Politik",
@@ -36,6 +37,11 @@
     "articles": "artikel berita terkait",
     "topicpreview": "Pratinjau Topik",
     "nobranches": "Belum ada pratinjau topik"
+  },
+  "yesterdayFocus": {
+    "title": "Fokus Kemarin",
+    "moreNews": "Berita Lainnya dari Kemarin",
+    "relatedSources": "Sumber Terkait"
   },
   "common": {
     "loading": "Memuat...",

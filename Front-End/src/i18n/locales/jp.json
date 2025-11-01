@@ -4,6 +4,7 @@
   "tagline": "スマートニュース、深い洞察",
     "menu": {
       "home": "ホーム",
+      "yesterdayFocus": "昨日の焦点",
       "specialReports": "特集記事",
       "abroad": "海外ニュース",
       "politics": "政治",
@@ -36,6 +37,11 @@
     "articles": "件の関連ニュース",
     "topicpreview": "特集プレビュー",
     "nobranches": "特集プレビューはありません"
+  },
+  "yesterdayFocus": {
+    "title": "昨日の焦点",
+    "moreNews": "昨日のその他のニュース",
+    "relatedSources": "関連ソース"
   },
   "common": {
     "loading": "読み込み中...",
