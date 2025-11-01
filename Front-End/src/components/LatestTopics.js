@@ -1,19 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useSupabase } from './supabase';
 import { useTranslation } from 'react-i18next';
 import { useLanguageFields } from '../utils/useLanguageFields';
+import { useLatestTopics } from '../hooks/useSpecialReports';
 import '../css/LatestTopics.css';
 
 function LatestTopics() {
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
-  const [topics, setTopics] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { t } = useTranslation();
   const { getCurrentLanguage } = useLanguageFields();
   const currentLanguage = getCurrentLanguage();
-  const supabase = useSupabase();
+
+  // 🚀 使用 React Query Hook 載入資料
+  const { topics: rawTopics, newsMap, imageData, branches, isLoading, error } = useLatestTopics();
+
+  // 🚀 組合最終資料 (使用 useMemo 優化)
+  const topics = useMemo(() => {
+    if (!rawTopics || rawTopics.length === 0) return [];
+
+    const { imageMap, topicToStoryMap } = imageData;
+    const topicsWithData = [];
+
+    for (const topic of rawTopics) {
+      const storyIds = newsMap[topic.topic_id];
+      
+      // 跳過沒有新聞的專題
+      if (!storyIds || storyIds.length === 0) {
+        console.log(`專題 ${topic.topic_title} 沒有相關新聞，跳過`);
+        continue;
+      }
+
+      // 獲取代表性圖片
+      const firstStoryId = topicToStoryMap[topic.topic_id];
+      const representativeImage = firstStoryId ? imageMap[firstStoryId] : null;
+
+      // 獲取分支 (最多 4 個)
+      const topicBranches = (branches[topic.topic_id] || [])
+        .filter(branch => branch.title && branch.title.trim() !== '')
+        .slice(0, 4);
+
+      topicsWithData.push({
+        ...topic,
+        newsCount: storyIds.length,
+        branches: topicBranches,
+        representativeImage: representativeImage
+      });
+
+      // 最多 5 個專題
+      if (topicsWithData.length >= 5) break;
+    }
+
+    console.log('[LatestTopics] 最終資料:', topicsWithData.length, '個專題');
+    return topicsWithData;
+  }, [rawTopics, newsMap, imageData, branches]);
 
   // 生成帶語言前綴的路由
   const getLanguageRoute = (path) => {
@@ -23,153 +62,6 @@ function LatestTopics() {
                       currentLanguage === 'id' ? '/id' : '/zh-TW';
     return `${langPrefix}${path}`;
   };
-  
-
-  // 獲取最新專題數據
-  useEffect(() => {
-    const fetchLatestTopics = async () => {
-      try {
-        // 獲取專題基本資訊
-        const { data: topicsData, error: topicsError } = await supabase
-          .from('topic')
-          .select('topic_id, topic_title, topic_short, generated_date')
-          .not('topic_title', 'is', null)
-          .neq('topic_title', '')
-          .not('topic_short', 'is', null)
-          .neq('topic_short', '')
-          .not('generated_date', 'is', null)
-          .order('generated_date', { ascending: false })
-          .limit(10); // 先獲取10個，再過濾到5個有效專題
-
-        if (topicsError) throw topicsError;
-
-        if (!topicsData || topicsData.length === 0) {
-          setError('沒有找到專題資料');
-          return;
-        }
-
-        // 為每個專題獲取相關新聞和分支
-        const topicsWithData = [];
-        
-        // 批量獲取所有專題的新聞映射
-        const topicIds = topicsData.map(topic => topic.topic_id);
-        const { data: allNewsMapData, error: allNewsMapError } = await supabase
-          .from('topic_news_map')
-          .select('topic_id, story_id')
-          .in('topic_id', topicIds);
-
-        if (allNewsMapError) {
-          console.error('批量獲取專題新聞映射失敗:', allNewsMapError);
-          setError('載入專題資料失敗');
-          return;
-        }
-
-        // 組織新聞映射數據
-        const newsMapByTopic = {};
-        allNewsMapData.forEach(item => {
-          if (!newsMapByTopic[item.topic_id]) {
-            newsMapByTopic[item.topic_id] = [];
-          }
-          newsMapByTopic[item.topic_id].push(item.story_id);
-        });
-
-        // 收集所有需要圖片的 story_id
-        const storyIdsForImages = [];
-        const topicToStoryMap = {};
-        
-        for (const topic of topicsData) {
-          const storyIds = newsMapByTopic[topic.topic_id];
-          if (!storyIds || storyIds.length === 0) {
-            console.log(`專題 ${topic.topic_title} 沒有相關新聞，跳過`);
-            continue;
-          }
-          
-          // 固定選擇第一個 story_id，避免圖片隨機變化
-          const firstStoryId = storyIds[0];
-          storyIdsForImages.push(firstStoryId);
-          topicToStoryMap[topic.topic_id] = firstStoryId;
-        }
-
-        // 批量獲取所有圖片
-        const { data: allImagesData, error: allImagesError } = await supabase
-          .from('generated_image')
-          .select('story_id, image, description')
-          .in('story_id', storyIdsForImages);
-
-        // 建立圖片映射表
-        const imageMap = {};
-        if (!allImagesError && allImagesData) {
-          allImagesData.forEach(imageItem => {
-            if (imageItem.image) {
-              // 清理 base64 字串，移除可能的換行符和空白字符
-              const cleanBase64 = imageItem.image.replace(/\s/g, '');
-              // 將純 base64 字串轉換為完整的 data URL
-              const imageUrl = `data:image/png;base64,${cleanBase64}`;
-              
-              imageMap[imageItem.story_id] = {
-                imageUrl: imageUrl,
-                description: imageItem.description || ''
-              };
-            }
-          });
-        }
-        
-        for (const topic of topicsData) {
-          const storyIds = newsMapByTopic[topic.topic_id];
-          if (!storyIds || storyIds.length === 0) continue;
-          
-          const firstStoryId = topicToStoryMap[topic.topic_id];
-          const representativeImage = imageMap[firstStoryId] || null;
-
-          // 獲取該專題的分支
-          const { data: branchesData, error: branchesError } = await supabase
-            .from('topic_branch')
-            .select('topic_branch_id, topic_branch_title')
-            .eq('topic_id', topic.topic_id)
-            .not('topic_branch_title', 'is', null)
-            .neq('topic_branch_title', '')
-            .limit(5);
-
-          if (branchesError) {
-            console.error(`獲取專題 ${topic.topic_id} 分支失敗:`, branchesError);
-          }
-
-          // 處理分支數據 - 過濾掉空資料
-          const branches = branchesData 
-            ? branchesData.filter(branch => 
-                branch.topic_branch_title && 
-                branch.topic_branch_title.trim() !== ''
-              ).map(branch => ({
-                id: branch.topic_branch_id,
-                title: branch.topic_branch_title
-              }))
-            : [];
-
-          // 添加專題到結果中
-          topicsWithData.push({
-            ...topic,
-            newsCount: storyIds.length, // 使用 storyIds 的長度
-            branches: branches.slice(0, 4), // 最多顯示4個分支
-            representativeImage: representativeImage
-          });
-
-          // 如果已經有5個有效專題，就停止
-          if (topicsWithData.length >= 5) {
-            break;
-          }
-        }
-
-        setTopics(topicsWithData);
-        setLoading(false);
-      } catch (err) {
-        console.error('獲取專題資料失敗:', err);
-        setError('載入專題資料時發生錯誤');
-        setLoading(false);
-      }
-    };
-
-    fetchLatestTopics();
-  }, [supabase]);
 
   // 自動輪播
   useEffect(() => {
@@ -203,7 +95,7 @@ function LatestTopics() {
     setCurrentTopicIndex(index);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="latest-topics">
         <div className="latest-topics-loading">{t('common.loading')}</div>

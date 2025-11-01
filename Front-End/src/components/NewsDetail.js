@@ -5,45 +5,26 @@ import './../css/NewsDetail.css';
 import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
 import { getOrCreateUserId, createRoomId } from './utils.js';
-import { useSupabase } from './supabase';
 import { useLanguageFields} from '../utils/useLanguageFields';
 import { changeExperts as changeExpertsAPI } from './api.js';
-
-// 從資料庫動態載入術語定義的函數
-const loadTermDefinitions = async (supabase) => {
-  try {
-    const { data, error } = await supabase
-      .from('term')
-      .select('term, term_id, definition, example');
-    
-    if (error) {
-      console.error('載入術語定義時發生錯誤:', error);
-    }
-
-    // 轉換為物件格式
-    const definitions = {};
-    data.forEach(item => {
-      if (item.term && item.definition) {
-        definitions[item.term_id] = {
-          term: item.term,
-          definition: item.definition,
-          example: item.example || null
-        };
-      }
-    });
-
-    return definitions
-  } catch (error) {
-    console.error('載入術語定義時發生錯誤:', error);
-  }
-};
+import { 
+  useNewsData, 
+  useNewsImage, 
+  useNewsUrl, 
+  useNewsKeywords, 
+  useNewsTerms,
+  useSourceArticles,
+  usePositionData,
+  useExpertAnalysis,
+  useRelatedNews
+} from '../hooks/useNewsDetail';
 
 function NewsDetail() {
   const { t } = useTranslation();
   const { id } = useParams();
   
   // 多語言相關 hooks
-  const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  const { getCurrentLanguage } = useLanguageFields();
   const currentLanguage = getCurrentLanguage();
   const [tooltipTerm, setTooltipTerm] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
@@ -73,6 +54,124 @@ function NewsDetail() {
   
   // ChatRoom組件的ref
   const chatRoomRef = useRef(null);
+
+  // 🚀 使用 React Query Hook 載入新聞基本資料
+  const { data: newsDataResult } = useNewsData(id);
+  
+  // 🚀 使用 React Query Hook 載入圖片 (背景載入)
+  const { data: imageData } = useNewsImage(id);
+  
+  // 🚀 使用 React Query Hook 載入 URL (背景載入)
+  const { data: urlData } = useNewsUrl(id);
+  
+  // 🚀 使用 React Query Hook 載入關鍵字 (背景載入)
+  const { data: keywordsData = [] } = useNewsKeywords(id);
+  
+  // 🚀 使用 React Query Hook 載入術語 (背景載入)
+  const { data: termsData } = useNewsTerms(id);
+  
+  // 🚀 使用 React Query Hook 載入來源文章 (背景載入,依賴 attribution)
+  const { data: sourceArticlesData } = useSourceArticles(id, attribution);
+  
+  // 🚀 使用 React Query Hook 載入立場資料 (條件載入)
+  const shouldLoadPosition = showContent === 'loadPosition' || showContent === 'loadBoth';
+  const { data: positionDataResult } = usePositionData(id, shouldLoadPosition);
+  
+  // 🚀 使用 React Query Hook 載入專家分析 (條件載入)
+  const shouldLoadExpert = showContent === 'loadExpert' || showContent === 'loadExpertForBoth';
+  const { data: expertAnalysisData } = useExpertAnalysis(id, shouldLoadExpert);
+  
+  // 🚀 使用 React Query Hook 載入相關新聞 (背景載入)
+  const { data: relatedNewsData = [] } = useRelatedNews(id);
+  
+  // 🚀 從 hook 結果中提取資料 (向後兼容舊的狀態)
+  useEffect(() => {
+    if (newsDataResult) {
+      setNewsData(newsDataResult.newsData);
+      setAttribution(newsDataResult.attribution);
+      
+      // 根據 position_flag 決定要載入的內容類型
+      if (newsDataResult.newsData.position_flag) {
+        setShowContent('loadBoth');
+      } else {
+        setShowContent('loadExpert');
+      }
+    }
+  }, [newsDataResult]);
+
+  // 🚀 更新圖片資料
+  useEffect(() => {
+    if (imageData) {
+      setNewsImage(imageData); // imageData 已經是陣列格式
+    }
+  }, [imageData]);
+
+  // 🚀 更新 URL 資料
+  useEffect(() => {
+    if (urlData) {
+      setNewsUrl(urlData);
+    }
+  }, [urlData]);
+
+  // 🚀 更新關鍵字資料
+  useEffect(() => {
+    setNewsKeywords(keywordsData);
+  }, [keywordsData]);
+
+  // 🚀 更新術語資料
+  useEffect(() => {
+    if (termsData) {
+      setNewsTerms(termsData.terms);
+      setTermDefinitions(termsData.definitions);
+    }
+  }, [termsData]);
+
+  // 🚀 更新來源文章資料
+  useEffect(() => {
+    if (sourceArticlesData) {
+      setSourceArticles(sourceArticlesData);
+    }
+  }, [sourceArticlesData]);
+
+  // 🚀 更新立場資料
+  useEffect(() => {
+    if (positionDataResult) {
+      setPositionData(positionDataResult);
+      setPositionLoading(false);
+      
+      // 根據載入模式決定顯示內容
+      if (showContent === 'loadBoth') {
+        setShowContent('loadExpertForBoth'); // 觸發專家分析載入
+      } else if (showContent === 'loadPosition') {
+        setShowContent('position');
+      }
+    }
+  }, [positionDataResult, showContent]);
+
+  // 🚀 更新專家分析資料
+  useEffect(() => {
+    if (expertAnalysisData) {
+      setExpertAnalysis(expertAnalysisData);
+      setChatExperts(expertAnalysisData);
+      setAnalysisLoading(false);
+      
+      // 根據載入模式決定要顯示什麼
+      if (showContent === 'loadExpertForBoth') {
+        setShowContent('position'); // 保持顯示正反方立場
+      } else if (showContent === 'loadExpert') {
+        if (expertAnalysisData.length > 0) {
+          setShowContent('expert');
+        } else {
+          setShowContent('none');
+        }
+      }
+    }
+  }, [expertAnalysisData, showContent]);
+
+  // 🚀 更新相關新聞資料
+  useEffect(() => {
+    setRelatedNews(relatedNewsData);
+  }, [relatedNewsData]);
 
   // 生成帶語言前綴的路由
   const getLanguageRoute = (path) => {
@@ -343,520 +442,6 @@ function NewsDetail() {
     setAnalysisLoading(true); // 重置專家分析載入狀態
     setShowContent('loading'); // 重置顯示狀態
   }, [id, currentLanguage]); // 當 id 或語言改變時執行
-
-  // 使用 Supabase 客戶端獲取新聞數據
-  const supabaseClient = useSupabase();
-
-  // 載入術語定義 - 支援多語言
-  useEffect(() => {
-    const initTermDefinitions = async () => {
-      const definitions = await loadTermDefinitions(supabaseClient);
-      setTermDefinitions(definitions);
-    };
-    initTermDefinitions();
-  }, [supabaseClient, currentLanguage]); // 語言改變時重新載入術語
-
-  // 載入特定新聞的術語 - 支援多語言
-  useEffect(() => {
-    const fetchNewsTerms = async () => {
-      if (!id || !supabaseClient) return;
-      
-      try {
-        // 先從 term_map 獲取 term_id 列表
-        const { data: termMapData, error: termMapError } = await supabaseClient
-          .from('term_map')
-          .select('term_id')
-          .eq('story_id', id);
-        
-        if (termMapError) {
-          console.error(`Error fetching term mapping for story ${id}:`, termMapError);
-          setNewsTerms([]);
-          return;
-        }
-
-        const termIds = termMapData?.map(item => item.term_id) || [];
-        
-        if (termIds.length === 0) {
-          setNewsTerms([]);
-          return;
-        }
-
-        // 根據 term_id 獲取實際的術語文字，支援多語言
-        const termMultiLangFields = ['term', 'definition', 'example'];
-        const termSelectFields = getMultiLanguageSelect(termMultiLangFields);
-        
-        const { data: termsData, error: termsError } = await supabaseClient
-          .from('term')
-          .select(`term_id, ${termSelectFields}`)
-          .in('term_id', termIds);
-        
-        if (termsError) {
-          console.error(`Error fetching terms for story ${id}:`, termsError);
-          setNewsTerms([]);
-          return;
-        }
-
-        // 使用多語言欄位，如果不存在則使用原欄位作為 fallback
-        const terms = termsData?.map(item => ({
-          term: item[getFieldName('term')] || item.term,
-          definition: item[getFieldName('definition')] || item.definition,
-          example: item[getFieldName('example')] || item.example
-        })) || [];
-        
-        setNewsTerms(terms);
-      } catch (error) {
-        console.error(`Error fetching terms for story ${id}:`, error);
-        setNewsTerms([]);
-      }
-    };
-
-    fetchNewsTerms();
-  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
-
-  // 載入正反方立場資料 - 支援多語言
-  useEffect(() => {
-    const fetchPositionData = async () => {
-      if (!id || !supabaseClient || (showContent !== 'loadPosition' && showContent !== 'loadBoth')) {
-        return;
-      }
-      setPositionLoading(true);
-      
-      try {
-        // 查詢正反方立場，支援多語言
-        const positionMultiLangFields = ['positive', 'negative'];
-        const positionSelectFields = getMultiLanguageSelect(positionMultiLangFields);
-        
-        const { data, error } = await supabaseClient
-          .from('position')
-          .select(positionSelectFields)
-          .eq('story_id', id);
-        
-        if (error) {
-          console.error(`Error fetching position data for story ${id}:`, error);
-          setPositionData({ positive: [], negative: [] });
-          setPositionLoading(false);
-          // 如果正反方立場載入失敗，回退到專家分析
-          setShowContent('loadExpert');
-          return;
-        }
-
-        const positionRow = data?.[0];
-        if (positionRow) {
-          // 處理多語言立場資料
-          const positive = positionRow[getFieldName('positive')] || positionRow.positive;
-          const negative = positionRow[getFieldName('negative')] || positionRow.negative;
-
-          // 因為 position_flag 為 true，所以直接設定資料並顯示正反方立場
-          setPositionData({
-            positive: positive || [],
-            negative: negative || []
-          });
-          
-          // 如果是 loadBoth 模式，載入專家分析但顯示正反方立場
-          if (showContent === 'loadBoth') {
-            setShowContent('loadExpertForBoth'); // 觸發專家分析載入
-          } else {
-            setShowContent('position');
-          }
-        } else {
-          // 沒有找到正反方資料，回退到專家分析
-          setPositionData({ positive: [], negative: [] });
-          setShowContent('loadExpert');
-        }
-      } catch (error) {
-        console.error(`Error fetching position data for story ${id}:`, error);
-        setPositionData({ positive: [], negative: [] });
-        setShowContent('loadExpert');
-      } finally {
-        setPositionLoading(false);
-      }
-    };
-
-    fetchPositionData();
-  }, [id, supabaseClient, showContent, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
-
-  // 載入專家分析資料 - 只在沒有正反方立場時載入
-  useEffect(() => {
-    const fetchExpertAnalysis = async () => {
-      if (!id || !supabaseClient || (showContent !== 'loadExpert' && showContent !== 'loadExpertForBoth')) {
-        return;
-      }
-      
-      setAnalysisLoading(true);
-      
-      try {
-        // 查詢專家分析，支援多語言
-        const analyzeMultiLangFields = ['analyze'];
-        const analyzeSelectFields = getMultiLanguageSelect(analyzeMultiLangFields);
-        
-        const { data, error } = await supabaseClient
-          .from('pro_analyze')
-          .select(`analyze_id, category, ${analyzeSelectFields}`)
-          .eq('story_id', id);
-        
-        if (error) {
-          console.error(`Error fetching expert analysis for story ${id}:`, error);
-          setExpertAnalysis([]);
-          setAnalysisLoading(false);
-          setShowContent('none');
-          return;
-        }
-
-        // 處理多語言分析資料
-        const analysisData = (data || []).map(item => ({
-          analyze_id: item.analyze_id,
-          category: item.category,
-          analyze: item[getFieldName('analyze')] || item.analyze
-        }));
-        
-        if (analysisData.length > 0) {
-          // 先設定資料
-          setExpertAnalysis(analysisData);
-          setChatExperts(analysisData);
-          
-          // 根據載入模式決定要顯示什麼
-          if (showContent === 'loadExpertForBoth') {
-            // 如果是 loadExpertForBoth 模式，保持顯示正反方立場，但專家分析資料已載入供聊天室使用
-            setShowContent('position');
-          } else {
-            // 正常的專家分析載入模式，顯示專家分析
-            setShowContent('expert');
-          }
-        } else {
-          setExpertAnalysis([]);
-          if (showContent === 'loadExpertForBoth') {
-            setShowContent('position'); // 回到正反方立場顯示
-          } else {
-            setShowContent('none');
-          }
-        }
-      } catch (error) {
-        console.error(`Error fetching expert analysis for story ${id}:`, error);
-        setExpertAnalysis([]);
-        setShowContent('none');
-      } finally {
-        setAnalysisLoading(false);
-      }
-    };
-
-    fetchExpertAnalysis();
-  }, [id, supabaseClient, showContent, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
-
-  useEffect(() => {
-    const fetchNewsData = async () => {
-      if (!id || !supabaseClient) return;
-      
-      // 設定需要多語言支援的欄位
-      const multiLangFields = ['news_title', 'ultra_short', 'long'];
-      const selectFields = getMultiLanguageSelect(multiLangFields);
-      
-      // 同時選取原欄位和多語言欄位
-      const { data, error } = await supabaseClient
-        .from('single_news')
-        .select(`${selectFields}, generated_date, category, story_id, who_talk, position_flag, attribution`)
-        .eq('story_id', id);
-        
-      if (error) {
-        console.error('Error fetching news data:', error);
-      } else {
-        const row = data?.[0];
-        if (row) {
-          // 使用多語言欄位，如果不存在則使用原欄位作為 fallback
-          const title = row[getFieldName('news_title')] || row.news_title;
-          const short = row[getFieldName('ultra_short')] || row.short;
-          const long = row[getFieldName('long')] || row.long;
-
-          
-          // 多語言資料處理完成
-          
-          setNewsData({
-            title: title,
-            date: row.generated_date,
-            author: 'Gemini',
-            short: short,
-            long: long,
-            terms: [],
-            keywords: [],
-            source: [],
-            category: row.category,
-            story_id: row.story_id,
-            who_talk: row.who_talk,
-            position_flag: row.position_flag
-          });
-          
-          // 解析 attribution 數據
-          if (row.attribution) {
-            try {
-              const attributionData = typeof row.attribution === 'string' 
-                ? JSON.parse(row.attribution) 
-                : row.attribution;
-              setAttribution(attributionData);
-              const partCount = Object.keys(attributionData).length;
-              console.log('✅ 歸因資料載入完成:', partCount, '個段落');
-            } catch (e) {
-              console.error('❌ 解析歸因資料失敗:', e);
-              setAttribution(null);
-            }
-          } else {
-            setAttribution(null);
-          }
-
-          console.log('新聞資料載入完成:', {
-            title,
-            date: row.generated_date,
-            author: 'Gemini',
-            short,
-            long,
-            terms: [],
-            keywords: [],
-            source: [],
-            category: row.category,
-            story_id: row.story_id,
-            who_talk: row.who_talk,
-            position_flag: row.position_flag
-          });
-
-          // 根據 position_flag 決定要載入的內容類型
-          if (row.position_flag) {
-            // 有正反方立場，同時載入正反方資料和專家分析，但優先顯示正反方
-            setShowContent('loadBoth');
-          } else {
-            // 沒有正反方立場，只載入專家分析並顯示
-            setShowContent('loadExpert');
-          }
-        } else {
-          setNewsData(null);
-        }
-      }
-    };
-
-    fetchNewsData();
-  }, [id, supabaseClient, currentLanguage, getMultiLanguageSelect, getFieldName]); // 語言改變時重新載入
-
-  // 載入來源文章詳細資訊
-  useEffect(() => {
-    const fetchSourceArticles = async () => {
-      if (!attribution || !supabaseClient || !id) return;
-
-      try {
-        // 收集所有的 article_id
-        const allArticleIds = new Set();
-        Object.values(attribution).forEach(ids => {
-          if (Array.isArray(ids)) {
-            ids.forEach(articleId => allArticleIds.add(articleId));
-          }
-        });
-
-        if (allArticleIds.size === 0) {
-          setSourceArticles({});
-          return;
-        }
-
-        const articleIdsArray = Array.from(allArticleIds);
-        console.log('📋 載入來源文章:', articleIdsArray.length, '篇');
-
-        // 從 cleaned_news 表獲取來源文章資訊
-        const { data, error } = await supabaseClient
-          .from('cleaned_news')
-          .select('article_id, article_title, article_url, media')
-          .in('article_id', articleIdsArray);
-
-        if (error) {
-          console.error('❌ 獲取來源文章失敗:', error);
-          setSourceArticles({});
-          return;
-        }
-
-        // 轉換為物件格式 {article_id: {title, url, media}}
-        const articlesMap = {};
-        if (data) {
-          data.forEach(article => {
-            articlesMap[article.article_id] = {
-              title: article.article_title || '無標題',
-              url: article.article_url || '#',
-              media: article.media || '未知來源'
-            };
-          });
-        }
-
-        console.log('✅ 來源文章載入完成:', Object.keys(articlesMap).length, '篇');
-        setSourceArticles(articlesMap);
-      } catch (e) {
-        console.error('❌ 載入來源文章時發生錯誤:', e);
-        setSourceArticles({});
-      }
-    };
-
-    fetchSourceArticles();
-  }, [attribution, supabaseClient, id]);
-
-  // 載入新聞圖片
-  useEffect(() => {
-    const fetchNewsImage = async () => {
-      const { data, error } = await supabaseClient
-        .from('generated_image')
-        .select('*')
-        .eq('story_id', id);
-
-      if (error) {
-        console.error('Error fetching news image:', error);
-        setNewsImage([]);
-        return;
-      }
-
-      const processed = (data || []).map(item => {
-        // 將純 base64 字串轉換為完整的 data URL
-        const src = item.image ? `data:image/png;base64,${item.image}` : '';
-        // 使用多語言描述，如果不存在則使用原欄位
-        const description = item[getFieldName('description')] || item.description || '';
-        return {
-          src,
-          description,
-        };
-      });
-
-      setNewsImage(processed);
-    };
-
-    fetchNewsImage();
-  }, [id, supabaseClient, currentLanguage, getFieldName]); // 語言改變時重新載入
-
-  // 載入 highlight（重點）資料 - 支援多語言
-  // highlights feature removed per request
-
-  // 載入新聞來源 URL
-  useEffect(() => {
-    const fetchNewsUrl = async () => {
-      const { data, error } = await supabaseClient
-        .from('cleaned_news')
-        .select('article_title, article_url, media')
-        .eq('story_id', id);
-
-      if (error) {
-        console.error('Error fetching news url:', error);
-        setNewsUrl(null);
-        return;
-      }
-      setNewsUrl(data);
-    };
-
-    fetchNewsUrl();
-  }, [id, supabaseClient, currentLanguage]); // 語言改變時重新載入
-
-  // 載入新聞關鍵字
-  useEffect(() => {
-    const fetchNewsKeywords = async () => {
-      if (!id || !supabaseClient) return;
-      
-      // 獲取關鍵字，支援多語言
-      const keywordMultiLangFields = ['keyword'];
-      const keywordSelectFields = getMultiLanguageSelect(keywordMultiLangFields);
-      
-      const { data, error } = await supabaseClient
-        .from('keywords_map')
-        .select(keywordSelectFields)
-        .eq('story_id', id)
-        .limit(3); // 限制為 3 個關鍵字
-
-      if (error) {
-        console.error('Error fetching news keywords:', error);
-        setNewsKeywords([]);
-        return;
-      }
-      
-      // 處理多語言關鍵字
-      const processedData = (data || []).map(item => ({
-        keyword: item[getFieldName('keyword')] || item.keyword
-      }));
-      
-      setNewsKeywords(processedData);
-    };
-
-    fetchNewsKeywords();
-  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
-
-  // 載入相關新聞
-  useEffect(() => {
-    const fetchRelatedNews = async () => {
-      if (!id || !supabaseClient) return;
-      
-      try {
-        // 準備 reason 的多語言欄位查詢
-        const reasonMultiLangFields = ['reason'];
-        const reasonSelectFields = getMultiLanguageSelect(reasonMultiLangFields);
-        
-        // 查詢相關新聞 - 找出以當前新聞為 src_story_id 的相關新聞
-        const { data: relatedData, error: relatedError } = await supabaseClient
-          .from('relative_news')
-          .select(`
-            dst_story_id,
-            ${reasonSelectFields}
-          `)
-          .eq('src_story_id', id)
-          .limit(3);
-
-        if (relatedError) {
-          console.error('Error fetching related news:', relatedError);
-          setRelatedNews([]);
-          return;
-        }
-
-        // 如果有相關新聞，再查詢對應的新聞標題
-        if (!relatedData || relatedData.length === 0) {
-          setRelatedNews([]);
-          return;
-        }
-
-        // 獲取所有目標新聞的 story_id
-        const targetStoryIds = relatedData.map(item => item.dst_story_id);
-        
-        // 查詢目標新聞的詳細資料，支援多語言
-        const newsMultiLangFields = ['news_title'];
-        const newsSelectFields = getMultiLanguageSelect(newsMultiLangFields);
-        
-        const { data: newsData, error: newsError } = await supabaseClient
-          .from('single_news')
-          .select(`story_id, ${newsSelectFields}`)
-          .in('story_id', targetStoryIds);
-
-        if (newsError) {
-          console.error('Error fetching related news titles:', newsError);
-          setRelatedNews([]);
-          return;
-        }
-
-        // 合併資料並進行資料清理
-        const related = relatedData.map(relatedItem => {
-          const newsItem = newsData?.find(n => n.story_id === relatedItem.dst_story_id);
-          
-          // 資料清理：如果 reason 過長，可能是錯誤的內容，截短它
-          let reason = relatedItem[getFieldName('reason')] || relatedItem.reason || '無相關性說明';
-          if (reason.length > 200) {
-            reason = reason.substring(0, 200) + '...';
-          }
-          
-          // 使用多語言標題，如果不存在則使用原標題作為 fallback
-          let title = newsItem ? (newsItem[getFieldName('news_title')] || newsItem.news_title) : '';
-          if (!title || !title.trim()) {
-            title = `新聞 ID: ${relatedItem.dst_story_id}`;
-          }
-          
-          return {
-            id: relatedItem.dst_story_id,
-            title: title.trim(),
-            relevance: reason.trim()
-          };
-        });
-        setRelatedNews(related);
-      } catch (error) {
-        console.error('Error fetching related news:', error);
-        setRelatedNews([]);
-      }
-    };
-
-    fetchRelatedNews();
-  }, [id, supabaseClient, currentLanguage, getFieldName, getMultiLanguageSelect]); // 語言改變時重新載入
-
 
   // 名詞解釋 tooltip
   const handleTermClick = (term, e) => {
@@ -1280,11 +865,11 @@ function NewsDetail() {
         </div>
       )}
 
-      {/* 資料來源區塊 - 放在頁面底部 */}
+      {/* 資料來源區塊 - 放在頁面底部,使用 newsUrl 或 newsData.source */}
       {(newsUrl || newsData.source) && (() => {
         const MAX = 3;
         
-        // 處理從 Supabase 來的資料 (包含媒體、標題、URL)
+        // 處理從 cleaned_news 來的資料 (包含媒體、標題、URL)
         let sources = [];
         if (newsUrl && Array.isArray(newsUrl)) {
           sources = newsUrl.filter(item => item.article_url && item.article_title).map(item => ({
@@ -1294,7 +879,7 @@ function NewsDetail() {
           }));
         }
         
-        // 如果沒有 Supabase 資料，使用原本的 source 資料
+        // 如果沒有 newsUrl 資料,使用 newsData.source 作為後備
         if (sources.length === 0 && newsData.source) {
           const all = Array.isArray(newsData.source)
             ? newsData.source.filter(Boolean)
@@ -1304,7 +889,10 @@ function NewsDetail() {
             title: url,
             media: t('newsDetail.sources.unknownMedia')
           }));
+          console.log('後備 sources:', sources);
         }
+        
+        console.log('最終 sources:', sources, '總數:', sources.length);
 
         // 去重，避免重複網址
         const uniq = sources.filter((source, index, self) => 
