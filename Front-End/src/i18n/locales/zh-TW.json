@@ -182,7 +182,7 @@
   },
   "exportChat": {
     "titles": {
-      "chat": "AI 專家討論室"
+      "chat": "AI 專家小幫手"
     },
     "subtitles": {
       "chat": "{{count}} 位專家在線"
