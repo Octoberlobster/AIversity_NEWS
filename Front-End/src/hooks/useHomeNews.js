@@ -31,7 +31,7 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
           .select('story_id')
           .or(`country.eq.${country},country.eq.${country.toLowerCase()}`)
           .order('story_id', { ascending: false })
-          .limit(500); // 限制數量避免太大
+          .limit(90); // 限制數量避免太大
 
         if (storiesError) {
           console.error('[useHomeNews] stories 查詢錯誤:', storiesError);

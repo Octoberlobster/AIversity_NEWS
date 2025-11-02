@@ -170,7 +170,7 @@ function YesterdayFocus() {
                 <div className="sources-list">
                   {news.relatedSources && news.relatedSources.length > 0 ? (
                     <>
-                      {news.relatedSources.slice(0, 6).map(source => (
+                      {news.relatedSources.slice(0, 3).map(source => (
                         <a 
                           key={`${news.id}-${source.id}`} 
                           href={source.url}
@@ -182,7 +182,7 @@ function YesterdayFocus() {
                           <span className="source-name">{source.name}</span>
                         </a>
                       ))}
-                      {news.relatedSources.length > 6 && (
+                      {news.relatedSources.length > 3 && (
                         <div className="source-more">
                           <span>...</span>
                         </div>

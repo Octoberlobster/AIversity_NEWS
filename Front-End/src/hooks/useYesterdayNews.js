@@ -40,7 +40,7 @@ export function useYesterdayNews(country, yesterdayDate) {
       // 3. 批量拉取新聞基本資料 (文字內容)
       const { data: newsData, error: newsError } = await supabase
         .from('single_news')
-        .select('story_id, news_title, short')
+        .select('story_id, news_title, ultra_short')
         .in('story_id', allStoryIds);
 
       if (newsError) throw newsError;
@@ -49,7 +49,7 @@ export function useYesterdayNews(country, yesterdayDate) {
       const basicNews = newsData.map(news => ({
         id: news.story_id,
         title: news.news_title,
-        summary: news.short,
+        summary: news.ultra_short,
         date: yesterdayDate,
         // 標記為需要載入
         needsImage: true,
