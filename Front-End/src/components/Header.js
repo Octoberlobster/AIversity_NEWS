@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useCountry } from './CountryContext';
 import './../css/Header.css';
 
 function Header() {
   const { t, i18n } = useTranslation();
+  const { selectedCountry, setSelectedCountry } = useCountry();
   
   const domains = useMemo(() => [
     { id: '/', label: t('header.menu.home'), path: '/'},
+    { id: 'yesterday', label: t('header.menu.yesterdayFocus'), path: '/yesterday-focus'},
     { id: 'project', label: t('header.menu.specialReports'), path: '/special-reports'},
   ], [t]);
 
@@ -73,7 +76,7 @@ function Header() {
 
   const [activeDomain, setActiveDomain] = useState(domains[0].id);
   const [search, setSearch] = useState('');
-  const [hoveredCountry, setHoveredCountry] = useState(null);
+  const [activeCategory, setActiveCategory] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -100,6 +103,28 @@ function Header() {
     navigate(newPath);
   };
 
+  // 處理國家切換功能
+  const handleCountryChange = (e) => {
+    const newCountryId = e.target.value;
+    setSelectedCountry(newCountryId);
+    setActiveDomain(null); // 清除主導航的 active 狀態
+    
+    const newCountry = countries.find(c => c.id === newCountryId);
+    if (!newCountry) return;
+    
+    // 如果目前有選中的類別，導航到新國家的相同類別
+    if (activeCategory) {
+      const matchingCategory = newCountry.categories.find(cat => cat.id === activeCategory);
+      if (matchingCategory) {
+        navigate(`/${selectedLanguage}${matchingCategory.path}`);
+        return;
+      }
+    }
+    
+    // 如果在首頁或其他頁面，只更新國家狀態，不進行導航
+    // HomePage 會自動根據國家狀態更新新聞內容
+  };
+
   // 當路由改變時，更新語言和 active domain
   useEffect(() => {
     const pathSegments = location.pathname.split('/');
@@ -122,19 +147,45 @@ function Header() {
     // 設定當前 active 的類別
     if (pathWithoutLang === '/') {
       setActiveDomain('/');
+      setActiveCategory(null);
+    } else if (pathWithoutLang.startsWith('/yesterday-focus')) {
+      setActiveDomain('yesterday');
+      setActiveCategory(null);
     } else if (pathWithoutLang.startsWith('/special-reports')) {
       setActiveDomain('project');
+      setActiveCategory(null);
     } else if (pathWithoutLang.startsWith('/abroad')) {
       setActiveDomain('abroad');
+      setActiveCategory(null);
     } else if (pathWithoutLang.startsWith('/category/')) {
       const categoryFromPath = decodeURIComponent(pathWithoutLang.substring(10));
+      
+      // 檢查是否匹配國家
+      const matchedCountry = countries.find(country => 
+        categoryFromPath.startsWith(country.dbName)
+      );
+      if (matchedCountry) {
+        setSelectedCountry(matchedCountry.id);
+        
+        // 檢查是否匹配特定類別
+        const matchedCategory = matchedCountry.categories.find(cat => 
+          categoryFromPath === `${matchedCountry.dbName}/${cat.name}`
+        );
+        if (matchedCategory) {
+          setActiveCategory(matchedCategory.id);
+          setActiveDomain(null); // 清除主導航的 active 狀態
+        } else {
+          setActiveCategory(null);
+        }
+      }
+      
       const domain = domains.find((d) => {
         const categoryFromDomain = d.path.substring(10);
         return categoryFromDomain === categoryFromPath;
       });
       if (domain) setActiveDomain(domain.id);
     }
-  }, [location.pathname, domains, selectedLanguage, i18n]);
+  }, [location.pathname, domains, countries, selectedLanguage, i18n, setSelectedCountry]);
 
   return (
     <header className="header">
@@ -144,6 +195,16 @@ function Header() {
             <div className="logo">{t('header.brand')}</div>
           </Link>
           <span className="tagline">{t('header.tagline')}</span>
+        </div>
+
+        {/* AI 警語 */}
+        <div className="aiWarning">
+          {t('header.aiWarning').split('\n').map((line, index) => (
+            <React.Fragment key={index}>
+              {line}
+              {index < t('header.aiWarning').split('\n').length - 1 && <br />}
+            </React.Fragment>
+          ))}
         </div>
 
         <div className="rightSection">
@@ -177,51 +238,53 @@ function Header() {
         </div>
       </div>
 
-      <div className="tagBarWrapper">
+      <div className="tagBarWrapper">   
         <div className="domainTagBar">
+          {/* 國家下拉式選單 */}
+          <div className="countrySelectWrapper">
+            <select 
+              className="countrySelect"
+              value={selectedCountry}
+              onChange={handleCountryChange}
+            >
+              {countries.map((country) => (
+                <option key={country.id} value={country.id}>
+                  {country.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {domains.map((domain) => (
             <Link
               key={domain.id}
               to={`/${selectedLanguage}${domain.path}`}
               className={`tagLink ${activeDomain === domain.id ? 'is-active' : ''}`}
-              onClick={() => setActiveDomain(domain.id)}
+              onClick={() => {
+                setActiveDomain(domain.id);
+                setActiveCategory(null);
+              }}
             >
               {domain.label}
             </Link>
           ))}
           
-          {countries.map((country) => (
-            <Link
-              key={country.id}
-              to={`/${selectedLanguage}/category/${country.dbName}`}
-              className="tagLink countryLink"
-              onMouseEnter={() => setHoveredCountry(country.id)}
-            >
-              {country.label}
-            </Link>
-          ))}
-        </div>
-        
-        <div 
-          className="categoryDropdownWrapper"
-          onMouseLeave={() => setHoveredCountry(null)}
-        >
-          {hoveredCountry && (
-            <div className="categoryDropdown">
-              {countries
-                .find((country) => country.id === hoveredCountry)
-                ?.categories.map((category) => (
-                  <Link
-                    key={category.id}
-                    to={`/${selectedLanguage}${category.path}`}
-                    className="categoryLink"
-                    onClick={() => setActiveDomain(category.id)}
-                  >
-                    {category.label}
-                  </Link>
-                ))}
-            </div>
-          )}
+          {/* 類別標籤 */}
+          {countries
+            .find((country) => country.id === selectedCountry)
+            ?.categories.map((category) => (
+              <Link
+                key={category.id}
+                to={`/${selectedLanguage}${category.path}`}
+                className={`tagLink categoryTag ${activeCategory === category.id ? 'is-active' : ''}`}
+                onClick={() => {
+                  setActiveCategory(category.id);
+                  setActiveDomain(null);
+                }}
+              >
+                {category.label}
+              </Link>
+            ))}
         </div>
       </div>
     </header>

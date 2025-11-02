@@ -1,0 +1,203 @@
+import React, { useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useCountry } from './CountryContext';
+import { useYesterdayNews, useNewsImages, useRelatedSources } from '../hooks/useYesterdayNews';
+import '../css/YesterdayFocus.css';
+
+function YesterdayFocus() {
+  const { selectedCountry } = useCountry();
+  const location = useLocation();
+
+  // 獲取當前語言
+  const currentLang = location.pathname.split('/')[1] || 'zh-TW';
+
+  // 國家 ID 對應到顯示名稱
+  const countryMap = {
+    'taiwan': '臺灣',
+    'usa': '美國',
+    'japan': '日本',
+    'indonesia': '印尼'
+  };
+
+  const currentCountryLabel = countryMap[selectedCountry] || '台灣';
+
+  // 國家 ID 對應到資料庫的 country 值
+  const countryDbMap = {
+    'taiwan': 'Taiwan',
+    'usa': 'United States of America',
+    'japan': 'Japan',
+    'indonesia': 'Indonesia'
+  };
+
+  const currentCountryDbName = countryDbMap[selectedCountry] || 'Taiwan';
+
+  // 計算昨天的日期(格式:YYYY-MM-DD)
+  const yesterdayDate = useMemo(() => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const year = yesterday.getFullYear();
+    const month = String(yesterday.getMonth() + 1).padStart(2, '0');
+    const day = String(yesterday.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  }, []);
+
+  // 🎯 第一階段: 載入基本新聞資料 (文字內容)
+  const { 
+    data: basicNewsData = [], 
+    isLoading: isLoadingBasic,
+    error: basicError 
+  } = useYesterdayNews(currentCountryDbName, yesterdayDate);
+
+  // 提取所有 story_ids 用於載入圖片和來源
+  const storyIds = useMemo(() => {
+    return basicNewsData.map(news => news.id);
+  }, [basicNewsData]);
+
+  // 🎯 第二階段: 背景載入圖片 (延遲執行)
+  const { data: imagesData = {} } = useNewsImages(storyIds);
+
+  // 🎯 第三階段: 背景載入相關來源 (延遲執行)
+  const { data: sourcesData = {} } = useRelatedSources(storyIds);
+
+  // 合併所有資料
+  const newsData = useMemo(() => {
+    return basicNewsData.map(news => ({
+      ...news,
+      image: imagesData[news.id] || 'https://placehold.co/400x250/e5e7eb/9ca3af?text=載入中...',
+      relatedSources: sourcesData[news.id] || [],
+    }));
+  }, [basicNewsData, imagesData, sourcesData]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('[YesterdayFocus] 狀態更新:', {
+      昨天日期: yesterdayDate,
+      選擇國家: selectedCountry,
+      基本資料數量: basicNewsData.length,
+      已載入圖片數量: Object.keys(imagesData).length,
+      已載入來源數量: Object.keys(sourcesData).length,
+    });
+  }, [yesterdayDate, selectedCountry, basicNewsData.length, imagesData, sourcesData]);
+
+  // 載入狀態
+  if (isLoadingBasic) {
+    return (
+      <div className="yesterday-focus-container">
+        <div className="focus-wrapper">
+          <h1 className="yesterday-title">{currentCountryLabel}昨日焦點</h1>
+          <div className="loading-container">載入中...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // 錯誤狀態
+  if (basicError) {
+    return (
+      <div className="yesterday-focus-container">
+        <div className="focus-wrapper">
+          <h1 className="yesterday-title">{currentCountryLabel}昨日焦點</h1>
+          <div className="no-content">載入失敗,請稍後再試</div>
+        </div>
+      </div>
+    );
+  }
+
+  // 無資料狀態
+  if (newsData.length === 0) {
+    return (
+      <div className="yesterday-focus-container">
+        <div className="focus-wrapper">
+          <h1 className="yesterday-title">{currentCountryLabel}昨日焦點</h1>
+          <div className="no-content">暫無昨日焦點新聞</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="yesterday-focus-container">
+      <div className="focus-wrapper">
+        <h1 className="yesterday-title">
+          {currentCountryLabel}昨日焦點
+        </h1>
+
+        <div className="news-cards-list">
+          {newsData.map(news => (
+            <div key={news.id} className="news-card-container">
+              {/* 左側:新聞內容 */}
+              <div className="card-main">
+                <a 
+                  href={`/${currentLang}/news/${news.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-title-link"
+                >
+                  <h3 className="card-title">
+                    {news.title}
+                  </h3>
+                </a>
+                <a 
+                  href={`/${currentLang}/news/${news.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-image-link"
+                >
+                  <div className="card-image">
+                    <img 
+                      src={news.image} 
+                      alt={news.title}
+                      onError={(e) => {
+                        e.target.src = 'https://placehold.co/400x250/e5e7eb/9ca3af?text=圖片載入失敗';
+                      }}
+                    />
+                  </div>
+                </a>
+                <div className="card-content">
+                  <p className="card-summary">{news.summary}</p>
+                </div>
+              </div>
+
+              {/* 右側:相關來源側邊欄 */}
+              <div className="card-sidebar">
+                <h4 className="sidebar-title">相關來源</h4>
+                <div className="sources-list">
+                  {news.relatedSources && news.relatedSources.length > 0 ? (
+                    <>
+                      {news.relatedSources.slice(0, 6).map(source => (
+                        <a 
+                          key={`${news.id}-${source.id}`} 
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="source-item"
+                        >
+                          <span className="source-media">{source.media}</span>
+                          <span className="source-name">{source.name}</span>
+                        </a>
+                      ))}
+                      {news.relatedSources.length > 6 && (
+                        <div className="source-more">
+                          <span>...</span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ padding: '0.5rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
+                      載入中...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default YesterdayFocus;

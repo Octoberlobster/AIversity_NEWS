@@ -1,47 +1,67 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import TopicChatRoom from './TopicChatRoom';
 import UnifiedNewsCard from './UnifiedNewsCard';
-import { useSupabase } from './supabase';
 import { createHeaderVisualization } from './FiveW1HVisualization';
 import { useLanguageFields } from '../utils/useLanguageFields';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { changeExpertsTopic } from './api.js';
+import { useSpecialReportDetail, useBranchNews, useExpertAnalysis } from '../hooks/useSpecialReports';
 import './../css/SpecialReportDetail.css';
 
 function SpecialReportDetail() {
   const { t } = useTranslation();
-  const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  const { getCurrentLanguage, getFieldName } = useLanguageFields();
   const { id } = useParams();
   
   const getLanguageRoute = (path) => {
     return `/${getCurrentLanguage()}${path}`;
   };
-  const [report, setReport] = useState(null);
-  const [branches, setBranches] = useState([]); // 專題分支列表
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeEvent, setActiveEvent] = useState(null); // 目前導覽中的分支 ID
+
+  // 🚀 使用 React Query Hooks 載入資料
+  const { topicData, newsCount, branches, isLoading, error, refetch } = useSpecialReportDetail(id);
+  const { data: expertAnalysis = [], isLoading: analysisLoading } = useExpertAnalysis(id);
+
+  // 組合報告資料
+  const report = useMemo(() => {
+    if (!topicData) return null;
+
+    return {
+      topic_id: topicData.topic_id,
+      topic_title: topicData[getFieldName('topic_title')] || topicData.topic_title,
+      description: topicData[getFieldName('topic_long')] || topicData[getFieldName('topic_short')] || topicData.topic_long || topicData.topic_short || '',
+      articles: newsCount,
+      views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
+      lastUpdate: topicData.generated_date ? new Date(topicData.generated_date).toLocaleDateString('zh-TW') : '',
+      report: topicData[getFieldName('report')] || topicData.report || '',
+      who_talk: topicData.who_talk || ''
+    };
+  }, [topicData, newsCount, getFieldName]);
+
+  // 本地狀態
+  const [activeEvent, setActiveEvent] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const sectionRefs = useRef({});
-  const supabase = useSupabase();
   const [is5W1HExpanded, setIs5W1HExpanded] = useState(false);
   const expanded5W1HRef = useRef(null);
   const expandedVizInstanceRef = useRef(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [integrationReport, setIntegrationReport] = useState('');
   
-  // 專家分析（從資料庫讀取）
-  const [expertAnalysis, setExpertAnalysis] = useState([]);
-  const [analysisLoading, setAnalysisLoading] = useState(true);
-  const [generatingExperts, setGeneratingExperts] = useState(new Set()); // 正在生成的專家 ID
-  const [batchGenerating, setBatchGenerating] = useState(false); // 批量生成中
-  
-  // 專家分析彈出視窗狀態
+  // 專家相關狀態
+  const [generatingExperts, setGeneratingExperts] = useState(new Set());
+  const [batchGenerating, setBatchGenerating] = useState(false);
   const [selectedExpert, setSelectedExpert] = useState(null);
   const [isExpertModalOpen, setIsExpertModalOpen] = useState(false);
+
+  // 設置初始 activeEvent
+  useEffect(() => {
+    if (branches.length > 0 && !activeEvent) {
+      setActiveEvent(branches[0].id);
+    }
+  }, [branches, activeEvent]);
 
   // 開啟專家分析彈出視窗
   const openExpertModal = (expert) => {
@@ -119,7 +139,11 @@ function SpecialReportDetail() {
   // 通用的專家更換函數 - 支援單個或批量更換
   const changeExperts = async (expertsToRegenerate) => {
     try {
-      console.log('=== 開始更換專題專家流程 ===');
+      console.log('=== 批量更換專題專家流程結束 ===');
+    }
+  };
+
+  // 處理5W1H關聯圖顯示
       console.log('要更換的專家:', expertsToRegenerate);
       
       // 標記正在生成的專家

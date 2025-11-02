@@ -1,9 +1,10 @@
 {
   "header": {
     "brand": "AIversity",
-    "tagline": "AI-Driven News for Deeper Understanding",
+  "tagline": "Smart News, Deep Insights",
     "menu": {
       "home": "Home",
+      "yesterdayFocus": "Yesterday's Focus",
       "specialReports": "Special Reports",
       "abroad": "Abroad News",
       "politics": "Politics",
@@ -27,7 +28,8 @@
     },
     "language": {
       "select": "Select Language"
-    }
+    },
+    "aiWarning": "⚠️ AI may make errors, please use with caution"
   },
   "home":{
     "latestTopic": "Latest Topic",
@@ -35,6 +37,11 @@
     "articles": "Related Articles",
     "topicpreview": "Topic Preview",
     "nobranches": "No topic preview available"
+  },
+  "yesterdayFocus": {
+    "title": "Yesterday's Focus",
+    "moreNews": "More News from Yesterday",
+    "relatedSources": "Related Sources"
   },
   "common": {
     "loading": "Loading...",
@@ -126,7 +133,9 @@
       "input": "Enter news topics or questions you want to search..."
     },
     "prompts": {
-      "recentNews": "What important news has happened recently?"
+      "recentNews": "What's the latest major news?",
+      "default1": "How is the international situation?",
+      "default2": "Any new developments in the tech industry?"
     },
     "error": {
       "serverError": "Sorry, a server error occurred. Please try again later."
@@ -159,7 +168,12 @@
       "title": "Expert Analysis",
       "noData": "No expert analysis available",
       "noAnalysis": "No analysis data available",
-      "noContent": "Currently no position data or expert analysis available"
+      "noContent": "Currently no position data or expert analysis available",
+      "refreshAll": "Refresh All",
+      "changeExpert": "Change Expert",
+      "generating": "Generating...",
+      "refreshAllTitle": "Regenerate all expert perspectives",
+      "changeExpertTitle": "Change expert perspective"
     },
     "related": {
       "news": "Related News",
@@ -189,7 +203,7 @@
       "健康顧問": "Health Consultant"
     },
     "titles": {
-      "chat": "AI Expert Discussion Room"
+      "chat": "AI Expert Assistant"
     },
     "subtitles": {
       "chat": "{{count}} experts online"
@@ -317,15 +331,9 @@
       "serverError": "Sorry, a server error occurred. Please try again later."
     },
     "prompts": {
-      "default": [
-        "How do experts view this issue?",
-        "Future trends of this topic"
-      ],
-      "fixed": {
-        "updates": "What are the recent updates on \"{{topicTitle}}\"?",
-        "content": "What content does \"{{topicTitle}}\" provide?",
-        "opinion": "What are your thoughts on \"{{topicTitle}}\"?"
-      }
+      "default1": "What are the latest developments on this topic: {{topicTitle}}?",
+      "default2": "Explain the background of {{topicTitle}} in depth.",
+      "default3": "What are the different perspectives on {{topicTitle}}?"
     }
   },
   "searchResult":{
@@ -383,6 +391,13 @@
         "name": "How",
         "description": "Process and methods of the event"
       }
+    }
+  },
+  "chatRoom": {
+    "prompts": {
+      "default1": "What are the key points of this news?",
+      "default2": "How does this affect me?",
+      "default3": "Is there any other related information?"
     }
   }
 }

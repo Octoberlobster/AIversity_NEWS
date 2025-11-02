@@ -1,9 +1,10 @@
 {
   "header": {
     "brand": "AIversity",
-    "tagline": "インテリジェントニュース、深い洞察",
+  "tagline": "スマートニュース、深い洞察",
     "menu": {
       "home": "ホーム",
+      "yesterdayFocus": "昨日の焦点",
       "specialReports": "特集記事",
       "abroad": "海外ニュース",
       "politics": "政治",
@@ -27,7 +28,8 @@
     },
     "language": {
       "select": "言語を選択"
-    }
+    },
+    "aiWarning": "⚠️ AIは間違いを犯す可能性があります。\n慎重にご参照ください"
   },
   "home": {
     "latestTopic": "最新特集",
@@ -35,6 +37,11 @@
     "articles": "件の関連ニュース",
     "topicpreview": "特集プレビュー",
     "nobranches": "特集プレビューはありません"
+  },
+  "yesterdayFocus": {
+    "title": "昨日の焦点",
+    "moreNews": "昨日のその他のニュース",
+    "relatedSources": "関連ソース"
   },
   "common": {
     "loading": "読み込み中...",
@@ -127,7 +134,9 @@
       "input": "検索したいニュースのトピックや質問を入力..."
     },
     "prompts": {
-      "recentNews": "最近の重要なニュースは何ですか？"
+      "recentNews": "最近の重要なニュースは何ですか？",
+      "default1": "国際情勢はどうですか？",
+      "default2": "テクノロジー業界の新しい動向は？"
     },
     "error": {
       "serverError": "申し訳ありませんが、サーバーエラーが発生しました。しばらくしてからもう一度お試しください。"
@@ -163,7 +172,12 @@
       "title": "専門家分析",
       "noData": "専門家分析のデータは現在ありません",
       "noAnalysis": "分析データは現在ありません",
-      "noContent": "現在、賛成・反対の立場または専門家分析のデータはありません"
+      "noContent": "現在、賛成・反対の立場または専門家分析のデータはありません",
+      "refreshAll": "一括更新",
+      "changeExpert": "専門家変更",
+      "generating": "生成中...",
+      "refreshAllTitle": "すべての専門家の視点を再生成",
+      "changeExpertTitle": "専門家の視点を変更"
     },
     "related": {
       "news": "関連ニュース",
@@ -193,7 +207,7 @@
       "健康顧問": "健康コンサルタント"
     },
     "titles": {
-      "chat": "AI専門家ディスカッションルーム"
+      "chat": "AI専門家アシスタント"
     },
     "subtitles": {
       "chat": "{{count}}人の専門家がオンライン"
@@ -321,15 +335,9 @@
       "serverError": "申し訳ありませんが、サーバーエラーが発生しました。しばらくしてからもう一度お試しください。"
     },
     "prompts": {
-      "default": [
-        "専門家はこの問題をどう見ていますか？",
-        "この特集の将来の発展傾向"
-      ],
-      "fixed": {
-        "updates": "「{{topicTitle}}」に関する最近の更新は何ですか？",
-        "content": "「{{topicTitle}}」はどのような内容を提供していますか？",
-        "opinion": "「{{topicTitle}}」についてどう思いますか？"
-      }
+      "default1": "このトピック「{{topicTitle}}」の最新の進展は何ですか？",
+      "default2": "「{{topicTitle}}」の背景を詳しく説明してください。",
+      "default3": "「{{topicTitle}}」について、異なる視点はありますか？"
     }
   },
   "searchResult": {
@@ -387,6 +395,13 @@
         "name": "どのように",
         "description": "出来事の過程と方法"
       }
+    }
+  },
+  "chatRoom": {
+    "prompts": {
+      "default1": "このニュースの要点は何ですか？",
+      "default2": "これは私にどのような影響を与えますか？",
+      "default3": "他の関連情報はありますか？"
     }
   }
 }

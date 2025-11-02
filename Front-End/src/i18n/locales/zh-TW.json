@@ -1,9 +1,10 @@
 {
   "header": {
     "brand": "AIversity",
-    "tagline": "智能新聞，深度洞察",
+    "tagline": "智慧新聞，深度洞察",
     "menu": {
       "home": "首頁",
+      "yesterdayFocus": "昨日焦點",
       "specialReports": "專題報導",
       "abroad": "國外新聞",
       "politics": "政治",
@@ -27,7 +28,8 @@
     },
     "language": {
       "select": "選擇語言"
-    }
+    },
+    "aiWarning": "⚠️ AI 可能會出現錯誤，請謹慎參考"
   },
   "home":{
     "latestTopic": "最新專題",
@@ -35,6 +37,11 @@
     "articles": "篇相關新聞",
     "topicpreview": "專題預覽",
     "nobranches": "暫無專題預覽"
+  },
+  "yesterdayFocus": {
+    "title": "昨日焦點",
+    "moreNews": "昨日其他新聞",
+    "relatedSources": "相關來源"
   },
   "common": {
     "loading": "載入中...",
@@ -127,7 +134,9 @@
       "input": "輸入您想搜尋的新聞主題或問題..."
     },
     "prompts": {
-      "recentNews": "近期有什麼重要的新聞？"
+      "recentNews": "近期有什麼重要的新聞？",
+      "default1": "國際局勢如何？",
+      "default2": "科技業有什麼新動態？"
     },
     "error": {
       "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
@@ -163,7 +172,12 @@
       "title": "專家分析",
       "noData": "暫無專家分析資料",
       "noAnalysis": "暫無分析資料",
-      "noContent": "目前沒有正反方立場或專家分析資料"
+      "noContent": "目前沒有正反方立場或專家分析資料",
+      "refreshAll": "換一批",
+      "changeExpert": "換專家",
+      "generating": "生成中...",
+      "refreshAllTitle": "重新生成所有專家觀點",
+      "changeExpertTitle": "更換專家觀點"
     },
     "related": {
       "news": "相關新聞",
@@ -310,15 +324,9 @@
       "serverError": "抱歉，伺服器發生錯誤，請稍後再試。"
     },
     "prompts": {
-      "default": [
-        "專家如何看待這個議題？",
-        "這個專題的未來發展趨勢"
-      ],
-      "fixed": {
-        "updates": "「{{topicTitle}}」近期有什麼更新",
-        "content": "「{{topicTitle}}」提供甚麼內容？",
-        "opinion": "你對於「{{topicTitle}}」有什麼看法？"
-      }
+      "default1": "這個專題 {{topicTitle}} 的最新進展是什麼？",
+      "default2": "深入解釋一下 {{topicTitle}} 的背景。",
+      "default3": "關於 {{topicTitle}}，有什麼不同的觀點？"
     }
   },
   "searchResult":{
@@ -376,6 +384,13 @@
         "name": "如何",
         "description": "事件的過程和方式"
       }
+    }
+  },
+  "chatRoom": {
+      "prompts": {
+      "default1": "這則新聞的重點是什麼？",
+      "default2": "這件事對我有什麼影響？",
+      "default3": "有沒有其他相關資訊？"
     }
   }
 }

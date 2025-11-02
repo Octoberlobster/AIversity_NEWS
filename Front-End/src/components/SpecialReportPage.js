@@ -1,109 +1,35 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import './../css/SpecialReportPage.css';
-import { useSupabase } from './supabase';
 import { useLanguageFields } from '../utils/useLanguageFields';
+import { useSpecialReportsList } from '../hooks/useSpecialReports';
 
 function SpecialReportPage() {
   const { t } = useTranslation();
-  const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  const { getCurrentLanguage, getFieldName } = useLanguageFields();
   
   const getLanguageRoute = (path) => {
     return `/${getCurrentLanguage()}${path}`;
   };
-  const [specialReports, setSpecialReports] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const supabase = useSupabase();
-  const currentLanguage = getCurrentLanguage();
 
-  // 獲取專題新聞對應關係
-  const fetchTopicNewsCounts = useCallback(async () => {
-    const { data: topicNewsData, error } = await supabase
-      .from('topic_news_map')
-      .select('topic_id');
+  // 🚀 使用 React Query Hook 載入資料
+  const { topicCounts, topicDetails, isLoading, error, refetch } = useSpecialReportsList();
 
-    if (error) {
-      throw new Error(`無法獲取專題新聞對應關係: ${error.message}`);
-    }
+  // 🚀 組合最終資料 (使用 useMemo 優化)
+  const specialReports = useMemo(() => {
+    if (!topicDetails || topicDetails.length === 0) return [];
 
-    if (!topicNewsData || topicNewsData.length === 0) {
-      return { topicCounts: {}, validTopicIds: [] };
-    }
-
-    // 計算每個 topic_id 的新聞數量
-    const topicCounts = topicNewsData.reduce((acc, item) => {
-      if (item.topic_id) {
-        acc[item.topic_id] = (acc[item.topic_id] || 0) + 1;
-      }
-      return acc;
-    }, {});
-
-    // 過濾有效的 topic_id
-    const validTopicIds = Object.keys(topicCounts).filter(id => id.trim() !== '');
-
-    return { topicCounts, validTopicIds };
-  }, [supabase]);
-
-  // 獲取專題基本資訊
-  const fetchTopicDetails = useCallback(async (topicIds) => {
-    if (topicIds.length === 0) {
-      return [];
-    }
-
-    // 準備多語言欄位查詢
-    const multiLangFields = ['topic_title', 'topic_short'];
-    const selectFields = getMultiLanguageSelect(multiLangFields);
-
-    const { data, error } = await supabase
-      .from('topic')
-      .select(`topic_id, ${selectFields}, generated_date`)
-      .in('topic_id', topicIds);
-
-    if (error) {
-      throw new Error(`無法獲取專題詳細資訊: ${error.message}`);
-    }
-
-    return data || [];
-  }, [supabase, getMultiLanguageSelect]);
-
-  // 組合最終資料
-  const formatReportsData = useCallback((topicDetails, topicCounts) => {
     return topicDetails.map(topic => ({
       ...topic,
-      // 使用多語言欄位，如果不存在則使用原欄位作為 fallback
       topic_title: topic[getFieldName('topic_title')] || topic.topic_title,
       topic_short: topic[getFieldName('topic_short')] || topic.topic_short,
       articles: topicCounts[topic.topic_id] || 0,
       lastUpdate: topic.generated_date
     }));
-  }, [getFieldName]);
+  }, [topicDetails, topicCounts, getFieldName]);
 
-  // 主要資料獲取函數
-  const fetchSpecialReports = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { topicCounts, validTopicIds } = await fetchTopicNewsCounts();
-      const topicDetails = await fetchTopicDetails(validTopicIds);
-      const reports = formatReportsData(topicDetails, topicCounts);
-
-      setSpecialReports(reports);
-    } catch (err) {
-      setError(err.message);
-      console.error('獲取專題報導資料失敗:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchTopicNewsCounts, fetchTopicDetails, formatReportsData]);
-
-  useEffect(() => {
-    fetchSpecialReports();
-  }, [fetchSpecialReports, currentLanguage]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="srp-page">
         <div className="loading-message">{t('specialReportPage.loading')}</div>
@@ -115,8 +41,8 @@ function SpecialReportPage() {
     return (
       <div className="srp-page">
         <div className="error-message">
-          {t('specialReportPage.error.loadFailed', { error })}
-          <button onClick={fetchSpecialReports} className="retry-button">
+          {t('specialReportPage.error.loadFailed', { error: error.message })}
+          <button onClick={refetch} className="retry-button">
             {t('specialReportPage.retry')}
           </button>
         </div>

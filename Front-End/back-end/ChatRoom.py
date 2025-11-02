@@ -12,70 +12,99 @@ class ChatInfo(BaseModel):
 
 class ChatRoom:
     def __init__(self):
-        # 每個 ChatRoom 實例各自維護一份 category → model 的映射
+        # ... (init remains the same) ...
         self.model_dict = {
             "Politics": -1,
             "Taiwan News": -1,
             "Science & Technology": -1,
             "International News": -1,
-            "Lifestyle & Consumer News": -1,
+            "Lifestyle & Consumer": -1,
             "Sports": -1,
             "Entertainment": -1,
             "Business & Finance": -1,
             "Health & Wellness": -1,
             "search": -1,
         }
+        self.model_history = { # Initialize history for potential dynamic categories too
+             "Politics": [],
+             "Taiwan News": [],
+             "Science & Technology": [],
+             "International News": [],
+             "Lifestyle & Consumer": [],
+             "Sports": [],
+             "Entertainment": [],
+             "Business & Finance": [],
+             "Health & Wellness": [],
+             "search": [],
+         }
 
-        self.model_history = {
-            "Politics": [],
-            "Taiwan News": [],
-            "Science & Technology": [],
-            "International News": [],
-            "Lifestyle & Consumer News": [],
-            "Sports": [],
-            "Entertainment": [],
-            "Business & Finance": [],
-            "Health & Wellness": [],
-            "search": [],
-        }
 
-    def create_model(self, category: str):
+    def create_model(self, category: str, language: str = "zh-TW"): # <<< MODIFIED
         """如果該分類還沒建立過模型，就初始化一個"""
         model_name = "gemini-2.0-flash"
 
-        if category not in self.model_dict:
-            raise ValueError(f"Unknown category: {category}")
+        # Allow dynamic categories if not 'search'
+        if category != "search" and category not in self.model_dict:
+             self.model_dict[category] = -1
+             self.model_history[category] = []
+        elif category not in self.model_dict:
+             raise ValueError(f"Unknown category: {category}")
+
 
         # 已存在則直接回傳
         if self.model_dict[category] != -1:
+            # Sync history before returning existing model
             self.model_history[category] = self.model_dict[category]._comprehensive_history
 
-        # 初始化新模型
+        # 初始化新模型 (ensure history exists for the category)
         self.model_dict[category] = gemini_client.chats.create(
             model=model_name,
             config=types.GenerateContentConfig(
-                system_instruction=Knowledge_Base.get_knowledge_base(category),
+                system_instruction=Knowledge_Base.get_knowledge_base(category, language), # <<< MODIFIED
                 response_mime_type="application/json",
-                response_schema=ChatInfo,
+                response_schema=ChatInfo if category == "search" else Knowledge_Base.NewExpertResponse, # Use correct schema
             ),
-            history=self.model_history[category]
+             history=self.model_history.get(category, []) # Use .get with fallback
         )
         return self.model_dict[category]
 
-    def chat(self, prompt: str, categories: list[str], id = None, topic_flag = False) -> list[dict]:
-        """對指定分類的模型發送訊息"""
+
+    # <<< MODIFIED: Function signature >>>
+    def chat(self, prompt: str, categories_data: list[dict], id = None, topic_flag = False, language: str = "zh-TW") -> list[dict]:
+        """對指定分類的模型發送訊息。 categories_data is a list of dicts like [{'category': 'Politics', 'role': '政治分析師', 'analyze': '分析...'}]"""
         responses = []
-        for category in categories:
-            Knowledge_Base.set_knowledge_base(prompt, category, id, topic_flag)
-            model = self.create_model(category)
+        for expert_data in categories_data:
+            category = expert_data.get('category')
+            role = expert_data.get('role')     # Extract role
+            analyze = expert_data.get('analyze') # Extract analyze
+
+            if not category:
+                continue
+
+            # <<< MODIFIED: Pass role and analyze >>>
+            Knowledge_Base.set_knowledge_base(prompt, category, id, topic_flag, language, role=role, analyze=analyze)
+
+            model = self.create_model(category, language) # Pass language
             response = model.send_message(message=prompt)
-            # loop response.parsed.news_id and change the news_id with StoryMap
-            for i, news_id in enumerate(response.parsed.news_id):
-                print(type(news_id))
-                print(news_id)
-                response.parsed.news_id[i] = StoryMap.story_map.get(news_id,news_id)
-            #response.parsed.chat_response = clean_markdown_spacing(response.parsed.chat_response)
-            responses.append(dict(response.parsed))  # 轉成 dict 加入回應列表
+
+            # Process response based on category
+            if category == "search":
+                 # Process search response (including StoryMap mapping)
+                 for i, news_id in enumerate(response.parsed.news_id):
+                     print(type(news_id))
+                     print(news_id)
+                     response.parsed.news_id[i] = StoryMap.story_map.get(str(news_id), news_id) # Ensure key is string
+                 responses.append(dict(response.parsed))
+            else:
+                 # Process expert response (Role/Analyze format expected from NewExpertResponse schema)
+                 # We need to structure the response like ChatInfo for consistency if needed by frontend
+                 expert_response_data = {
+                      "news_id": [], # Expert responses don't typically return news_ids directly this way
+                      "chat_response": f"**{response.parsed.Role}：**\n\n{response.parsed.Analyze}" # Format the response
+                 }
+                 responses.append(expert_response_data)
+
+
         return responses
     
 # def clean_markdown_spacing(text: str) -> str:
