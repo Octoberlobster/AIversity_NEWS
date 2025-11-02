@@ -7,12 +7,6 @@ import { searchNews, fetchNewsDataFromSupabase } from './api';
 import { useSupabase } from './supabase';
 import './../css/SearchResultsPage.css';
 
-const hotKeywords = [
-  'AI', '房價', '疫苗', '選舉', '颱風', '股市', '升息', '地震', '烏俄', '通膨',
-  '台積電', '碳中和', '缺水', '罷工', 'ChatGPT', '元宇宙', '女足', '大罷免',
-  '能源', 'AI醫療', '5G', '電動車', '半導體', '新冠', '核電', '綠能'
-];
-
 function SearchResultsPage() {
   const { query } = useParams();
   const navigate = useNavigate();
@@ -61,7 +55,16 @@ function SearchResultsPage() {
           const newsData = await fetchNewsDataFromSupabase(supabaseClient, searchResponse.story_ids);
           console.log('從 Supabase 獲取的新聞資料:', newsData);
           console.log('第一筆新聞資料結構:', newsData[0]);
-          setSearchResults(newsData);
+          
+          // 3. 按照時間排序 (最新的在前面)
+          const sortedNews = newsData.sort((a, b) => {
+            const dateA = new Date(a.date || a.generated_date);
+            const dateB = new Date(b.date || b.generated_date);
+            return dateB - dateA; // 降序排列 (最新的在前)
+          });
+          
+          console.log('排序後的新聞:', sortedNews.slice(0, 3).map(n => ({ title: n.title, date: n.date })));
+          setSearchResults(sortedNews);
         } else {
           console.log('沒有找到 story_ids 或為空陣列');
           setSearchResults([]);
@@ -121,21 +124,14 @@ function SearchResultsPage() {
               <h2 className="searchPage__sectionTitle">
                 {t('searchResult.header.title', { query })}
               </h2>
-              {searchInfo && (
-                <div className="searchPage__info">
-                  <p className="searchPage__resultCount">
-                    {t('searchResult.header.resultCount', { count: searchInfo.count || searchResults.length })}
-                  </p>
-                  {searchInfo.keywords && searchInfo.keywords.length > 0 && (
-                    <div className="searchPage__keywords">
-                      <span>{t('searchResult.header.keywords')}</span>
-                      {searchInfo.keywords.map((keyword, index) => (
-                        <span key={index} className="searchPage__keyword">
-                          {keyword}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+              {searchInfo && searchInfo.keywords && searchInfo.keywords.length > 0 && (
+                <div className="searchPage__keywords">
+                  <span>{t('searchResult.header.keywords')}</span>
+                  {searchInfo.keywords.map((keyword, index) => (
+                    <span key={index} className="searchPage__keyword">
+                      {keyword}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
@@ -144,17 +140,6 @@ function SearchResultsPage() {
               <div className="searchPage__noResults">
                 <h3>{t('searchResult.noResults.title')}</h3>
                 <p>{t('searchResult.noResults.suggestion')}</p>
-                <div className="searchPage__suggestedKeywords">
-                  {hotKeywords.slice(0, 8).map((kw) => (
-                    <span
-                      key={kw}
-                      className="searchPage__suggestedKw"
-                      onClick={() => navigate(`/search/${encodeURIComponent(kw)}`)}
-                    >
-                      {kw}
-                    </span>
-                  ))}
-                </div>
               </div>
             ) : (
               <>

@@ -684,7 +684,16 @@ function NewsDetail() {
                 {newsKeywords && newsKeywords.length > 0 && (
                   <div className="articleKeywords">
                     {newsKeywords.map((kw, index) => (
-                      <span className="keywordChip" key={index}>{kw.keyword}</span>
+                      <Link 
+                        to={getLanguageRoute(`/search/${encodeURIComponent(kw.keyword)}`)} 
+                        className="keywordChip" 
+                        key={index}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        {kw.keyword}
+                      </Link>
                     ))}
                   </div>
                 )}
@@ -975,6 +984,7 @@ function NewsDetail() {
           }
           position={tooltipPosition}
           onClose={() => setTooltipTerm(null)}
+          getLanguageRoute={getLanguageRoute}
         />
       )}
     </div>

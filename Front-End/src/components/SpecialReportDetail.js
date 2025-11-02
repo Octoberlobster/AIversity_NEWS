@@ -435,7 +435,7 @@ function SpecialReportDetail() {
               story_id: s.story_id,
               title: s[getFieldName('news_title')] || s.news_title,
               category: s.category, // 若需中文化，可在這裡自行映射
-              generated_date: s.generated_date,
+              date: s.generated_date, // 改為 date 以符合 UnifiedNewsCard 的需求
               author: 'Gemini',
               sourceCount: s.total_articles,
               shortSummary: s[getFieldName('ultra_short')] || s.ultra_short,

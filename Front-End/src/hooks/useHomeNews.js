@@ -19,13 +19,19 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
       let fetchedData;
 
       if (country && country !== 'all') {
-        // 國家模式
+        // 國家模式 - 直接在 single_news 中查詢,使用 join 來過濾國家
+        const multiLangFields = getMultiLanguageSelect(["news_title", "ultra_short"]);
+        const selectQuery = `story_id, generated_date, ${multiLangFields}`;
+        
+        console.log('[useHomeNews] select query:', selectQuery);
+
+        // 方法1: 先獲取該國家的 story_id 範圍較小的批次
         const { data: countryStories, error: storiesError } = await supabase
           .from('stories')
           .select('story_id')
           .or(`country.eq.${country},country.eq.${country.toLowerCase()}`)
           .order('story_id', { ascending: false })
-          .range(offset, offset + itemsPerPage * 2 - 1);
+          .limit(500); // 限制數量避免太大
 
         if (storiesError) {
           console.error('[useHomeNews] stories 查詢錯誤:', storiesError);
@@ -38,19 +44,15 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
 
         const countryStoryIds = countryStories.map(s => s.story_id);
         
-        console.log('[useHomeNews] story_ids:', countryStoryIds.slice(0, 5), '...');
+        console.log('[useHomeNews] story_ids 範圍:', countryStoryIds.length, '筆');
 
-        const multiLangFields = getMultiLanguageSelect(["news_title", "ultra_short"]);
-        const selectQuery = `story_id, generated_date, ${multiLangFields}`;
-        
-        console.log('[useHomeNews] select query:', selectQuery);
-
+        // 在 single_news 中按時間排序並分頁
         const { data: newsData, error: newsError } = await supabase
           .from('single_news')
           .select(selectQuery)
           .in('story_id', countryStoryIds)
           .order('generated_date', { ascending: false })
-          .limit(itemsPerPage);
+          .range(offset, offset + itemsPerPage - 1);
 
         if (newsError) {
           console.error('[useHomeNews] single_news 查詢錯誤:', newsError);

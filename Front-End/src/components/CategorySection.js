@@ -10,12 +10,21 @@ function CategorySection({ country }) {
   const { categoryName } = useParams();
   const ITEMS_PER_PAGE = 18;
 
-  // 🎯 第一階段: 載入基本新聞資料 (文字內容)
+  // 🎯 第一階段: 載入基本新聞資料 (文字內容) - 支援無限載入
   const { 
-    data: basicNewsData = [], 
+    data,
     isLoading,
-    error 
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   } = useCategoryNews(country, categoryName, ITEMS_PER_PAGE);
+
+  // 合併所有頁面的資料
+  const basicNewsData = useMemo(() => {
+    if (!data?.pages) return [];
+    return data.pages.flatMap(page => page.news);
+  }, [data]);
 
   // 提取所有 story_ids 用於載入圖片
   const storyIds = useMemo(() => {
@@ -116,6 +125,44 @@ function CategorySection({ country }) {
           customData={newsData}
           limit={newsData.length} 
         />
+        
+        {/* 載入更多按鈕 */}
+        {hasNextPage && (
+          <div style={{ textAlign: 'center', margin: '2rem 0' }}>
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              style={{
+                padding: '0.75rem 2rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: '#fff',
+                background: isFetchingNextPage ? '#94a3b8' : '#3b82f6',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: isFetchingNextPage ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+              }}
+              onMouseEnter={(e) => {
+                if (!isFetchingNextPage) {
+                  e.target.style.background = '#2563eb';
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isFetchingNextPage) {
+                  e.target.style.background = '#3b82f6';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+                }
+              }}
+            >
+              {isFetchingNextPage ? t('categorySection.loadingMore') : t('categorySection.loadMore')}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

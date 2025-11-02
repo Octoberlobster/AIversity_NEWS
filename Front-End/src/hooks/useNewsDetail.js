@@ -165,7 +165,8 @@ export function useNewsKeywords(storyId) {
       const { data, error } = await supabase
         .from('keywords_map')
         .select('keyword')
-        .eq('story_id', storyId);
+        .eq('story_id', storyId)
+        .limit(3);
 
       if (error) {
         console.warn('載入關鍵字失敗:', error);
@@ -231,21 +232,27 @@ export function useNewsTerms(storyId) {
 
       // 轉換為物件格式
       const definitions = {};
-      const terms = [];
+      const termsArray = [];
       
       (termData || []).forEach(item => {
         if (item.term && item.definition) {
-          terms.push(item.term);
-          definitions[item.term_id] = {
+          // 加入術語物件 (包含 term, definition, example)
+          termsArray.push({
             term: item.term,
+            definition: item.definition,
+            example: item.example || null
+          });
+          
+          // 同時建立 term 為 key 的映射
+          definitions[item.term] = {
             definition: item.definition,
             example: item.example || null
           };
         }
       });
 
-      console.log('[useNewsTerms] 術語載入完成:', terms.length, '個');
-      return { terms, definitions };
+      console.log('[useNewsTerms] 術語載入完成:', termsArray.length, '個');
+      return { terms: termsArray, definitions };
     },
     enabled: !!supabase && !!storyId,
     staleTime: 30 * 60 * 1000, // 術語定義較少變動

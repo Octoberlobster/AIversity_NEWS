@@ -45,8 +45,8 @@
   },
   "common": {
     "loading": "Memuat...",
-    "loadingMore": "Memuat lebih banyak...",
-    "loadMore": "Muat Lebih Banyak",
+    "loadMore": "Muat Lebih Banyak Berita",
+    "loadingMore": "Memuat...",
     "error": "Gagal memuat",
     "retry": "Coba Lagi",
     "readMore": "Baca Berita Selengkapnya",
@@ -54,13 +54,17 @@
     "search": "Cari",
     "noContent": "Tidak ada konten",
     "searchError": "Terjadi kesalahan saat mencari",
-    "reporter": "Wartawan"
+    "reporter": "Wartawan",
+    "editor": "Editor:",
+    "editorName": "Redaksi Berita AIversity"
   },
   "categorySection": {
     "news": "Berita",
     "title": "Berita Kategori",
     "newsTitle": "Berita {{category}}",
     "loading": "Memuat...",
+    "loadMore": "Muat Lebih Banyak Berita",
+    "loadingMore": "Memuat...",
     "error": {
       "loadFailed": "Tidak dapat memuat data berita",
       "loadError": "Terjadi kesalahan saat memuat berita"
@@ -355,12 +359,11 @@
     },
     "header": {
       "title": "Hasil Pencarian untuk: '{{query}}'",
-      "resultCount": "Menemukan {{count}} berita terkait",
       "keywords": "Kata Kunci Pencarian: "
     },
     "noResults": {
       "title": "😔 Tidak ada berita relevan yang ditemukan",
-      "suggestion": "Coba gunakan kata kunci yang berbeda, atau jelajahi topik populer di bawah ini:"
+      "suggestion": "Coba gunakan kata kunci yang berbeda untuk mencari"
     },
     "moreButton": {
       "text": "Tampilkan lebih banyak hasil pencarian ({{count}} artikel)"

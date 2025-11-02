@@ -85,12 +85,23 @@
   display: flex; align-items: center; gap: 1.0rem; flex-wrap: wrap;
 }
 .newsDetail .keywordChip {
+  display: inline-block;
   background: #e0e7ff;
   color: #3730a3;
   border-radius: 10px;
   padding: .15rem .7rem;
   font-size: .8rem;
   font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.newsDetail .keywordChip:hover {
+  background: #3730a3;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(55, 48, 163, 0.3);
 }
 
 /* 文章文字內容（名詞可點擊） */
@@ -361,8 +372,23 @@
 /* Chips */
 .newsDetail .chipsRow { display: flex; gap: 0.5rem; margin: 1rem 0 1.5rem 0; }
 .newsDetail .keywordChip {
-  background: #e0e7ff; color: #3730a3; border-radius: 12px; padding: 0.2rem 0.9rem;
-  font-size: 0.95rem; font-weight: 500;
+  display: inline-block;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 12px;
+  padding: 0.2rem 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.newsDetail .keywordChip:hover {
+  background: #3730a3;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(55, 48, 163, 0.3);
 }
 
 /* 延伸閱讀區 */

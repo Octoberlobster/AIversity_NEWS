@@ -395,7 +395,7 @@ export function useLatestTopics() {
     cacheTime: 30 * 60 * 1000,
   });
 
-  // 階段 3: 獲取圖片 (依賴階段 2)
+  // 階段 3: 獲取圖片 (依賴階段 2) - 分批載入避免超時
   const imagesQuery = useQuery({
     queryKey: ['latest-topics-images', newsMapQuery.data],
     queryFn: async () => {
@@ -420,27 +420,50 @@ export function useLatestTopics() {
 
       console.log('[useLatestTopics] 載入圖片:', storyIdsForImages.length, '張');
 
-      const { data, error } = await supabase
-        .from('generated_image')
-        .select('story_id, image, description')
-        .in('story_id', storyIdsForImages);
-
-      if (error) {
-        console.warn('載入圖片失敗:', error);
-        return { imageMap: {}, topicToStoryMap };
-      }
-
-      // 建立圖片映射表
+      // 🔧 分批載入圖片避免超時
+      const BATCH_SIZE = 3;
       const imageMap = {};
-      (data || []).forEach(imageItem => {
-        if (imageItem.image) {
-          const cleanBase64 = imageItem.image.replace(/\s/g, '');
-          imageMap[imageItem.story_id] = {
-            imageUrl: `data:image/png;base64,${cleanBase64}`,
-            description: imageItem.description || ''
-          };
+
+      for (let i = 0; i < storyIdsForImages.length; i += BATCH_SIZE) {
+        const batch = storyIdsForImages.slice(i, i + BATCH_SIZE);
+        
+        try {
+          const { data, error } = await supabase
+            .from('generated_image')
+            .select('story_id, image, description')
+            .in('story_id', batch);
+
+          if (error) {
+            console.warn('[useLatestTopics] 批次載入圖片失敗:', error);
+            continue;
+          }
+
+          // 處理這批圖片
+          (data || []).forEach(imageItem => {
+            if (imageItem.image) {
+              try {
+                const cleanBase64 = imageItem.image.replace(/\s/g, '');
+                imageMap[imageItem.story_id] = {
+                  imageUrl: `data:image/png;base64,${cleanBase64}`,
+                  description: imageItem.description || ''
+                };
+              } catch (e) {
+                console.error('[useLatestTopics] 圖片處理失敗:', imageItem.story_id, e);
+              }
+            }
+          });
+
+          console.log('[useLatestTopics] 批次完成,已載入:', Object.keys(imageMap).length, '/', storyIdsForImages.length, '張');
+        } catch (err) {
+          console.error('[useLatestTopics] 批次異常:', err);
+          continue;
         }
-      });
+
+        // 批次間添加小延遲
+        if (i + BATCH_SIZE < storyIdsForImages.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
 
       console.log('[useLatestTopics] 圖片載入完成:', Object.keys(imageMap).length, '張');
       return { imageMap, topicToStoryMap };
@@ -448,6 +471,7 @@ export function useLatestTopics() {
     enabled: !!supabase && !!newsMapQuery.data,
     staleTime: 30 * 60 * 1000, // 圖片快取 30 分鐘
     cacheTime: 2 * 60 * 60 * 1000,
+    retry: 1, // 只重試 1 次
   });
 
   // 階段 4: 獲取分支 (背景載入)

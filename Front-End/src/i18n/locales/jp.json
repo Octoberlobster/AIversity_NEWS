@@ -45,8 +45,8 @@
   },
   "common": {
     "loading": "読み込み中...",
-    "loadingMore": "さらに読み込み中...",
-    "loadMore": "もっと見る",
+    "loadMore": "もっと読み込む",
+    "loadingMore": "読み込み中...",
     "error": "読み込みに失敗しました",
     "retry": "再読み込み",
     "readMore": "続きを読む",
@@ -54,13 +54,17 @@
     "search": "検索",
     "noContent": "コンテンツがありません",
     "searchError": "検索中にエラーが発生しました",
-    "reporter": "記者"
+    "reporter": "記者",
+    "editor": "編集者:",
+    "editorName": "AIversityニュース編集部"
   },
   "categorySection": {
     "news": "ニュース",
     "title": "カテゴリ別ニュース",
     "newsTitle": "{{category}}ニュース",
     "loading": "読み込み中...",
+    "loadMore": "もっと読み込む",
+    "loadingMore": "読み込み中...",
     "error": {
       "loadFailed": "ニュースデータを読み込めません",
       "loadError": "ニュースの読み込み中にエラーが発生しました"
@@ -353,12 +357,11 @@
     },
     "header": {
       "title": "検索結果：「{{query}}」",
-      "resultCount": "{{count}}件の関連ニュースが見つかりました",
       "keywords": "検索キーワード: "
     },
     "noResults": {
       "title": "😔 関連ニュースが見つかりませんでした",
-      "suggestion": "別のキーワードを試すか、以下の人気トピックをご覧ください："
+      "suggestion": "別のキーワードで検索してみてください"
     },
     "moreButton": {
       "text": "さらに検索結果を表示（{{count}}件）"

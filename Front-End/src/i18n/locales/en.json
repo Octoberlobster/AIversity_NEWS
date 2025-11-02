@@ -46,6 +46,7 @@
   "common": {
     "loading": "Loading...",
     "loadingMore": "Loading more...",
+    "loadMore": "Load more news",
     "error": "Loading failed",
     "retry": "Retry",
     "readMore": "Read more news",
@@ -53,13 +54,17 @@
     "search": "Search",
     "noContent": "No content available",
     "searchError": "Search error occurred",
-    "reporter": "Reporter"
+    "reporter": "Reporter",
+    "editor": "Editor:",
+    "editorName": "AIversity News Editorial"
   },
   "categorySection": {
     "news": "News",
     "title": "Category News",
     "newsTitle": "{{category}} News",
     "loading": "Loading...",
+    "loadMore": "Load More News",
+    "loadingMore": "Loading...",
     "error": {
       "loadFailed": "Failed to load news data",
       "loadError": "Error occurred while loading news"
@@ -349,12 +354,11 @@
     },
     "header": {
       "title": "Search Results: \"{{query}}\"",
-      "resultCount": "Found {{count}} related articles",
       "keywords": "Search keywords: "
     },
     "noResults": {
       "title": "😔 No related articles found",
-      "suggestion": "Try different keywords or browse the following trending topics:"
+      "suggestion": "Try different keywords to search"
     },
     "moreButton": {
       "text": "Show more results ({{count}} articles)"

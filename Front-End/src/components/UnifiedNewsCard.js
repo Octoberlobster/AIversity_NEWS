@@ -6,7 +6,7 @@ import { useHomeNews } from '../hooks/useHomeNews';
 import { useBatchNewsImages } from '../hooks/useCategoryNews';
 import { useLanguageFields } from '../utils/useLanguageFields';
 
-function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, country = 'Taiwan' }) {
+function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, country = 'Taiwan', showLoadMore = false }) {
   const { getCurrentLanguage } = useLanguageFields();
   const { t } = useTranslation();
   const ITEMS_PER_PAGE = 18;
@@ -22,8 +22,8 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
   const {
     data: homeNewsData,
     isLoading,
-    hasNextPage,
     fetchNextPage,
+    hasNextPage,
     isFetchingNextPage,
   } = useHomeNews(country, ITEMS_PER_PAGE, !useCustomData); // 加入 enabled 參數
 
@@ -78,13 +78,6 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
   // 限制顯示數量
   const displayNews = limit ? filteredNews.slice(0, limit) : filteredNews;
 
-  // 載入更多
-  const handleLoadMore = () => {
-    if (!useCustomData && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  };
-
   return (
     <div className="unifiedNewsCard">
       {isLoading && newsData.length === 0 && (
@@ -129,7 +122,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
             
             <div className="card__info">
               <span className="dateText">{news.date}</span>
-              <span className="authorText">{t('common.reporter')} gemini</span>
+              <span className="authorText">{t('common.editor')} {t('common.editorName')}</span>
             </div>
 
             <div className="card__content">
@@ -140,20 +133,41 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
           </div>
         ))}
       </div>
-      
-      {/* 閱讀更多新聞按鈕 - 只在非 customData 模式顯示 */}
-      {!useCustomData && hasNextPage && newsData.length > 0 && (
-        <div className="moreButtonWrap">
-          <button 
-            className="moreButton" 
-            onClick={handleLoadMore}
+
+      {/* 載入更多按鈕 - 只在首頁且有下一頁時顯示 */}
+      {showLoadMore && !useCustomData && hasNextPage && (
+        <div style={{ textAlign: 'center', margin: '2rem 0' }}>
+          <button
+            onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
             style={{
-              opacity: isFetchingNextPage ? 0.6 : 1,
-              cursor: isFetchingNextPage ? 'not-allowed' : 'pointer'
+              padding: '0.75rem 2rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              color: '#fff',
+              background: isFetchingNextPage ? '#94a3b8' : '#3b82f6',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: isFetchingNextPage ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+            }}
+            onMouseEnter={(e) => {
+              if (!isFetchingNextPage) {
+                e.target.style.background = '#2563eb';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isFetchingNextPage) {
+                e.target.style.background = '#3b82f6';
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+              }
             }}
           >
-            {isFetchingNextPage ? t('common.loading') : t('common.readMore')}
+            {isFetchingNextPage ? t('common.loadingMore') : t('common.loadMore')}
           </button>
         </div>
       )}

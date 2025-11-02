@@ -64,7 +64,7 @@ function HomePage() {
           <h2 className="sectionTitle">
             {t('home.latestNews')}
           </h2>
-          <UnifiedNewsCard instanceId="main_news_list" country={currentCountryDbName} />
+          <UnifiedNewsCard instanceId="main_news_list" country={currentCountryDbName} showLoadMore={true} />
         </div>
       </div>
     </>
