@@ -185,7 +185,8 @@
     },
     "related": {
       "news": "Berita Terkait",
-      "topics": "Topik Terkait"
+      "topics": "Topik Terkait",
+      "topicRelation": "Berita ini ada dalam topik ini"
     },
     "sources": {
       "title": "Sumber Data:",

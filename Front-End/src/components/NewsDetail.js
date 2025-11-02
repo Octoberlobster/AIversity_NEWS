@@ -16,7 +16,8 @@ import {
   useSourceArticles,
   usePositionData,
   useExpertAnalysis,
-  useRelatedNews
+  useRelatedNews,
+  useRelatedTopics
 } from '../hooks/useNewsDetail';
 
 function NewsDetail() {
@@ -38,6 +39,7 @@ function NewsDetail() {
   const [termDefinitions, setTermDefinitions] = useState({});
   const [newsTerms, setNewsTerms] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
+  const [relatedTopics, setRelatedTopics] = useState([]);
   const [positionData, setPositionData] = useState({ positive: [], negative: [] }); // 正反方立場資料
   const [positionLoading, setPositionLoading] = useState(true); // 正反方立場載入狀態
   const [expertAnalysis, setExpertAnalysis] = useState([]); // 專家分析資料
@@ -83,6 +85,9 @@ function NewsDetail() {
   
   // 🚀 使用 React Query Hook 載入相關新聞 (背景載入)
   const { data: relatedNewsData = [] } = useRelatedNews(id);
+  
+  // 🚀 使用 React Query Hook 載入相關專題 (背景載入)
+  const { data: relatedTopicsData = [] } = useRelatedTopics(id);
   
   // 🚀 從 hook 結果中提取資料 (向後兼容舊的狀態)
   useEffect(() => {
@@ -172,6 +177,11 @@ function NewsDetail() {
   useEffect(() => {
     setRelatedNews(relatedNewsData);
   }, [relatedNewsData]);
+
+  // 🚀 更新相關專題資料
+  useEffect(() => {
+    setRelatedTopics(relatedTopicsData);
+  }, [relatedTopicsData]);
 
   // 生成帶語言前綴的路由
   const getLanguageRoute = (path) => {
@@ -868,7 +878,22 @@ function NewsDetail() {
                     ))}
                   </div>
                 </div>
-              )}  
+              )}
+              {relatedTopics && relatedTopics.length > 0 && (
+                <div className="relatedColumn">
+                  <h5 className="sectionTitle">{t('newsDetail.related.topics')}</h5>
+                  <div className="relatedItems">
+                    {relatedTopics.map(item => (
+                      <div className="relatedItem" key={`topic-${item.id}`}>
+                        <Link to={getLanguageRoute(`/special-report/${item.id}`)}>
+                          {item.title}
+                        </Link>
+                        <div className="relevanceText">{t('newsDetail.related.topicRelation')}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

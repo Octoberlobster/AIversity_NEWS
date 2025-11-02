@@ -32,7 +32,9 @@ function YesterdayFocus() {
   const currentCountryDbName = countryDbMap[selectedCountry] || 'Taiwan';
 
   // 計算昨天的日期(格式:YYYY-MM-DD)
-  const yesterdayDate = useMemo(() => {
+  const yesterdayDate = "2025-10-31";
+  /*
+  useMemo(() => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -43,6 +45,7 @@ function YesterdayFocus() {
     
     return `${year}-${month}-${day}`;
   }, []);
+  */
 
   // 🎯 第一階段: 載入基本新聞資料 (文字內容)
   const { 

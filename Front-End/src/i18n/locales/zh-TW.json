@@ -185,7 +185,8 @@
     },
     "related": {
       "news": "相關新聞",
-      "topics": "相關專題"
+      "topics": "相關專題",
+      "topicRelation": "此新聞在該專題中"
     },
     "sources": {
       "title": "資料來源：",

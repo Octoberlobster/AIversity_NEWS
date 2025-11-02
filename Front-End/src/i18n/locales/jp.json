@@ -185,7 +185,8 @@
     },
     "related": {
       "news": "関連ニュース",
-      "topics": "関連特集"
+      "topics": "関連特集",
+      "topicRelation": "このニュースは該当特集に含まれています"
     },
     "sources": {
       "title": "情報源：",

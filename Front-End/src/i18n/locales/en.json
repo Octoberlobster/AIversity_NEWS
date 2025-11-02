@@ -182,7 +182,8 @@
     },
     "related": {
       "news": "Related News",
-      "topics": "Related Topics"
+      "topics": "Related Topics",
+      "topicRelation": "This news is in this topic"
     },
     "sources": {
       "title": "Sources:",
