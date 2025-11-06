@@ -183,6 +183,13 @@
       "refreshAllTitle": "すべての専門家の視点を再生成",
       "changeExpertTitle": "専門家の視点を変更"
     },
+    "taiwanPerspective": {
+      "title": "台湾の視点",
+      "placeholder": "台湾視点の分析はまだ生成されていません",
+      "generateButton": "台湾の視点を生成",
+      "generating": "生成中...",
+      "generateError": "台湾の視点の生成に失敗しました。後でもう一度お試しください"
+    },
     "related": {
       "news": "関連ニュース",
       "topics": "関連特集",

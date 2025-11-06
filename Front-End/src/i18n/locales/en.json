@@ -180,6 +180,13 @@
       "refreshAllTitle": "Regenerate all expert perspectives",
       "changeExpertTitle": "Change expert perspective"
     },
+    "taiwanPerspective": {
+      "title": "Taiwan Perspective",
+      "placeholder": "Taiwan perspective analysis not yet generated",
+      "generateButton": "Generate Taiwan Perspective",
+      "generating": "Generating...",
+      "generateError": "Failed to generate Taiwan perspective, please try again later"
+    },
     "related": {
       "news": "Related News",
       "topics": "Related Topics",

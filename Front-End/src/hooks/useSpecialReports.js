@@ -327,16 +327,21 @@ export function useExpertAnalysis(topicId) {
  */
 export function useLatestTopics() {
   const supabase = useSupabase();
+  const { getMultiLanguageSelect, getFieldName, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
-  // 階段 1: 獲取專題基本資訊
+  // 階段 1: 獲取專題基本資訊(支援多語言)
   const topicsQuery = useQuery({
-    queryKey: ['latest-topics-basic'],
+    queryKey: ['latest-topics-basic', currentLanguage],
     queryFn: async () => {
       console.log('[useLatestTopics] 載入專題基本資訊');
 
+      const multiLangFields = ['topic_title', 'topic_short'];
+      const selectFields = getMultiLanguageSelect(multiLangFields);
+
       const { data, error } = await supabase
         .from('topic')
-        .select('topic_id, topic_title, topic_short, generated_date')
+        .select(`topic_id, ${selectFields}, generated_date`)
         .not('topic_title', 'is', null)
         .neq('topic_title', '')
         .not('topic_short', 'is', null)
@@ -474,9 +479,9 @@ export function useLatestTopics() {
     retry: 1, // 只重試 1 次
   });
 
-  // 階段 4: 獲取分支 (背景載入)
+  // 階段 4: 獲取分支 (背景載入,支援多語言)
   const branchesQuery = useQuery({
-    queryKey: ['latest-topics-branches', topicsQuery.data?.map(t => t.topic_id)],
+    queryKey: ['latest-topics-branches', currentLanguage, topicsQuery.data?.map(t => t.topic_id)],
     queryFn: async () => {
       const topicIds = topicsQuery.data?.map(t => t.topic_id) || [];
       
@@ -487,10 +492,13 @@ export function useLatestTopics() {
 
       console.log('[useLatestTopics] 載入分支:', topicIds.length, '個專題');
 
-      // 批量獲取所有專題的分支
+      const multiLangFields = ['topic_branch_title'];
+      const selectFields = getMultiLanguageSelect(multiLangFields);
+
+      // 批量獲取所有專題的分支(支援多語言)
       const { data, error } = await supabase
         .from('topic_branch')
-        .select('topic_id, topic_branch_id, topic_branch_title')
+        .select(`topic_id, topic_branch_id, ${selectFields}`)
         .in('topic_id', topicIds)
         .not('topic_branch_title', 'is', null)
         .neq('topic_branch_title', '');
@@ -506,9 +514,14 @@ export function useLatestTopics() {
         if (!branchesByTopic[branch.topic_id]) {
           branchesByTopic[branch.topic_id] = [];
         }
+        
+        // 根據當前語言選擇正確的欄位
+        const titleFieldName = getFieldName('topic_branch_title');
+        const title = branch[titleFieldName] || branch.topic_branch_title;
+        
         branchesByTopic[branch.topic_id].push({
           id: branch.topic_branch_id,
-          title: branch.topic_branch_title
+          title: title
         });
       });
 

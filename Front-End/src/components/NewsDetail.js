@@ -538,7 +538,7 @@ function NewsDetail() {
       
     } catch (error) {
       console.error('生成台灣觀點失敗:', error);
-      alert('生成台灣觀點失敗，請稍後再試');
+      alert(t('newsDetail.taiwanPerspective.generateError'));
     } finally {
       setGeneratingCountryAnalysis(false);
       console.log('=== 生成台灣觀點流程結束 ===');
@@ -995,7 +995,7 @@ function NewsDetail() {
                 
                 {/* 台灣觀點區塊 - 在專家分析內部 */}
                 <div className="countryAnalysisSection countryAnalysisSection--inline">
-                  <h4 className="countryAnalysisTitle">台灣觀點</h4>
+                  <h4 className="countryAnalysisTitle">{t('newsDetail.taiwanPerspective.title')}</h4>
                   
                   {countryAnalysis ? (
                     <div className="countryAnalysisContent">
@@ -1005,7 +1005,7 @@ function NewsDetail() {
                     </div>
                   ) : (
                     <div className="countryAnalysisPlaceholder">
-                      <p className="placeholderText">尚未生成台灣觀點分析</p>
+                      <p className="placeholderText">{t('newsDetail.taiwanPerspective.placeholder')}</p>
                       <button 
                         className="generateCountryAnalysisBtn"
                         onClick={handleGenerateCountryAnalysis}
@@ -1017,14 +1017,14 @@ function NewsDetail() {
                               <path d="M1 4v6h6M23 20v-6h-6" />
                               <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
                             </svg>
-                            生成中...
+                            {t('newsDetail.taiwanPerspective.generating')}
                           </>
                         ) : (
                           <>
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M12 5v14M5 12h14" />
                             </svg>
-                            生成台灣觀點
+                            {t('newsDetail.taiwanPerspective.generateButton')}
                           </>
                         )}
                       </button>

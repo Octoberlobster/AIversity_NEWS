@@ -183,6 +183,13 @@
       "refreshAllTitle": "重新生成所有專家觀點",
       "changeExpertTitle": "更換專家觀點"
     },
+    "taiwanPerspective": {
+      "title": "台灣觀點",
+      "placeholder": "尚未生成台灣觀點分析",
+      "generateButton": "生成台灣觀點",
+      "generating": "生成中...",
+      "generateError": "生成台灣觀點失敗，請稍後再試"
+    },
     "related": {
       "news": "相關新聞",
       "topics": "相關專題",

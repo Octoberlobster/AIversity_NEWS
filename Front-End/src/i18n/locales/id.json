@@ -183,6 +183,13 @@
       "refreshAllTitle": "Regenerasi semua perspektif ahli",
       "changeExpertTitle": "Ubah perspektif ahli"
     },
+    "taiwanPerspective": {
+      "title": "Perspektif Taiwan",
+      "placeholder": "Analisis perspektif Taiwan belum dibuat",
+      "generateButton": "Buat Perspektif Taiwan",
+      "generating": "Membuat...",
+      "generateError": "Gagal membuat perspektif Taiwan, silakan coba lagi nanti"
+    },
     "related": {
       "news": "Berita Terkait",
       "topics": "Topik Terkait",
