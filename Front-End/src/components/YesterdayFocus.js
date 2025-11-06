@@ -1,25 +1,28 @@
 import React, { useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCountry } from './CountryContext';
 import { useYesterdayNews, useNewsImages, useRelatedSources } from '../hooks/useYesterdayNews';
 import '../css/YesterdayFocus.css';
 
 function YesterdayFocus() {
+  const { t } = useTranslation();
   const { selectedCountry } = useCountry();
   const location = useLocation();
 
   // 獲取當前語言
   const currentLang = location.pathname.split('/')[1] || 'zh-TW';
 
-  // 國家 ID 對應到顯示名稱
-  const countryMap = {
-    'taiwan': '臺灣',
-    'usa': '美國',
-    'japan': '日本',
-    'indonesia': '印尼'
+  // 國家 ID 對應到翻譯 key
+  const countryTranslationMap = {
+    'taiwan': 'header.countries.taiwan',
+    'usa': 'header.countries.usa',
+    'japan': 'header.countries.japan',
+    'indonesia': 'header.countries.indonesia'
   };
 
-  const currentCountryLabel = countryMap[selectedCountry] || '台灣';
+  const countryTranslationKey = countryTranslationMap[selectedCountry] || 'header.countries.taiwan';
+  const currentCountryLabel = t(countryTranslationKey);
 
   // 國家 ID 對應到資料庫的 country 值
   const countryDbMap = {
@@ -90,8 +93,8 @@ function YesterdayFocus() {
     return (
       <div className="yesterday-focus-container">
         <div className="focus-wrapper">
-          <h1 className="yesterday-title">{currentCountryLabel}昨日焦點</h1>
-          <div className="loading-container">載入中...</div>
+          <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
+          <div className="loading-container">{t('common.loading')}</div>
         </div>
       </div>
     );
@@ -102,8 +105,8 @@ function YesterdayFocus() {
     return (
       <div className="yesterday-focus-container">
         <div className="focus-wrapper">
-          <h1 className="yesterday-title">{currentCountryLabel}昨日焦點</h1>
-          <div className="no-content">載入失敗,請稍後再試</div>
+          <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
+          <div className="no-content">{t('yesterdayFocus.loadFailed')}</div>
         </div>
       </div>
     );
@@ -114,8 +117,8 @@ function YesterdayFocus() {
     return (
       <div className="yesterday-focus-container">
         <div className="focus-wrapper">
-          <h1 className="yesterday-title">{currentCountryLabel}昨日焦點</h1>
-          <div className="no-content">暫無昨日焦點新聞</div>
+          <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
+          <div className="no-content">{t('yesterdayFocus.noContent')}</div>
         </div>
       </div>
     );
@@ -125,7 +128,7 @@ function YesterdayFocus() {
     <div className="yesterday-focus-container">
       <div className="focus-wrapper">
         <h1 className="yesterday-title">
-          {currentCountryLabel}昨日焦點
+          {t('yesterdayFocus.title', { country: currentCountryLabel })}
         </h1>
 
         <div className="news-cards-list">
@@ -166,7 +169,7 @@ function YesterdayFocus() {
 
               {/* 右側:相關來源側邊欄 */}
               <div className="card-sidebar">
-                <h4 className="sidebar-title">相關來源</h4>
+                <h4 className="sidebar-title">{t('yesterdayFocus.relatedSources')}</h4>
                 <div className="sources-list">
                   {news.relatedSources && news.relatedSources.length > 0 ? (
                     <>
@@ -190,7 +193,7 @@ function YesterdayFocus() {
                     </>
                   ) : (
                     <div style={{ padding: '0.5rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
-                      載入中...
+                      {t('common.loading')}
                     </div>
                   )}
                 </div>

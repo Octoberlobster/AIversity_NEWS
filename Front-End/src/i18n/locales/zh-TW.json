@@ -39,9 +39,11 @@
     "nobranches": "暫無專題預覽"
   },
   "yesterdayFocus": {
-    "title": "昨日焦點",
-    "moreNews": "昨日其他新聞",
-    "relatedSources": "相關來源"
+    "title": "{{country}}焦點",
+    "moreNews": "其他新聞",
+    "relatedSources": "相關來源",
+    "noContent": "暫無焦點新聞",
+    "loadFailed": "載入失敗，請稍後再試"
   },
   "common": {
     "loading": "載入中...",

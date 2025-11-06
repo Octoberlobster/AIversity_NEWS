@@ -39,9 +39,11 @@
     "nobranches": "Belum ada pratinjau topik"
   },
   "yesterdayFocus": {
-    "title": "Fokus Kemarin",
-    "moreNews": "Berita Lainnya dari Kemarin",
-    "relatedSources": "Sumber Terkait"
+    "title": "Fokus {{country}}",
+    "moreNews": "Berita Lainnya",
+    "relatedSources": "Sumber Terkait",
+    "noContent": "Tidak ada berita fokus tersedia",
+    "loadFailed": "Gagal memuat, silakan coba lagi nanti"
   },
   "common": {
     "loading": "Memuat...",

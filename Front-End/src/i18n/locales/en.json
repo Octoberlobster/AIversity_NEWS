@@ -39,9 +39,11 @@
     "nobranches": "No topic preview available"
   },
   "yesterdayFocus": {
-    "title": "Yesterday's Focus",
-    "moreNews": "More News from Yesterday",
-    "relatedSources": "Related Sources"
+    "title": "{{country}} Focus",
+    "moreNews": "More News",
+    "relatedSources": "Related Sources",
+    "noContent": "No focus news available",
+    "loadFailed": "Failed to load, please try again later"
   },
   "common": {
     "loading": "Loading...",
