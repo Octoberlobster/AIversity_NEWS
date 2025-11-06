@@ -538,7 +538,6 @@ function NewsDetail() {
       
     } catch (error) {
       console.error('生成台灣觀點失敗:', error);
-      alert(t('newsDetail.taiwanPerspective.generateError'));
     } finally {
       setGeneratingCountryAnalysis(false);
       console.log('=== 生成台灣觀點流程結束 ===');
