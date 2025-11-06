@@ -107,6 +107,48 @@ export async function changeExpertsTopic(userId, roomId, topicId, language, curr
   return result;
 }
 
+// 提交專家分析反饋（有益/無益）
+export async function submitExpertFeedback(analyzeId, feedbackType) {
+  console.log('submitExpertFeedback 被呼叫，參數:', {
+    analyzeId,
+    feedbackType
+  });
+
+  const requestBody = {
+    analyze_id: analyzeId,
+    feedback_type: feedbackType  // "useful" or "useless"
+  };
+
+  console.log('準備送出的反饋請求 body:', JSON.stringify(requestBody, null, 2));
+
+  const result = await fetchJson('/api/experts/feedback', requestBody);
+  
+  console.log('submitExpertFeedback 收到結果:', result);
+  
+  return result;
+}
+
+// 生成國家觀點分析
+export async function generateCountryAnalysis(storyId, country) {
+  console.log('generateCountryAnalysis 被呼叫，參數:', {
+    storyId,
+    country
+  });
+
+  const requestBody = {
+    story_id: storyId,
+    country: country  // "Taiwan"
+  };
+
+  console.log('準備送出的國家觀點請求 body:', JSON.stringify(requestBody, null, 2));
+
+  const result = await fetchJson('/api/experts/country_analyze', requestBody);
+  
+  console.log('generateCountryAnalysis 收到結果:', result);
+  
+  return result;
+}
+
 /**
  * 從 Supabase 根據 story_ids 獲取新聞資料（輔助函數）
  */

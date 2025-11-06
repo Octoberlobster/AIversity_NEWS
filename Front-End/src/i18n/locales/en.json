@@ -3,18 +3,18 @@
     "brand": "AIversity",
   "tagline": "Smart News, Deep Insights",
     "menu": {
-      "home": "Home",
-      "yesterdayFocus": "Yesterday's Focus",
-      "specialReports": "Special Reports",
+      "home": "Latest",
+      "yesterdayFocus": "Focus",
+      "specialReports": "Special",
       "abroad": "Abroad News",
       "politics": "Politics",
       "taiwan": "Taiwan",
       "international": "International",
-      "scienceAndTech": "Science & Technology",
+      "scienceAndTech": "Tech",
       "life": "Lifestyle",
       "sports": "Sports", 
       "entertainment": "Entertainment",
-      "finance": "Business & Finance",
+      "finance": "Finance",
       "health": "Health"
     },
     "countries": {

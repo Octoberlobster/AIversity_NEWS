@@ -200,7 +200,7 @@ function Header() {
   }, [location.pathname, domains, countries, selectedLanguage, i18n, setSelectedCountry]);
 
   return (
-    <header className="header">
+    <header className={`header lang-${selectedLanguage}`}>
       <div className="mainBar">
         <div className="brandSection">
           <Link to={`/${selectedLanguage}`} className="brandLink">
@@ -267,21 +267,6 @@ function Header() {
 
       <div className="tagBarWrapper">   
         <div className="domainTagBar">
-          {/* 國家下拉式選單 */}
-          <div className="countrySelectWrapper">
-            <select 
-              className="countrySelect"
-              value={selectedCountry}
-              onChange={handleCountryChange}
-            >
-              {countries.map((country) => (
-                <option key={country.id} value={country.id}>
-                  {country.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {domains.map((domain) => (
             <Link
               key={domain.id}
@@ -312,6 +297,21 @@ function Header() {
                 {category.label}
               </Link>
             ))}
+
+          {/* 國家下拉式選單 */}
+          <div className="countrySelectWrapper">
+            <select 
+              className="countrySelect"
+              value={selectedCountry}
+              onChange={handleCountryChange}
+            >
+              {countries.map((country) => (
+                <option key={country.id} value={country.id}>
+                  {country.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     </header>

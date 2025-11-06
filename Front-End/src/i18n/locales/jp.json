@@ -3,18 +3,18 @@
     "brand": "AIversity",
   "tagline": "スマートニュース、深い洞察",
     "menu": {
-      "home": "ホーム",
-      "yesterdayFocus": "昨日の焦点",
-      "specialReports": "特集記事",
+      "home": "最新",
+      "yesterdayFocus": "焦点",
+      "specialReports": "特集",
       "abroad": "海外ニュース",
       "politics": "政治",
       "taiwan": "台湾",
       "international": "国際",
-      "scienceAndTech": "科学と技術",
+      "scienceAndTech": "テクノロジー",
       "life": "生活",
       "sports": "スポーツ",
       "entertainment": "エンタメ",
-      "finance": "ビジネス・経済",
+      "finance": "経済",
       "health": "健康"
     },
     "countries": {

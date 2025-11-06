@@ -8,6 +8,94 @@
   z-index: 1000;
 }
 
+/* ============================================
+   語言特定字體大小調整
+   ============================================ */
+
+/* 繁體中文 - 標準大小 */
+.header.lang-zh-TW .logo {
+  font-size: 2.1rem;
+}
+.header.lang-zh-TW .tagline {
+  font-size: 1.05rem;
+}
+.header.lang-zh-TW .tagLink {
+  font-size: 1.5rem;
+}
+.header.lang-zh-TW .aiWarning {
+  font-size: 1.2rem;
+}
+.header.lang-zh-TW .countrySelect {
+  font-size: 1.5rem;
+}
+
+/* 英文 - 稍微縮小 */
+.header.lang-en .logo {
+  font-size: 1.9rem;
+}
+.header.lang-en .tagline {
+  font-size: 0.95rem;
+}
+.header.lang-en .tagLink {
+  font-size: 1.15rem;
+}
+.header.lang-en .aiWarning {
+  font-size: 1.05rem;
+}
+.header.lang-en .countrySelect {
+  font-size: 1.05rem;
+}
+
+/* 日文 - 與中文相近 */
+.header.lang-jp .logo {
+  font-size: 2.0rem;
+}
+.header.lang-jp .tagline {
+  font-size: 1.0rem;
+}
+.header.lang-jp .tagLink {
+  font-size: 1.25rem;
+}
+.header.lang-jp .aiWarning {
+  font-size: 1.15rem;
+}
+.header.lang-jp .countrySelect {
+  font-size: 1.25rem;
+}
+
+/* 印尼文 - 與英文相近 */
+.header.lang-id .logo {
+  font-size: 1.85rem;
+}
+.header.lang-id .tagline {
+  font-size: 0.9rem;
+}
+.header.lang-id .tagLink {
+  font-size: 1.0rem;
+}
+.header.lang-id .aiWarning {
+  font-size: 1.0rem;
+}
+.header.lang-id .countrySelect {
+  font-size: 1.0rem;
+}
+
+/* 手機版字體調整 */
+@media (max-width: 700px) {
+  .header.lang-zh-TW .aiWarning {
+    font-size: 1.0rem;
+  }
+  .header.lang-en .aiWarning {
+    font-size: 0.9rem;
+  }
+  .header.lang-jp .aiWarning {
+    font-size: 0.95rem;
+  }
+  .header.lang-id .aiWarning {
+    font-size: 0.85rem;
+  }
+}
+
 /* 第一列：品牌 + 搜尋 */
 .mainBar {
   max-width: 1400px;
@@ -43,7 +131,6 @@
 }
 
 .logo {
-  font-size: 2.1rem;
   font-weight: 800;
   background: linear-gradient(45deg, #667eea, #764ba2);
   background-clip: text;
@@ -54,7 +141,6 @@
 }
 
 .tagline {
-  font-size: 1.05rem;
   opacity: 0.95;
   font-weight: 400;
   letter-spacing: 1px;
@@ -160,7 +246,6 @@
 /* AI 警語文字 */
 .aiWarning {
   color: #dc2626;
-  font-size: 1.2rem;
   font-weight: 600;
   text-align: center;
   white-space: nowrap;
@@ -168,7 +253,6 @@
 
 @media (max-width: 700px) {
   .aiWarning {
-    font-size: 1.0rem;
     white-space: normal;
     text-align: center;
     width: 100%;
@@ -218,7 +302,6 @@
   border-radius: 25px;
   border: 2px solid #e5e7eb;
   background: #fff;
-  font-size: 1rem;
   color: #1e3a8a;
   font-weight: 500;
   outline: none;
@@ -278,7 +361,6 @@
   border: none;
   padding: 0.7rem 1.2rem;
   border-radius: 25px;
-  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;

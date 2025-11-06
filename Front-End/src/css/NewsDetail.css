@@ -876,6 +876,83 @@
   hyphens: auto;
 }
 
+/* 專家分析反饋按鈕區域 */
+.newsDetail .analysisFeedback {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.newsDetail .feedbackBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  border: 1.5px solid #d1d5db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6b7280;
+}
+
+.newsDetail .feedbackBtn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.newsDetail .feedbackBtn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.newsDetail .feedbackBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 有益按鈕 */
+.newsDetail .feedbackBtn--useful {
+  color: #059669;
+  border-color: #10b981;
+}
+
+.newsDetail .feedbackBtn--useful:hover:not(:disabled) {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-color: transparent;
+}
+
+.newsDetail .feedbackBtn--useful.voted {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* 無益按鈕 */
+.newsDetail .feedbackBtn--useless {
+  color: #dc2626;
+  border-color: #ef4444;
+}
+
+.newsDetail .feedbackBtn--useless:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border-color: transparent;
+}
+
+.newsDetail .feedbackBtn--useless.voted {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
 .newsDetail .noAnalysisMessage {
   text-align: center;
   color: #6b7280;
@@ -891,6 +968,163 @@
   color: #6b7280;
   padding: 2rem;
   font-size: 1rem;
+}
+
+/* ============================================
+   國家觀點區塊樣式
+   ============================================ */
+
+.newsDetail .countryAnalysisSection {
+  max-width: 1400px;
+  margin: 2rem auto 0;
+  padding: 0 1rem;
+}
+
+/* 內嵌版本(在專家分析內部) */
+.newsDetail .countryAnalysisSection--inline {
+  max-width: 100%;
+  margin: 2rem 0 0 0;
+  padding: 2rem 0 0 0;
+  border-top: 2px solid #e0f2fe;
+}
+
+.newsDetail .countryAnalysisSection .container {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 2px solid #0ea5e9;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+}
+
+.newsDetail .countryAnalysisTitle {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0369a1;
+  text-align: center;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+/* 內嵌版本的標題樣式調整 */
+.newsDetail .countryAnalysisSection--inline .countryAnalysisTitle {
+  font-size: 1.3rem;
+  text-align: left;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.newsDetail .countryAnalysisTitle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #0ea5e9, #06b6d4);
+  border-radius: 2px;
+}
+
+/* 內嵌版本的標題底線調整 */
+.newsDetail .countryAnalysisSection--inline .countryAnalysisTitle::after {
+  left: 0;
+  transform: none;
+}
+
+.newsDetail .countryAnalysisContent {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* 內嵌版本的內容區域樣式 */
+.newsDetail .countryAnalysisSection--inline .countryAnalysisContent {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  box-shadow: none;
+}
+
+.newsDetail .countryAnalysisText {
+  color: #1e293b;
+  line-height: 1.8;
+  font-size: 1rem;
+  word-wrap: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.newsDetail .countryAnalysisPlaceholder {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #0ea5e9;
+}
+
+/* 內嵌版本的佔位區域樣式 */
+.newsDetail .countryAnalysisSection--inline .countryAnalysisPlaceholder {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 2px dashed #7dd3fc;
+}
+
+.newsDetail .placeholderText {
+  margin: 0 0 1.5rem 0;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.newsDetail .generateCountryAnalysisBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.newsDetail .generateCountryAnalysisBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0284c7, #0891b2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+}
+
+.newsDetail .generateCountryAnalysisBtn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+}
+
+.newsDetail .generateCountryAnalysisBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.newsDetail .generateCountryAnalysisBtn svg.rotating {
+  animation: spin 1s linear infinite;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+  .newsDetail .countryAnalysisSection .container {
+    padding: 1.5rem;
+  }
+  
+  .newsDetail .countryAnalysisTitle {
+    font-size: 1.3rem;
+  }
+  
+  .newsDetail .countryAnalysisText {
+    font-size: 0.95rem;
+  }
 }
 
 /* 響應式調整 */

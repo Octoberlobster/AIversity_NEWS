@@ -3,18 +3,18 @@
     "brand": "AIversity",
     "tagline": "智慧新聞，深度洞察",
     "menu": {
-      "home": "首頁",
-      "yesterdayFocus": "昨日焦點",
-      "specialReports": "專題報導",
+      "home": "最新",
+      "yesterdayFocus": "焦點",
+      "specialReports": "專題",
       "abroad": "國外新聞",
       "politics": "政治",
       "taiwan": "台灣",
       "international": "國際",
-      "scienceAndTech": "科學與科技",
+      "scienceAndTech": "科技",
       "life": "生活",
       "sports": "體育",
       "entertainment": "娛樂",
-      "finance": "商業財經",
+      "finance": "財經",
       "health": "健康"
     },
     "countries": {

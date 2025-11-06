@@ -3,18 +3,18 @@
     "brand": "AIversity",
   "tagline": "Berita Cerdas, Wawasan Mendalam",
     "menu": {
-      "home": "Beranda",
-      "yesterdayFocus": "Fokus Kemarin",
-      "specialReports": "Laporan Khusus",
+      "home": "Terbaru",
+      "yesterdayFocus": "Fokus",
+      "specialReports": "Khusus",
       "abroad": "Berita Luar Negeri",
       "politics": "Politik",
       "taiwan": "Taiwan",
       "international": "Internasional",
-      "scienceAndTech": "Sains & Teknologi",
+      "scienceAndTech": "Teknologi",
       "life": "Gaya Hidup",
       "sports": "Olahraga",
       "entertainment": "Hiburan",
-      "finance": "Bisnis & Keuangan",
+      "finance": "Keuangan",
       "health": "Kesehatan"
     },
     "countries": {

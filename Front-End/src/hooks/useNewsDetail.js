@@ -573,3 +573,45 @@ export function useRelatedTopics(storyId) {
     cacheTime: 60 * 60 * 1000,
   });
 }
+
+/**
+ * 自定義 Hook: 查詢國家觀點分析
+ * 統一從台灣觀點分析新聞，不管新聞所屬國家
+ */
+export function useCountryAnalysis(storyId) {
+  const supabase = useSupabase();
+  const { getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
+
+  return useQuery({
+    queryKey: ['country-analysis', storyId, currentLanguage],
+    queryFn: async () => {
+      console.log('[useCountryAnalysis] 開始查詢台灣觀點:', storyId);
+
+      // 直接查詢 country_pro_analyze 表，固定使用 Taiwan
+      const { data: analysisData, error: analysisError } = await supabase
+        .from('country_pro_analyze')
+        .select('analyze_id, country, analyze, analyze_en_lang, analyze_id_lang, analyze_jp_lang')
+        .eq('story_id', storyId)
+        .eq('country', 'Taiwan');
+
+      if (analysisError) {
+        console.error('[useCountryAnalysis] 查詢分析錯誤:', analysisError);
+        throw new Error(`載入台灣觀點失敗: ${analysisError.message}`);
+      }
+
+      const analysis = analysisData?.[0];
+      
+      if (!analysis) {
+        console.log('[useCountryAnalysis] 沒有找到台灣觀點資料');
+        return { country: 'Taiwan', analysis: null };
+      }
+
+      console.log('[useCountryAnalysis] 台灣觀點載入完成');
+      return { country: 'Taiwan', analysis };
+    },
+    enabled: !!supabase && !!storyId,
+    staleTime: 15 * 60 * 1000, // 15 分鐘
+    cacheTime: 30 * 60 * 1000,
+  });
+}

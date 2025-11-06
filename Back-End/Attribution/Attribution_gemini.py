@@ -1,4 +1,3 @@
-
 import re
 import json
 from typing import List, Dict, Any
@@ -217,44 +216,77 @@ def save_attribution_to_db(story_id: str, attribution_json: Dict[str, List[str]]
     except Exception as e:
         print(f"✗ 儲存到資料庫時發生錯誤: {e}")
         return False
+    
+def check_generated(story_id: str) -> bool:
+    """
+    檢查 single_news 表中的 attribution 欄位是否有內容
+    """
+    try:
+        single_news_data = supabase.table("single_news").select("attribution").eq("story_id", story_id).execute().data
+        if not single_news_data or not single_news_data[0].get("attribution"):
+            print("此 story_id 尚未生成歸因結果。")
+            return False
+        return True
+    except Exception as e:
+        print(f"錯誤：從 Supabase 讀取資料失敗: {e}")
+        return False
 
 if __name__ == "__main__":
     
     print("--- 開始測試 (方法二：Call Gemini API) ---")
-    story_id_to_test = "bad3db95-1117-4b10-8675-80827b3a5102"
-    #4dc8514f-523f-46a5-b7e0-78cc320d7873
+    all_require = []
+    batch_size = 1000
+    start = 0
+
+    while True:
+        temp = supabase.table("single_news").select("story_id").order("generated_date", desc=True).range(start, start + batch_size - 1).execute()
+        if not temp.data:
+            break
+        all_require.extend(temp.data)
+        start += batch_size
     
     # 步驟 1: 執行歸因分析
-    annotated_result = attribute_sources_for_story(story_id_to_test)
+    for item in all_require:
+        # story_id_to_test = "bad3db95-1117-4b10-8675-80827b3a5102"
+        # story_id_to_test = "4dc8514f-523f-46a5-b7e0-78cc320d7873"
+        story_id_to_test = item['story_id']
+        generate = check_generated(story_id_to_test)
+        
+        #如果已生成，跳過
+        if generate:
+            print(f"{story_id_to_test} 已生成。")
+            continue
+        
+        annotated_result = attribute_sources_for_story(story_id_to_test)
     
-    print("\n\n--- 最終標註結果 ---")
-    if annotated_result:
-        for i, item in enumerate(annotated_result, 1):
-            print(f"Part {i}:")
-            print(item['generated_text'])
-            
-            sources_data = item.get("sources_data", [])
-            
-            if sources_data:
-                # 建立一個包含 "媒體 (article_id)" 的字串列表
-                source_strings_list = [f"{media} ({article_id})" for media, article_id in sources_data]
+        print("\n\n--- 最終標註結果 ---")
+        if annotated_result:
+            for i, item in enumerate(annotated_result, 1):
+                print(f"Part {i}:")
+                print(item['generated_text'])
                 
-                # 使用 "、" 來串接
-                source_names = "、".join(source_strings_list)
+                sources_data = item.get("sources_data", [])
                 
-                print(f"[引用來源：{source_names}]")
-            else:
-                print("[引用來源：無明確匹配]")
-            print()
-        
-        # 步驟 2: 轉換為 JSON 格式
-        attribution_json = format_attribution_to_json(annotated_result)
-        print(attribution_json)
-        print("\n--- 轉換為資料庫格式 ---")
-        print(json.dumps(attribution_json, ensure_ascii=False, indent=2))
-        
-        # 步驟 3: 儲存到資料庫
-        print("\n--- 儲存到資料庫 ---")
-        save_attribution_to_db(story_id_to_test, attribution_json)
-    else:
-        print("此 story_id 未產生任何結果。")
+                if sources_data:
+                    # 建立一個包含 "媒體 (article_id)" 的字串列表
+                    source_strings_list = [f"{media} ({article_id})" for media, article_id in sources_data]
+                    
+                    # 使用 "、" 來串接
+                    source_names = "、".join(source_strings_list)
+                    
+                    print(f"[引用來源：{source_names}]")
+                else:
+                    print("[引用來源：無明確匹配]")
+                print()
+            
+            # 步驟 2: 轉換為 JSON 格式
+            attribution_json = format_attribution_to_json(annotated_result)
+            print(attribution_json)
+            print("\n--- 轉換為資料庫格式 ---")
+            print(json.dumps(attribution_json, ensure_ascii=False, indent=2))
+            
+            # 步驟 3: 儲存到資料庫
+            print("\n--- 儲存到資料庫 ---")
+            save_attribution_to_db(story_id_to_test, attribution_json)
+        else:
+            print("此 story_id 未產生任何結果。")
