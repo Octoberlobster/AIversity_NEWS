@@ -1,19 +1,50 @@
 import subprocess
 import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    encoding="utf-8",
+    force=True
+)
 
 scripts = [
-    "test5_play.py", 
-    "./New_Summary/scripts/quick_run.py",
-    "Who_talk.py",
-    "Position_flag.py",
-    "Pro_Analyze.py",
+    # "test5_play_taiwan.py", 
+    # "test5_play_usa.py",
+    # "./New_Summary/scripts/quick_run.py",
+
+    # "test5_play_taiwan_2.py", 
+    # "test5_play_usa_2.py",
+
+    # "test5_play_indo.py", 
+    # "test5_play_japan.py",
+    # "./New_Summary/scripts/quick_run.py",
+
+    # "test5_play_indo_2.py", 
+    # "test5_play_japan_2.py",
+
     "./demo/data_to_supabase/generate_categories_from_single_news.py",
-    "./Relative_News.py",
-    "./Relative_Topics.py",
+    "Position_flag.py",
+    "pros_and_cons.py",
+
+    "Who_talk.py",
+    "supabase_error_fix/who_talk_false.py",
+    "Pro_Analyze.py",
     "./demo/data_to_supabase/generate_picture_to_supabase/generate_from_supabase.py",
-    "Translate.py"
+    "Translate.py",
+
+    "./Relative_News.py",
+    "./supabase_error_fix/relative_false.py"
+    "./Relative_Topics.py",
+
+    # 專題相關
+    # "topic/Classfication.py",
+    # "topic/topic_summary.py",
+    # "topic/complete_news_grouper.py",
+    # "topic/Pro_Analyze_Topic.py",
+    # "topic/topic_5w1h_2.py",
+    # "topic/topic_report.py",
+    # "topic/translate_topic.py",
 ]
 
 def run_scripts():
@@ -22,12 +53,12 @@ def run_scripts():
         logging.info(f"▶ 執行 {script} ...")
 
         process = subprocess.Popen(
-            ["python", script],
+            ["python", "-u", script],  # Add -u flag to force unbuffered output
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
             encoding="utf-8",
-            errors="ignore"
+            errors="replace"  # Use replace instead of ignore for better handling
         )
 
         for line in process.stdout:

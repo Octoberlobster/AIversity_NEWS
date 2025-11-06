@@ -4,6 +4,22 @@ from pydantic import BaseModel
 from env import gemini_client, supabase
 import uuid
 import time
+from postgrest.exceptions import APIError
+
+
+def execute_builder_with_retry(builder, max_retries: int = 3):
+    """Execute a postgrest request builder with retry on statement timeout."""
+    for attempt in range(1, max_retries + 1):
+        try:
+            return builder.execute()
+        except APIError as e:
+            msg = str(e)
+            if 'canceling statement due to statement timeout' in msg and attempt < max_retries:
+                wait = attempt * 2
+                print(f"[warn] DB statement timeout, retry {attempt}/{max_retries} after {wait}s")
+                time.sleep(wait)
+                continue
+            raise
 
 categories = Literal[
     "Politics",
@@ -26,7 +42,7 @@ class ProAnalyzeResponse(BaseModel):
     analyze: list[AnalyzeItem]
 
 category_description = {
-    "Politics": "對於台灣的政治有甚麼影響",
+    "Politics": "對於該國的政治有甚麼影響",
     "International News": "對於國際上有甚麼影響",
     "Science & Technology": "科學研究、太空探索、生物科技、AI、大數據、半導體、電子產品、電玩遊戲、網安等科技發展",
     "Lifestyle & Consumer": "旅遊、時尚、飲食、消費趨勢等",
@@ -45,13 +61,17 @@ def Pro_Analyze(story_id: str, categories: list[str]):
     # 每個類別的 base 知識庫
     bases = {}
     for category in categories:
-        response = supabase.table("single_news") \
-            .select("story_id,news_title,short,category,generated_date") \
-            .eq("category", category) \
-            .order("generated_date") \
-            .execute()
-        bases[category] = [{"news_title": item["news_title"], "short": item["short"]}
-                           for item in response.data]
+        try:
+            builder = supabase.table("single_news") \
+                .select("story_id,news_title,short,category,generated_date") \
+                .eq("category", category) \
+                .order("generated_date")
+            response = execute_builder_with_retry(builder)
+            data_rows = getattr(response, 'data', []) or []
+            bases[category] = [{"news_title": item.get("news_title", ""), "short": item.get("short", "")} for item in data_rows]
+        except Exception as e:
+            print(f"[error] Failed to fetch base knowledge for category {category}: {e}")
+            bases[category] = []
 
     system_instruction = f"""
     你將同時揣摩三個類別中最適合對文章進行分析的專家角色，
@@ -72,7 +92,8 @@ def Pro_Analyze(story_id: str, categories: list[str]):
        - 請直接輸出具體影響
     7. 專家名稱必須清晰、準確，避免捏造不存在的職業名稱，產生真實且常見的專家名稱。
     8. 每位專家的分析必須獨立且不重複，在專家的名稱上也要有所區別。  
-
+    9. 絕對不要出現人名。
+    10. 職業名稱不要出現前
 
     類別與知識庫：
     {categories[0]}: {category_description[categories[0]]}，知識庫：{bases[categories[0]]}
@@ -82,7 +103,7 @@ def Pro_Analyze(story_id: str, categories: list[str]):
 
     prompt = f"請根據以下文章提供三個類別的專業分析：{article_content}"
 
-    model_name = "gemini-2.0-flash"
+    model_name = "gemini-2.5-flash-lite"
     pro_analyze = gemini_client.models.generate_content(
         model=model_name,
         contents=prompt,
@@ -93,6 +114,10 @@ def Pro_Analyze(story_id: str, categories: list[str]):
         ),
     )
 
+    if not pro_analyze or not getattr(pro_analyze, "parsed", None):
+        print("pro_analyze.parsed 為 None，請檢查模型回傳內容：", pro_analyze)
+        return {}
+
     return dict(pro_analyze.parsed)
 
 
@@ -101,11 +126,15 @@ batch_size = 1000
 start = 0
 
 while True:
-    temp = supabase.table("single_news").select("story_id,who_talk,position_flag").range(start, start + batch_size - 1).execute()
+    temp = supabase.table("single_news").select("story_id,who_talk,position_flag").order("generated_date", desc=True).range(start, start + batch_size - 1).execute()
     if not temp.data:
+        print(len(all_require))
         break
     all_require.extend(temp.data)
     start += batch_size
+
+# temp = supabase.table("single_news").select("story_id,who_talk,position_flag").range(0, 999).execute()
+# all_require.extend(temp.data)
 
 require = type("Result", (), {"data": all_require})  # 模擬原本 require 結構
 
@@ -137,22 +166,34 @@ constraints = list(set(all_data))
         
 # print("All done.")
 
-for item in require.data:
+for idx, item in enumerate(require.data):
     if item["story_id"] in constraints:
         continue
     if item["who_talk"]:
         story_id = item["story_id"]
         who_talk = item["who_talk"]
         results = Pro_Analyze(story_id, who_talk["who_talk"])
-        print(story_id)
+
+        print(f"Index: {idx}, Story ID: {story_id}")
+        if not results or "analyze" not in results:
+            print(f"跳過 story_id {story_id}，Pro_Analyze 未回傳有效結果")
+            continue
+
         #{'analyze': [AnalyzeItem(Category='Taiwan News', Role='結構工程技師', Analyze='該事故可能促使台灣重新檢視橋樑工程的安全標準與監管機制，避免類似事件發生，並提升公共工程品質。'), AnalyzeItem(Category='International News', Role='國際勞工安全專家', Analyze='事件突顯中國在基礎建設快速擴張下，可能存在勞工安全保障不足的問題，國際社會或將更關注中國工安標準。'), AnalyzeItem(Category='Business & Finance', Role='營建產業分析師', Analyze='或將促使在中國營運的台商重新評估其投資風險與供應鏈韌性，並可能影響相關產業的保險成本。')]}
         for result in results["analyze"]:
-            supabase.table("pro_analyze").insert({
+            builder = supabase.table("pro_analyze").insert({
                 "analyze_id": str(uuid.uuid4()),
                 "story_id": story_id,
                 "category": result.Category,
                 "analyze": (result.model_dump())
-            }).execute()
+            })
+            try:
+                resp = execute_builder_with_retry(builder)
+                if getattr(resp, 'error', None):
+                    print(f"寫入 pro_analyze 發生錯誤: {resp.error}")
+            except Exception as e:
+                print(f"[error] Failed to insert pro_analyze for story_id {story_id}, category {result.Category}: {e}")
+                continue
         print(f"Inserted pro_analyze for story_id {story_id} and categories {who_talk['who_talk']}")
         time.sleep(5)
         # break

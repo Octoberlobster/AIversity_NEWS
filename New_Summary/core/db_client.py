@@ -43,25 +43,74 @@ class SupabaseClient:
             組合後的資料列表，格式類似原 JSON
         """
         try:
-            # 1. 拉取所有 stories
-            stories_response = self.client.table('stories').select('*').range(0, 1000).execute()
-            stories = stories_response.data
+            # 計算日期範圍 (最近 N 天)
+            from datetime import datetime, timedelta
+            days = 3
+            cutoff_date = (datetime.now() - timedelta(days=days)).strftime('%Y/%m/%d')
+            logger.info(f"拉取 {cutoff_date} 之後的資料 (最近 {days} 天)")
             
-            logger.info(f"從 stories 表拉取到 {len(stories)} 筆資料")
+            # 1. 使用分批查詢拉取所有符合日期條件的 stories
+            all_stories = []
+            batch_size = 1000
+            start = 0
             
+            while True:
+                # 查詢指定範圍的 stories,並過濾日期
+                temp = (self.client.table("stories")
+                    .select("*")
+                    .gte("crawl_date", cutoff_date)  # 大於等於截止日期
+                    .order("crawl_date", desc=True)   # 按日期降序排列
+                    .range(start, start + batch_size - 1)
+                    .execute())
+
+                # temp = (self.client.table("stories")
+                #     .select("*")
+                #     .gte("crawl_date", "2025/11/01 00:00")
+                #     .lt("crawl_date", "2025/11/01 23:59")
+                #     .order("crawl_date", desc=True)
+                #     .range(start, start + batch_size - 1)
+                #     .execute())
+                
+                if not temp.data:
+                    logger.info(f"分批查詢完成,共拉取 {len(all_stories)} 筆 stories")
+                    break
+                
+                all_stories.extend(temp.data)
+                start += batch_size
+                logger.info(f"已拉取 {len(all_stories)} 筆 stories...")
+            
+            if not all_stories:
+                logger.warning("未找到符合條件的 stories")
+                return []
+
             # 2. 如果需要篩選，先拉取現有的 single_news 記錄
             existing_single_news = {}
             if filter_processed:
-                single_news_response = self.client.table('single_news').select('story_id, total_articles').execute()
+                single_news_response = []
+                batch_size = 1000
+                start = 0
+                
+                while True:
+                    # 查詢指定範圍的 stories,並過濾日期
+                    temp = (self.client.table('single_news')
+                        .select('story_id, total_articles')
+                        .order("generated_date", desc=True)   # 按日期降序排列
+                        .range(start, start + batch_size - 1)
+                        .execute())
+                    single_news_response.extend(temp.data)
+                    start += batch_size
+                    if not temp.data:
+                        break
+
                 existing_single_news = {
                     item['story_id']: item['total_articles'] 
-                    for item in single_news_response.data
+                    for item in single_news_response
                 }
                 logger.info(f"從 single_news 表拉取到 {len(existing_single_news)} 筆現有記錄")
             
             result = []
-            
-            for idx, story in enumerate(stories, 1):
+
+            for idx, story in enumerate(all_stories, 1):
                 story_id = story.get('story_id')
                 
                 # 2. 根據 story_id 拉取對應的 cleaned_news
@@ -85,6 +134,10 @@ class SupabaseClient:
                     else:
                         logger.info(f"新的 Story {story_id} - 需要生成摘要")
                 
+                if len(articles) < 3:
+                    logger.info(f"跳過 Story {story_id} - 文章數少於 3 篇")
+                    should_process = False
+                    
                 if not should_process:
                     continue
                 

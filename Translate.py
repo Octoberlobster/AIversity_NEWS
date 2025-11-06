@@ -2,6 +2,8 @@ from env import supabase, gemini_client
 from google.genai import types
 from pydantic import BaseModel
 import json
+import time
+import postgrest.exceptions
 
 class singleNewsResponse(BaseModel):
     news_title: str
@@ -18,6 +20,19 @@ class termResponse(BaseModel):
     
 class positionResponse(BaseModel):
     positive: list[str]
+
+def execute_with_retry(self, query, max_retries=5, initial_delay=1):
+    """Execute a Supabase query with retry logic"""
+    for attempt in range(max_retries):
+        try:
+            return query.execute()
+        except postgrest.exceptions.APIError as e:
+            if attempt == max_retries - 1:  # Last attempt
+                raise  # Re-raise the last error if all retries failed
+            delay = initial_delay * (2 ** attempt)  # Exponential backoff
+            print(f"API Error occurred. Retrying in {delay} seconds... (Attempt {attempt + 1}/{max_retries})")
+            time.sleep(delay)
+    return None  # This will only be reached if all retries fail
     negative: list[str]
 
 class pro_analyzeResponse(BaseModel):
@@ -80,6 +95,15 @@ class Translate:
         
         for lang in self.lang_list:
             
+            #先找找看該語言的翻譯是否已存在，若存在則跳過翻譯
+            title_check = single_news.get(f"news_title_{lang}_lang", "")
+            ultra_short_check = single_news.get(f"ultra_short_{lang}_lang", "")
+            long_check = single_news.get(f"long_{lang}_lang", "")
+            
+            if title_check and ultra_short_check and long_check:
+                print(f"story_id '{story_id}' 的{lang}新聞資料已存在，跳過翻譯")
+                continue
+            
             if lang == "id":
                 lang = "indonesia"
             
@@ -129,7 +153,12 @@ class Translate:
             dst_story_id = item.get("dst_story_id", "")
             reason = item.get("reason", "")
             for lang in self.lang_list:
-                
+
+                reason_check = item.get(f"reason_{lang}_lang", "")
+                if reason_check:
+                    print(f"story_id '{story_id}' 的{lang}新聞關聯理由已存在，跳過翻譯")
+                    continue
+
                 if lang == "id":
                     lang = "indonesia"
                 
@@ -176,6 +205,11 @@ class Translate:
             reason = item.get("reason", "")
             for lang in self.lang_list:
                 
+                reason_check = item.get(f"reason_{lang}_lang", "")
+                if reason_check:
+                    print(f"story_id '{story_id}' 的{lang}新聞關聯理由已存在，跳過翻譯")
+                    continue
+
                 if lang == "id":
                     lang = "indonesia"
                 
@@ -235,6 +269,14 @@ class Translate:
             
             for lang in self.lang_list:
                 
+                term_check = term_data.get(f"term_{lang}_lang", "")
+                definition_check = term_data.get(f"definition_{lang}_lang", "")
+                example_check = term_data.get(f"example_{lang}_lang", "")
+                
+                if term_check and definition_check and example_check:
+                    print(f"term_id '{term_id}' 的{lang} term資料已存在，跳過翻譯")
+                    continue
+                
                 if lang == "id":
                     lang = "indonesia"
                 
@@ -286,6 +328,13 @@ class Translate:
 
         for lang in self.lang_list:
             
+            postive_check = position_data.get(f"positive_{lang}_lang", "")
+            negative_check = position_data.get(f"negative_{lang}_lang", "")
+            
+            if postive_check and negative_check:
+                print(f"story_id '{story_id}' 的{lang} position資料已存在，跳過翻譯")
+                continue
+            
             if lang == "id":
                 lang = "indonesia"
             
@@ -317,7 +366,7 @@ class Translate:
             except Exception as e:
                 print(f"更新翻譯後的position資料時發生錯誤: {e}")
                 return None     
-                           
+            
     def translate_pro_analyze(self,story_id):
         try:
             response = self.supabase.table("pro_analyze").select("*").eq("story_id", story_id).execute().data
@@ -329,48 +378,59 @@ class Translate:
             print(f"未找到story_id '{story_id}' 的pro_analyze資料")
             return None
         
-        pro_analyze_data = response[0]
-        analyze = pro_analyze_data.get("analyze", "")
-        Category = analyze.get("Category", "")
-        Role = analyze.get("Role", "")
-        Analyze = analyze.get("Analyze", "")
-        
-        for lang in self.lang_list:
+        for pro_analyze_data in response:
+            analyze_id = pro_analyze_data.get("analyze_id", "")
+            analyze = pro_analyze_data.get("analyze", "")
+            Category = analyze.get("Category", "")
+            Role = analyze.get("Role", "")
+            Analyze = analyze.get("Analyze", "")
             
-            if lang == "id":
-                lang = "indonesia"
-            
-            prompt = f"請將以下專業分析的角色和分析內容翻譯成{lang}:\n角色: {Role}\n分析內容: {Analyze}\n"
-            config = types.GenerateContentConfig(
-                system_instruction=f"你是一個專業的翻譯專家，請將提供的專業分析的角色和分析內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
-                response_mime_type="application/json",
-                response_schema=pro_analyzeResponse
-            )
-            response_text = self.callgemini(prompt, config)
-            if response_text is None:
-                print("翻譯失敗")
-                return None
-            
-            if lang == "indonesia":
-                lang = "id"
-            
-            try:
-                translated_data = json.loads(response_text)
-                translated_Role = translated_data.get("Role", "")
-                translated_Analyze = translated_data.get("Analyze", "")
-                update_data = {
-                    f"analyze_{lang}_lang": {
-                        "Category": Category,
-                        "Role": translated_Role,
-                        "Analyze": translated_Analyze
-                    }
-                }
+            for lang in self.lang_list:
                 
-                self.supabase.table("pro_analyze").update(update_data).eq("story_id", story_id).execute()
-                print(f"翻譯成功，已更新story_id '{story_id}' 的 {lang} pro_analyze資料")
-            except Exception as e:
-                print(f"更新翻譯後的pro_analyze資料時發生錯誤: {e}")
-                return None
+                pro_analyze_check = pro_analyze_data.get(f"analyze_{lang}_lang", {})
+                if pro_analyze_check:
+                    
+                    Role_check = pro_analyze_check.get("Role", "")
+                    Analyze_check = pro_analyze_check.get("Analyze", "")
+                    
+                    if Role_check and Analyze_check:
+                        print(f"story_id '{story_id}' 的{lang} pro_analyze資料已存在，跳過翻譯")
+                        continue
+
+                if lang == "id":
+                    lang = "indonesia"
+                
+                prompt = f"請將以下專業分析的角色和分析內容翻譯成{lang}:\n角色: {Role}\n分析內容: {Analyze}\n"
+                config = types.GenerateContentConfig(
+                    system_instruction=f"你是一個專業的翻譯專家，請將提供的專業分析的角色和分析內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
+                    response_mime_type="application/json",
+                    response_schema=pro_analyzeResponse
+                )
+                response_text = self.callgemini(prompt, config)
+                if response_text is None:
+                    print("翻譯失敗")
+                    return None
+                
+                if lang == "indonesia":
+                    lang = "id"
+                
+                try:
+                    translated_data = json.loads(response_text)
+                    translated_Role = translated_data.get("Role", "")
+                    translated_Analyze = translated_data.get("Analyze", "")
+                    update_data = {
+                        f"analyze_{lang}_lang": {
+                            "Category": Category,
+                            "Role": translated_Role,
+                            "Analyze": translated_Analyze
+                        }
+                    }
+
+                    self.supabase.table("pro_analyze").update(update_data).eq("analyze_id", analyze_id).eq("story_id", story_id).execute()
+                    print(f"翻譯成功，已更新story_id '{story_id}' 的 {lang} pro_analyze資料")
+                except Exception as e:
+                    print(f"更新翻譯後的pro_analyze資料時發生錯誤: {e}")
+                    return None
 
     def translate_imagedescription(self, story_id):
         try:
@@ -387,6 +447,11 @@ class Translate:
         description = image_data.get("description", "")
         
         for lang in self.lang_list:
+            
+            description_check = image_data.get(f"description_{lang}_lang", "")
+            if description_check:
+                print(f"story_id '{story_id}' 的{lang} generated_image資料已存在，跳過翻譯")
+                continue
             
             if lang == "id":
                 lang = "indonesia"
@@ -435,6 +500,16 @@ class Translate:
         for keyword in keyword_list:
             for lang in self.lang_list:
                 
+                query = self.supabase.table("keywords_map").select(f"keyword_{lang}_lang").eq("story_id", story_id).eq("keyword", keyword)
+                try:
+                    result = self.execute_with_retry(query)
+                    if result.data:
+                        print(f"story_id '{story_id}' 的{lang} keywords_map資料已存在，跳過翻譯")
+                        continue
+                except Exception as e:
+                    print(f"Error checking keyword existence: {e}")
+                    continue  # Skip this keyword if we can't check its existence
+
                 if lang == "id":
                     lang = "indonesia"
                 
@@ -459,7 +534,8 @@ class Translate:
                         f"keyword_{lang}_lang": translated_keyword
                     }
                     
-                    self.supabase.table("keywords_map").update(update_data).eq("story_id", story_id).eq("keyword", keyword).execute()
+                    update_query = self.supabase.table("keywords_map").update(update_data).eq("story_id", story_id).eq("keyword", keyword)
+                    self.execute_with_retry(update_query)
                     print(f"翻譯成功，已更新story_id '{story_id}' keyword '{keyword}' 的 {lang} keywords_map資料")
                 except Exception as e:
                     print(f"更新翻譯後的keywords_map資料時發生錯誤: {e}")
@@ -467,7 +543,8 @@ class Translate:
             
     def translate_topic(self, topic_id):
         try:
-            response = self.supabase.table("topic").select("*").eq("topic_id", topic_id).execute().data
+            query = self.supabase.table("topic").select("*").eq("topic_id", topic_id)
+            response = self.execute_with_retry(query).data
         except Exception as e:
             print(f"取得topic資料時發生錯誤: {e}")
             return None
@@ -482,6 +559,16 @@ class Translate:
         report = topic_data.get("report", "")
         
         for lang in self.lang_list:
+            
+            topic_title_check = topic_data.get(f"topic_title_{lang}_lang", "")
+            topic_short_check = topic_data.get(f"topic_short_{lang}_lang", "")
+            topic_long_check = topic_data.get(f"topic_long_{lang}_lang", "")
+            
+            report_check = topic_data.get(f"report_{lang}_lang", "")
+            
+            if topic_title_check and topic_short_check and topic_long_check and report_check:
+                print(f"topic_id '{topic_id}' 的{lang} topic資料已存在，跳過翻譯")
+                continue
             
             if lang == "id":
                 lang = "indonesia"
@@ -537,6 +624,14 @@ class Translate:
             topic_branch_content = branch.get("topic_branch_content", "")
             
             for lang in self.lang_list:
+
+                topic_branch_title_check = branch.get(f"topic_branch_title_{lang}_lang", "")
+                topic_branch_content_check = branch.get(f"topic_branch_content_{lang}_lang", "")
+
+                if topic_branch_title_check and topic_branch_content_check:
+                    print(f"topic_branch_id '{topic_branch_id}' 的{lang} topic_branch資料已存在，跳過翻譯")
+                    continue
+
                 if lang == "id":
                     lang = "indonesia"
                     
@@ -587,6 +682,39 @@ class Translate:
         
         main_id,main_label,main_description = center_node.get("id",""),center_node.get("label",""),center_node.get("description","")
         for lang in self.lang_list:
+            
+            translated = True
+            
+            center_node_check = mind_map_detail.get(f"center_node_{lang}_lang", {})
+            main_nodes_check = mind_map_detail.get(f"main_nodes_{lang}_lang", [])
+            detailed_nodes_check = mind_map_detail.get(f"detailed_nodes_{lang}_lang", {})
+            
+            if center_node_check and main_nodes_check and detailed_nodes_check:
+                center_node_label_check = center_node_check.get("label","")
+                center_node_description_check = center_node_check.get("description","")
+                if center_node_label_check == "" or center_node_description_check == "":
+                    translated = False
+                
+                for main_node in main_nodes_check:
+                    main_node_label_check = main_node.get("label","")
+                    main_node_description_check = main_node.get("description","")
+                    if main_node_label_check == "" or main_node_description_check == "":
+                        translated = False
+                        break
+                    
+                for key, nodes in detailed_nodes_check.items():
+                    for node in nodes:
+                        node_label_check = node.get("label","")
+                        node_description_check = node.get("description","")
+                        if node_label_check == "" or node_description_check == "":
+                            translated = False
+                            break
+            else:
+                translated = False
+            
+            if translated:
+                print(f"topic_id '{topic_id}' 的{lang} mind_map_detail資料已存在，跳過翻譯")
+                continue
             
             if lang == "id":
                 lang = "indonesia"
@@ -708,48 +836,58 @@ class Translate:
             print(f"未找到story_id '{story_id}' 的pro_analyze資料")
             return None
         
-        pro_analyze_data = response[0]
-        analyze = pro_analyze_data.get("analyze", "")
-        Category = analyze.get("Category", "")
-        Role = analyze.get("Role", "")
-        Analyze = analyze.get("Analyze", "")
-        
-        for lang in self.lang_list:
+        for pro_analyze_data in response:
+            analyze = pro_analyze_data.get("analyze", "")
+            analyze_id = pro_analyze_data.get("analyze_id", "")
+            Category = analyze.get("Category", "")
+            Role = analyze.get("Role", "")
+            Analyze = analyze.get("Analyze", "")
             
-            if lang == "id":
-                lang = "indonesia"
-            
-            prompt = f"請將以下專業分析的角色和分析內容翻譯成{lang}:\n角色: {Role}\n分析內容: {Analyze}\n"
-            config = types.GenerateContentConfig(
-                system_instruction=f"你是一個專業的翻譯專家，請將提供的專業分析的角色和分析內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
-                response_mime_type="application/json",
-                response_schema=pro_analyzeResponse
-            )
-            response_text = self.callgemini(prompt, config)
-            if response_text is None:
-                print("翻譯失敗")
-                return None
-            
-            if lang == "indonesia":
-                lang = "id"
-            
-            try:
-                translated_data = json.loads(response_text)
-                translated_Role = translated_data.get("Role", "")
-                translated_Analyze = translated_data.get("Analyze", "")
-                update_data = {
-                    f"analyze_{lang}_lang": {
-                        "Category": Category,
-                        "Role": translated_Role,
-                        "Analyze": translated_Analyze
+            for lang in self.lang_list:
+                
+                pro_analyze_check = pro_analyze_data.get(f"analyze_{lang}_lang", {})
+                if pro_analyze_check:
+                    Role_check = pro_analyze_check.get("Role", "")
+                    Analyze_check = pro_analyze_check.get("Analyze", "")
+                    
+                    if Role_check and Analyze_check:
+                        print(f"topic_id '{topic_id}' 的{lang} pro_analyze資料已存在，跳過翻譯")
+                        continue
+                
+                if lang == "id":
+                    lang = "indonesia"
+                
+                prompt = f"請將以下專業分析的角色和分析內容翻譯成{lang}:\n角色: {Role}\n分析內容: {Analyze}\n"
+                config = types.GenerateContentConfig(
+                    system_instruction=f"你是一個專業的翻譯專家，請將提供的專業分析的角色和分析內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
+                    response_mime_type="application/json",
+                    response_schema=pro_analyzeResponse
+                )
+                response_text = self.callgemini(prompt, config)
+                if response_text is None:
+                    print("翻譯失敗")
+                    return None
+                
+                if lang == "indonesia":
+                    lang = "id"
+                
+                try:
+                    translated_data = json.loads(response_text)
+                    translated_Role = translated_data.get("Role", "")
+                    translated_Analyze = translated_data.get("Analyze", "")
+                    update_data = {
+                        f"analyze_{lang}_lang": {
+                            "Category": Category,
+                            "Role": translated_Role,
+                            "Analyze": translated_Analyze
+                        }
                     }
-                }
 
-                self.supabase.table("pro_analyze_topic").update(update_data).eq("topic_id", topic_id).execute()
-                print(f"翻譯成功，已更新topic_id '{topic_id}' 的 {lang} pro_analyze資料")
-            except Exception as e:
-                print(f"更新翻譯後的pro_analyze資料時發生錯誤: {e}")
-                return None
+                    self.supabase.table("pro_analyze_topic").update(update_data).eq("analyze_id", analyze_id).execute()
+                    print(f"翻譯成功，已更新topic_id '{topic_id}' 的 {lang} pro_analyze資料")
+                except Exception as e:
+                    print(f"更新翻譯後的pro_analyze資料時發生錯誤: {e}")
+                    return None
 
 if __name__ == "__main__":
     
@@ -757,11 +895,29 @@ if __name__ == "__main__":
     translate = Translate(supabase, gemini_client)  
     
     #跑所有新聞的翻譯
+    all_require = []
+    batch_size = 1000
+    start = 0
+    initial_delay = 1  # seconds
 
-    story_id_list = supabase.table("single_news").select("story_id").range(1501,2500).order("generated_date", desc=True).execute().data
-    story_id_list = [item.get("story_id", "") for item in story_id_list]
-    for story_id in story_id_list:
-        print(f"開始翻譯story_id '{story_id}' 的新聞資料")
+    while True:
+        try:
+            temp = supabase.table("single_news").select("story_id").order("generated_date", desc=True).range(start, start + batch_size - 1).execute()
+            print(f"Fetched {len(temp.data)} records from single_news starting at {start}.")
+            if not temp.data:
+                break
+            all_require.extend(temp.data)
+            start += batch_size
+        except postgrest.exceptions.APIError as e:
+            if attempt == max_retries - 1:  # Last attempt
+                raise  # Re-raise the last error if all retries failed
+            delay = initial_delay * (2 ** attempt)  # Exponential backoff
+            print(f"API Error occurred. Retrying in {delay} seconds... (Attempt {attempt + 1}/{max_retries})")
+            time.sleep(delay)
+
+    story_id_list = [item.get("story_id", "") for item in all_require]
+    for num, story_id in enumerate(story_id_list, start=1):
+        print(f"{num}.開始翻譯story_id '{story_id}' 的新聞資料")
         translate.translate_singleNews(story_id)
         translate.translate_relativeNews(story_id)
         translate.translate_relativeTopics(story_id)
@@ -771,14 +927,13 @@ if __name__ == "__main__":
         translate.translate_imagedescription(story_id)
         translate.translate_keyword(story_id)
     
-    
     #跑所有topic的翻譯
 
     # topic_id_list = supabase.table("topic").select("topic_id").execute().data
     # topic_id_list = [item.get("topic_id", "") for item in topic_id_list]
     # for topic_id in topic_id_list:
-        # print(f"開始翻譯topic_id '{topic_id}' 的主題資料")
-        # translate.translate_topic(topic_id)
-        # translate.translate_topic_branch(topic_id)
-        # translate.translate_mindmap(topic_id)
-        # translate.translate_pro_analyze_topic(topic_id)
+    #     print(f"開始翻譯topic_id '{topic_id}' 的主題資料")
+    #     translate.translate_topic(topic_id)
+    #     translate.translate_topic_branch(topic_id)
+    #     translate.translate_mindmap(topic_id)
+    #     translate.translate_pro_analyze_topic(topic_id)

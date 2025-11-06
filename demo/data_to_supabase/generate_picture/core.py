@@ -11,6 +11,7 @@ from PIL import Image
 from tqdm import tqdm
 from google import genai
 from google.genai import types
+from google.genai.errors import ServerError
 
 # 類別→寫實編輯語氣（不提供會誘發文字的元素）
 # 此部分保持不變
@@ -133,6 +134,11 @@ def _gen_image_bytes_with_retry(
             cands = getattr(resp, "candidates", [])
             if not cands:
                 raise RuntimeError("No candidates in response")
+            
+            # 檢查 content 是否存在
+            if not cands[0].content:
+                raise RuntimeError("Candidate content is None")
+            
             img_bytes = None
             for part in cands[0].content.parts:
                 if getattr(part, "inline_data", None):
@@ -155,6 +161,14 @@ def _gen_image_bytes_with_retry(
                 print(f"[ERROR] generate failed after {retry_times} attempts: {e}")
                 return None
             time.sleep(sleep_between_calls)
+        except (ServiceUnavailable, ServerError) as e:
+            wait = 2
+            error_type = "503 Service Unavailable" if isinstance(e, ServiceUnavailable) else "500 Internal Server Error"
+            print(f"⚠️ Gemini {error_type}，第 {attempt}/{retry_times} 次重試，等待 {wait} 秒...")
+            if attempt >= retry_times:
+                print(f"[ERROR] API error after {retry_times} attempts: {e}")
+                return None
+            time.sleep(wait)
     return None
 
 def _save_png(img_bytes: bytes, out_path: str):

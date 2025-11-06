@@ -3,10 +3,10 @@ import time
 
 def classify_taiwan_news():
     # Step 1️⃣ 查詢 stories 中 Taiwan News 的資料
-    stories_response = supabase.table("stories").select("story_id, story_title").eq("category", "Taiwan News").execute()
+    stories_response = supabase.table("stories").select("story_id, story_title").eq("category", "Vietnam").execute()
 
     stories = stories_response.data or []
-    print(f"📚 找到 {len(stories)} 筆 Taiwan News 資料")
+    print(f"📚 找到 {len(stories)} 筆 Vietnam News 資料")
 
     for story in stories:
         story_id = story["story_id"]

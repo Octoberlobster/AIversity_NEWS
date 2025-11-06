@@ -28,7 +28,7 @@ class ReportGeneratorConfig:
     
     # 綜合報導設定
     COMPREHENSIVE_REPORT = {
-        "min_articles": 2,            # 最少需要幾篇文章才生成綜合報導
+        "min_articles": 3,            # 最少需要幾篇文章才生成綜合報導
         "max_keywords": 10,           # 綜合報導中最多包含的關鍵詞數量
         "max_persons": 5,             # 最多包含的重要人物數量
         "max_organizations": 5        # 最多包含的機構數量

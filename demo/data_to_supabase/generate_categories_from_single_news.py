@@ -38,17 +38,19 @@ except Exception:
 LIMIT = int(sys.argv[1]) if len(sys.argv) > 1 else None
 
 client = create_client(SUPABASE_URL, SUPABASE_KEY)
-if LIMIT:
-    print(f"連線 Supabase: {SUPABASE_URL}，取前 {LIMIT} 筆 single_news 的 story_id,long")
-    resp = client.table('single_news').select('story_id,long').limit(LIMIT).execute()
-else:
-    print(f"連線 Supabase: {SUPABASE_URL}，取所有 single_news 的 story_id,long")
-    resp = client.table('single_news').select('story_id,long').execute()
-if getattr(resp, 'error', None):
-	print("嘗試選取 (story_id,long) 發生錯誤，改為 select('*') 並降級處理：", resp.error)
-	resp = client.table('single_news').select('*').limit(LIMIT).execute()
 
-rows = resp.data or []
+resp = []
+batch_size = 1000
+start = 0
+
+while True:
+    temp = client.table('single_news').select('story_id,long').order("generated_date", desc=True).range(start, start + batch_size - 1).execute()
+    if not temp.data:
+        break
+    resp.extend(temp.data)
+    start += batch_size
+
+rows = resp or []
 if not rows:
 	print("未取得資料，請確認表名/權限")
 	raise SystemExit(0)
@@ -60,23 +62,43 @@ print(f"使用 Gemini 模型: {MODEL}")
 
 # Step 0: 讀取現有的關鍵字
 print("Step 0: 讀取現有的關鍵字...")
-existing_resp = client.table('keywords').select('keyword').execute()
+existing_resp = []
+batch_size = 1000
+start = 0
+
+while True:
+    temp = client.table('keywords').select('keyword').range(start, start + batch_size - 1).execute()
+    if not temp.data:
+        break
+    existing_resp.extend(temp.data)
+    start += batch_size
+	
 if getattr(existing_resp, 'error', None):
 	print(f"讀取現有關鍵字失敗: {existing_resp.error}")
 	existing_keywords = set()
 else:
-	existing_data = existing_resp.data or []
+	existing_data = existing_resp or []
 	existing_keywords = {item['keyword'] for item in existing_data if isinstance(item, dict) and item.get('keyword')}
 	print(f"已讀取 {len(existing_keywords)} 個現有關鍵字")
 
 # Step 0.5: 讀取已經處理過的 story_id 及其關鍵字數量
 print("Step 0.5: 讀取已經處理過的新聞及關鍵字數量...")
-processed_resp = client.table('keywords_map').select('story_id,keyword').execute()
+processed_resp = []
+batch_size = 1000
+start = 0
+
+while True:
+    temp = client.table('keywords_map').select('story_id, keyword').range(start, start + batch_size - 1).execute()
+    if not temp.data:
+        break
+    processed_resp.extend(temp.data)
+    start += batch_size
+
 if getattr(processed_resp, 'error', None):
 	print(f"讀取已處理新聞失敗: {processed_resp.error}")
 	story_keyword_counts = {}
 else:
-	processed_data = processed_resp.data or []
+	processed_data = processed_resp or []
 	# 統計每個 story_id 的關鍵字數量
 	from collections import defaultdict
 	story_keyword_counts = defaultdict(int)
@@ -87,7 +109,7 @@ else:
 
 def make_prompt(long_text: str, needed_count: int = 3) -> str:
 	p = (
-		f"請根據下列新聞內容，提出恰好 {needed_count} 個最適合的分類標籤（每個標籤以逗號分隔，且為中文簡短詞，例如：科技、人工智慧、政治、財經、社會）。\n"
+		f"請根據下列新聞內容，提出恰好 {needed_count} 個最適合的分類標籤（每個標籤以逗號分隔，且為中文簡短詞，例如：科技、人工智慧、政治、財經、社會，不要超過四個字）。\n"
 		f"重要：必須提供恰好 {needed_count} 個標籤，不多不少。\n"
 		"只回傳標籤清單，不要額外說明。\n\n"
 		f"新聞內容：\n{long_text}\n"
