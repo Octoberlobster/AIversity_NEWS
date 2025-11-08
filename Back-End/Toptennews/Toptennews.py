@@ -285,8 +285,27 @@ if __name__ == "__main__":
     MODE = "history"  # "current" 或 "history"
     
     if MODE == "history":
-        # 補跑指定日期的所有時段
-        run_specific_date("2025-11-07")
+        dates_to_run = [
+            "2025-10-31",
+            "2025-11-01",
+            "2025-11-02",
+            "2025-11-03",
+            "2025-11-04",
+            "2025-11-05",
+            "2025-11-06",
+            "2025-11-07"
+        ]
+        
+        print(f"\n{'🎯' * 35}")
+        print(f"準備補跑 {len(dates_to_run)} 天的焦點新聞")
+        print(f"{'🎯' * 35}\n")
+        
+        for date_str in dates_to_run:
+            run_specific_date(date_str)
+        
+        print(f"\n{'🎉' * 35}")
+        print(f"✅ 全部完成! 共處理 {len(dates_to_run)} 天")
+        print(f"{'🎉' * 35}\n")
     
     else:  # MODE == "current"
         # 正常模式：執行當前時段
