@@ -155,7 +155,8 @@
     "loading": {
       "terms": "Terjadi kesalahan saat memuat definisi istilah",
       "positions": "Memuat...",
-      "data": "Memuat data..."
+      "data": "Memuat data...",
+      "generating": "Membuat konten, harap tunggu..."
     },
     "chat": {
       "open": "Buka Obrolan",

@@ -17,26 +17,236 @@
   }
 }
 
+/* 焦點頁面頂部區域 */
+.focus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .focus-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
 /* 標題 */
 .yesterday-title {
   font-size: 2.2rem;
   font-weight: 800;
   color: #1e3a8a;
-  margin: 0 0 2.5rem 0;
-  text-align: center;
+  margin: 0;
+  flex: 1;
 }
 
 @media (max-width: 768px) {
   .yesterday-title {
     font-size: 1.8rem;
-    margin-bottom: 1.5rem;
+    text-align: center;
   }
 }
 
 @media (max-width: 640px) {
   .yesterday-title {
     font-size: 1.4rem;
-    margin-bottom: 1.2rem;
+  }
+}
+
+/* 日期選擇器容器 */
+.date-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .date-selector {
+    width: 100%;
+    align-items: stretch;
+  }
+}
+
+/* 日期控制按鈕組 */
+.date-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f3f4f6;
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+@media (max-width: 640px) {
+  .date-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+}
+
+/* 時間控制按鈕組 */
+.time-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f3f4f6;
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+@media (max-width: 640px) {
+  .time-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+}
+
+/* 時間標籤 */
+.time-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4b5563;
+  margin-right: 0.3rem;
+}
+
+@media (max-width: 640px) {
+  .time-label {
+    width: 100%;
+    text-align: center;
+    margin-right: 0;
+    margin-bottom: 0.2rem;
+  }
+}
+
+/* 日期輸入框 */
+.date-input {
+  padding: 0.5rem 0.8rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1e3a8a;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 150px;
+}
+
+.date-input:hover {
+  border-color: #667eea;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+@media (max-width: 640px) {
+  .date-input {
+    min-width: 100%;
+    font-size: 0.9rem;
+  }
+}
+
+/* 日期快捷按鈕 */
+.date-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4b5563;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.date-btn:hover {
+  background: #667eea;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.date-btn:active {
+  transform: translateY(0);
+}
+
+/* 主要按鈕樣式(最新) */
+.date-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.date-btn-primary:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* 時間選擇按鈕 */
+.time-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4b5563;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 65px;
+}
+
+.time-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.15);
+}
+
+.time-btn:active {
+  transform: translateY(0);
+}
+
+/* 時間按鈕激活狀態 */
+.time-btn-active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-color: transparent;
+}
+
+.time-btn-active:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+@media (max-width: 640px) {
+  .time-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    min-width: 60px;
+  }
+}
+
+@media (max-width: 640px) {
+  .date-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
   }
 }
 

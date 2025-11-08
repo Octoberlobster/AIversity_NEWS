@@ -158,15 +158,21 @@ export function useNewsUrl(storyId) {
  */
 export function useNewsKeywords(storyId) {
   const supabase = useSupabase();
+  const { getFieldName, getMultiLanguageSelect, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useQuery({
-    queryKey: ['news-keywords', storyId],
+    queryKey: ['news-keywords', storyId, currentLanguage],
     queryFn: async () => {
       console.log('[useNewsKeywords] 載入關鍵字:', storyId);
 
+      // 查詢關鍵字,支援多語言
+      const keywordMultiLangFields = ['keyword'];
+      const keywordSelectFields = getMultiLanguageSelect(keywordMultiLangFields);
+
       const { data, error } = await supabase
         .from('keywords_map')
-        .select('keyword')
+        .select(keywordSelectFields)
         .eq('story_id', storyId)
         .limit(3);
 
@@ -177,7 +183,9 @@ export function useNewsKeywords(storyId) {
 
       // 回傳物件陣列格式 [{keyword: 'xxx'}] 以符合組件期望
       const keywords = (data || [])
-        .map(item => ({ keyword: item.keyword }))
+        .map(item => ({ 
+          keyword: item[getFieldName('keyword')] || item.keyword 
+        }))
         .filter(item => item.keyword);
 
       console.log('[useNewsKeywords] 關鍵字載入完成:', keywords.length, '個');

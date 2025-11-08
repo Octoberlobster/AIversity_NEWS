@@ -26,6 +26,8 @@ function SpecialReportDetail() {
   const [activeEvent, setActiveEvent] = useState(null); // 目前導覽中的分支 ID
   const [isChatOpen, setIsChatOpen] = useState(false);
   const sectionRefs = useRef({});
+  const sidebarRef = useRef(null); // 側邊欄 ref
+  const layoutRef = useRef(null); // Layout ref
   const supabase = useSupabase();
   const [is5W1HExpanded, setIs5W1HExpanded] = useState(false);
   const expanded5W1HRef = useRef(null);
@@ -91,6 +93,33 @@ function SpecialReportDetail() {
   const handle5W1HClick = () => {
     setIs5W1HExpanded(true);
   };
+
+  // 處理側邊欄滾動固定效果
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sidebarRef.current || !layoutRef.current) return;
+      
+      const layoutTop = layoutRef.current.getBoundingClientRect().top;
+      const sidebar = sidebarRef.current;
+      
+      // 當 layout 滾到視窗頂部時,固定側邊欄
+      if (layoutTop <= 20) {
+        sidebar.style.position = 'fixed';
+        sidebar.style.top = '2rem';
+        sidebar.style.left = `${layoutRef.current.getBoundingClientRect().left}px`;
+      } else {
+        // 否則恢復為絕對定位
+        sidebar.style.position = 'absolute';
+        sidebar.style.top = '0';
+        sidebar.style.left = '0';
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // 初始化
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // 生成專題報告功能
   const generateIntegrationReport = async () => {
@@ -660,9 +689,9 @@ function SpecialReportDetail() {
         </div>
 
         {/* Layout */}
-        <div className="srdLayout">
+        <div className="srdLayout" ref={layoutRef}>
           {/* Sidebar - 移到左邊 */}
-          <aside className="srdSidebar srdSidebar--left">
+          <aside className="srdSidebar srdSidebar--left" ref={sidebarRef}>
             <div className="srdSidebarCard">
               <h3 className="srdSidebarTitle">{t('specialReportDetail.navigation.title')}</h3>
               <nav className="srdNav">

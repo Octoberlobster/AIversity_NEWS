@@ -778,7 +778,12 @@ function NewsDetail() {
     return (
       <div className="newsDetail">
         <Link to={getLanguageRoute("/")} className="backButton">{t('newsDetail.backToHome')}</Link>
-        <p>找不到該新聞</p>
+        <div className="newsDetail__loadingContainer">
+          <div className="newsDetail__loadingSpinner"></div>
+          <p className="newsDetail__loadingText">
+            {t('newsDetail.loading.generating')}
+          </p>
+        </div>
       </div>
     );
   }

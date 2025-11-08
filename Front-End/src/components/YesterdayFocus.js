@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCountry } from './CountryContext';
@@ -12,6 +12,25 @@ function YesterdayFocus() {
 
   // 獲取當前語言
   const currentLang = location.pathname.split('/')[1] || 'zh-TW';
+
+  // 計算最新日期(昨天)作為預設值
+  const getLatestDate = () => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const year = yesterday.getFullYear();
+    const month = String(yesterday.getMonth() + 1).padStart(2, '0');
+    const day = String(yesterday.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  };
+
+  // 日期狀態 (預設為最新/昨天)
+  const [selectedDate, setSelectedDate] = useState(getLatestDate());
+  
+  // 時間狀態 (預設為 00:00)
+  const [selectedTime, setSelectedTime] = useState('00:00');
 
   // 國家 ID 對應到翻譯 key
   const countryTranslationMap = {
@@ -34,28 +53,12 @@ function YesterdayFocus() {
 
   const currentCountryDbName = countryDbMap[selectedCountry] || 'Taiwan';
 
-  // 計算昨天的日期(格式:YYYY-MM-DD)
-  const yesterdayDate = "2025-10-31";
-  /*
-  useMemo(() => {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const year = yesterday.getFullYear();
-    const month = String(yesterday.getMonth() + 1).padStart(2, '0');
-    const day = String(yesterday.getDate()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}`;
-  }, []);
-  */
-
   // 🎯 第一階段: 載入基本新聞資料 (文字內容)
   const { 
     data: basicNewsData = [], 
     isLoading: isLoadingBasic,
     error: basicError 
-  } = useYesterdayNews(currentCountryDbName, yesterdayDate);
+  } = useYesterdayNews(currentCountryDbName, selectedDate, currentLang);
 
   // 提取所有 story_ids 用於載入圖片和來源
   const storyIds = useMemo(() => {
@@ -80,20 +83,77 @@ function YesterdayFocus() {
   // Debug logging
   useEffect(() => {
     console.log('[YesterdayFocus] 狀態更新:', {
-      昨天日期: yesterdayDate,
+      選擇日期: selectedDate,
       選擇國家: selectedCountry,
       基本資料數量: basicNewsData.length,
       已載入圖片數量: Object.keys(imagesData).length,
       已載入來源數量: Object.keys(sourcesData).length,
     });
-  }, [yesterdayDate, selectedCountry, basicNewsData.length, imagesData, sourcesData]);
+  }, [selectedDate, selectedCountry, basicNewsData.length, imagesData, sourcesData]);
+
+  // 日期選擇處理函數
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+  };
+
+  // 時間選擇處理函數
+  const handleTimeChange = (time) => {
+    setSelectedTime(time);
+  };
+
+  // 快速日期選擇函數
+  const selectLatestDate = () => {
+    setSelectedDate(getLatestDate());
+    setSelectedTime('00:00'); // 重置為預設時間
+  };
+
+  const selectDateOffset = (days) => {
+    const today = new Date();
+    const targetDate = new Date(today);
+    targetDate.setDate(targetDate.getDate() + days);
+    
+    const year = targetDate.getFullYear();
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const day = String(targetDate.getDate()).padStart(2, '0');
+    
+    setSelectedDate(`${year}-${month}-${day}`);
+  };
 
   // 載入狀態
   if (isLoadingBasic) {
     return (
       <div className="yesterday-focus-container">
         <div className="focus-wrapper">
-          <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
+          <div className="focus-header">
+            <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
+            <div className="date-selector">
+              <div className="date-controls">
+                <button onClick={() => selectDateOffset(-7)} className="date-btn">-7天</button>
+                <button onClick={() => selectDateOffset(-3)} className="date-btn">-3天</button>
+                <button onClick={() => selectDateOffset(-1)} className="date-btn">昨天</button>
+                <input 
+                  type="date" 
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  className="date-input"
+                  max={getLatestDate()}
+                />
+                <button onClick={selectLatestDate} className="date-btn date-btn-primary">最新</button>
+              </div>
+              <div className="time-controls">
+                <span className="time-label">時間:</span>
+                {['00:00', '06:00', '12:00', '18:00'].map(time => (
+                  <button
+                    key={time}
+                    onClick={() => handleTimeChange(time)}
+                    className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
+                  >
+                    {time}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="loading-container">{t('common.loading')}</div>
         </div>
       </div>
@@ -105,7 +165,36 @@ function YesterdayFocus() {
     return (
       <div className="yesterday-focus-container">
         <div className="focus-wrapper">
-          <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
+          <div className="focus-header">
+            <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
+            <div className="date-selector">
+              <div className="date-controls">
+                <button onClick={() => selectDateOffset(-7)} className="date-btn">-7天</button>
+                <button onClick={() => selectDateOffset(-3)} className="date-btn">-3天</button>
+                <button onClick={() => selectDateOffset(-1)} className="date-btn">昨天</button>
+                <input 
+                  type="date" 
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  className="date-input"
+                  max={getLatestDate()}
+                />
+                <button onClick={selectLatestDate} className="date-btn date-btn-primary">最新</button>
+              </div>
+              <div className="time-controls">
+                <span className="time-label">時間:</span>
+                {['00:00', '06:00', '12:00', '18:00'].map(time => (
+                  <button
+                    key={time}
+                    onClick={() => handleTimeChange(time)}
+                    className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
+                  >
+                    {time}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="no-content">{t('yesterdayFocus.loadFailed')}</div>
         </div>
       </div>
@@ -117,7 +206,36 @@ function YesterdayFocus() {
     return (
       <div className="yesterday-focus-container">
         <div className="focus-wrapper">
-          <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
+          <div className="focus-header">
+            <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
+            <div className="date-selector">
+              <div className="date-controls">
+                <button onClick={() => selectDateOffset(-7)} className="date-btn">-7天</button>
+                <button onClick={() => selectDateOffset(-3)} className="date-btn">-3天</button>
+                <button onClick={() => selectDateOffset(-1)} className="date-btn">昨天</button>
+                <input 
+                  type="date" 
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  className="date-input"
+                  max={getLatestDate()}
+                />
+                <button onClick={selectLatestDate} className="date-btn date-btn-primary">最新</button>
+              </div>
+              <div className="time-controls">
+                <span className="time-label">時間:</span>
+                {['00:00', '06:00', '12:00', '18:00'].map(time => (
+                  <button
+                    key={time}
+                    onClick={() => handleTimeChange(time)}
+                    className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
+                  >
+                    {time}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="no-content">{t('yesterdayFocus.noContent')}</div>
         </div>
       </div>
@@ -127,9 +245,63 @@ function YesterdayFocus() {
   return (
     <div className="yesterday-focus-container">
       <div className="focus-wrapper">
-        <h1 className="yesterday-title">
-          {t('yesterdayFocus.title', { country: currentCountryLabel })}
-        </h1>
+        <div className="focus-header">
+          <h1 className="yesterday-title">
+            {t('yesterdayFocus.title', { country: currentCountryLabel })}
+          </h1>
+          <div className="date-selector">
+            <div className="date-controls">
+              <button 
+                onClick={() => selectDateOffset(-7)}
+                className="date-btn"
+                title="7天前"
+              >
+                -7天
+              </button>
+              <button 
+                onClick={() => selectDateOffset(-3)}
+                className="date-btn"
+                title="3天前"
+              >
+                -3天
+              </button>
+              <button 
+                onClick={() => selectDateOffset(-1)}
+                className="date-btn"
+                title="昨天"
+              >
+                昨天
+              </button>
+              <input 
+                type="date" 
+                value={selectedDate}
+                onChange={handleDateChange}
+                className="date-input"
+                max={getLatestDate()}
+              />
+              <button 
+                onClick={selectLatestDate}
+                className="date-btn date-btn-primary"
+                title="最新"
+              >
+                最新
+              </button>
+            </div>
+            <div className="time-controls">
+              <span className="time-label">時間:</span>
+              {['00:00', '06:00', '12:00', '18:00'].map(time => (
+                <button
+                  key={time}
+                  onClick={() => handleTimeChange(time)}
+                  className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
+                  title={time}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         <div className="news-cards-list">
           {newsData.map(news => (

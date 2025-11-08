@@ -715,21 +715,21 @@
 
 /* ===== Main Layout ===== */
 .srdLayout { 
-  display: grid; 
-  grid-template-columns: 280px 1fr; /* 側邊欄在左，主內容在右 - 調窄70px */
-  gap: 2rem; 
-}
-
-@media (max-width: 1200px) { 
-  .srdLayout { 
-    grid-template-columns: 1fr; 
-  } 
+  display: block; /* 改為 block,用 margin 來控制佈局 */
+  position: relative;
 }
 
 .srdMainCol { 
   display: flex; 
   flex-direction: column; 
   gap: 1.5rem; 
+  margin-left: 320px; /* 永遠為側邊欄留出空間 (280px + 40px gap) */
+}
+
+@media (max-width: 1200px) { 
+  .srdMainCol {
+    margin-left: 0; /* 手機版取消邊距 */
+  }
 }
 
 /* ===== Sidebar ===== */
@@ -737,11 +737,14 @@
   display: flex; 
   flex-direction: column; 
   gap: 1.5rem;
-  position: sticky; 
-  top: 2rem; 
+  position: absolute; /* 預設為 absolute,JS 會動態改為 fixed */
+  top: 0;
+  left: 0;
+  width: 280px; /* 固定寬度 */
   height: fit-content;
-  max-height: calc(100vh - 4rem); 
-  overflow-y: auto;
+  max-height: calc(100vh - 4rem); /* 最大高度不超過視窗 */
+  overflow-y: auto; /* 如果導覽項目太多,可以滾動 */
+  z-index: 100; /* 確保在其他內容之上 */
 }
 
 /* 左側邊欄特定樣式 */
@@ -750,6 +753,11 @@
 }
 
 @media (max-width: 1200px) {
+  .srdSidebar {
+    position: static; /* 手機版取消固定效果 */
+    max-height: none;
+  }
+  
   .srdSidebar--left {
     order: 0; /* 在手機版中恢復正常順序 */
     margin-bottom: 1.5rem;

@@ -5,16 +5,26 @@ import { useSupabase } from '../components/supabase';
  * 自定義 Hook: 拉取昨日焦點新聞
  * 使用 React Query 管理快取和狀態
  */
-export function useYesterdayNews(country, yesterdayDate) {
+export function useYesterdayNews(country, yesterdayDate, currentLanguage = 'zh-TW') {
   const supabase = useSupabase();
 
+  // 語言欄位後綴映射
+  const LANGUAGE_SUFFIX_MAP = {
+    'zh-TW': '',           // 中文使用原欄位名稱
+    'en': '_en_lang',      // 英文欄位後綴
+    'jp': '_jp_lang',      // 日文欄位後綴  
+    'id': '_id_lang'       // 印尼文欄位後綴
+  };
+
+  const suffix = LANGUAGE_SUFFIX_MAP[currentLanguage] || '';
+
   return useQuery({
-    // Query Key: 用於快取識別
-    queryKey: ['yesterday-news', country, yesterdayDate],
+    // Query Key: 用於快取識別,加入語言參數
+    queryKey: ['yesterday-news', country, yesterdayDate, currentLanguage],
     
     // Query Function: 實際的資料請求
     queryFn: async () => {
-      console.log('[useYesterdayNews] 開始載入:', country, yesterdayDate);
+      console.log('[useYesterdayNews] 開始載入:', country, yesterdayDate, currentLanguage);
       
       // 1. 拉取 top_ten_news
       const { data: topTenData, error: topTenError } = await supabase
@@ -37,10 +47,13 @@ export function useYesterdayNews(country, yesterdayDate) {
 
       console.log('[useYesterdayNews] 找到', allStoryIds.length, '個 story_ids');
 
-      // 3. 批量拉取新聞基本資料 (文字內容)
+      // 3. 批量拉取新聞基本資料 (文字內容) - 支援多語言
+      const titleField = suffix ? `news_title, news_title${suffix}` : 'news_title';
+      const summaryField = suffix ? `ultra_short, ultra_short${suffix}` : 'ultra_short';
+      
       const { data: newsData, error: newsError } = await supabase
         .from('single_news')
-        .select('story_id, news_title, ultra_short')
+        .select(`story_id, ${titleField}, ${summaryField}`)
         .in('story_id', allStoryIds);
 
       if (newsError) throw newsError;
@@ -48,8 +61,9 @@ export function useYesterdayNews(country, yesterdayDate) {
       // 4. 先返回文字資料 (不包含圖片和相關來源)
       const basicNews = newsData.map(news => ({
         id: news.story_id,
-        title: news.news_title,
-        summary: news.ultra_short,
+        // 優先使用翻譯欄位,沒有則 fallback 到原欄位
+        title: suffix ? (news[`news_title${suffix}`] || news.news_title) : news.news_title,
+        summary: suffix ? (news[`ultra_short${suffix}`] || news.ultra_short) : news.ultra_short,
         date: yesterdayDate,
         // 標記為需要載入
         needsImage: true,

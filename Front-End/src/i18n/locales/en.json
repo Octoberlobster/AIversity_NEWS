@@ -155,7 +155,8 @@
     "loading": {
       "terms": "Error loading term definitions",
       "positions": "Loading...",
-      "data": "Loading data..."
+      "data": "Loading data...",
+      "generating": "Generating content, please wait..."
     },
     "chat": {
       "open": "Open Chat",
