@@ -196,9 +196,9 @@
 
 /* 時間選擇按鈕 */
 .time-btn {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border: 2px solid #e5e7eb;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
   color: #4b5563;
@@ -206,14 +206,18 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  min-width: 65px;
+  min-width: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.3px;
 }
 
 .time-btn:hover {
   border-color: #667eea;
   color: #667eea;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
 }
 
 .time-btn:active {
@@ -225,21 +229,22 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
   border-color: transparent;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .time-btn-active:hover {
   background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
   color: #fff;
   border-color: transparent;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
 @media (max-width: 640px) {
   .time-btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-    min-width: 60px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+    min-width: 90px;
   }
 }
 

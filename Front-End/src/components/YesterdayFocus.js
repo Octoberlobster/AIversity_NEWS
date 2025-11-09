@@ -166,6 +166,38 @@ function YesterdayFocus() {
     setSelectedTime(time);
   };
 
+  // 根據時間和國家生成人性化的時間標籤
+  const getTimeLabel = (time) => {
+    const timeLabels = {
+      'taiwan': {
+        '00:00': { label: '深夜新聞', period: '晚間18:00-24:00' },
+        '06:00': { label: '晨間新聞', period: '凌晨00:00-06:00' },
+        '12:00': { label: '午間新聞', period: '早上06:00-12:00' },
+        '18:00': { label: '晚間新聞', period: '中午12:00-18:00' }
+      },
+      'usa': {
+        '00:00': { label: 'Late Night', period: '18:00-24:00' },
+        '06:00': { label: 'Morning News', period: '00:00-06:00' },
+        '12:00': { label: 'Noon News', period: '06:00-12:00' },
+        '18:00': { label: 'Evening News', period: '12:00-18:00' }
+      },
+      'japan': {
+        '00:00': { label: '深夜ニュース', period: '18:00-24:00' },
+        '06:00': { label: '朝のニュース', period: '00:00-06:00' },
+        '12:00': { label: '昼のニュース', period: '06:00-12:00' },
+        '18:00': { label: '夕方ニュース', period: '12:00-18:00' }
+      },
+      'indonesia': {
+        '00:00': { label: 'Berita Malam', period: '18:00-24:00' },
+        '06:00': { label: 'Berita Pagi', period: '00:00-06:00' },
+        '12:00': { label: 'Berita Siang', period: '06:00-12:00' },
+        '18:00': { label: 'Berita Sore', period: '12:00-18:00' }
+      }
+    };
+
+    return timeLabels[selectedCountry]?.[time] || timeLabels['taiwan'][time];
+  };
+
   // 快速日期選擇函數
   const selectLatestDate = () => {
     // 使用台灣時區計算當前時間
@@ -242,16 +274,19 @@ function YesterdayFocus() {
                 <button onClick={selectLatestDate} className="date-btn date-btn-primary">最新</button>
               </div>
               <div className="time-controls">
-                <span className="time-label">時間:</span>
-                {['00:00', '06:00', '12:00', '18:00'].map(time => (
-                  <button
-                    key={time}
-                    onClick={() => handleTimeChange(time)}
-                    className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
-                  >
-                    {time}
-                  </button>
-                ))}
+                {['00:00', '06:00', '12:00', '18:00'].map(time => {
+                  const timeInfo = getTimeLabel(time);
+                  return (
+                    <button
+                      key={time}
+                      onClick={() => handleTimeChange(time)}
+                      className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
+                      title={timeInfo.period}
+                    >
+                      {timeInfo.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -283,16 +318,19 @@ function YesterdayFocus() {
                 <button onClick={selectLatestDate} className="date-btn date-btn-primary">最新</button>
               </div>
               <div className="time-controls">
-                <span className="time-label">時間:</span>
-                {['00:00', '06:00', '12:00', '18:00'].map(time => (
-                  <button
-                    key={time}
-                    onClick={() => handleTimeChange(time)}
-                    className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
-                  >
-                    {time}
-                  </button>
-                ))}
+                {['00:00', '06:00', '12:00', '18:00'].map(time => {
+                  const timeInfo = getTimeLabel(time);
+                  return (
+                    <button
+                      key={time}
+                      onClick={() => handleTimeChange(time)}
+                      className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
+                      title={timeInfo.period}
+                    >
+                      {timeInfo.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -324,16 +362,19 @@ function YesterdayFocus() {
                 <button onClick={selectLatestDate} className="date-btn date-btn-primary">最新</button>
               </div>
               <div className="time-controls">
-                <span className="time-label">時間:</span>
-                {['00:00', '06:00', '12:00', '18:00'].map(time => (
-                  <button
-                    key={time}
-                    onClick={() => handleTimeChange(time)}
-                    className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
-                  >
-                    {time}
-                  </button>
-                ))}
+                {['00:00', '06:00', '12:00', '18:00'].map(time => {
+                  const timeInfo = getTimeLabel(time);
+                  return (
+                    <button
+                      key={time}
+                      onClick={() => handleTimeChange(time)}
+                      className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
+                      title={timeInfo.period}
+                    >
+                      {timeInfo.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -389,17 +430,19 @@ function YesterdayFocus() {
               </button>
             </div>
             <div className="time-controls">
-              <span className="time-label">時間:</span>
-              {['00:00', '06:00', '12:00', '18:00'].map(time => (
-                <button
-                  key={time}
-                  onClick={() => handleTimeChange(time)}
-                  className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
-                  title={time}
-                >
-                  {time}
-                </button>
-              ))}
+              {['00:00', '06:00', '12:00', '18:00'].map(time => {
+                const timeInfo = getTimeLabel(time);
+                return (
+                  <button
+                    key={time}
+                    onClick={() => handleTimeChange(time)}
+                    className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
+                    title={timeInfo.period}
+                  >
+                    {timeInfo.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
