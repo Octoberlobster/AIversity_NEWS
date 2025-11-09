@@ -1093,13 +1093,14 @@ function NewsDetail() {
       {(newsUrl || newsData.source) && (() => {
         const MAX = 3;
         
-        // 處理從 cleaned_news 來的資料 (包含媒體、標題、URL)
+        // 處理從 cleaned_news 來的資料 (包含媒體、標題、URL、日期)
         let sources = [];
         if (newsUrl && Array.isArray(newsUrl)) {
           sources = newsUrl.filter(item => item.article_url && item.article_title).map(item => ({
             url: item.article_url,
             title: item.article_title,
-            media: item.media || t('newsDetail.sources.unknownMedia')
+            media: item.media || t('newsDetail.sources.unknownMedia'),
+            date: item.write_date || null
           }));
         }
         
@@ -1111,7 +1112,8 @@ function NewsDetail() {
           sources = all.map(url => ({
             url: url,
             title: url,
-            media: t('newsDetail.sources.unknownMedia')
+            media: t('newsDetail.sources.unknownMedia'),
+            date: null
           }));
           console.log('後備 sources:', sources);
         }
@@ -1134,7 +1136,12 @@ function NewsDetail() {
               <ul className="sourceList">
                 {visible.map((source, i) => (
                   <li key={i}>
-                    <span className="sourceMedia">{source.media}</span>
+                    <span className="sourceMedia">
+                      {source.media}
+                      {source.date && (
+                        <span className="sourceDate"> ({source.date})</span>
+                      )}
+                    </span>
                     <span className="sourceSeparator">：</span>
                     <a href={source.url} target="_blank" rel="noopener noreferrer" className="sourceLink">
                       {source.title}

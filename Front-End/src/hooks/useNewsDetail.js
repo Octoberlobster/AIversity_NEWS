@@ -132,7 +132,7 @@ export function useNewsUrl(storyId) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('cleaned_news')
-        .select('article_title, article_url, media')
+        .select('article_title, article_url, media, write_date')
         .eq('story_id', storyId);
 
       if (error) {
