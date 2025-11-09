@@ -7,123 +7,84 @@ import { useLanguageFields } from '../utils/useLanguageFields';
  */
 export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = true) {
   const supabase = useSupabase();
-  const { getMultiLanguageSelect, getFieldName } = useLanguageFields();
+  const { getMultiLanguageSelect, getFieldName, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useInfiniteQuery({
-    queryKey: ['home-news', country, itemsPerPage],
+    queryKey: ['home-news', country, itemsPerPage, currentLanguage],
     queryFn: async ({ pageParam = 0 }) => {
       console.log('[useHomeNews] 載入頁面:', pageParam, '國家:', country);
 
       const offset = pageParam * itemsPerPage;
 
-      let fetchedData;
+      let allNewsData = [];
 
       if (country && country !== 'all') {
-        // 國家模式
-        const { data: countryStories, error: storiesError } = await supabase
-          .from('stories')
-          .select('story_id')
-          .or(`country.eq.${country},country.eq.${country.toLowerCase()}`)
-          .order('story_id', { ascending: false })
-          .range(offset, offset + itemsPerPage * 3 - 1);
-
-        if (storiesError) {
-          console.error('[useHomeNews] stories 查詢錯誤:', storiesError);
-          throw storiesError;
-        }
-        
-        console.log('[useHomeNews] stories 查詢結果:', countryStories?.length || 0, '筆');
-        
-        if (!countryStories || countryStories.length === 0) return { news: [], nextPage: null };
-
-        const countryStoryIds = countryStories.map(s => s.story_id);
-        
-        console.log('[useHomeNews] story_ids:', countryStoryIds.slice(0, 5), '...');
-
+        // 國家模式 - 使用巢狀查詢直接在 single_news 中過濾
         const multiLangFields = getMultiLanguageSelect(["news_title", "ultra_short"]);
-        const selectQuery = `story_id, generated_date, ${multiLangFields}`;
         
-        console.log('[useHomeNews] select query:', selectQuery);
+        console.log('[useHomeNews] 使用巢狀查詢,國家:', country);
 
+        // 一次查詢: 從 single_news 查詢,並透過 stories 表過濾國家
+        // 查詢符合國家的前 90 筆新聞
         const { data: newsData, error: newsError } = await supabase
           .from('single_news')
-          .select(selectQuery)
-          .in('story_id', countryStoryIds)
+          .select(`
+            story_id,
+            generated_date,
+            ${multiLangFields},
+            stories!inner(country)
+          `)
+          .or(`country.eq.${country},country.eq.${country.toLowerCase()}`, { foreignTable: 'stories' })
           .order('generated_date', { ascending: false })
-          .limit(itemsPerPage * 1);
+          .limit(90);
 
         if (newsError) {
-          console.error('[useHomeNews] single_news 查詢錯誤:', newsError);
+          console.error('[useHomeNews] 查詢錯誤:', newsError);
           throw newsError;
         }
         
-        console.log('[useHomeNews] single_news 查詢結果:', newsData?.length || 0, '筆');
+        console.log('[useHomeNews] 查詢結果總數:', newsData?.length || 0, '筆');
         
-        fetchedData = newsData || [];
+        allNewsData = newsData || [];
       } else {
         // 全部新聞模式
         const multiLangFields = getMultiLanguageSelect(["news_title", "ultra_short"]);
-        const selectQuery = `story_id, generated_date, ${multiLangFields}`;
         
         const { data: newsData, error: newsError } = await supabase
           .from('single_news')
-          .select(selectQuery)
+          .select(`story_id, generated_date, ${multiLangFields}`)
           .order('generated_date', { ascending: false })
-          .range(offset, offset + itemsPerPage - 1);
+          .limit(90);
 
         if (newsError) throw newsError;
-        fetchedData = newsData || [];
+        allNewsData = newsData || [];
       }
 
-      // 檢查哪些 story 有對應的 generated_image，若無圖片則不顯示（needsImage: false）
-      const storyIds = fetchedData.map(n => n.story_id).filter(Boolean);
-      let imageIdSet = new Set();
-      if (storyIds.length > 0) {
-        try {
-          const { data: imagesData, error: imagesError } = await supabase
-            .from('generated_image')
-            .select('story_id')
-            .in('story_id', storyIds);
-
-          if (imagesError) {
-            console.warn('[useHomeNews] generated_image 查詢錯誤，將視為無圖片:', imagesError);
-          } else if (imagesData && imagesData.length > 0) {
-            imageIdSet = new Set(imagesData.map(i => i.story_id));
-          }
-        } catch (err) {
-          console.warn('[useHomeNews] generated_image 查詢異常，將視為無圖片:', err);
-        }
-      }
-
-      // 轉換格式 (包含 needsImage 判斷)
-      const basicNews = fetchedData
-        .map(news => ({
-          story_id: news.story_id,
-          title: news[getFieldName("news_title")] || news.news_title,
-          shortSummary: news[getFieldName("ultra_short")] || news.ultra_short,
-          date: news.generated_date,
-          needsImage: imageIdSet.has(news.story_id),
-        }))
-        .filter(news => news.needsImage); // 只保留有圖片的新聞
-
-      // 修改分頁邏輯：如果過濾後的新聞數量為 0，直接載入下一頁
-      if (basicNews.length === 0 && fetchedData.length > 0) {
-        return {
-          news: [],
-          nextPage: pageParam + 1, // 強制載入下一頁
-        };
-      }
+      // 從查詢結果中取出當前頁面的資料
+      const startIndex = offset;
+      const endIndex = offset + itemsPerPage;
+      const fetchedData = allNewsData.slice(startIndex, endIndex);
       
-      // 如果獲取的原始數據量等於查詢限制，表示可能還有更多數據
-      const hasMore = fetchedData.length === (country && country !== 'all' 
-        ? itemsPerPage 
-        : itemsPerPage);
+      console.log('[useHomeNews] 分頁結果:', fetchedData.length, '筆 (從索引', startIndex, '到', endIndex, ')');
+
+      // 轉換格式 (不包含圖片)
+      const basicNews = fetchedData.map(news => ({
+        story_id: news.story_id,
+        title: news[getFieldName("news_title")] || news.news_title,
+        shortSummary: news[getFieldName("ultra_short")] || news.ultra_short,
+        date: news.generated_date,
+        needsImage: true,
+      }));
+
+      console.log('[useHomeNews] 頁面載入完成:', basicNews.length, '筆');
+
+      // 判斷是否還有下一頁 (檢查是否還有更多資料)
+      const hasMore = endIndex < allNewsData.length;
 
       return {
         news: basicNews,
         nextPage: hasMore ? pageParam + 1 : null,
-        // 添加最後一條新聞的日期，用於下一次查詢的參考
-        lastDate: fetchedData[fetchedData.length - 1]?.generated_date,
       };
     },
     getNextPageParam: (lastPage) => {

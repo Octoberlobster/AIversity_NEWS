@@ -362,59 +362,61 @@ class Translate:
         if not response:
             print(f"未找到story_id '{story_id}' 的pro_analyze資料")
             return None
-        
-        pro_analyze_data = response[0]
-        analyze = pro_analyze_data.get("analyze", "")
-        Category = analyze.get("Category", "")
-        Role = analyze.get("Role", "")
-        Analyze = analyze.get("Analyze", "")
-        
-        for lang in self.lang_list:
-            
-            pro_analyze_check = pro_analyze_data.get(f"analyze_{lang}_lang", {})
-            if pro_analyze_check:
-                
-                Role_check = pro_analyze_check.get("Role", "")
-                Analyze_check = pro_analyze_check.get("Analyze", "")
-                
-                if Role_check and Analyze_check:
-                    print(f"story_id '{story_id}' 的{lang} pro_analyze資料已存在，跳過翻譯")
-                    continue
 
-            if lang == "id":
-                lang = "indonesia"
+        for pro_analyze_data in response:
+            analyze_id = pro_analyze_data.get("analyze_id", "")
+            analyze = pro_analyze_data.get("analyze", "")
+            Category = analyze.get("Category", "")
+            Role = analyze.get("Role", "")
+            Analyze = analyze.get("Analyze", "")
             
-            prompt = f"請將以下專業分析的角色和分析內容翻譯成{lang}:\n角色: {Role}\n分析內容: {Analyze}\n"
-            config = types.GenerateContentConfig(
-                system_instruction=f"你是一個專業的翻譯專家，請將提供的專業分析的角色和分析內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
-                response_mime_type="application/json",
-                response_schema=pro_analyzeResponse
-            )
-            response_text = self.callgemini(prompt, config)
-            if response_text is None:
-                print("翻譯失敗")
-                return None
-            
-            if lang == "indonesia":
-                lang = "id"
-            
-            try:
-                translated_data = json.loads(response_text)
-                translated_Role = translated_data.get("Role", "")
-                translated_Analyze = translated_data.get("Analyze", "")
-                update_data = {
-                    f"analyze_{lang}_lang": {
-                        "Category": Category,
-                        "Role": translated_Role,
-                        "Analyze": translated_Analyze
-                    }
-                }
+            for lang in self.lang_list:
                 
-                self.supabase.table("pro_analyze").update(update_data).eq("story_id", story_id).execute()
-                print(f"翻譯成功，已更新story_id '{story_id}' 的 {lang} pro_analyze資料")
-            except Exception as e:
-                print(f"更新翻譯後的pro_analyze資料時發生錯誤: {e}")
-                return None
+                pro_analyze_check = pro_analyze_data.get(f"analyze_{lang}_lang", {})
+                if pro_analyze_check:
+                    
+                    Role_check = pro_analyze_check.get("Role", "")
+                    Analyze_check = pro_analyze_check.get("Analyze", "")
+                    
+                    if Role_check and Analyze_check:
+                        print(f"story_id '{story_id}' 的{lang} pro_analyze資料已存在，跳過翻譯")
+                        continue
+
+                if lang == "id":
+                    lang = "indonesia"
+                
+                prompt = f"請將以下專業分析的角色和分析內容翻譯成{lang}:\n角色: {Role}\n分析內容: {Analyze}\n"
+                config = types.GenerateContentConfig(
+                    system_instruction=f"你是一個專業的翻譯專家，請將提供的專業分析的角色和分析內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
+                    response_mime_type="application/json",
+                    response_schema=pro_analyzeResponse
+                )
+                response_text = self.callgemini(prompt, config)
+                if response_text is None:
+                    print("翻譯失敗")
+                    return None
+                
+                if lang == "indonesia":
+                    lang = "id"
+                
+                try:
+                    translated_data = json.loads(response_text)
+                    translated_Role = translated_data.get("Role", "")
+                    translated_Analyze = translated_data.get("Analyze", "")
+                    update_data = {
+                        f"analyze_{lang}_lang": {
+                            "Category": Category,
+                            "Role": translated_Role,
+                            "Analyze": translated_Analyze
+                        }
+                    }
+
+                    self.supabase.table("pro_analyze").update(update_data).eq("analyze_id", analyze_id).eq("story_id", story_id).execute()
+                    print(f"翻譯成功，已更新story_id '{story_id}' 的 {lang} pro_analyze資料")
+                except Exception as e:
+                    print(f"更新翻譯後的pro_analyze資料時發生錯誤: {e}")
+                    return None
+        
 
     def translate_imagedescription(self, story_id):
         try:
@@ -813,62 +815,63 @@ class Translate:
             print(f"未找到story_id '{story_id}' 的pro_analyze資料")
             return None
         
-        pro_analyze_data = response[0]
-        analyze = pro_analyze_data.get("analyze", "")
-        Category = analyze.get("Category", "")
-        Role = analyze.get("Role", "")
-        Analyze = analyze.get("Analyze", "")
-        
-        for lang in self.lang_list:
+        for pro_analyze_data in response:
+            analyze = pro_analyze_data.get("analyze", "")
+            analyze_id = pro_analyze_data.get("analyze_id", "")
+            Category = analyze.get("Category", "")
+            Role = analyze.get("Role", "")
+            Analyze = analyze.get("Analyze", "")
             
-            pro_analyze_check = pro_analyze_data.get(f"analyze_{lang}_lang", {})
-            if pro_analyze_check:
-                Role_check = pro_analyze_check.get("Role", "")
-                Analyze_check = pro_analyze_check.get("Analyze", "")
+            for lang in self.lang_list:
                 
-                if Role_check and Analyze_check:
-                    print(f"topic_id '{topic_id}' 的{lang} pro_analyze資料已存在，跳過翻譯")
-                    continue
-            
-            if lang == "id":
-                lang = "indonesia"
-            
-            prompt = f"請將以下專業分析的角色和分析內容翻譯成{lang}:\n角色: {Role}\n分析內容: {Analyze}\n"
-            config = types.GenerateContentConfig(
-                system_instruction=f"你是一個專業的翻譯專家，請將提供的專業分析的角色和分析內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
-                response_mime_type="application/json",
-                response_schema=pro_analyzeResponse
-            )
-            response_text = self.callgemini(prompt, config)
-            if response_text is None:
-                print("翻譯失敗")
-                return None
-            
-            if lang == "indonesia":
-                lang = "id"
-            
-            try:
-                translated_data = json.loads(response_text)
-                translated_Role = translated_data.get("Role", "")
-                translated_Analyze = translated_data.get("Analyze", "")
-                update_data = {
-                    f"analyze_{lang}_lang": {
-                        "Category": Category,
-                        "Role": translated_Role,
-                        "Analyze": translated_Analyze
+                pro_analyze_check = pro_analyze_data.get(f"analyze_{lang}_lang", {})
+                if pro_analyze_check:
+                    Role_check = pro_analyze_check.get("Role", "")
+                    Analyze_check = pro_analyze_check.get("Analyze", "")
+                    
+                    if Role_check and Analyze_check:
+                        print(f"topic_id '{topic_id}' 的{lang} pro_analyze資料已存在，跳過翻譯")
+                        continue
+                
+                if lang == "id":
+                    lang = "indonesia"
+                
+                prompt = f"請將以下專業分析的角色和分析內容翻譯成{lang}:\n角色: {Role}\n分析內容: {Analyze}\n"
+                config = types.GenerateContentConfig(
+                    system_instruction=f"你是一個專業的翻譯專家，請將提供的專業分析的角色和分析內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
+                    response_mime_type="application/json",
+                    response_schema=pro_analyzeResponse
+                )
+                response_text = self.callgemini(prompt, config)
+                if response_text is None:
+                    print("翻譯失敗")
+                    return None
+                
+                if lang == "indonesia":
+                    lang = "id"
+                
+                try:
+                    translated_data = json.loads(response_text)
+                    translated_Role = translated_data.get("Role", "")
+                    translated_Analyze = translated_data.get("Analyze", "")
+                    update_data = {
+                        f"analyze_{lang}_lang": {
+                            "Category": Category,
+                            "Role": translated_Role,
+                            "Analyze": translated_Analyze
+                        }
                     }
-                }
 
-                self.supabase.table("pro_analyze_topic").update(update_data).eq("topic_id", topic_id).execute()
-                print(f"翻譯成功，已更新topic_id '{topic_id}' 的 {lang} pro_analyze資料")
-            except Exception as e:
-                print(f"更新翻譯後的pro_analyze資料時發生錯誤: {e}")
-                return None
+                    self.supabase.table("pro_analyze_topic").update(update_data).eq("analyze_id", analyze_id).execute()
+                    print(f"翻譯成功，已更新topic_id '{topic_id}' 的 {lang} pro_analyze資料")
+                except Exception as e:
+                    print(f"更新翻譯後的pro_analyze資料時發生錯誤: {e}")
+                    return None
 
 if __name__ == "__main__":
     
     #宣告Translate物件
-    translate = Translate(supabase, gemini_client)  
+    translate = Translate(supabase, gemini_client)
     
     #跑所有新聞的翻譯
 
@@ -884,7 +887,6 @@ if __name__ == "__main__":
         translate.translate_pro_analyze(story_id)
         translate.translate_imagedescription(story_id)
         translate.translate_keyword(story_id)
-    
     
     #跑所有topic的翻譯
 

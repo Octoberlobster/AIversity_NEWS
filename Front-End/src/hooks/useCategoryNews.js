@@ -1,17 +1,19 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useSupabase } from '../components/supabase';
 
 /**
- * 自定義 Hook: 拉取分類新聞
+ * 自定義 Hook: 拉取分類新聞 (支援無限載入)
  * 使用 React Query 管理快取和狀態
  */
 export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
   const supabase = useSupabase();
 
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['category-news', country, categoryName, itemsPerPage],
-    queryFn: async () => {
-      console.log('[useCategoryNews] 開始載入:', { country, categoryName, itemsPerPage });
+    queryFn: async ({ pageParam = 0 }) => {
+      console.log('[useCategoryNews] 載入頁面:', pageParam, '國家:', country, '分類:', categoryName);
+
+      const offset = pageParam * itemsPerPage;
 
       // 對應資料庫的正確國家名稱
       const countryMap = {
@@ -23,12 +25,11 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
       };
       const dbCountry = countryMap[country] || country;
 
-      // 1. 從 stories 表獲取 story_id
+      // 1. 從 stories 表獲取 story_id (大範圍查詢)
       let storiesQuery = supabase
         .from('stories')
         .select('story_id')
-        .eq('country', dbCountry)
-        .limit(5000);
+        .eq('country', dbCountry);
 
       if (categoryName) {
         storiesQuery = storiesQuery.eq('category', categoryName);
@@ -36,48 +37,43 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
 
       const { data: storiesData, error: storiesError } = await storiesQuery;
       if (storiesError) throw storiesError;
-      if (!storiesData || storiesData.length === 0) return [];
+      if (!storiesData || storiesData.length === 0) {
+        return { news: [], nextPage: null };
+      }
 
       const storyIds = storiesData.map(story => story.story_id);
       console.log(`[useCategoryNews] 找到 ${storyIds.length} 個 story_ids`);
 
-      // 2. 分批查詢 single_news
-      const BATCH_SIZE = 200;
-      let allNews = [];
+      // 2. 查詢 single_news 並按時間排序和分頁
+      const { data: newsData, error: newsError } = await supabase
+        .from('single_news')
+        .select('story_id, news_title, ultra_short, generated_date, category')
+        .in('story_id', storyIds)
+        .order('generated_date', { ascending: false })
+        .range(offset, offset + itemsPerPage - 1);
       
-      for (let i = 0; i < storyIds.length && allNews.length < itemsPerPage; i += BATCH_SIZE) {
-        const batchIds = storyIds.slice(i, i + BATCH_SIZE);
-        const { data: newsData, error: newsError } = await supabase
-          .from('single_news')
-          .select('story_id, news_title, ultra_short, generated_date, category')
-          .in('story_id', batchIds)
-          .order('generated_date', { ascending: false });
-        
-        if (newsError) throw newsError;
-        if (newsData && newsData.length > 0) {
-          allNews = allNews.concat(newsData);
-        }
-        if (allNews.length >= itemsPerPage) break;
-      }
+      if (newsError) throw newsError;
+      
+      const allNews = newsData || [];
 
-      // 3. 排序並限制數量
-      allNews = allNews
-        .sort((a, b) => new Date(b.generated_date) - new Date(a.generated_date))
-        .slice(0, itemsPerPage);
-
-      // 4. 轉換格式 (不包含圖片)
+      // 3. 轉換格式 (不包含圖片)
       const basicNews = allNews.map(news => ({
         story_id: news.story_id,
         title: news.news_title,
         shortSummary: news.ultra_short,
-        date: new Date(news.generated_date).toLocaleDateString('zh-TW'),
+        date: news.generated_date,
         category: news.category,
         needsImage: true,
       }));
 
-      console.log('[useCategoryNews] 基本資料載入完成:', basicNews.length, '筆');
-      return basicNews;
+      console.log('[useCategoryNews] 頁面載入完成:', basicNews.length, '筆');
+
+      return {
+        news: basicNews,
+        nextPage: basicNews.length === itemsPerPage ? pageParam + 1 : null,
+      };
     },
+    getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled: !!country && !!supabase,
     staleTime: 10 * 60 * 1000, // 10分鐘
     cacheTime: 30 * 60 * 1000, // 30分鐘

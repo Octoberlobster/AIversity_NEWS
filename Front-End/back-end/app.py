@@ -11,6 +11,8 @@ from Hint_Prompt_Single import Hint_Prompt_Single
 from Hint_Prompt_Topic import Hint_Prompt_Topic
 import Change_experts
 import Change_experts_Topic
+import country_pro_analyze
+from env import supabase
 
 # --- Logging Setup ---
 # It's good practice to configure logging
@@ -421,6 +423,108 @@ def change_experts_topic_route():
         error_payload = {"success": False, "error": str(e), "error_code": "500"}
         return jsonify({"success_response": None, "error_response": error_payload}), 500
 
+
+@app.route("/api/experts/feedback", methods=["POST"])
+def expert_feedback():
+    """
+    接收專家分析反饋（有益/無益），並更新資料庫中的計數
+    """
+    data = request.json
+    analyze_id = data.get("analyze_id")
+    feedback_type = data.get("feedback_type")  # "useful" or "useless"
+
+    logger.info(f"Received /api/experts/feedback request for analyze_id: {analyze_id}, feedback_type: {feedback_type}")
+
+    # 驗證必要欄位
+    if not analyze_id or not feedback_type:
+        logger.warning("Missing required fields in /api/experts/feedback request.")
+        return jsonify({"success": False, "error": "Missing required fields"}), 400
+
+    # 驗證 feedback_type 的值
+    if feedback_type not in ["useful", "useless"]:
+        logger.warning(f"Invalid feedback_type: {feedback_type}")
+        return jsonify({"success": False, "error": "Invalid feedback_type. Must be 'useful' or 'useless'"}), 400
+
+    try:
+        # 先獲取當前值
+        response = supabase.table('pro_analyze').select('useful, useless').eq('analyze_id', analyze_id).execute()
+        
+        if not response.data or len(response.data) == 0:
+            logger.warning(f"Analyze ID not found: {analyze_id}")
+            return jsonify({"success": False, "error": "Analyze ID not found"}), 404
+
+        current_data = response.data[0]
+        current_useful = current_data.get('useful', 0) or 0
+        current_useless = current_data.get('useless', 0) or 0
+
+        # 更新對應的計數器
+        if feedback_type == "useful":
+            new_useful = current_useful + 1
+            update_response = supabase.table('pro_analyze').update({
+                'useful': new_useful
+            }).eq('analyze_id', analyze_id).execute()
+            
+            logger.info(f"Updated useful count to {new_useful} for analyze_id: {analyze_id}")
+            return jsonify({
+                "success": True,
+                "useful": new_useful,
+                "useless": current_useless
+            })
+        else:  # useless
+            new_useless = current_useless + 1
+            update_response = supabase.table('pro_analyze').update({
+                'useless': new_useless
+            }).eq('analyze_id', analyze_id).execute()
+            
+            logger.info(f"Updated useless count to {new_useless} for analyze_id: {analyze_id}")
+            return jsonify({
+                "success": True,
+                "useful": current_useful,
+                "useless": new_useless
+            })
+
+    except Exception as e:
+        logger.error(f"Error submitting expert feedback: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/experts/country_analyze", methods=["POST"])
+def country_analyze_route():
+    """
+    提供針對特定國家的即時新聞分析 (目前固定為台灣)。
+    """
+    data = request.json
+    story_id = data.get("story_id")
+    country = data.get("country") # 應為 "Taiwan"
+
+    logger.info(f"Received /api/experts/country_analyze request for story_id: {story_id}, country: {country}")
+
+    if not story_id or not country:
+        logger.warning("Missing 'story_id' or 'country' in /api/experts/country_analyze request.")
+        return jsonify({"error": "Missing 'story_id' or 'country'"}), 400
+
+    if country != "Taiwan":
+        logger.warning(f"Unsupported country: {country}. Only 'Taiwan' is supported.")
+        return jsonify({"error": "Only 'Taiwan' is currently supported"}), 400
+
+    try:
+        # 1. 呼叫 Gemini 生成分析 (回傳扁平的 dict)
+        analysis_result = country_pro_analyze.generate_country_analysis(story_id, country)
+        
+        # 2. 呼叫函式將分析結果插入資料庫 (此函式內部會處理錯誤，不會中斷流程)
+        # 即使插入失敗，我們仍然希望將分析結果回傳給前端
+        try:
+            country_pro_analyze.insert_analysis_data(story_id, country, analysis_result)
+        except Exception as db_e:
+            # 記錄插入錯誤，但不中斷
+            logger.error(f"DB insert failed for {story_id}, but analysis will be returned. Error: {db_e}", exc_info=True)
+
+        # 3. 將扁平的 JSON 分析結果回傳給前端
+        logger.info(f"Successfully processed country analysis for {story_id}. Returning analysis.")
+        return jsonify(analysis_result)
+
+    except Exception as e:
+        logger.error(f"Error during country analysis generation for {story_id}: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     # Consider removing debug=True for production

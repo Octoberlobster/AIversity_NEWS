@@ -3,18 +3,18 @@
     "brand": "AIversity",
   "tagline": "Berita Cerdas, Wawasan Mendalam",
     "menu": {
-      "home": "Beranda",
-      "yesterdayFocus": "Fokus Kemarin",
-      "specialReports": "Laporan Khusus",
+      "home": "Terbaru",
+      "yesterdayFocus": "Fokus",
+      "specialReports": "Khusus",
       "abroad": "Berita Luar Negeri",
       "politics": "Politik",
       "taiwan": "Taiwan",
       "international": "Internasional",
-      "scienceAndTech": "Sains & Teknologi",
+      "scienceAndTech": "Teknologi",
       "life": "Gaya Hidup",
       "sports": "Olahraga",
       "entertainment": "Hiburan",
-      "finance": "Bisnis & Keuangan",
+      "finance": "Keuangan",
       "health": "Kesehatan"
     },
     "countries": {
@@ -39,14 +39,16 @@
     "nobranches": "Belum ada pratinjau topik"
   },
   "yesterdayFocus": {
-    "title": "Fokus Kemarin",
-    "moreNews": "Berita Lainnya dari Kemarin",
-    "relatedSources": "Sumber Terkait"
+    "title": "Fokus {{country}}",
+    "moreNews": "Berita Lainnya",
+    "relatedSources": "Sumber Terkait",
+    "noContent": "Tidak ada berita fokus tersedia",
+    "loadFailed": "Gagal memuat, silakan coba lagi nanti"
   },
   "common": {
     "loading": "Memuat...",
-    "loadingMore": "Memuat lebih banyak...",
-    "loadMore": "Muat Lebih Banyak",
+    "loadMore": "Muat Lebih Banyak Berita",
+    "loadingMore": "Memuat...",
     "error": "Gagal memuat",
     "retry": "Coba Lagi",
     "readMore": "Baca Berita Selengkapnya",
@@ -54,13 +56,17 @@
     "search": "Cari",
     "noContent": "Tidak ada konten",
     "searchError": "Terjadi kesalahan saat mencari",
-    "reporter": "Wartawan"
+    "reporter": "Wartawan",
+    "editor": "Editor:",
+    "editorName": "Redaksi Berita AIversity"
   },
   "categorySection": {
     "news": "Berita",
     "title": "Berita Kategori",
     "newsTitle": "Berita {{category}}",
     "loading": "Memuat...",
+    "loadMore": "Muat Lebih Banyak Berita",
+    "loadingMore": "Memuat...",
     "error": {
       "loadFailed": "Tidak dapat memuat data berita",
       "loadError": "Terjadi kesalahan saat memuat berita"
@@ -149,7 +155,8 @@
     "loading": {
       "terms": "Terjadi kesalahan saat memuat definisi istilah",
       "positions": "Memuat...",
-      "data": "Memuat data..."
+      "data": "Memuat data...",
+      "generating": "Membuat konten, harap tunggu..."
     },
     "chat": {
       "open": "Buka Obrolan",
@@ -179,9 +186,17 @@
       "refreshAllTitle": "Regenerasi semua perspektif ahli",
       "changeExpertTitle": "Ubah perspektif ahli"
     },
+    "taiwanPerspective": {
+      "title": "Perspektif Taiwan",
+      "placeholder": "Analisis perspektif Taiwan belum dibuat",
+      "generateButton": "Buat Perspektif Taiwan",
+      "generating": "Membuat...",
+      "generateError": "Gagal membuat perspektif Taiwan, silakan coba lagi nanti"
+    },
     "related": {
       "news": "Berita Terkait",
-      "topics": "Topik Terkait"
+      "topics": "Topik Terkait",
+      "topicRelation": "Berita ini ada dalam topik ini"
     },
     "sources": {
       "title": "Sumber Data:",
@@ -355,12 +370,11 @@
     },
     "header": {
       "title": "Hasil Pencarian untuk: '{{query}}'",
-      "resultCount": "Menemukan {{count}} berita terkait",
       "keywords": "Kata Kunci Pencarian: "
     },
     "noResults": {
       "title": "😔 Tidak ada berita relevan yang ditemukan",
-      "suggestion": "Coba gunakan kata kunci yang berbeda, atau jelajahi topik populer di bawah ini:"
+      "suggestion": "Coba gunakan kata kunci yang berbeda untuk mencari"
     },
     "moreButton": {
       "text": "Tampilkan lebih banyak hasil pencarian ({{count}} artikel)"

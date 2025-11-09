@@ -21,12 +21,22 @@ function LatestTopics() {
     const { imageMap, topicToStoryMap } = imageData;
     const topicsWithData = [];
 
+    // 多語言欄位映射
+    const languageFieldMap = {
+      'zh-TW': { title: 'topic_title', short: 'topic_short' },
+      'en': { title: 'topic_title_en_lang', short: 'topic_short_en_lang' },
+      'jp': { title: 'topic_title_jp_lang', short: 'topic_short_jp_lang' },
+      'id': { title: 'topic_title_id_lang', short: 'topic_short_id_lang' }
+    };
+
+    const fields = languageFieldMap[currentLanguage] || languageFieldMap['zh-TW'];
+
     for (const topic of rawTopics) {
       const storyIds = newsMap[topic.topic_id];
       
       // 跳過沒有新聞的專題
       if (!storyIds || storyIds.length === 0) {
-        console.log(`專題 ${topic.topic_title} 沒有相關新聞，跳過`);
+        console.log(`專題 ${topic[fields.title] || topic.topic_title} 沒有相關新聞，跳過`);
         continue;
       }
 
@@ -41,6 +51,8 @@ function LatestTopics() {
 
       topicsWithData.push({
         ...topic,
+        topic_title: topic[fields.title] || topic.topic_title,
+        topic_short: topic[fields.short] || topic.topic_short,
         newsCount: storyIds.length,
         branches: topicBranches,
         representativeImage: representativeImage
@@ -52,7 +64,7 @@ function LatestTopics() {
 
     console.log('[LatestTopics] 最終資料:', topicsWithData.length, '個專題');
     return topicsWithData;
-  }, [rawTopics, newsMap, imageData, branches]);
+  }, [rawTopics, newsMap, imageData, branches, currentLanguage]);
 
   // 生成帶語言前綴的路由
   const getLanguageRoute = (path) => {

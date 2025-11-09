@@ -4,53 +4,113 @@ import { useSupabase } from '../components/supabase';
 /**
  * 自定義 Hook: 拉取昨日焦點新聞
  * 使用 React Query 管理快取和狀態
+ * @param {string} country - 國家名稱
+ * @param {string} dateTime - 日期時間字串，格式: "2025-11-07 00-06"
+ * @param {string} currentLanguage - 當前語言
  */
-export function useYesterdayNews(country, yesterdayDate) {
+export function useYesterdayNews(country, dateTime, currentLanguage = 'zh-TW') {
   const supabase = useSupabase();
 
+  // 語言欄位後綴映射
+  const LANGUAGE_SUFFIX_MAP = {
+    'zh-TW': '',           // 中文使用原欄位名稱
+    'en': '_en_lang',      // 英文欄位後綴
+    'jp': '_jp_lang',      // 日文欄位後綴  
+    'id': '_id_lang'       // 印尼文欄位後綴
+  };
+
+  const suffix = LANGUAGE_SUFFIX_MAP[currentLanguage] || '';
+
   return useQuery({
-    // Query Key: 用於快取識別
-    queryKey: ['yesterday-news', country, yesterdayDate],
+    // Query Key: 用於快取識別,加入語言參數和完整的日期時間
+    queryKey: ['yesterday-news', country, dateTime, currentLanguage],
     
     // Query Function: 實際的資料請求
     queryFn: async () => {
-      console.log('[useYesterdayNews] 開始載入:', country, yesterdayDate);
+      console.log('[useYesterdayNews] 開始載入:', {
+        country,
+        dateTime,
+        currentLanguage,
+        語言後綴: suffix
+      });
       
       // 1. 拉取 top_ten_news
+      console.log('[useYesterdayNews] 執行查詢:', {
+        資料表: 'top_ten_news',
+        查詢條件: { country, date: dateTime }
+      });
+      
       const { data: topTenData, error: topTenError } = await supabase
         .from('top_ten_news')
         .select('*')
         .eq('country', country)
-        .eq('date', yesterdayDate);
+        .eq('date', dateTime);
 
-      if (topTenError) throw topTenError;
-      if (!topTenData || topTenData.length === 0) return [];
+      console.log('[useYesterdayNews] 查詢結果:', {
+        成功: !topTenError,
+        錯誤: topTenError,
+        資料筆數: topTenData?.length,
+        原始資料: topTenData
+      });
+
+      if (topTenError) {
+        console.error('[useYesterdayNews] 查詢錯誤:', topTenError);
+        throw topTenError;
+      }
+      if (!topTenData || topTenData.length === 0) {
+        console.warn('[useYesterdayNews] 無資料');
+        return [];
+      }
 
       // 2. 解析 story_ids
       const allStoryIds = [];
       topTenData.forEach(item => {
+        console.log('[useYesterdayNews] 解析項目:', {
+          原始: item.top_ten_news_id,
+          型別: typeof item.top_ten_news_id
+        });
         const parsedJson = typeof item.top_ten_news_id === 'string' 
           ? JSON.parse(item.top_ten_news_id) 
           : item.top_ten_news_id;
+        console.log('[useYesterdayNews] 解析結果:', parsedJson);
         allStoryIds.push(...parsedJson.top_ten_story_ids);
       });
 
-      console.log('[useYesterdayNews] 找到', allStoryIds.length, '個 story_ids');
+      console.log('[useYesterdayNews] 找到', allStoryIds.length, '個 story_ids:', allStoryIds);
 
-      // 3. 批量拉取新聞基本資料 (文字內容)
+      // 3. 批量拉取新聞基本資料 (文字內容) - 支援多語言
+      const titleField = suffix ? `news_title, news_title${suffix}` : 'news_title';
+      const summaryField = suffix ? `ultra_short, ultra_short${suffix}` : 'ultra_short';
+      
+      console.log('[useYesterdayNews] 準備查詢新聞:', {
+        欄位: `story_id, ${titleField}, ${summaryField}`,
+        story_ids: allStoryIds
+      });
+      
       const { data: newsData, error: newsError } = await supabase
         .from('single_news')
-        .select('story_id, news_title, short')
+        .select(`story_id, ${titleField}, ${summaryField}`)
         .in('story_id', allStoryIds);
 
-      if (newsError) throw newsError;
+      console.log('[useYesterdayNews] 新聞查詢結果:', {
+        成功: !newsError,
+        錯誤: newsError,
+        資料筆數: newsData?.length,
+        第一筆: newsData?.[0]
+      });
+
+      if (newsError) {
+        console.error('[useYesterdayNews] 新聞查詢錯誤:', newsError);
+        throw newsError;
+      }
 
       // 4. 先返回文字資料 (不包含圖片和相關來源)
       const basicNews = newsData.map(news => ({
         id: news.story_id,
-        title: news.news_title,
-        summary: news.short,
-        date: yesterdayDate,
+        // 優先使用翻譯欄位,沒有則 fallback 到原欄位
+        title: suffix ? (news[`news_title${suffix}`] || news.news_title) : news.news_title,
+        summary: suffix ? (news[`ultra_short${suffix}`] || news.ultra_short) : news.ultra_short,
+        date: dateTime,
         // 標記為需要載入
         needsImage: true,
         needsSources: true,
@@ -60,8 +120,8 @@ export function useYesterdayNews(country, yesterdayDate) {
       return basicNews;
     },
     
-    // 啟用條件: 只有當 country 和 date 都存在時才執行
-    enabled: !!country && !!yesterdayDate,
+    // 啟用條件: 只有當 country 和 dateTime 都存在時才執行
+    enabled: !!country && !!dateTime,
     
     // 快取設定
     staleTime: 10 * 60 * 1000, // 10分鐘內不重新請求

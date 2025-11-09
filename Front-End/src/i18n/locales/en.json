@@ -3,18 +3,18 @@
     "brand": "AIversity",
   "tagline": "Smart News, Deep Insights",
     "menu": {
-      "home": "Home",
-      "yesterdayFocus": "Yesterday's Focus",
-      "specialReports": "Special Reports",
+      "home": "Latest",
+      "yesterdayFocus": "Focus",
+      "specialReports": "Special",
       "abroad": "Abroad News",
       "politics": "Politics",
       "taiwan": "Taiwan",
       "international": "International",
-      "scienceAndTech": "Science & Technology",
+      "scienceAndTech": "Tech",
       "life": "Lifestyle",
       "sports": "Sports", 
       "entertainment": "Entertainment",
-      "finance": "Business & Finance",
+      "finance": "Finance",
       "health": "Health"
     },
     "countries": {
@@ -39,13 +39,16 @@
     "nobranches": "No topic preview available"
   },
   "yesterdayFocus": {
-    "title": "Yesterday's Focus",
-    "moreNews": "More News from Yesterday",
-    "relatedSources": "Related Sources"
+    "title": "{{country}} Focus",
+    "moreNews": "More News",
+    "relatedSources": "Related Sources",
+    "noContent": "No focus news available",
+    "loadFailed": "Failed to load, please try again later"
   },
   "common": {
     "loading": "Loading...",
     "loadingMore": "Loading more...",
+    "loadMore": "Load more news",
     "error": "Loading failed",
     "retry": "Retry",
     "readMore": "Read more news",
@@ -53,13 +56,17 @@
     "search": "Search",
     "noContent": "No content available",
     "searchError": "Search error occurred",
-    "reporter": "Reporter"
+    "reporter": "Reporter",
+    "editor": "Editor:",
+    "editorName": "AIversity News Editorial"
   },
   "categorySection": {
     "news": "News",
     "title": "Category News",
     "newsTitle": "{{category}} News",
     "loading": "Loading...",
+    "loadMore": "Load More News",
+    "loadingMore": "Loading...",
     "error": {
       "loadFailed": "Failed to load news data",
       "loadError": "Error occurred while loading news"
@@ -148,7 +155,8 @@
     "loading": {
       "terms": "Error loading term definitions",
       "positions": "Loading...",
-      "data": "Loading data..."
+      "data": "Loading data...",
+      "generating": "Generating content, please wait..."
     },
     "chat": {
       "open": "Open Chat",
@@ -175,9 +183,17 @@
       "refreshAllTitle": "Regenerate all expert perspectives",
       "changeExpertTitle": "Change expert perspective"
     },
+    "taiwanPerspective": {
+      "title": "Taiwan Perspective",
+      "placeholder": "Taiwan perspective analysis not yet generated",
+      "generateButton": "Generate Taiwan Perspective",
+      "generating": "Generating...",
+      "generateError": "Failed to generate Taiwan perspective, please try again later"
+    },
     "related": {
       "news": "Related News",
-      "topics": "Related Topics"
+      "topics": "Related Topics",
+      "topicRelation": "This news is in this topic"
     },
     "sources": {
       "title": "Sources:",
@@ -349,12 +365,11 @@
     },
     "header": {
       "title": "Search Results: \"{{query}}\"",
-      "resultCount": "Found {{count}} related articles",
       "keywords": "Search keywords: "
     },
     "noResults": {
       "title": "😔 No related articles found",
-      "suggestion": "Try different keywords or browse the following trending topics:"
+      "suggestion": "Try different keywords to search"
     },
     "moreButton": {
       "text": "Show more results ({{count}} articles)"

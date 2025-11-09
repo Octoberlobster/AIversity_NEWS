@@ -18,6 +18,9 @@ import { SupabaseProvider } from './components/supabase';
 import { CountryProvider } from './components/CountryContext';
 import { QueryProvider } from './providers/QueryProvider';
 import { useCountry } from './components/CountryContext';
+import { AuthProvider } from './login/AuthContext';
+import ProtectedRoute from './login/ProtectedRoute';
+import LoginPage from './login/LoginPage';
 import './i18n'; 
 import './css/App.css';
 
@@ -64,7 +67,7 @@ function HomePage() {
           <h2 className="sectionTitle">
             {t('home.latestNews')}
           </h2>
-          <UnifiedNewsCard instanceId="main_news_list" country={currentCountryDbName} />
+          <UnifiedNewsCard instanceId="main_news_list" country={currentCountryDbName} showLoadMore={true} />
         </div>
       </div>
     </>
@@ -75,49 +78,63 @@ function App() {
   return (
     <QueryProvider>
       <SupabaseProvider>
-        <CountryProvider>
-          <Router>
-          <Routes>
-          {/* 根路由重定向到預設語言 */}
-          <Route path="/" element={<Navigate to="/zh-TW/" replace />} />
-          
-          {/* 管理後台路由 - 獨立介面 */}
-          {/*<Route path="/admin/*" element={<AdminDashboard />} />*/}
-          
-          {/* 多語言路由 */}
-          {["zh-TW", "en", "jp", "id"].map(lang => (
-            <Route key={`redirect-${lang}`} path={`/${lang}`} element={<Navigate to={`/${lang}/`} replace />} />
-          ))}
-          
-          {["zh-TW", "en", "jp", "id"].map(lang => (
-            <Route key={lang} path={`/${lang}`} element={<LanguageLayout />}>
-              <Route index element={<HomePage />} />
-              <Route path="news/:id" element={<NewsDetail />} />
-              <Route path="keyword/:keyword" element={<KeywordNewsPage />} />
-              <Route path="search/:query" element={<SearchResultsPage />} />
-              
-              {/* 國家路由 - 顯示該國所有新聞 */}
-              <Route path="category/Taiwan" element={<CategorySection country="Taiwan" />} />
-              <Route path="category/United States of America" element={<CategorySection country="USA" />} />
-              <Route path="category/Japan" element={<CategorySection country="Japan" />} />
-              <Route path="category/Indonesia" element={<CategorySection country="Indonesia" />} />
-              
-              {/* 國家+類別路由 - 顯示該國特定類別的新聞 */}
-              <Route path="category/Taiwan/:categoryName" element={<CategorySection country="Taiwan" />} />
-              <Route path="category/United States of America/:categoryName" element={<CategorySection country="USA" />} />
-              <Route path="category/Japan/:categoryName" element={<CategorySection country="Japan" />} />
-              <Route path="category/Indonesia/:categoryName" element={<CategorySection country="Indonesia" />} />
-              
-              <Route path="special-reports" element={<SpecialReportPage />} />
-              <Route path="special-report/:id" element={<SpecialReportDetail />} />
-              <Route path="yesterday-focus" element={<YesterdayFocus />} />
-              <Route path="abroad" element={<AbroadNewsPage />} />
-            </Route>
-          ))}
-        </Routes>
-      </Router>
-      </CountryProvider>
-    </SupabaseProvider>
+        <AuthProvider>
+          <CountryProvider>
+            <Router>
+              <Routes>
+                {/* 登入頁面 - 不需要保護 */}
+                <Route path="/login" element={<LoginPage />} />
+                
+                {/* 根路由重定向到預設語言 */}
+                <Route path="/" element={<Navigate to="/zh-TW/" replace />} />
+                
+                {/* 管理後台路由 - 獨立介面 */}
+                {/*<Route path="/admin/*" element={<AdminDashboard />} />*/}
+                
+                {/* 多語言路由 */}
+                {["zh-TW", "en", "jp", "id"].map(lang => (
+                  <Route key={`redirect-${lang}`} path={`/${lang}`} element={<Navigate to={`/${lang}/`} replace />} />
+                ))}
+                
+                {/* 所有內容頁面都需要登入保護 */}
+                {["zh-TW", "en", "jp", "id"].map(lang => (
+                  <Route 
+                    key={lang} 
+                    path={`/${lang}`} 
+                    element={
+                      <ProtectedRoute>
+                        <LanguageLayout />
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route index element={<HomePage />} />
+                    <Route path="news/:id" element={<NewsDetail />} />
+                    <Route path="keyword/:keyword" element={<KeywordNewsPage />} />
+                    <Route path="search/:query" element={<SearchResultsPage />} />
+                    
+                    {/* 國家路由 - 顯示該國所有新聞 */}
+                    <Route path="category/Taiwan" element={<CategorySection country="Taiwan" />} />
+                    <Route path="category/United States of America" element={<CategorySection country="USA" />} />
+                    <Route path="category/Japan" element={<CategorySection country="Japan" />} />
+                    <Route path="category/Indonesia" element={<CategorySection country="Indonesia" />} />
+                    
+                    {/* 國家+類別路由 - 顯示該國特定類別的新聞 */}
+                    <Route path="category/Taiwan/:categoryName" element={<CategorySection country="Taiwan" />} />
+                    <Route path="category/United States of America/:categoryName" element={<CategorySection country="USA" />} />
+                    <Route path="category/Japan/:categoryName" element={<CategorySection country="Japan" />} />
+                    <Route path="category/Indonesia/:categoryName" element={<CategorySection country="Indonesia" />} />
+                    
+                    <Route path="special-reports" element={<SpecialReportPage />} />
+                    <Route path="special-report/:id" element={<SpecialReportDetail />} />
+                    <Route path="yesterday-focus" element={<YesterdayFocus />} />
+                    <Route path="abroad" element={<AbroadNewsPage />} />
+                  </Route>
+                ))}
+              </Routes>
+            </Router>
+          </CountryProvider>
+        </AuthProvider>
+      </SupabaseProvider>
     </QueryProvider>
   );
 }

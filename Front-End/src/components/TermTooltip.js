@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import './../css/TermTooltip.css';
 
-function TermTooltip({ term, definition, example: exampleFromDB, position, onClose }) {
+function TermTooltip({ term, definition, example: exampleFromDB, position, onClose, getLanguageRoute }) {
   const contentRef = useRef(null);
   const { t } = useTranslation();
 
@@ -52,6 +53,22 @@ function TermTooltip({ term, definition, example: exampleFromDB, position, onClo
         <div className="tooltipHeader">
           <h3 className="termTitle" id="term-tooltip-title">{term}</h3>
           <div className="headerButtons">
+            {getLanguageRoute && (
+              <Link
+                to={getLanguageRoute(`/search/${encodeURIComponent(term)}`)}
+                className="searchNewsButton"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="搜尋相關新聞"
+                title="搜尋相關新聞"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
+                  <path d="M3 9h18M9 3v18"></path>
+                </svg>
+                <span>搜尋新聞</span>
+              </Link>
+            )}
             <button 
               type="button" 
               className="googleSearchButton" 

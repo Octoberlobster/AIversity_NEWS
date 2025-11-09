@@ -3,18 +3,18 @@
     "brand": "AIversity",
   "tagline": "スマートニュース、深い洞察",
     "menu": {
-      "home": "ホーム",
-      "yesterdayFocus": "昨日の焦点",
-      "specialReports": "特集記事",
+      "home": "最新",
+      "yesterdayFocus": "焦点",
+      "specialReports": "特集",
       "abroad": "海外ニュース",
       "politics": "政治",
       "taiwan": "台湾",
       "international": "国際",
-      "scienceAndTech": "科学と技術",
+      "scienceAndTech": "テクノロジー",
       "life": "生活",
       "sports": "スポーツ",
       "entertainment": "エンタメ",
-      "finance": "ビジネス・経済",
+      "finance": "経済",
       "health": "健康"
     },
     "countries": {
@@ -39,14 +39,16 @@
     "nobranches": "特集プレビューはありません"
   },
   "yesterdayFocus": {
-    "title": "昨日の焦点",
-    "moreNews": "昨日のその他のニュース",
-    "relatedSources": "関連ソース"
+    "title": "{{country}}フォーカス",
+    "moreNews": "その他のニュース",
+    "relatedSources": "関連ソース",
+    "noContent": "フォーカスニュースがありません",
+    "loadFailed": "読み込みに失敗しました。後でもう一度お試しください"
   },
   "common": {
     "loading": "読み込み中...",
-    "loadingMore": "さらに読み込み中...",
-    "loadMore": "もっと見る",
+    "loadMore": "もっと読み込む",
+    "loadingMore": "読み込み中...",
     "error": "読み込みに失敗しました",
     "retry": "再読み込み",
     "readMore": "続きを読む",
@@ -54,13 +56,17 @@
     "search": "検索",
     "noContent": "コンテンツがありません",
     "searchError": "検索中にエラーが発生しました",
-    "reporter": "記者"
+    "reporter": "記者",
+    "editor": "編集者:",
+    "editorName": "AIversityニュース編集部"
   },
   "categorySection": {
     "news": "ニュース",
     "title": "カテゴリ別ニュース",
     "newsTitle": "{{category}}ニュース",
     "loading": "読み込み中...",
+    "loadMore": "もっと読み込む",
+    "loadingMore": "読み込み中...",
     "error": {
       "loadFailed": "ニュースデータを読み込めません",
       "loadError": "ニュースの読み込み中にエラーが発生しました"
@@ -149,7 +155,8 @@
     "loading": {
       "terms": "用語定義の読み込み中にエラーが発生しました",
       "positions": "読み込み中...",
-      "data": "データを読み込み中..."
+      "data": "データを読み込み中...",
+      "generating": "コンテンツを生成中、お待ちください..."
     },
     "chat": {
       "open": "チャットを開く",
@@ -179,9 +186,17 @@
       "refreshAllTitle": "すべての専門家の視点を再生成",
       "changeExpertTitle": "専門家の視点を変更"
     },
+    "taiwanPerspective": {
+      "title": "台湾の視点",
+      "placeholder": "台湾視点の分析はまだ生成されていません",
+      "generateButton": "台湾の視点を生成",
+      "generating": "生成中...",
+      "generateError": "台湾の視点の生成に失敗しました。後でもう一度お試しください"
+    },
     "related": {
       "news": "関連ニュース",
-      "topics": "関連特集"
+      "topics": "関連特集",
+      "topicRelation": "このニュースは該当特集に含まれています"
     },
     "sources": {
       "title": "情報源：",
@@ -353,12 +368,11 @@
     },
     "header": {
       "title": "検索結果：「{{query}}」",
-      "resultCount": "{{count}}件の関連ニュースが見つかりました",
       "keywords": "検索キーワード: "
     },
     "noResults": {
       "title": "😔 関連ニュースが見つかりませんでした",
-      "suggestion": "別のキーワードを試すか、以下の人気トピックをご覧ください："
+      "suggestion": "別のキーワードで検索してみてください"
     },
     "moreButton": {
       "text": "さらに検索結果を表示（{{count}}件）"

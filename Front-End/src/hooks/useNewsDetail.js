@@ -8,10 +8,11 @@ import { useLanguageFields } from '../utils/useLanguageFields';
  */
 export function useNewsData(storyId) {
   const supabase = useSupabase();
-  const { getMultiLanguageSelect, getFieldName } = useLanguageFields();
+  const { getMultiLanguageSelect, getFieldName, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useQuery({
-    queryKey: ['news-data', storyId],
+    queryKey: ['news-data', storyId, currentLanguage],
     queryFn: async () => {
       console.log('[useNewsData] 載入新聞基本資料:', storyId);
 
@@ -77,10 +78,11 @@ export function useNewsData(storyId) {
  */
 export function useNewsImage(storyId) {
   const supabase = useSupabase();
-  const { getFieldName } = useLanguageFields();
+  const { getFieldName, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useQuery({
-    queryKey: ['news-image', storyId],
+    queryKey: ['news-image', storyId, currentLanguage],
     queryFn: async () => {
       console.log('[useNewsImage] 載入新聞圖片:', storyId);
 
@@ -156,16 +158,23 @@ export function useNewsUrl(storyId) {
  */
 export function useNewsKeywords(storyId) {
   const supabase = useSupabase();
+  const { getFieldName, getMultiLanguageSelect, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useQuery({
-    queryKey: ['news-keywords', storyId],
+    queryKey: ['news-keywords', storyId, currentLanguage],
     queryFn: async () => {
       console.log('[useNewsKeywords] 載入關鍵字:', storyId);
 
+      // 查詢關鍵字,支援多語言
+      const keywordMultiLangFields = ['keyword'];
+      const keywordSelectFields = getMultiLanguageSelect(keywordMultiLangFields);
+
       const { data, error } = await supabase
         .from('keywords_map')
-        .select('keyword')
-        .eq('story_id', storyId);
+        .select(keywordSelectFields)
+        .eq('story_id', storyId)
+        .limit(3);
 
       if (error) {
         console.warn('載入關鍵字失敗:', error);
@@ -174,7 +183,9 @@ export function useNewsKeywords(storyId) {
 
       // 回傳物件陣列格式 [{keyword: 'xxx'}] 以符合組件期望
       const keywords = (data || [])
-        .map(item => ({ keyword: item.keyword }))
+        .map(item => ({ 
+          keyword: item[getFieldName('keyword')] || item.keyword 
+        }))
         .filter(item => item.keyword);
 
       console.log('[useNewsKeywords] 關鍵字載入完成:', keywords.length, '個');
@@ -192,9 +203,11 @@ export function useNewsKeywords(storyId) {
  */
 export function useNewsTerms(storyId) {
   const supabase = useSupabase();
+  const { getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useQuery({
-    queryKey: ['news-terms', storyId],
+    queryKey: ['news-terms', storyId, currentLanguage],
     queryFn: async () => {
       console.log('[useNewsTerms] 載入術語:', storyId);
 
@@ -231,21 +244,27 @@ export function useNewsTerms(storyId) {
 
       // 轉換為物件格式
       const definitions = {};
-      const terms = [];
+      const termsArray = [];
       
       (termData || []).forEach(item => {
         if (item.term && item.definition) {
-          terms.push(item.term);
-          definitions[item.term_id] = {
+          // 加入術語物件 (包含 term, definition, example)
+          termsArray.push({
             term: item.term,
+            definition: item.definition,
+            example: item.example || null
+          });
+          
+          // 同時建立 term 為 key 的映射
+          definitions[item.term] = {
             definition: item.definition,
             example: item.example || null
           };
         }
       });
 
-      console.log('[useNewsTerms] 術語載入完成:', terms.length, '個');
-      return { terms, definitions };
+      console.log('[useNewsTerms] 術語載入完成:', termsArray.length, '個');
+      return { terms: termsArray, definitions };
     },
     enabled: !!supabase && !!storyId,
     staleTime: 30 * 60 * 1000, // 術語定義較少變動
@@ -319,10 +338,11 @@ export function useSourceArticles(storyId, attribution) {
  */
 export function usePositionData(storyId, shouldLoad) {
   const supabase = useSupabase();
-  const { getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  const { getFieldName, getMultiLanguageSelect, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useQuery({
-    queryKey: ['position-data', storyId],
+    queryKey: ['position-data', storyId, currentLanguage],
     queryFn: async () => {
       console.log('[usePositionData] 載入立場資料');
 
@@ -368,10 +388,11 @@ export function usePositionData(storyId, shouldLoad) {
  */
 export function useExpertAnalysis(storyId, shouldLoad) {
   const supabase = useSupabase();
-  const { getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  const { getFieldName, getMultiLanguageSelect, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useQuery({
-    queryKey: ['expert-analysis', storyId],
+    queryKey: ['expert-analysis', storyId, currentLanguage],
     queryFn: async () => {
       console.log('[useExpertAnalysis] 載入專家分析');
 
@@ -411,10 +432,11 @@ export function useExpertAnalysis(storyId, shouldLoad) {
  */
 export function useRelatedNews(storyId) {
   const supabase = useSupabase();
-  const { getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  const { getFieldName, getMultiLanguageSelect, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useQuery({
-    queryKey: ['related-news', storyId],
+    queryKey: ['related-news', storyId, currentLanguage],
     queryFn: async () => {
       console.log('[useRelatedNews] 載入相關新聞');
 
@@ -489,5 +511,115 @@ export function useRelatedNews(storyId) {
     enabled: !!supabase && !!storyId,
     staleTime: 15 * 60 * 1000, // 相關新聞較穩定
     cacheTime: 60 * 60 * 1000,
+  });
+}
+
+/**
+ * 自定義 Hook: 拉取相關專題
+ * 第十階段: 背景載入相關專題 (從 topic_news_map 查詢)
+ */
+export function useRelatedTopics(storyId) {
+  const supabase = useSupabase();
+  const { getFieldName, getMultiLanguageSelect, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
+
+  return useQuery({
+    queryKey: ['related-topics', storyId, currentLanguage],
+    queryFn: async () => {
+      console.log('[useRelatedTopics] 載入相關專題');
+
+      // 從 topic_news_map 查詢當前新聞所屬的專題
+      const { data: topicMapData, error: mapError } = await supabase
+        .from('topic_news_map')
+        .select('topic_id')
+        .eq('story_id', storyId);
+
+      if (mapError) {
+        console.warn('載入專題映射失敗:', mapError);
+        return [];
+      }
+
+      // 如果沒有相關專題
+      if (!topicMapData || topicMapData.length === 0) {
+        console.log('[useRelatedTopics] 沒有相關專題');
+        return [];
+      }
+
+      // 獲取所有專題的 topic_id
+      const topicIds = topicMapData.map(item => item.topic_id);
+
+      // 查詢專題的詳細資料,支援多語言
+      const topicMultiLangFields = ['topic_title'];
+      const topicSelectFields = getMultiLanguageSelect(topicMultiLangFields);
+
+      const { data: topicData, error: topicError } = await supabase
+        .from('topic')
+        .select(`topic_id, ${topicSelectFields}`)
+        .in('topic_id', topicIds);
+
+      if (topicError) {
+        console.warn('載入專題標題失敗:', topicError);
+        return [];
+      }
+
+      // 轉換為組件需要的格式
+      const topics = (topicData || []).map(topicItem => {
+        // 使用多語言標題,如果不存在則使用原標題作為 fallback
+        let title = topicItem[getFieldName('topic_title')] || topicItem.topic_title || '';
+        
+        return {
+          id: topicItem.topic_id,
+          title: title.trim()
+        };
+      }).filter(item => item.title); // 過濾掉沒有標題的項目
+
+      console.log('[useRelatedTopics] 相關專題載入完成:', topics.length, '個');
+      return topics;
+    },
+    enabled: !!supabase && !!storyId,
+    staleTime: 15 * 60 * 1000, // 相關專題較穩定
+    cacheTime: 60 * 60 * 1000,
+  });
+}
+
+/**
+ * 自定義 Hook: 查詢國家觀點分析
+ * 統一從台灣觀點分析新聞，不管新聞所屬國家
+ */
+export function useCountryAnalysis(storyId) {
+  const supabase = useSupabase();
+  const { getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
+
+  return useQuery({
+    queryKey: ['country-analysis', storyId, currentLanguage],
+    queryFn: async () => {
+      console.log('[useCountryAnalysis] 開始查詢台灣觀點:', storyId);
+
+      // 直接查詢 country_pro_analyze 表，固定使用 Taiwan
+      const { data: analysisData, error: analysisError } = await supabase
+        .from('country_pro_analyze')
+        .select('analyze_id, country, analyze, analyze_en_lang, analyze_id_lang, analyze_jp_lang')
+        .eq('story_id', storyId)
+        .eq('country', 'Taiwan');
+
+      if (analysisError) {
+        console.error('[useCountryAnalysis] 查詢分析錯誤:', analysisError);
+        throw new Error(`載入台灣觀點失敗: ${analysisError.message}`);
+      }
+
+      const analysis = analysisData?.[0];
+      
+      if (!analysis) {
+        console.log('[useCountryAnalysis] 沒有找到台灣觀點資料');
+        return { country: 'Taiwan', analysis: null };
+      }
+
+      console.log('[useCountryAnalysis] 台灣觀點載入完成');
+      return { country: 'Taiwan', analysis };
+    },
+    enabled: !!supabase && !!storyId,
+    staleTime: 15 * 60 * 1000, // 15 分鐘
+    cacheTime: 30 * 60 * 1000,
   });
 }

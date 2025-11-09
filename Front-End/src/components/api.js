@@ -107,8 +107,51 @@ export async function changeExpertsTopic(userId, roomId, topicId, language, curr
   return result;
 }
 
+// 提交專家分析反饋（有益/無益）
+export async function submitExpertFeedback(analyzeId, feedbackType) {
+  console.log('submitExpertFeedback 被呼叫，參數:', {
+    analyzeId,
+    feedbackType
+  });
+
+  const requestBody = {
+    analyze_id: analyzeId,
+    feedback_type: feedbackType  // "useful" or "useless"
+  };
+
+  console.log('準備送出的反饋請求 body:', JSON.stringify(requestBody, null, 2));
+
+  const result = await fetchJson('/api/experts/feedback', requestBody);
+  
+  console.log('submitExpertFeedback 收到結果:', result);
+  
+  return result;
+}
+
+// 生成國家觀點分析
+export async function generateCountryAnalysis(storyId, country) {
+  console.log('generateCountryAnalysis 被呼叫，參數:', {
+    storyId,
+    country
+  });
+
+  const requestBody = {
+    story_id: storyId,
+    country: country  // "Taiwan"
+  };
+
+  console.log('準備送出的國家觀點請求 body:', JSON.stringify(requestBody, null, 2));
+
+  const result = await fetchJson('/api/experts/country_analyze', requestBody);
+  
+  console.log('generateCountryAnalysis 收到結果:', result);
+  
+  return result;
+}
+
 /**
  * 從 Supabase 根據 story_ids 獲取新聞資料（輔助函數）
+ * 一次拉取所有語言的資料,切換語言時不需重新調用
  */
 export async function fetchNewsDataFromSupabase(supabaseClient, storyIds) {
   if (!supabaseClient || !storyIds || storyIds.length === 0) {
@@ -129,10 +172,17 @@ export async function fetchNewsDataFromSupabase(supabaseClient, storyIds) {
       'Health & Wellness': '健康'
     };
 
-    // 從 Supabase 查詢新聞資料
+    // 從 Supabase 查詢新聞資料,包含所有語言欄位
     const { data, error } = await supabaseClient
       .from('single_news')
-      .select('*')
+      .select(`
+        story_id, 
+        news_title, news_title_en_lang, news_title_jp_lang, news_title_id_lang,
+        ultra_short, ultra_short_en_lang, ultra_short_jp_lang, ultra_short_id_lang,
+        generated_date, 
+        category, 
+        total_articles
+      `)
       .in('story_id', storyIds);
 
     if (error) {
@@ -145,31 +195,33 @@ export async function fetchNewsDataFromSupabase(supabaseClient, storyIds) {
       return [];
     }
 
-    console.log('從 Supabase 查詢到的原始資料:', data);
-    console.log('第一筆原始資料結構:', data[0]);
+    console.log('從 Supabase 查詢到的原始資料(包含所有語言):', data);
 
-    // 轉換資料格式以符合 UnifiedNewsCard 需求
-    const newsData = data.map((news, index) => {
-      console.log(`轉換第 ${index + 1} 筆新聞:`, news);
-      
-      return {
-        story_id: news.story_id,
-        title: news.news_title || news.title,
-        category: categoryMapping[news.category] || '未分類',
-        author:'Gemini',
-        date: news.generated_date || '未知日期',  // 使用 generated_date
-        shortSummary: news.ultra_short,  // 使用 ultra_short
-        sourceCount: news.total_articles,  // 使用 total_articles
-        views: 0,  // 改為數字
-        keywords: [], // 將在後續步驟中填充
-        terms: [],    // 將在後續步驟中填充
-        relatedNews: [] // 將在後續步驟中填充
-      };
-    });
+    // 轉換資料格式,保留所有語言欄位
+    const newsData = data.map((news) => ({
+      story_id: news.story_id,
+      // 保留所有語言的標題
+      news_title: news.news_title,
+      news_title_en_lang: news.news_title_en_lang,
+      news_title_jp_lang: news.news_title_jp_lang,
+      news_title_id_lang: news.news_title_id_lang,
+      // 保留所有語言的摘要
+      ultra_short: news.ultra_short,
+      ultra_short_en_lang: news.ultra_short_en_lang,
+      ultra_short_jp_lang: news.ultra_short_jp_lang,
+      ultra_short_id_lang: news.ultra_short_id_lang,
+      // 其他欄位
+      category: categoryMapping[news.category] || '未分類',
+      author: 'Gemini',
+      date: news.generated_date || '未知日期',
+      sourceCount: news.total_articles,
+      views: 0,
+      keywords: [],
+      terms: [],
+      relatedNews: []
+    }));
 
-    console.log(`轉換後的新聞資料:`, newsData);
-
-    console.log(`成功獲取 ${newsData.length} 篇搜尋結果新聞`);
+    console.log(`成功獲取 ${newsData.length} 篇搜尋結果新聞(包含所有語言)`);
     return newsData;
 
   } catch (error) {

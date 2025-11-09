@@ -6,7 +6,7 @@ import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { useLanguageFields} from '../utils/useLanguageFields';
-import { changeExperts as changeExpertsAPI } from './api.js';
+import { changeExperts as changeExpertsAPI, generateCountryAnalysis } from './api.js';
 import { 
   useNewsData, 
   useNewsImage, 
@@ -16,7 +16,9 @@ import {
   useSourceArticles,
   usePositionData,
   useExpertAnalysis,
-  useRelatedNews
+  useRelatedNews,
+  useRelatedTopics,
+  useCountryAnalysis
 } from '../hooks/useNewsDetail';
 
 function NewsDetail() {
@@ -38,6 +40,7 @@ function NewsDetail() {
   const [termDefinitions, setTermDefinitions] = useState({});
   const [newsTerms, setNewsTerms] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
+  const [relatedTopics, setRelatedTopics] = useState([]);
   const [positionData, setPositionData] = useState({ positive: [], negative: [] }); // 正反方立場資料
   const [positionLoading, setPositionLoading] = useState(true); // 正反方立場載入狀態
   const [expertAnalysis, setExpertAnalysis] = useState([]); // 專家分析資料
@@ -47,6 +50,9 @@ function NewsDetail() {
   const [chatExperts, setChatExperts] = useState([null]); // 聊天室選擇的專家
   const [generatingExperts, setGeneratingExperts] = useState(new Set()); // 正在生成的專家 ID
   const [batchGenerating, setBatchGenerating] = useState(false); // 批量生成中
+  const [feedbackStatus, setFeedbackStatus] = useState({}); // 記錄每個專家的反饋狀態 {analyze_id: {useful: count, useless: count, userVoted: 'useful'|'useless'|null}}
+  const [countryAnalysis, setCountryAnalysis] = useState(null); // 國家觀點資料
+  const [generatingCountryAnalysis, setGeneratingCountryAnalysis] = useState(false); // 生成國家觀點中
   
   // 正反方立場彈窗相關狀態
   const [showPositionModal, setShowPositionModal] = useState(false);
@@ -83,6 +89,12 @@ function NewsDetail() {
   
   // 🚀 使用 React Query Hook 載入相關新聞 (背景載入)
   const { data: relatedNewsData = [] } = useRelatedNews(id);
+  
+  // 🚀 使用 React Query Hook 載入相關專題 (背景載入)
+  const { data: relatedTopicsData = [] } = useRelatedTopics(id);
+  
+  // 🚀 使用 React Query Hook 載入國家觀點 (背景載入)
+  const { data: countryAnalysisResult } = useCountryAnalysis(id);
   
   // 🚀 從 hook 結果中提取資料 (向後兼容舊的狀態)
   useEffect(() => {
@@ -155,6 +167,28 @@ function NewsDetail() {
       setChatExperts(expertAnalysisData);
       setAnalysisLoading(false);
       
+      // 初始化反饋狀態(只在首次載入或專家列表變化時)
+      setFeedbackStatus(prev => {
+        const newFeedback = {};
+        expertAnalysisData.forEach(expert => {
+          // 如果已經有狀態(用戶已投票),保留原狀態
+          if (prev[expert.analyze_id]) {
+            newFeedback[expert.analyze_id] = prev[expert.analyze_id];
+          } else {
+            // 否則從 localStorage 讀取
+            const localStorageKey = `expert_feedback_${expert.analyze_id}`;
+            const savedVote = localStorage.getItem(localStorageKey);
+            
+            newFeedback[expert.analyze_id] = {
+              useful: expert.useful || 0,
+              useless: expert.useless || 0,
+              userVoted: savedVote || null
+            };
+          }
+        });
+        return newFeedback;
+      });
+      
       // 根據載入模式決定要顯示什麼
       if (showContent === 'loadExpertForBoth') {
         setShowContent('position'); // 保持顯示正反方立場
@@ -172,6 +206,19 @@ function NewsDetail() {
   useEffect(() => {
     setRelatedNews(relatedNewsData);
   }, [relatedNewsData]);
+
+  // 🚀 更新相關專題資料
+  useEffect(() => {
+    setRelatedTopics(relatedTopicsData);
+  }, [relatedTopicsData]);
+
+  // 🚀 更新台灣觀點資料
+  useEffect(() => {
+    if (countryAnalysisResult) {
+      setCountryAnalysis(countryAnalysisResult.analysis);
+      console.log('台灣觀點資料更新:', countryAnalysisResult);
+    }
+  }, [countryAnalysisResult]);
 
   // 生成帶語言前綴的路由
   const getLanguageRoute = (path) => {
@@ -434,6 +481,69 @@ function NewsDetail() {
     }
   };
 
+  // 處理專家分析反饋（只在本地記錄，不接資料庫）
+  const handleExpertFeedback = (analyzeId, feedbackType) => {
+    // 檢查用戶是否已經投過票
+    const localStorageKey = `expert_feedback_${analyzeId}`;
+    const existingVote = localStorage.getItem(localStorageKey);
+    
+    if (existingVote) {
+      console.log(`用戶已經對專家 ${analyzeId} 投過票: ${existingVote}`);
+      return; // 已經投過票，不執行任何操作
+    }
+
+    console.log(`記錄反饋: analyzeId=${analyzeId}, feedbackType=${feedbackType}`);
+    
+    // 更新本地狀態
+    setFeedbackStatus(prev => ({
+      ...prev,
+      [analyzeId]: {
+        ...prev[analyzeId],
+        [feedbackType]: (prev[analyzeId]?.[feedbackType] || 0) + 1,
+        userVoted: feedbackType
+      }
+    }));
+
+    // 保存到 localStorage
+    localStorage.setItem(localStorageKey, feedbackType);
+    
+    console.log('反饋已記錄到本地');
+  };
+
+  // 處理生成台灣觀點
+  const handleGenerateCountryAnalysis = async () => {
+    if (generatingCountryAnalysis) {
+      return;
+    }
+
+    try {
+      console.log('=== 開始生成台灣觀點 ===');
+      setGeneratingCountryAnalysis(true);
+
+      // 固定使用 'Taiwan' 調用 API 生成觀點
+      const result = await generateCountryAnalysis(id, 'Taiwan');
+      
+      console.log('台灣觀點生成成功:', result);
+      
+      // 將 API 返回的扁平結構轉換為資料庫格式
+      const formattedResult = {
+        analyze: { content: result.analyze },
+        analyze_en_lang: { content: result.analyze_en_lang },
+        analyze_id_lang: { content: result.analyze_id_lang },
+        analyze_jp_lang: { content: result.analyze_jp_lang },
+        country: 'Taiwan'
+      };
+      
+      setCountryAnalysis(formattedResult);
+      
+    } catch (error) {
+      console.error('生成台灣觀點失敗:', error);
+    } finally {
+      setGeneratingCountryAnalysis(false);
+      console.log('=== 生成台灣觀點流程結束 ===');
+    }
+  };
+
   // 確保頁面載入時滾動到頂部，語言切換時也要重置
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -442,6 +552,27 @@ function NewsDetail() {
     setAnalysisLoading(true); // 重置專家分析載入狀態
     setShowContent('loading'); // 重置顯示狀態
   }, [id, currentLanguage]); // 當 id 或語言改變時執行
+
+  // 根據當前語言獲取國家觀點內容
+  const getCountryAnalysisContent = () => {
+    if (!countryAnalysis) return null;
+    
+    const languageFieldMap = {
+      'zh-TW': 'analyze',
+      'en': 'analyze_en_lang',
+      'jp': 'analyze_jp_lang',
+      'id': 'analyze_id_lang'
+    };
+    
+    const fieldName = languageFieldMap[currentLanguage] || 'analyze';
+    const content = countryAnalysis[fieldName];
+    
+    // 處理兩種格式：資料庫的 {content: "..."} 和 API 的 "..."
+    if (typeof content === 'object' && content.content) {
+      return content.content;
+    }
+    return content;
+  };
 
   // 名詞解釋 tooltip
   const handleTermClick = (term, e) => {
@@ -647,7 +778,12 @@ function NewsDetail() {
     return (
       <div className="newsDetail">
         <Link to={getLanguageRoute("/")} className="backButton">{t('newsDetail.backToHome')}</Link>
-        <p>找不到該新聞</p>
+        <div className="newsDetail__loadingContainer">
+          <div className="newsDetail__loadingSpinner"></div>
+          <p className="newsDetail__loadingText">
+            {t('newsDetail.loading.generating')}
+          </p>
+        </div>
       </div>
     );
   }
@@ -684,7 +820,16 @@ function NewsDetail() {
                 {newsKeywords && newsKeywords.length > 0 && (
                   <div className="articleKeywords">
                     {newsKeywords.map((kw, index) => (
-                      <span className="keywordChip" key={index}>{kw.keyword}</span>
+                      <Link 
+                        to={getLanguageRoute(`/search/${encodeURIComponent(kw.keyword)}`)} 
+                        className="keywordChip" 
+                        key={index}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        {kw.keyword}
+                      </Link>
                     ))}
                   </div>
                 )}
@@ -793,6 +938,7 @@ function NewsDetail() {
                   {expertAnalysis && expertAnalysis.length > 0 ? (
                     expertAnalysis.map((analysis, index) => {
                       const isGenerating = generatingExperts.has(analysis.analyze_id);
+                      const feedback = feedbackStatus[analysis.analyze_id] || { useful: 0, useless: 0, userVoted: null };
                       
                       return (
                         <div className="analysisItem" key={analysis.analyze_id || index}>
@@ -817,12 +963,75 @@ function NewsDetail() {
                           <div className="analysisText">
                             {analysis.analyze.Analyze}
                           </div>
+                          
+                          {/* 反饋按鈕區域 */}
+                          <div className="analysisFeedback">
+                            <button 
+                              className={`feedbackBtn feedbackBtn--useful ${feedback.userVoted === 'useful' ? 'voted' : ''}`}
+                              onClick={() => handleExpertFeedback(analysis.analyze_id, 'useful')}
+                              disabled={feedback.userVoted !== null}
+                              title={feedback.userVoted === 'useful' ? '已標記為有益' : '標記為有益'}
+                            >
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill={feedback.userVoted === 'useful' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                              </svg>
+                            </button>
+                            <button 
+                              className={`feedbackBtn feedbackBtn--useless ${feedback.userVoted === 'useless' ? 'voted' : ''}`}
+                              onClick={() => handleExpertFeedback(analysis.analyze_id, 'useless')}
+                              disabled={feedback.userVoted !== null}
+                              title={feedback.userVoted === 'useless' ? '已標記為無益' : '標記為無益'}
+                            >
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill={feedback.userVoted === 'useless' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                       );
                     })
                   ) : (
                     <div className="noAnalysisMessage">
                       {t('newsDetail.expertAnalysis.noData')}
+                    </div>
+                  )}
+                </div>
+                
+                {/* 台灣觀點區塊 - 在專家分析內部 */}
+                <div className="countryAnalysisSection countryAnalysisSection--inline">
+                  <h4 className="countryAnalysisTitle">{t('newsDetail.taiwanPerspective.title')}</h4>
+                  
+                  {countryAnalysis ? (
+                    <div className="countryAnalysisContent">
+                      <div className="countryAnalysisText">
+                        {getCountryAnalysisContent()}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="countryAnalysisPlaceholder">
+                      <p className="placeholderText">{t('newsDetail.taiwanPerspective.placeholder')}</p>
+                      <button 
+                        className="generateCountryAnalysisBtn"
+                        onClick={handleGenerateCountryAnalysis}
+                        disabled={generatingCountryAnalysis}
+                      >
+                        {generatingCountryAnalysis ? (
+                          <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rotating">
+                              <path d="M1 4v6h6M23 20v-6h-6" />
+                              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                            </svg>
+                            {t('newsDetail.taiwanPerspective.generating')}
+                          </>
+                        ) : (
+                          <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M12 5v14M5 12h14" />
+                            </svg>
+                            {t('newsDetail.taiwanPerspective.generateButton')}
+                          </>
+                        )}
+                      </button>
                     </div>
                   )}
                 </div>
@@ -859,7 +1068,22 @@ function NewsDetail() {
                     ))}
                   </div>
                 </div>
-              )}  
+              )}
+              {relatedTopics && relatedTopics.length > 0 && (
+                <div className="relatedColumn">
+                  <h5 className="sectionTitle">{t('newsDetail.related.topics')}</h5>
+                  <div className="relatedItems">
+                    {relatedTopics.map(item => (
+                      <div className="relatedItem" key={`topic-${item.id}`}>
+                        <Link to={getLanguageRoute(`/special-report/${item.id}`)}>
+                          {item.title}
+                        </Link>
+                        <div className="relevanceText">{t('newsDetail.related.topicRelation')}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -975,6 +1199,7 @@ function NewsDetail() {
           }
           position={tooltipPosition}
           onClose={() => setTooltipTerm(null)}
+          getLanguageRoute={getLanguageRoute}
         />
       )}
     </div>

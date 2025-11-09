@@ -2,11 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCountry } from './CountryContext';
+import { useAuth } from '../login/AuthContext';
 import './../css/Header.css';
 
 function Header() {
   const { t, i18n } = useTranslation();
   const { selectedCountry, setSelectedCountry } = useCountry();
+  const { user, signOut } = useAuth();
   
   const domains = useMemo(() => [
     { id: '/', label: t('header.menu.home'), path: '/'},
@@ -125,6 +127,16 @@ function Header() {
     // HomePage 會自動根據國家狀態更新新聞內容
   };
 
+  // 處理登出
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('登出失敗:', error);
+    }
+  };
+
   // 當路由改變時，更新語言和 active domain
   useEffect(() => {
     const pathSegments = location.pathname.split('/');
@@ -188,7 +200,7 @@ function Header() {
   }, [location.pathname, domains, countries, selectedLanguage, i18n, setSelectedCountry]);
 
   return (
-    <header className="header">
+    <header className={`header lang-${selectedLanguage}`}>
       <div className="mainBar">
         <div className="brandSection">
           <Link to={`/${selectedLanguage}`} className="brandLink">
@@ -235,26 +247,26 @@ function Header() {
               ))}
             </select>
           </div>
+
+          {/* 登出按鈕 */}
+          {user && (
+            <button 
+              className="logoutButton"
+              onClick={handleSignOut}
+              title="登出"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
       <div className="tagBarWrapper">   
         <div className="domainTagBar">
-          {/* 國家下拉式選單 */}
-          <div className="countrySelectWrapper">
-            <select 
-              className="countrySelect"
-              value={selectedCountry}
-              onChange={handleCountryChange}
-            >
-              {countries.map((country) => (
-                <option key={country.id} value={country.id}>
-                  {country.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {domains.map((domain) => (
             <Link
               key={domain.id}
@@ -285,6 +297,21 @@ function Header() {
                 {category.label}
               </Link>
             ))}
+
+          {/* 國家下拉式選單 */}
+          <div className="countrySelectWrapper">
+            <select 
+              className="countrySelect"
+              value={selectedCountry}
+              onChange={handleCountryChange}
+            >
+              {countries.map((country) => (
+                <option key={country.id} value={country.id}>
+                  {country.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     </header>
