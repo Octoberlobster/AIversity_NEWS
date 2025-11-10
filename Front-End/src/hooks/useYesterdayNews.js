@@ -89,7 +89,7 @@ export function useYesterdayNews(country, dateTime, currentLanguage = 'zh-TW') {
       
       const { data: newsData, error: newsError } = await supabase
         .from('single_news')
-        .select(`story_id, ${titleField}, ${summaryField}`)
+        .select(`story_id, ${titleField}, ${summaryField}, generated_date`)
         .in('story_id', allStoryIds);
 
       console.log('[useYesterdayNews] 新聞查詢結果:', {
@@ -110,7 +110,7 @@ export function useYesterdayNews(country, dateTime, currentLanguage = 'zh-TW') {
         // 優先使用翻譯欄位,沒有則 fallback 到原欄位
         title: suffix ? (news[`news_title${suffix}`] || news.news_title) : news.news_title,
         summary: suffix ? (news[`ultra_short${suffix}`] || news.ultra_short) : news.ultra_short,
-        date: dateTime,
+        date: news.generated_date,
         // 標記為需要載入
         needsImage: true,
         needsSources: true,

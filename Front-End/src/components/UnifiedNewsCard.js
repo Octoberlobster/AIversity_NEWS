@@ -54,7 +54,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
   const newsData = useMemo(() => {
     return basicNewsData.map(news => ({
       ...news,
-      imageUrl: news.imageUrl || imagesData[news.story_id] || "https://placehold.co/300x200/e5e7eb/9ca3af?text=載入中...",
+      imageUrl: news.imageUrl || imagesData[news.story_id] || "https://placehold.co/300x200/e5e7eb/9ca3af?text=…",
       isImageLoading: !news.imageUrl && !imagesData[news.story_id],
     }));
   }, [basicNewsData, imagesData]);
@@ -108,7 +108,7 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
                     objectFit: 'cover'
                   }}
                   onError={(e) => {
-                    e.target.src = "https://placehold.co/300x200/e5e7eb/9ca3af?text=圖片載入失敗";
+                    e.target.src = "https://placehold.co/300x200/e5e7eb/9ca3af?text=…";
                   }}
                 />
               </Link>

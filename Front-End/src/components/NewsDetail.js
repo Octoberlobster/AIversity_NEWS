@@ -946,6 +946,29 @@ function NewsDetail() {
                             <div className="analysisCategory">
                               <span className="categoryTag">{analysis.analyze.Role}</span>
                             </div>
+                            {/* 反饋按鈕區域 - 放在換專家按鈕左邊 */}
+                            <div className="analysisFeedback">
+                              <button 
+                                className={`feedbackBtn feedbackBtn--useful ${feedback.userVoted === 'useful' ? 'voted' : ''}`}
+                                onClick={() => handleExpertFeedback(analysis.analyze_id, 'useful')}
+                                disabled={feedback.userVoted !== null}
+                                title={feedback.userVoted === 'useful' ? '已標記為有益' : '標記為有益'}
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill={feedback.userVoted === 'useful' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                </svg>
+                              </button>
+                              <button 
+                                className={`feedbackBtn feedbackBtn--useless ${feedback.userVoted === 'useless' ? 'voted' : ''}`}
+                                onClick={() => handleExpertFeedback(analysis.analyze_id, 'useless')}
+                                disabled={feedback.userVoted !== null}
+                                title={feedback.userVoted === 'useless' ? '已標記為無益' : '標記為無益'}
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill={feedback.userVoted === 'useless' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                                  <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+                                </svg>
+                              </button>
+                            </div>
                             <button 
                               className="changeExpertBtn"
                               onClick={() => handleChangeExpert(analysis.analyze_id, analysis.category)}
@@ -962,30 +985,6 @@ function NewsDetail() {
                           </div>
                           <div className="analysisText">
                             {analysis.analyze.Analyze}
-                          </div>
-                          
-                          {/* 反饋按鈕區域 */}
-                          <div className="analysisFeedback">
-                            <button 
-                              className={`feedbackBtn feedbackBtn--useful ${feedback.userVoted === 'useful' ? 'voted' : ''}`}
-                              onClick={() => handleExpertFeedback(analysis.analyze_id, 'useful')}
-                              disabled={feedback.userVoted !== null}
-                              title={feedback.userVoted === 'useful' ? '已標記為有益' : '標記為有益'}
-                            >
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill={feedback.userVoted === 'useful' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
-                              </svg>
-                            </button>
-                            <button 
-                              className={`feedbackBtn feedbackBtn--useless ${feedback.userVoted === 'useless' ? 'voted' : ''}`}
-                              onClick={() => handleExpertFeedback(analysis.analyze_id, 'useless')}
-                              disabled={feedback.userVoted !== null}
-                              title={feedback.userVoted === 'useless' ? '已標記為無益' : '標記為無益'}
-                            >
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill={feedback.userVoted === 'useless' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
-                              </svg>
-                            </button>
                           </div>
                         </div>
                       );
@@ -1009,7 +1008,6 @@ function NewsDetail() {
                     </div>
                   ) : (
                     <div className="countryAnalysisPlaceholder">
-                      <p className="placeholderText">{t('newsDetail.taiwanPerspective.placeholder')}</p>
                       <button 
                         className="generateCountryAnalysisBtn"
                         onClick={handleGenerateCountryAnalysis}

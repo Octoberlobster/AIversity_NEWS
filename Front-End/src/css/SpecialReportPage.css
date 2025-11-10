@@ -79,6 +79,19 @@
   position: relative;
 }
 
+.srp-cardTitle-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.srp-cardTitle-link:hover {
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.8);
+  text-underline-offset: 4px;
+}
+
 .srp-cardTitle {
   color: #fff;
   font-size: 1.4rem;

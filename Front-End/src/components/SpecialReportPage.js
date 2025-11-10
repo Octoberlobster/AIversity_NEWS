@@ -64,7 +64,9 @@ function SpecialReportPage() {
           specialReports.map(report => (
             <article key={report.topic_id} className="srp-card">
               <div className="srp-cardHeader">
-                <h3 className="srp-cardTitle">{report.topic_title}</h3>
+                <Link to={getLanguageRoute(`/special-report/${report.topic_id}`)} target="_blank" rel="noopener noreferrer" className="srp-cardTitle-link">
+                  <h3 className="srp-cardTitle">{report.topic_title}</h3>
+                </Link>
               </div>
 
               <div className="srp-cardContent">
@@ -75,7 +77,7 @@ function SpecialReportPage() {
                     <span>📄 {report.articles} {t('specialReportPage.meta.articles')}</span>
                     <span>🕒 {new Date(report.lastUpdate).toLocaleDateString('zh-TW')}</span>
                   </div>
-                  <Link to={getLanguageRoute(`/special-report/${report.topic_id}`)} className="srp-readMore">
+                  <Link to={getLanguageRoute(`/special-report/${report.topic_id}`)} target="_blank" rel="noopener noreferrer" className="srp-readMore">
                     {t('specialReportPage.meta.viewMore')}
                   </Link>
                 </div>

@@ -29,11 +29,9 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
       let storiesQuery = supabase
         .from('stories')
         .select('story_id')
-        .eq('country', dbCountry);
-
-      if (categoryName) {
-        storiesQuery = storiesQuery.eq('category', categoryName);
-      }
+        .eq('country', dbCountry)
+        .eq('category', categoryName)
+        .limit(200);
 
       const { data: storiesData, error: storiesError } = await storiesQuery;
       if (storiesError) throw storiesError;

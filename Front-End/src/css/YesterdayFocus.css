@@ -398,6 +398,14 @@
   color: #2563eb;
 }
 
+.card-date {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
 .card-summary {
   font-size: 1.1rem;
   color: #000000;

@@ -462,6 +462,9 @@ function YesterdayFocus() {
                     {news.title}
                   </h3>
                 </a>
+                <div className="card-date">
+                  {news.date}
+                </div>
                 <a 
                   href={`/${currentLang}/news/${news.id}`}
                   target="_blank"
@@ -473,7 +476,7 @@ function YesterdayFocus() {
                       src={news.image} 
                       alt={news.title}
                       onError={(e) => {
-                        e.target.src = 'https://placehold.co/400x250/e5e7eb/9ca3af?text=圖片載入失敗';
+                        e.target.src = 'https://placehold.co/400x250/e5e7eb/9ca3af?text=…';
                       }}
                     />
                   </div>
