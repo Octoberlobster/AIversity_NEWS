@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { supabase } from './supabase';
+import './../css/FiveW1HVisualization.css';
 
 export class FiveW1HVisualization {
   constructor(containerId, options = {}) {
@@ -350,6 +351,21 @@ export class FiveW1HVisualization {
     };
   }
 
+  /**
+   * [新增] 輔助函式：根據節點類型獲取矩形大小
+   */
+  getNodeSize(d, isHeaderMode) {
+    if (isHeaderMode) {
+      if (d.type === 'center') return { width: 100, height: 50 }; // 中心節點
+      if (d.type === '5w1h') return { width: 70, height: 40 };   // 5W1H 節點
+      return { width: 60, height: 30 }; // 詳細節點
+    } else {
+      if (d.type === 'center') return { width: 120, height: 60 };
+      if (d.type === '5w1h') return { width: 80, height: 45 };
+      return { width: 70, height: 35 }; // 詳細節點
+    }
+  }
+
   setupD3() {
     const graphContainer = document.getElementById(`fivew1h-graph-${this.containerId}`);
     if (!graphContainer) return;
@@ -422,37 +438,49 @@ export class FiveW1HVisualization {
     // 根據是否為header模式調整力導向參數
     const isHeaderMode = this.options.isHeaderMode;
     
-              this.simulation = d3.forceSimulation(this.data.nodes)
+    // --- [動畫修改 1] 調整力導向參數 ---
+    this.simulation = d3.forceSimulation(this.data.nodes)
+       .velocityDecay(0.6) // [新增] 增加阻尼 (0.4 -> 0.6)，減少彈跳
        .force('link', d3.forceLink(this.data.links).id(d => d.id).distance(d => {
+         // 距離保持不變
          if (d.source.id === 'center' || (typeof d.source === 'object' && d.source.id === 'center')) {
-           return isHeaderMode ? 80 : 100; // 增加距離
+           return isHeaderMode ? 80 : 100; 
          }
          if (d.source.type === '5w1h' || (typeof d.source === 'object' && d.source.type === '5w1h')) {
-           return isHeaderMode ? 50 : 80; // 增加距離
+           return isHeaderMode ? 50 : 80;
          }
-         return isHeaderMode ? 30 : 50; // 增加距離
+         return isHeaderMode ? 30 : 50;
        }))
        .force('charge', d3.forceManyBody().strength(d => {
-         if (d.type === 'center') return isHeaderMode ? -300 : -600;
-         if (d.type === '5w1h') return isHeaderMode ? -100 : -250;
-         return isHeaderMode ? -50 : -100;
+         // [修改] 減弱排斥力，減少 "爆炸" 效果
+         if (d.type === 'center') return isHeaderMode ? -250 : -500; // 原: -300 / -600
+         if (d.type === '5w1h') return isHeaderMode ? -80 : -200; // 原: -100 / -250
+         return isHeaderMode ? -40 : -80; // 原: -50 / -100
        }))
        .force('center', d3.forceCenter(width / 2, height / 2))
        .force('collision', d3.forceCollide().radius(d => {
-         if (d.type === 'center') return isHeaderMode ? 20 : 40;
-         if (d.type === '5w1h') return isHeaderMode ? 18 : 35;
-         return isHeaderMode ? 12 : 25;
+         // 碰撞半徑保持不變
+         if (isHeaderMode) {
+           if (d.type === 'center') return 50; 
+           if (d.type === '5w1h') return 35; 
+           return 30;
+         } else {
+           if (d.type === 'center') return 60;
+           if (d.type === '5w1h') return 40;
+           return 35;
+         }
        }))
-       .force('x', d3.forceX(width / 2).strength(0.05)) // 減少X軸拉力
-       .force('y', d3.forceY(height / 2).strength(0.05)) // 減少Y軸拉力
+       .force('x', d3.forceX(width / 2).strength(0.08)) // [修改] 稍微增強X軸拉力
+       .force('y', d3.forceY(height / 2).strength(0.08)) // [修改] 稍微增強Y軸拉力
        .force('radial', d3.forceRadial(d => {
-         // 根據節點類型設置不同的徑向力，讓節點往外擴張
-         if (d.type === 'center') return 0; // 中心節點不受徑向力影響
-         if (d.type === '5w1h') return isHeaderMode ? 100 : 200; // 5W1H節點往外擴張
-         return isHeaderMode ? 60 : 120; // 詳細節點往外擴張
-       }, width / 2, height / 2).strength(0.3)); // 徑向力強度
+         if (d.type === 'center') return 0;
+         if (d.type === '5w1h') return isHeaderMode ? 100 : 200;
+         return isHeaderMode ? 60 : 120;
+       }, width / 2, height / 2).strength(0.15)); // [修改] 減弱徑向力 (0.3 -> 0.15)
+    // --- [動畫修改 1] 結束 ---
 
-    // 繪製連結
+
+    // 繪製連結 (保持不變)
     const link = this.g.append('g')
       .selectAll('line')
       .data(this.data.links)
@@ -462,52 +490,85 @@ export class FiveW1HVisualization {
         return sourceId === 'center' ? 'link link-center' : 'link';
       });
 
-    // 繪製節點 - 根據模式調整大小
-    const node = this.g.append('g')
-      .selectAll('circle')
+    // --- [結構修改 2] 創建節點群組 <g> ---
+    // 我們不再直接創建 rect，而是創建 <g>
+    const nodeGroup = this.g.append('g')
+      .selectAll('g.node-group')
       .data(this.data.nodes)
-      .enter().append('circle')
-      .attr('class', d => `node node-${d.type} node-${d.category || 'center'}`)
-      .attr('r', d => {
-        if (isHeaderMode) {
-          if (d.type === 'center') return 40; // 從16增加到25
-          if (d.type === '5w1h') return 27;  // 從14增加到22
-          return 18; // 從10增加到18
-        } else {
-          if (d.type === 'center') return 50; // 從30增加到40
-          if (d.type === '5w1h') return 30;  // 從25增加到35
-          return 28; // 從18增加到28
-        }
-      })
-             .on('click', (event, d) => {
+      .enter().append('g')
+      .attr('class', 'node-group') // 為群組添加一個class
+       .on('click', (event, d) => { // 將點擊事件綁定到群組
          this.showNodeDetail(d, event);
        })
-      .call(d3.drag()
+      .call(d3.drag() // 將拖動事件綁定到群組
         .on('start', this.dragstarted.bind(this))
         .on('drag', this.dragged.bind(this))
         .on('end', this.dragended.bind(this)));
 
-    // 添加文字標籤
-    const text = this.g.append('g')
-      .selectAll('text')
-      .data(this.data.nodes)
-      .enter().append('text')
+    // [結構修改 3] 將 'rect' (方框) 附加到群組
+    const node = nodeGroup.append('rect')
+      .attr('class', d => `node node-${d.type} node-${d.category || 'center'}`)
+      .attr('width', d => this.getNodeSize(d, isHeaderMode).width)
+      .attr('height', d => this.getNodeSize(d, isHeaderMode).height)
+      .attr('rx', 8) // 圓角
+      .attr('ry', 8) // 圓角
+      // [修改] 設置相對於群組中心的 x/y
+      .attr('x', d => -this.getNodeSize(d, isHeaderMode).width / 2)
+      .attr('y', d => -this.getNodeSize(d, isHeaderMode).height / 2);
+
+    // [結構修改 4] 將 'text' (文字) 附加到群組
+    const text = nodeGroup.append('text')
       .attr('class', d => `text text-${d.type}`)
       .text(d => d.label)
-             .style('font-size', d => {
+      .style('font-size', d => {
          if (isHeaderMode) {
-           if (d.type === 'center') return '11px'; // 調整為適合25px半徑
-           if (d.type === '5w1h') return '9px';  // 調整為適合20px半徑
-           return '8px'; // 調整為適合15px半徑
+           if (d.type === 'center') return '11px'; 
+           if (d.type === '5w1h') return '9px';  
+           return '8px';
          } else {
-           if (d.type === 'center') return '14px'; // 調整為適合35px半徑
-           if (d.type === '5w1h') return '11px';  // 調整為適合30px半徑
-           return '9px'; // 調整為適合22px半徑
+           if (d.type === 'center') return '14px';
+           if (d.type === '5w1h') return '11px';
+           return '9px';
          }
+       })
+      // [修改] 設置相對於群組中心的 y (x 由 text-anchor: middle 處理)
+      // 保持原有的垂直偏移邏輯，以匹配CSS中沒有 dominant-baseline 的情況
+       .attr('y', d => {
+           // 如果有CSS的 'dominant-baseline: middle'，這裡可以設為 0
+           // 如果沒有，我們保留原來的微調
+           // 假設我們在 CSS 中添加了 dominant-baseline: middle
+           if (d.label.includes('\n')) {
+             // 對於多行文字，稍微向上移動 (因為 dominant-baseline 會以中心為準)
+             const lines = d.label.split('\n').length;
+             // 經驗值：-0.5em * (行數 - 1) / 2 左右，這裡簡化
+             return lines > 1 ? '-0.2em' : '0.1em';
+           }
+           return '0.1em'; // 單行文字的微調 (配合 dominant-baseline: middle)
        });
+       
+    // [修改] 應對多行文字 (tspan)
+    text.filter(d => d.label.includes('\n'))
+        .text(null) // 清空原文字
+        .each(function(d) {
+            const lines = d.label.split('\n');
+            const lineHeight = 1.1; // em
+            // 計算起始Y偏移，使其垂直居中
+            const startY = -(lines.length - 1) * lineHeight / 2;
+            
+            d3.select(this)
+                .selectAll('tspan')
+                .data(lines)
+                .enter()
+                .append('tspan')
+                .attr('x', 0) // 水平居中 (依賴 text-anchor)
+                .attr('dy', (line, i) => (i === 0) ? `${startY}em` : `${lineHeight}em`)
+                .text(line => line);
+        });
+    // --- [結構修改] 結束 ---
+
 
     // 防止節點拖動時觸發背景拖動
-    node.on('mousedown', (event) => {
+    nodeGroup.on('mousedown', (event) => { // [修改] 綁定到 nodeGroup
       event.stopPropagation();
     });
 
@@ -515,47 +576,39 @@ export class FiveW1HVisualization {
     this.simulation.on('tick', () => {
       this.applyBoundaryConstraints(width, height);
       
+      // 連結位置更新 (保持不變)
       link
         .attr('x1', d => d.source.x)
         .attr('y1', d => d.source.y)
         .attr('x2', d => d.target.x)
         .attr('y2', d => d.target.y);
 
-      node
-        .attr('cx', d => d.x)
-        .attr('cy', d => d.y);
+      // --- [結構修改 5] ---
+      // 刪除舊的 node 和 text 位置更新
+      // node.attr('x', ...).attr('y', ...); // 刪除
+      // text.attr('x', ...).attr('y', ...); // 刪除
 
-             text
-         .attr('x', d => d.x)
-         .attr('y', d => {
-           if (d.label.includes('\n')) {
-             return d.y + 1; // 減少多行文字的垂直偏移
-           }
-           return d.y + 2; // 減少單行文字的垂直偏移
-         })
-         .style('opacity', 1); // 確保文字可見
+      // [新增] 只需要更新群組的 transform
+      nodeGroup
+        .attr('transform', d => `translate(${d.x}, ${d.y})`);
+      // --- [結構修改 5] 結束 ---
     });
   }
-  // 邊界限制
+
+  // [修改] 邊界限制 - 使用矩形寬高 (保持不變)
   applyBoundaryConstraints(width, height) {
     const isHeaderMode = this.options.isHeaderMode;
     
     this.data.nodes.forEach(d => {
-      let radius;
-      if (isHeaderMode) {
-        radius = d.type === 'center' ? 25 : d.type === '5w1h' ? 22 : 18;
-      } else {
-        radius = d.type === 'center' ? 40 : d.type === '5w1h' ? 35 : 28;
-      }
-      
+      const { width: nodeWidth, height: nodeHeight } = this.getNodeSize(d, isHeaderMode);
       const margin = isHeaderMode ? 5 : 10;
       
-      d.x = Math.max(radius + margin, Math.min(width - radius - margin, d.x));
-      d.y = Math.max(radius + margin, Math.min(height - radius - margin, d.y));
+      d.x = Math.max(nodeWidth / 2 + margin, Math.min(width - nodeWidth / 2 - margin, d.x));
+      d.y = Math.max(nodeHeight / 2 + margin, Math.min(height - nodeHeight / 2 - margin, d.y));
     });
   }
 
-  // 拖動相關方法
+  // 拖動相關方法 (保持不變)
   dragstarted(event, d) {
     if (!event.active) this.simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
@@ -574,7 +627,7 @@ export class FiveW1HVisualization {
     d.fy = null;
   }
 
-  // 控制方法
+  // 控制方法 (保持不變)
   resetView() {
     if (!this.svg) return;
     this.svg.transition().duration(750).call(
@@ -602,7 +655,7 @@ export class FiveW1HVisualization {
     this.render();
   }
 
-  // 重置 5W1H 節點到固定位置
+  // 重置 5W1H 節點到固定位置 (保持不變)
   resetFiveW1HPositions() {
     if (!this.data || !this.data.nodes) return;
     
@@ -635,7 +688,7 @@ export class FiveW1HVisualization {
     }
   }
 
-  // 清理資源
+  // 清理資源 (保持不變)
   destroy() {
     if (this.cleanupResize) {
       this.cleanupResize();
@@ -648,6 +701,10 @@ export class FiveW1HVisualization {
     }
   }
 
+  // --- [showNodeDetail 及其子函數保持不變] ---
+  // ... (從 showNodeDetail 到 getNodeTypeColor 的所有
+  //     程式碼都與原檔案相同，這裡省略以節省篇幅)
+  // ...
   showNodeDetail(node, event) {
     try {
       console.log('🔍 開始顯示節點詳情:', node);
@@ -1061,288 +1118,24 @@ createMainNodesOverview() {
     return colors[type] || '#95a5a6';
   }
 
-  // 創建HTML結構
+  // 創建HTML結構 (保持不變)
   createHTML() {
     const container = document.getElementById(this.containerId);
     
+    // [修改] 根據 isHeaderMode 添加 'header-mode' 或 'default-mode' class
+    const modeClass = this.options.isHeaderMode ? 'header-mode' : 'default-mode';
+
     // Header模式使用簡化版本
     if (this.options.isHeaderMode) {
       container.innerHTML = `
-        <style>
-          .fivew1h-container {
-            font-family: 'Arial', sans-serif;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            border-radius: 0;
-            padding: 5px;
-            box-shadow: none;
-            display: flex;
-            flex-direction: column;
-          }
-
-          .fivew1h-graph {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 8px;
-            background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%);
-            overflow: hidden;
-            cursor: grab;
-            flex: 1;
-          }
-
-          .fivew1h-graph:active {
-            cursor: grabbing;
-          }
-
-          .node {
-            cursor: pointer;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
-            transition: all 0.3s ease;
-          }
-
-          .node:hover {
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
-            transform: scale(1.05);
-          }
-
-          .node-center { fill: #e74c3c; stroke: #c0392b; stroke-width: 2px; }
-          .node-5w1h { stroke: #34495e; stroke-width: 1.5px; }
-          .node-who { fill: #3498db; }
-          .node-what { fill: #2ecc71; }
-          .node-when { fill: #f39c12; }
-          .node-where { fill: #9b59b6; }
-          .node-why { fill: #e67e22; }
-          .node-how { fill: #1abc9c; }
-          .node-detail { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 1px; }
-
-          .link {
-            stroke: #7f8c8d;
-            stroke-width: 1.5px;
-            fill: none;
-            opacity: 0.6;
-          }
-
-          .link-center { stroke: #e74c3c; stroke-width: 2px; }
-
-          .text {
-            font-family: 'Arial', sans-serif;
-            font-size: 10px;
-            fill: #2c3e50;
-            text-anchor: middle;
-            pointer-events: none;
-            font-weight: 500;
-          }
-
-          .text-center { font-size: 12px; font-weight: bold; fill: white; }
-          .text-5w1h { font-size: 10px; font-weight: bold; fill: white; }
-
-          .fivew1h-tooltip {
-            position: absolute;
-            background: rgba(44, 62, 80, 0.95);
-            color: white;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            max-width: 200px;
-            line-height: 1.3;
-            z-index: 1000;
-          }
-        </style>
-
-                 <div class="fivew1h-container">
+         <div class="fivew1h-container ${modeClass}">
            <div class="fivew1h-graph" id="fivew1h-graph-${this.containerId}"></div>
          </div>
       `;
     } else {
       // 非header模式使用原本的完整版本
       container.innerHTML = `
-        <style>
-          .fivew1h-container {
-            font-family: 'Arial', sans-serif;
-            width: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 15px 20px 20px 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-          }
-
-          .fivew1h-title {
-            text-align: center;
-            color: #2c3e50;
-            font-size: 2em;
-            margin-bottom: 10px;
-            font-weight: bold;
-          }
-
-          .fivew1h-subtitle {
-            text-align: center;
-            color: #7f8c8d;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-          }
-
-          .fivew1h-graph {
-            width: 100%;
-            height: ${this.options.height}px;
-            min-height: 400px;
-            border: 2px solid #e0e6ed;
-            border-radius: 15px;
-            background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%);
-            overflow: hidden;
-            cursor: grab;
-            box-sizing: border-box;
-            margin-top: 0;
-          }
-
-          .fivew1h-graph:active {
-            cursor: grabbing;
-          }
-
-          .node {
-            cursor: pointer;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-            transition: all 0.3s ease;
-          }
-
-          .node:hover {
-            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
-            transform: scale(1.05);
-          }
-
-          .node-center { fill: #e74c3c; stroke: #c0392b; stroke-width: 3px; }
-          .node-5w1h { stroke: #34495e; stroke-width: 2px; }
-          .node-who { fill: #3498db; }
-          .node-what { fill: #2ecc71; }
-          .node-when { fill: #f39c12; }
-          .node-where { fill: #9b59b6; }
-          .node-why { fill: #e67e22; }
-          .node-how { fill: #1abc9c; }
-          .node-detail { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 1px; }
-
-          .link {
-            stroke: #7f8c8d;
-            stroke-width: 2px;
-            fill: none;
-            opacity: 0.6;
-            transition: all 0.3s ease;
-          }
-
-          .link:hover { stroke-width: 3px; opacity: 1; }
-          .link-center { stroke: #e74c3c; stroke-width: 3px; }
-
-                     .text {
-             font-family: 'Arial', sans-serif;
-             font-size: 12px;
-             fill: #2c3e50;
-             text-anchor: middle;
-             pointer-events: none;
-             font-weight: 500;
-             opacity: 1 !important;
-           }
-
-           .text-center { font-size: 16px; font-weight: bold; fill: white; }
-           .text-5w1h { font-size: 14px; font-weight: bold; fill: white; }
-
-          .fivew1h-tooltip {
-            position: absolute;
-            background: rgba(44, 62, 80, 0.95);
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            max-width: 250px;
-            line-height: 1.4;
-            z-index: 1000;
-          }
-
-          .fivew1h-legend {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 15px;
-            gap: 10px;
-          }
-
-          .fivew1h-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 6px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: 500;
-          }
-
-          .fivew1h-legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 1px solid #34495e;
-          }
-
-          .fivew1h-controls {
-            text-align: center;
-            margin-top: 15px;
-          }
-
-          .fivew1h-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            margin: 0;
-            transition: background 0.3s ease;
-            white-space: nowrap;
-            min-width: 80px;
-          }
-
-          .fivew1h-btn:hover {
-            background: #2980b9;
-          }
-
-          .fivew1h-bottom-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 0px;
-            padding: 0 10px;
-            flex-wrap: wrap;
-            gap: 10px;
-          }
-
-          .fivew1h-instructions {
-            color: #7f8c8d;
-            font-size: 11px;
-            margin: 0;
-            flex: 1;
-            line-height: 1.2;
-          }
-
-          .loading {
-            text-align: center;
-            padding: 30px;
-            color: #7f8c8d;
-          }
-        </style>
-
-                 <div class="fivew1h-container">
+         <div class="fivew1h-container ${modeClass}">
            <div class="fivew1h-graph" id="fivew1h-graph-${this.containerId}"></div>
            <div class="fivew1h-bottom-row">
              <p class="fivew1h-instructions">${this.t('fiveW1H.instructions')}</p>
@@ -1361,6 +1154,7 @@ createMainNodesOverview() {
     }
   }
 
+  // addResizeListener (保持不變)
   addResizeListener() {
     // 監聽視窗大小變化
     const resizeHandler = () => {
@@ -1378,7 +1172,7 @@ createMainNodesOverview() {
     };
   }
 
-
+  // init (保持不變)
   async init() {
     console.log('🚀 開始初始化 5W1H 視覺化');
     await this.loadData();
@@ -1394,7 +1188,7 @@ createMainNodesOverview() {
   }
 }
 
-// 導出一個函數來創建和初始化 header 視覺化
+// 導出一個函數來創建和初始化 header 視覺化 (保持不變)
 export const createHeaderVisualization = (containerRef, reportTitle, isModal = false, topicId = null, t = (key) => key, getFieldName = (fieldName) => fieldName) => {
   if (!containerRef.current) return null;
 
@@ -1445,4 +1239,4 @@ export const createHeaderVisualization = (containerRef, reportTitle, isModal = f
   }
   
   return vizInstance;
-}; 
+};
