@@ -7,6 +7,7 @@ import TermTooltip from './TermTooltip';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { useLanguageFields} from '../utils/useLanguageFields';
 import { changeExperts as changeExpertsAPI, generateCountryAnalysis } from './api.js';
+import { getSuicideWarningText } from '../config/suicideWarningConfig';
 import { 
   useNewsData, 
   useNewsImage, 
@@ -216,9 +217,19 @@ function NewsDetail() {
   useEffect(() => {
     if (countryAnalysisResult) {
       setCountryAnalysis(countryAnalysisResult.analysis);
-      console.log('台灣觀點資料更新:', countryAnalysisResult);
+      //console.log('台灣觀點資料更新:', countryAnalysisResult);
     }
   }, [countryAnalysisResult]);
+
+  // 計算要顯示的文章內容 (包含防自殺聲明)
+  const articleContent = useMemo(() => {
+    if (!newsData?.long) return '';
+    
+    if (newsData.suicide_flag) {
+      return newsData.long + getSuicideWarningText(currentLanguage);
+    }
+    return newsData.long;
+  }, [newsData?.long, newsData?.suicide_flag, currentLanguage]);
 
   // 生成帶語言前綴的路由
   const getLanguageRoute = (path) => {
@@ -262,8 +273,8 @@ function NewsDetail() {
   // 通用的專家更換函數 - 支援單個或批量更換
   const changeExperts = async (expertsToRegenerate) => {
     try {
-      console.log('=== 開始更換專家流程 ===');
-      console.log('要更換的專家:', expertsToRegenerate);
+      //console.log('=== 開始更換專家流程 ===');
+      //console.log('要更換的專家:', expertsToRegenerate);
       
       // 標記正在生成的專家
       const regenerateIds = expertsToRegenerate.map(e => e.analyze_id);
@@ -272,10 +283,12 @@ function NewsDetail() {
       // 生成或取得 user_id 和 room_id
       const userId = getOrCreateUserId();
       const roomId = createRoomId(userId, id);
+      /*
       console.log('userId:', userId);
       console.log('roomId:', roomId);
       console.log('storyId:', id);
       console.log('language:', mapLanguageCode(currentLanguage));
+      */
 
       // 準備當前專家資料
       const currentExperts = expertAnalysis.map(expert => ({
@@ -283,10 +296,10 @@ function NewsDetail() {
         category: expert.category,
         analyze: expert.analyze
       }));
-      console.log('當前所有專家:', currentExperts);
+      //console.log('當前所有專家:', currentExperts);
 
       // 呼叫 api.js 中的函數
-      console.log('準備呼叫 changeExpertsAPI...');
+      //console.log('準備呼叫 changeExpertsAPI...');
       const result = await changeExpertsAPI(
         userId,
         roomId,
@@ -295,26 +308,27 @@ function NewsDetail() {
         currentExperts,
         expertsToRegenerate
       );
-
+      /*
       console.log('=== 收到 API 回傳結果 ===');
       console.log('result:', result);
       console.log('result.success:', result.success);
       console.log('result.experts:', result.experts);
       console.log('result.replaced_ids:', result.replaced_ids);
+      */
 
       if (result.success && result.experts && result.experts.length > 0) {
-        console.log('✅ API 呼叫成功，開始更新狀態');
+        //console.log('✅ API 呼叫成功，開始更新狀態');
         
         // 建立新專家的映射表 (用 replaced_ids 來對應)
         const newExpertsMap = new Map();
         if (result.replaced_ids && result.replaced_ids.length === result.experts.length) {
           result.replaced_ids.forEach((oldId, index) => {
             newExpertsMap.set(oldId, result.experts[index]);
-            console.log(`映射: ${oldId} → ${result.experts[index].analyze_id}`);
+            //console.log(`映射: ${oldId} → ${result.experts[index].analyze_id}`);
           });
         }
         
-        console.log('新專家映射表:', newExpertsMap);
+        //console.log('新專家映射表:', newExpertsMap);
         
         // 更新專家分析狀態
         setExpertAnalysis(prevExperts => {
@@ -323,7 +337,7 @@ function NewsDetail() {
               ? newExpertsMap.get(expert.analyze_id) 
               : expert
           );
-          console.log('更新後的 expertAnalysis:', updated);
+          //console.log('更新後的 expertAnalysis:', updated);
           return updated;
         });
 
@@ -351,7 +365,7 @@ function NewsDetail() {
         regenerateIds.forEach(id => newSet.delete(id));
         return newSet;
       });
-      console.log('=== 更換專家流程結束 ===');
+      //console.log('=== 更換專家流程結束 ===');
     }
   };
 
@@ -378,7 +392,7 @@ function NewsDetail() {
     }
 
     try {
-      console.log('=== 開始批量更換所有專家 ===');
+      //console.log('=== 開始批量更換所有專家 ===');
       setBatchGenerating(true);
 
       // 標記所有專家為生成中
@@ -398,7 +412,7 @@ function NewsDetail() {
 
       // 🧠 1️⃣ 為每個專家建立單獨的 API 請求
       const fetchSingleExpert = async (expert) => {
-        console.log(`正在更換專家: ${expert.category} (${expert.analyze_id})`);
+        //console.log(`正在更換專家: ${expert.category} (${expert.analyze_id})`);
         
         return changeExpertsAPI(
           userId,
@@ -412,7 +426,7 @@ function NewsDetail() {
           }]
         )
           .then((result) => {
-            console.log(`✅ 專家 ${expert.category} 更換成功:`, result);
+            //console.log(`✅ 專家 ${expert.category} 更換成功:`, result);
             return {
               success: true,
               oldId: expert.analyze_id,
@@ -420,7 +434,7 @@ function NewsDetail() {
             };
           })
           .catch((error) => {
-            console.error(`❌ 專家 ${expert.category} 更換失敗:`, error);
+            //console.error(`❌ 專家 ${expert.category} 更換失敗:`, error);
             return {
               success: false,
               oldId: expert.analyze_id,
@@ -430,11 +444,11 @@ function NewsDetail() {
       };
 
       // 🧠 2️⃣ 平行發送所有請求
-      console.log('平行發送 API 請求...');
+      //console.log('平行發送 API 請求...');
       const allPromises = expertAnalysis.map(fetchSingleExpert);
       const results = await Promise.all(allPromises);
 
-      console.log('所有 API 請求完成:', results);
+      //console.log('所有 API 請求完成:', results);
 
       // 🧠 3️⃣ 處理結果並更新狀態
       const successResults = results.filter(r => r.success);
@@ -445,7 +459,7 @@ function NewsDetail() {
         successResults.forEach(({ oldId, newExpert }) => {
           if (newExpert) {
             newExpertsMap.set(oldId, newExpert);
-            console.log(`映射: ${oldId} → ${newExpert.analyze_id}`);
+            //console.log(`映射: ${oldId} → ${newExpert.analyze_id}`);
           }
         });
 
@@ -456,7 +470,7 @@ function NewsDetail() {
               ? newExpertsMap.get(expert.analyze_id)
               : expert
           );
-          console.log('批量更新後的 expertAnalysis:', updated);
+          //console.log('批量更新後的 expertAnalysis:', updated);
           return updated;
         });
 
@@ -477,7 +491,7 @@ function NewsDetail() {
       // 清除所有生成標記
       setGeneratingExperts(new Set());
       setBatchGenerating(false);
-      console.log('=== 批量更換專家流程結束 ===');
+      //console.log('=== 批量更換專家流程結束 ===');
     }
   };
 
@@ -488,11 +502,11 @@ function NewsDetail() {
     const existingVote = localStorage.getItem(localStorageKey);
     
     if (existingVote) {
-      console.log(`用戶已經對專家 ${analyzeId} 投過票: ${existingVote}`);
+      //console.log(`用戶已經對專家 ${analyzeId} 投過票: ${existingVote}`);
       return; // 已經投過票，不執行任何操作
     }
 
-    console.log(`記錄反饋: analyzeId=${analyzeId}, feedbackType=${feedbackType}`);
+    //console.log(`記錄反饋: analyzeId=${analyzeId}, feedbackType=${feedbackType}`);
     
     // 更新本地狀態
     setFeedbackStatus(prev => ({
@@ -507,7 +521,7 @@ function NewsDetail() {
     // 保存到 localStorage
     localStorage.setItem(localStorageKey, feedbackType);
     
-    console.log('反饋已記錄到本地');
+    //console.log('反饋已記錄到本地');
   };
 
   // 處理生成台灣觀點
@@ -517,13 +531,13 @@ function NewsDetail() {
     }
 
     try {
-      console.log('=== 開始生成台灣觀點 ===');
+      //console.log('=== 開始生成台灣觀點 ===');
       setGeneratingCountryAnalysis(true);
 
       // 固定使用 'Taiwan' 調用 API 生成觀點
       const result = await generateCountryAnalysis(id, 'Taiwan');
       
-      console.log('台灣觀點生成成功:', result);
+      //console.log('台灣觀點生成成功:', result);
       
       // 將 API 返回的扁平結構轉換為資料庫格式
       const formattedResult = {
@@ -537,10 +551,10 @@ function NewsDetail() {
       setCountryAnalysis(formattedResult);
       
     } catch (error) {
-      console.error('生成台灣觀點失敗:', error);
+      //console.error('生成台灣觀點失敗:', error);
     } finally {
       setGeneratingCountryAnalysis(false);
-      console.log('=== 生成台灣觀點流程結束 ===');
+      //console.log('=== 生成台灣觀點流程結束 ===');
     }
   };
 
@@ -623,6 +637,10 @@ function NewsDetail() {
     return paragraphs.map((para, pi) => {
       const lines = para.split(/\r?\n/);
       
+      // 判斷是否為防自殺聲明的最後一段 (最後一個段落)
+      const isLastParagraph = pi === paragraphs.length - 1;
+      const isSuicideWarningLastPara = isLastParagraph && newsData?.suicide_flag;
+      
       // 獲取該段落的來源資訊 (part1, part2, ...)
       const partKey = `part${pi + 1}`;
       const articleIds = attribution?.[partKey] || [];
@@ -633,7 +651,13 @@ function NewsDetail() {
         .filter(article => article && article.url && article.url !== '#');
       
       return (
-        <p key={`p-${pi}`}>
+        <p 
+          key={`p-${pi}`}
+          style={isSuicideWarningLastPara ? { 
+            color: '#dc2626',
+            fontWeight: '600',
+          } : {}}
+        >
           {lines.map((line, li) => (
             <React.Fragment key={`l-${pi}-${li}`}>
               {highlightTermsInLine(line)}
@@ -844,7 +868,7 @@ function NewsDetail() {
                 </div>
               ))}
               <div className="articleText" style={{ userSelect: 'text' }}>
-                {renderArticleText(newsData.long)}
+                {renderArticleText(articleContent)}
               </div>
             </div>
           </div>
@@ -1113,10 +1137,10 @@ function NewsDetail() {
             media: t('newsDetail.sources.unknownMedia'),
             date: null
           }));
-          console.log('後備 sources:', sources);
+          //console.log('後備 sources:', sources);
         }
         
-        console.log('最終 sources:', sources, '總數:', sources.length);
+        //console.log('最終 sources:', sources, '總數:', sources.length);
 
         // 去重，避免重複網址
         const uniq = sources.filter((source, index, self) => 

@@ -14,14 +14,12 @@ export function useNewsData(storyId) {
   return useQuery({
     queryKey: ['news-data', storyId, currentLanguage],
     queryFn: async () => {
-      console.log('[useNewsData] 載入新聞基本資料:', storyId);
-
       const multiLangFields = ['news_title', 'ultra_short', 'long'];
       const selectFields = getMultiLanguageSelect(multiLangFields);
 
       const { data, error } = await supabase
         .from('single_news')
-        .select(`${selectFields}, generated_date, category, story_id, who_talk, position_flag, attribution`)
+        .select(`${selectFields}, generated_date, category, story_id, who_talk, position_flag, attribution, suicide_flag`)
         .eq('story_id', storyId);
 
       if (error) {
@@ -34,16 +32,19 @@ export function useNewsData(storyId) {
       }
 
       // 使用多語言欄位
+      const longContent = row[getFieldName('long')] || row.long;
+      
       const newsData = {
         title: row[getFieldName('news_title')] || row.news_title,
         date: row.generated_date,
         author: 'Gemini',
         short: row[getFieldName('ultra_short')] || row.short,
-        long: row[getFieldName('long')] || row.long,
+        long: longContent,
         category: row.category,
         story_id: row.story_id,
         who_talk: row.who_talk,
-        position_flag: row.position_flag
+        position_flag: row.position_flag,
+        suicide_flag: row.suicide_flag || false
       };
 
       // 解析 attribution 資料
@@ -53,14 +54,11 @@ export function useNewsData(storyId) {
           attributionData = typeof row.attribution === 'string' 
             ? JSON.parse(row.attribution) 
             : row.attribution;
-          const partCount = Object.keys(attributionData).length;
-          console.log('[useNewsData] 歸因資料:', partCount, '個段落');
         } catch (e) {
           console.error('解析歸因資料失敗:', e);
         }
       }
 
-      console.log('[useNewsData] 新聞資料載入完成');
       return {
         newsData,
         attribution: attributionData
@@ -84,7 +82,7 @@ export function useNewsImage(storyId) {
   return useQuery({
     queryKey: ['news-image', storyId, currentLanguage],
     queryFn: async () => {
-      console.log('[useNewsImage] 載入新聞圖片:', storyId);
+      //console.log('[useNewsImage] 載入新聞圖片:', storyId);
 
       const { data, error } = await supabase
         .from('generated_image')
@@ -92,12 +90,12 @@ export function useNewsImage(storyId) {
         .eq('story_id', storyId);
 
       if (error) {
-        console.warn('載入圖片失敗:', error);
+        //console.warn('載入圖片失敗:', error);
         return [];
       }
 
       if (!data || data.length === 0) {
-        console.log('[useNewsImage] 沒有圖片');
+        //console.log('[useNewsImage] 沒有圖片');
         return [];
       }
 
@@ -111,7 +109,7 @@ export function useNewsImage(storyId) {
         };
       });
 
-      console.log('[useNewsImage] 圖片載入完成:', processed.length, '張');
+      //console.log('[useNewsImage] 圖片載入完成:', processed.length, '張');
       return processed;
     },
     enabled: !!supabase && !!storyId,
@@ -164,7 +162,7 @@ export function useNewsKeywords(storyId) {
   return useQuery({
     queryKey: ['news-keywords', storyId, currentLanguage],
     queryFn: async () => {
-      console.log('[useNewsKeywords] 載入關鍵字:', storyId);
+      //console.log('[useNewsKeywords] 載入關鍵字:', storyId);
 
       // 查詢關鍵字,支援多語言
       const keywordMultiLangFields = ['keyword'];
@@ -188,7 +186,7 @@ export function useNewsKeywords(storyId) {
         }))
         .filter(item => item.keyword);
 
-      console.log('[useNewsKeywords] 關鍵字載入完成:', keywords.length, '個');
+     //console.log('[useNewsKeywords] 關鍵字載入完成:', keywords.length, '個');
       return keywords;
     },
     enabled: !!supabase && !!storyId,
@@ -209,7 +207,7 @@ export function useNewsTerms(storyId) {
   return useQuery({
     queryKey: ['news-terms', storyId, currentLanguage],
     queryFn: async () => {
-      console.log('[useNewsTerms] 載入術語:', storyId);
+      //console.log('[useNewsTerms] 載入術語:', storyId);
 
       // 步驟 1: 獲取術語映射
       const { data: termMapData, error: mapError } = await supabase
@@ -227,7 +225,7 @@ export function useNewsTerms(storyId) {
         .filter(Boolean);
 
       if (termIds.length === 0) {
-        console.log('[useNewsTerms] 沒有術語');
+        //console.log('[useNewsTerms] 沒有術語');
         return { terms: [], definitions: {} };
       }
 
@@ -263,7 +261,7 @@ export function useNewsTerms(storyId) {
         }
       });
 
-      console.log('[useNewsTerms] 術語載入完成:', termsArray.length, '個');
+      //console.log('[useNewsTerms] 術語載入完成:', termsArray.length, '個');
       return { terms: termsArray, definitions };
     },
     enabled: !!supabase && !!storyId,
@@ -282,7 +280,7 @@ export function useSourceArticles(storyId, attribution) {
   return useQuery({
     queryKey: ['source-articles', storyId],
     queryFn: async () => {
-      console.log('[useSourceArticles] 載入來源文章');
+      //console.log('[useSourceArticles] 載入來源文章');
 
       // 收集所有的 article_id
       const allArticleIds = new Set();
@@ -293,12 +291,12 @@ export function useSourceArticles(storyId, attribution) {
       });
 
       if (allArticleIds.size === 0) {
-        console.log('[useSourceArticles] 沒有來源文章');
+        //console.log('[useSourceArticles] 沒有來源文章');
         return {};
       }
 
       const articleIdsArray = Array.from(allArticleIds);
-      console.log('[useSourceArticles] 載入', articleIdsArray.length, '篇來源文章');
+      //console.log('[useSourceArticles] 載入', articleIdsArray.length, '篇來源文章');
 
       // 從 cleaned_news 表獲取來源文章資訊
       const { data, error } = await supabase
@@ -307,7 +305,7 @@ export function useSourceArticles(storyId, attribution) {
         .in('article_id', articleIdsArray);
 
       if (error) {
-        console.warn('載入來源文章失敗:', error);
+        //console.warn('載入來源文章失敗:', error);
         return {};
       }
 
@@ -323,7 +321,7 @@ export function useSourceArticles(storyId, attribution) {
         });
       }
 
-      console.log('[useSourceArticles] 來源文章載入完成:', Object.keys(articlesMap).length, '篇');
+      //console.log('[useSourceArticles] 來源文章載入完成:', Object.keys(articlesMap).length, '篇');
       return articlesMap;
     },
     enabled: !!supabase && !!storyId && !!attribution && Object.keys(attribution || {}).length > 0,
@@ -344,7 +342,7 @@ export function usePositionData(storyId, shouldLoad) {
   return useQuery({
     queryKey: ['position-data', storyId, currentLanguage],
     queryFn: async () => {
-      console.log('[usePositionData] 載入立場資料');
+      //console.log('[usePositionData] 載入立場資料');
 
       // 查詢正反方立場,支援多語言
       const positionMultiLangFields = ['positive', 'negative'];
@@ -366,14 +364,14 @@ export function usePositionData(storyId, shouldLoad) {
         const positive = positionRow[getFieldName('positive')] || positionRow.positive;
         const negative = positionRow[getFieldName('negative')] || positionRow.negative;
 
-        console.log('[usePositionData] 立場資料載入完成');
+        //console.log('[usePositionData] 立場資料載入完成');
         return {
           positive: positive || [],
           negative: negative || []
         };
       }
 
-      console.log('[usePositionData] 沒有立場資料');
+      //console.log('[usePositionData] 沒有立場資料');
       return { positive: [], negative: [] };
     },
     enabled: !!supabase && !!storyId && shouldLoad,
@@ -394,7 +392,7 @@ export function useExpertAnalysis(storyId, shouldLoad) {
   return useQuery({
     queryKey: ['expert-analysis', storyId, currentLanguage],
     queryFn: async () => {
-      console.log('[useExpertAnalysis] 載入專家分析');
+      //console.log('[useExpertAnalysis] 載入專家分析');
 
       // 查詢專家分析,支援多語言
       const analyzeMultiLangFields = ['analyze'];
@@ -417,7 +415,7 @@ export function useExpertAnalysis(storyId, shouldLoad) {
         analyze: item[getFieldName('analyze')] || item.analyze
       }));
 
-      console.log('[useExpertAnalysis] 專家分析載入完成:', analysisData.length, '個');
+      //console.log('[useExpertAnalysis] 專家分析載入完成:', analysisData.length, '個');
       return analysisData;
     },
     enabled: !!supabase && !!storyId && shouldLoad,
@@ -438,7 +436,7 @@ export function useRelatedNews(storyId) {
   return useQuery({
     queryKey: ['related-news', storyId, currentLanguage],
     queryFn: async () => {
-      console.log('[useRelatedNews] 載入相關新聞');
+      //console.log('[useRelatedNews] 載入相關新聞');
 
       // 準備 reason 的多語言欄位查詢
       const reasonMultiLangFields = ['reason'];
@@ -461,7 +459,7 @@ export function useRelatedNews(storyId) {
 
       // 如果沒有相關新聞
       if (!relatedData || relatedData.length === 0) {
-        console.log('[useRelatedNews] 沒有相關新聞');
+        //console.log('[useRelatedNews] 沒有相關新聞');
         return [];
       }
 
@@ -505,7 +503,7 @@ export function useRelatedNews(storyId) {
         };
       }).filter(item => item.title && !item.title.startsWith('新聞 ID:')); // 過濾掉沒有標題的項目
 
-      console.log('[useRelatedNews] 相關新聞載入完成:', related.length, '篇');
+      //console.log('[useRelatedNews] 相關新聞載入完成:', related.length, '篇');
       return related;
     },
     enabled: !!supabase && !!storyId,
@@ -526,7 +524,7 @@ export function useRelatedTopics(storyId) {
   return useQuery({
     queryKey: ['related-topics', storyId, currentLanguage],
     queryFn: async () => {
-      console.log('[useRelatedTopics] 載入相關專題');
+      //console.log('[useRelatedTopics] 載入相關專題');
 
       // 從 topic_news_map 查詢當前新聞所屬的專題
       const { data: topicMapData, error: mapError } = await supabase
@@ -541,7 +539,7 @@ export function useRelatedTopics(storyId) {
 
       // 如果沒有相關專題
       if (!topicMapData || topicMapData.length === 0) {
-        console.log('[useRelatedTopics] 沒有相關專題');
+        //console.log('[useRelatedTopics] 沒有相關專題');
         return [];
       }
 
@@ -573,7 +571,7 @@ export function useRelatedTopics(storyId) {
         };
       }).filter(item => item.title); // 過濾掉沒有標題的項目
 
-      console.log('[useRelatedTopics] 相關專題載入完成:', topics.length, '個');
+      //console.log('[useRelatedTopics] 相關專題載入完成:', topics.length, '個');
       return topics;
     },
     enabled: !!supabase && !!storyId,
@@ -594,7 +592,7 @@ export function useCountryAnalysis(storyId) {
   return useQuery({
     queryKey: ['country-analysis', storyId, currentLanguage],
     queryFn: async () => {
-      console.log('[useCountryAnalysis] 開始查詢台灣觀點:', storyId);
+      //console.log('[useCountryAnalysis] 開始查詢台灣觀點:', storyId);
 
       // 直接查詢 country_pro_analyze 表，固定使用 Taiwan
       const { data: analysisData, error: analysisError } = await supabase
@@ -611,11 +609,11 @@ export function useCountryAnalysis(storyId) {
       const analysis = analysisData?.[0];
       
       if (!analysis) {
-        console.log('[useCountryAnalysis] 沒有找到台灣觀點資料');
+        //console.log('[useCountryAnalysis] 沒有找到台灣觀點資料');
         return { country: 'Taiwan', analysis: null };
       }
 
-      console.log('[useCountryAnalysis] 台灣觀點載入完成');
+      //console.log('[useCountryAnalysis] 台灣觀點載入完成');
       return { country: 'Taiwan', analysis };
     },
     enabled: !!supabase && !!storyId,

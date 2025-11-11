@@ -43,7 +43,29 @@
     "moreNews": "その他のニュース",
     "relatedSources": "関連ソース",
     "noContent": "フォーカスニュースがありません",
-    "loadFailed": "読み込みに失敗しました。後でもう一度お試しください"
+    "loadFailed": "読み込みに失敗しました。後でもう一度お試しください",
+    "dateButtons": {
+      "sevenDaysAgo": "-7日",
+      "threeDaysAgo": "-3日",
+      "yesterday": "昨日",
+      "latest": "最新"
+    },
+    "dateButtonTitles": {
+      "sevenDaysAgo": "7日前",
+      "threeDaysAgo": "3日前",
+      "yesterday": "昨日",
+      "latest": "最新"
+    },
+    "timeLabels": {
+      "midnightLabel": "深夜ニュース",
+      "midnightPeriod": "18:00-24:00",
+      "morningLabel": "朝のニュース",
+      "morningPeriod": "00:00-06:00",
+      "noonLabel": "昼のニュース",
+      "noonPeriod": "06:00-12:00",
+      "eveningLabel": "夕方ニュース",
+      "eveningPeriod": "12:00-18:00"
+    }
   },
   "common": {
     "loading": "読み込み中...",

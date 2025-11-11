@@ -166,36 +166,20 @@ function YesterdayFocus() {
     setSelectedTime(time);
   };
 
-  // 根據時間和國家生成人性化的時間標籤
+  // 根據時間生成人性化的時間標籤 (使用 i18n)
   const getTimeLabel = (time) => {
-    const timeLabels = {
-      'taiwan': {
-        '00:00': { label: '深夜新聞', period: '晚間18:00-24:00' },
-        '06:00': { label: '晨間新聞', period: '凌晨00:00-06:00' },
-        '12:00': { label: '午間新聞', period: '早上06:00-12:00' },
-        '18:00': { label: '晚間新聞', period: '中午12:00-18:00' }
-      },
-      'usa': {
-        '00:00': { label: 'Late Night', period: '18:00-24:00' },
-        '06:00': { label: 'Morning News', period: '00:00-06:00' },
-        '12:00': { label: 'Noon News', period: '06:00-12:00' },
-        '18:00': { label: 'Evening News', period: '12:00-18:00' }
-      },
-      'japan': {
-        '00:00': { label: '深夜ニュース', period: '18:00-24:00' },
-        '06:00': { label: '朝のニュース', period: '00:00-06:00' },
-        '12:00': { label: '昼のニュース', period: '06:00-12:00' },
-        '18:00': { label: '夕方ニュース', period: '12:00-18:00' }
-      },
-      'indonesia': {
-        '00:00': { label: 'Berita Malam', period: '18:00-24:00' },
-        '06:00': { label: 'Berita Pagi', period: '00:00-06:00' },
-        '12:00': { label: 'Berita Siang', period: '06:00-12:00' },
-        '18:00': { label: 'Berita Sore', period: '12:00-18:00' }
-      }
+    const timeKeyMap = {
+      '00:00': { labelKey: 'yesterdayFocus.timeLabels.midnightLabel', periodKey: 'yesterdayFocus.timeLabels.midnightPeriod' },
+      '06:00': { labelKey: 'yesterdayFocus.timeLabels.morningLabel', periodKey: 'yesterdayFocus.timeLabels.morningPeriod' },
+      '12:00': { labelKey: 'yesterdayFocus.timeLabels.noonLabel', periodKey: 'yesterdayFocus.timeLabels.noonPeriod' },
+      '18:00': { labelKey: 'yesterdayFocus.timeLabels.eveningLabel', periodKey: 'yesterdayFocus.timeLabels.eveningPeriod' }
     };
 
-    return timeLabels[selectedCountry]?.[time] || timeLabels['taiwan'][time];
+    const keys = timeKeyMap[time] || timeKeyMap['00:00'];
+    return {
+      label: t(keys.labelKey),
+      period: t(keys.periodKey)
+    };
   };
 
   // 快速日期選擇函數
@@ -259,19 +243,19 @@ function YesterdayFocus() {
         <div className="focus-wrapper">
           <div className="focus-header">
             <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
-            <div className="date-selector">
-              <div className="date-controls">
-                <button onClick={() => selectDateOffset(-7)} className="date-btn">-7天</button>
-                <button onClick={() => selectDateOffset(-3)} className="date-btn">-3天</button>
-                <button onClick={() => selectDateOffset(-1)} className="date-btn">昨天</button>
-                <input 
-                  type="date" 
-                  value={selectedDate}
-                  onChange={handleDateChange}
-                  className="date-input"
-                  max={getTodayDate()}
-                />
-                <button onClick={selectLatestDate} className="date-btn date-btn-primary">最新</button>
+          <div className="date-selector">
+            <div className="date-controls">
+              <button onClick={() => selectDateOffset(-7)} className="date-btn">{t('yesterdayFocus.dateButtons.sevenDaysAgo')}</button>
+              <button onClick={() => selectDateOffset(-3)} className="date-btn">{t('yesterdayFocus.dateButtons.threeDaysAgo')}</button>
+              <button onClick={() => selectDateOffset(-1)} className="date-btn">{t('yesterdayFocus.dateButtons.yesterday')}</button>
+              <input 
+                type="date" 
+                value={selectedDate}
+                onChange={handleDateChange}
+                className="date-input"
+                max={getTodayDate()}
+              />
+              <button onClick={selectLatestDate} className="date-btn date-btn-primary">{t('yesterdayFocus.dateButtons.latest')}</button>
               </div>
               <div className="time-controls">
                 {['00:00', '06:00', '12:00', '18:00'].map(time => {
@@ -305,9 +289,9 @@ function YesterdayFocus() {
             <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
             <div className="date-selector">
               <div className="date-controls">
-                <button onClick={() => selectDateOffset(-7)} className="date-btn">-7天</button>
-                <button onClick={() => selectDateOffset(-3)} className="date-btn">-3天</button>
-                <button onClick={() => selectDateOffset(-1)} className="date-btn">昨天</button>
+                <button onClick={() => selectDateOffset(-7)} className="date-btn">{t('yesterdayFocus.dateButtons.sevenDaysAgo')}</button>
+                <button onClick={() => selectDateOffset(-3)} className="date-btn">{t('yesterdayFocus.dateButtons.threeDaysAgo')}</button>
+                <button onClick={() => selectDateOffset(-1)} className="date-btn">{t('yesterdayFocus.dateButtons.yesterday')}</button>
                 <input 
                   type="date" 
                   value={selectedDate}
@@ -315,7 +299,7 @@ function YesterdayFocus() {
                   className="date-input"
                   max={getTodayDate()}
                 />
-                <button onClick={selectLatestDate} className="date-btn date-btn-primary">最新</button>
+                <button onClick={selectLatestDate} className="date-btn date-btn-primary">{t('yesterdayFocus.dateButtons.latest')}</button>
               </div>
               <div className="time-controls">
                 {['00:00', '06:00', '12:00', '18:00'].map(time => {
@@ -349,9 +333,9 @@ function YesterdayFocus() {
             <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
             <div className="date-selector">
               <div className="date-controls">
-                <button onClick={() => selectDateOffset(-7)} className="date-btn">-7天</button>
-                <button onClick={() => selectDateOffset(-3)} className="date-btn">-3天</button>
-                <button onClick={() => selectDateOffset(-1)} className="date-btn">昨天</button>
+                <button onClick={() => selectDateOffset(-7)} className="date-btn">{t('yesterdayFocus.dateButtons.sevenDaysAgo')}</button>
+                <button onClick={() => selectDateOffset(-3)} className="date-btn">{t('yesterdayFocus.dateButtons.threeDaysAgo')}</button>
+                <button onClick={() => selectDateOffset(-1)} className="date-btn">{t('yesterdayFocus.dateButtons.yesterday')}</button>
                 <input 
                   type="date" 
                   value={selectedDate}
@@ -359,7 +343,7 @@ function YesterdayFocus() {
                   className="date-input"
                   max={getTodayDate()}
                 />
-                <button onClick={selectLatestDate} className="date-btn date-btn-primary">最新</button>
+                <button onClick={selectLatestDate} className="date-btn date-btn-primary">{t('yesterdayFocus.dateButtons.latest')}</button>
               </div>
               <div className="time-controls">
                 {['00:00', '06:00', '12:00', '18:00'].map(time => {
@@ -396,23 +380,23 @@ function YesterdayFocus() {
               <button 
                 onClick={() => selectDateOffset(-7)}
                 className="date-btn"
-                title="7天前"
+                title={t('yesterdayFocus.dateButtonTitles.sevenDaysAgo')}
               >
-                -7天
+                {t('yesterdayFocus.dateButtons.sevenDaysAgo')}
               </button>
               <button 
                 onClick={() => selectDateOffset(-3)}
                 className="date-btn"
-                title="3天前"
+                title={t('yesterdayFocus.dateButtonTitles.threeDaysAgo')}
               >
-                -3天
+                {t('yesterdayFocus.dateButtons.threeDaysAgo')}
               </button>
               <button 
                 onClick={() => selectDateOffset(-1)}
                 className="date-btn"
-                title="昨天"
+                title={t('yesterdayFocus.dateButtonTitles.yesterday')}
               >
-                昨天
+                {t('yesterdayFocus.dateButtons.yesterday')}
               </button>
               <input 
                 type="date" 
@@ -424,9 +408,9 @@ function YesterdayFocus() {
               <button 
                 onClick={selectLatestDate}
                 className="date-btn date-btn-primary"
-                title="最新"
+                title={t('yesterdayFocus.dateButtonTitles.latest')}
               >
-                最新
+                {t('yesterdayFocus.dateButtons.latest')}
               </button>
             </div>
             <div className="time-controls">
