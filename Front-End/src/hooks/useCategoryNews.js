@@ -81,24 +81,72 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
 /**
  * 自定義 Hook: 批量拉取新聞圖片
  * 🚀 即時更新模式: 每批載入完立即顯示,不等所有圖片載完
+ * 使用全域快取避免重複載入
  */
+
+// 全域快取,在元件外部
+const globalImageCache = {};
+// 全域物件快取,保持物件參考穩定
+let cachedImagesObject = {};
+
 export function useBatchNewsImages(storyIds) {
   const supabase = useSupabase();
   const queryClient = useQueryClient();
 
-  return useQuery({
-    queryKey: ['batch-news-images', storyIds],
-    queryFn: async () => {
-      if (!storyIds || storyIds.length === 0) return {};
+  // 使用排序後的字串作為 key,避免陣列順序變化導致重複查詢
+  const storyIdsKey = storyIds ? [...storyIds].sort().join(',') : '';
 
-      console.log('[useBatchNewsImages] 開始載入圖片:', storyIds.length, '張');
+  return useQuery({
+    queryKey: ['batch-news-images', storyIdsKey],
+    queryFn: async () => {
+      if (!storyIds || storyIds.length === 0) {
+        // 空陣列時返回空物件但保持參考穩定
+        if (Object.keys(cachedImagesObject).length === 0) {
+          return cachedImagesObject;
+        }
+        return {};
+      }
+
+      // 先從全域快取中找已有的圖片
+      const uncachedStoryIds = storyIds.filter(id => !globalImageCache[id]);
+      
+      if (uncachedStoryIds.length === 0) {
+        console.log('[useBatchNewsImages] 所有圖片已在全域快取中,共', storyIds.length, '張');
+        // 檢查是否需要更新物件
+        const needsUpdate = storyIds.some(id => !cachedImagesObject[id]);
+        if (!needsUpdate) {
+          // 回傳相同的物件參考,避免觸發 re-render
+          console.log('[useBatchNewsImages] 物件參考保持不變,避免 re-render');
+          return cachedImagesObject;
+        }
+        // 需要更新時才建立新物件
+        const result = {};
+        storyIds.forEach(id => {
+          if (globalImageCache[id]) {
+            result[id] = globalImageCache[id];
+          }
+        });
+        cachedImagesObject = result;
+        return cachedImagesObject;
+      }
+
+      console.log('[useBatchNewsImages] 需要載入:', uncachedStoryIds.length, '張新圖片 (總共', storyIds.length, '張)');
 
       // 🔧 優化: 減少批次大小避免超時
       const BATCH_SIZE = 3; // 每次載入 3 張圖片
-      const imagesMap = {};
+      
+      // 從現有的快取物件開始
+      const imagesMap = { ...cachedImagesObject };
+      
+      // 先把已快取的圖片加入結果
+      storyIds.forEach(id => {
+        if (globalImageCache[id] && !imagesMap[id]) {
+          imagesMap[id] = globalImageCache[id];
+        }
+      });
 
-      for (let i = 0; i < storyIds.length; i += BATCH_SIZE) {
-        const batch = storyIds.slice(i, i + BATCH_SIZE);
+      for (let i = 0; i < uncachedStoryIds.length; i += BATCH_SIZE) {
+        const batch = uncachedStoryIds.slice(i, i + BATCH_SIZE);
         
         try {
           const { data, error } = await supabase
@@ -116,7 +164,9 @@ export function useBatchNewsImages(storyIds) {
               if (item.image) {
                 try {
                   const cleanBase64 = item.image.replace(/\s/g, '');
-                  imagesMap[item.story_id] = `data:image/png;base64,${cleanBase64}`;
+                  const imageUrl = `data:image/png;base64,${cleanBase64}`;
+                  imagesMap[item.story_id] = imageUrl;
+                  globalImageCache[item.story_id] = imageUrl; // 存入全域快取
                 } catch (e) {
                   console.error('[useBatchNewsImages] 圖片處理失敗:', item.story_id, e);
                 }
@@ -124,8 +174,9 @@ export function useBatchNewsImages(storyIds) {
             });
 
             // 🚀 立即更新快取,讓 UI 即時顯示已載入的圖片
-            queryClient.setQueryData(['batch-news-images', storyIds], { ...imagesMap });
-            console.log('[useBatchNewsImages] 批次完成,已顯示:', Object.keys(imagesMap).length, '張');
+            cachedImagesObject = { ...imagesMap };
+            queryClient.setQueryData(['batch-news-images', storyIdsKey], cachedImagesObject);
+            console.log('[useBatchNewsImages] 批次完成,已顯示:', Object.keys(imagesMap).length, '/', storyIds.length, '張');
           }
         } catch (err) {
           console.error('[useBatchNewsImages] 批次異常:', err);
@@ -133,17 +184,22 @@ export function useBatchNewsImages(storyIds) {
         }
         
         // 🔧 批次間添加小延遲,避免資料庫壓力過大
-        if (i + BATCH_SIZE < storyIds.length) {
+        if (i + BATCH_SIZE < uncachedStoryIds.length) {
           await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
 
       console.log('[useBatchNewsImages] 圖片載入完成:', Object.keys(imagesMap).length, '/', storyIds.length, '張');
-      return imagesMap;
+      cachedImagesObject = imagesMap;
+      return cachedImagesObject;
     },
     enabled: !!storyIds && storyIds.length > 0 && !!supabase,
-    staleTime: 30 * 60 * 1000, // 圖片快取 30 分鐘
-    cacheTime: 2 * 60 * 60 * 1000, // 快取 2 小時
+    staleTime: Infinity, // 圖片永不過期
+    gcTime: Infinity, // 永久快取 (React Query v5 使用 gcTime 替代 cacheTime)
     retry: 1, // 只重試 1 次
+    refetchOnMount: false, // 不在 mount 時重新載入
+    refetchOnWindowFocus: false, // 不在視窗 focus 時重新載入
+    refetchOnReconnect: false, // 不在網路重連時重新載入
+    structuralSharing: false, // 停用 structural sharing,完全依賴物件參考穩定性
   });
 }
