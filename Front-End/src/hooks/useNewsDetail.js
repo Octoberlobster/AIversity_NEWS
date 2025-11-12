@@ -201,7 +201,7 @@ export function useNewsKeywords(storyId) {
  */
 export function useNewsTerms(storyId) {
   const supabase = useSupabase();
-  const { getCurrentLanguage } = useLanguageFields();
+  const { getFieldName, getMultiLanguageSelect, getCurrentLanguage } = useLanguageFields();
   const currentLanguage = getCurrentLanguage();
 
   return useQuery({
@@ -229,10 +229,13 @@ export function useNewsTerms(storyId) {
         return { terms: [], definitions: {} };
       }
 
-      // 步驟 2: 獲取術語定義
+      // 步驟 2: 獲取術語定義,支援多語言
+      const termMultiLangFields = ['term', 'definition', 'example'];
+      const termSelectFields = getMultiLanguageSelect(termMultiLangFields);
+
       const { data: termData, error: termError } = await supabase
         .from('term')
-        .select('term, term_id, definition, example')
+        .select(`term_id, ${termSelectFields}`)
         .in('term_id', termIds);
 
       if (termError) {
@@ -245,18 +248,23 @@ export function useNewsTerms(storyId) {
       const termsArray = [];
       
       (termData || []).forEach(item => {
-        if (item.term && item.definition) {
+        // 使用多語言欄位
+        const term = item[getFieldName('term')] || item.term;
+        const definition = item[getFieldName('definition')] || item.definition;
+        const example = item[getFieldName('example')] || item.example;
+
+        if (term && definition) {
           // 加入術語物件 (包含 term, definition, example)
           termsArray.push({
-            term: item.term,
-            definition: item.definition,
-            example: item.example || null
+            term: term,
+            definition: definition,
+            example: example || null
           });
           
           // 同時建立 term 為 key 的映射
-          definitions[item.term] = {
-            definition: item.definition,
-            example: item.example || null
+          definitions[term] = {
+            definition: definition,
+            example: example || null
           };
         }
       });

@@ -225,6 +225,19 @@ class Translate:
                     return None
 
     def translate_terms(self,story_id):
+        
+        try:
+            news_response = self.supabase.table("single_news").select("*").eq("story_id", story_id).execute().data
+        except Exception as e:
+            print(f"取得single_news資料時發生錯誤: {e}")
+            return None
+        
+        if not news_response:
+            print(f"未找到story_id '{story_id}' 的single_news資料")
+            return None
+        
+        news_data = news_response[0]
+        
         try:
             response = self.supabase.table("term_map").select("*").eq("story_id", story_id).execute().data
         except Exception as e:
@@ -254,27 +267,51 @@ class Translate:
             
             for lang in self.lang_list:
                 
+                # 取得該語言的新聞內容
+                if lang == "en":
+                    news_content = news_data.get("long_en_lang", "")
+                elif lang == "id":
+                    news_content = news_data.get("long_id_lang", "")
+                elif lang == "jp":
+                    news_content = news_data.get("long_jp_lang", "")
+                
+                # 如果該語言的新聞內容不存在，跳過
+                if not news_content:
+                    print(f"story_id '{story_id}' 的{lang}新聞內容不存在，跳過term翻譯")
+                    continue
+                
                 term_check = term_data.get(f"term_{lang}_lang", "")
                 definition_check = term_data.get(f"definition_{lang}_lang", "")
                 example_check = term_data.get(f"example_{lang}_lang", "")
                 
+                """
                 if term_check and definition_check and example_check:
                     print(f"term_id '{term_id}' 的{lang} term資料已存在，跳過翻譯")
                     continue
+                """
                 
                 if lang == "id":
                     lang = "indonesia"
+                    
+                print(f"term: {term}, definition: {definition}, example: {example}, lang: {lang}")
                 
-                prompt = f"請將以下術語及其定義和範例翻譯成{lang}:\n術語: {term}\n定義: {definition}\n範例: {example}\n"
+                prompt = f"""請在以下新聞內容中，找到符合{term}語意的內容，並將{term}、定義和範例翻譯成{lang}:
+                        新聞內容:
+                        {news_content}
+                        術語: {term}
+                        定義: {definition}
+                        範例: {example}
+                        """
+
                 config = types.GenerateContentConfig(
-                    system_instruction=f"你是一個專業的翻譯專家，請將提供的術語及其定義和範例準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
+                    system_instruction=f"你是一個專業的翻譯專家。請根據提供的新聞內容,將術語及其定義和範例準確翻譯成{lang}。翻譯時必須考慮新聞的上下文和情境,確保翻譯後的術語在該新聞中是合適且準確的。",
                     response_mime_type="application/json",
                     response_schema=termResponse
                 )
                 response_text = self.callgemini(prompt, config)
                 if response_text is None:
                     print("翻譯失敗")
-                    return None
+                    continue
                 
                 if lang == "indonesia":
                     lang = "id"
@@ -284,6 +321,7 @@ class Translate:
                     translated_term = translated_data.get("term", "")
                     translated_definition = translated_data.get("definition", "")
                     translated_example = translated_data.get("example", "")
+                    print(f"翻譯結果 - term: {translated_term}, definition: {translated_definition}, example: {translated_example}")
                     update_data = {
                         f"term_{lang}_lang": translated_term,
                         f"definition_{lang}_lang": translated_definition,
@@ -293,7 +331,7 @@ class Translate:
                     print(f"翻譯成功，已更新term_id '{term_id}' 的 {lang} term資料")
                 except Exception as e:
                     print(f"更新翻譯後的term資料時發生錯誤: {e}")
-                    return None
+                    continue
  
     def translate_position(self,story_id):
         try:
@@ -470,6 +508,19 @@ class Translate:
                 return None
         
     def translate_keyword(self, story_id):
+        
+        try:
+            news_response = self.supabase.table("single_news").select("*").eq("story_id", story_id).execute().data
+        except Exception as e:
+            print(f"取得single_news資料時發生錯誤: {e}")
+            return None
+        
+        if not news_response:
+            print(f"未找到story_id '{story_id}' 的single_news資料")
+            return None
+        
+        news_data = news_response[0]
+        
         try:
             response = self.supabase.table("keywords_map").select("*").eq("story_id", story_id).execute().data
         except Exception as e:
@@ -486,15 +537,23 @@ class Translate:
         for keyword in keyword_list:
             for lang in self.lang_list:
                 
+                if lang == "en":
+                    news_content = news_data.get("long_en_lang", "")
+                elif lang == "id":
+                    news_content = news_data.get("long_id_lang", "")
+                elif lang == "jp":
+                    news_content = news_data.get("long_jp_lang", "")
+                
                 keyword_check = self.supabase.table("keywords_map").select(f"keyword_{lang}_lang").eq("story_id", story_id).eq("keyword", keyword).execute().data
-                if keyword_check:
-                    print(f"story_id '{story_id}' 的{lang} keywords_map資料已存在，跳過翻譯")
+                # 檢查是否已翻譯 (值不是 None 也不是空字串)
+                if keyword_check and keyword_check[0].get(f"keyword_{lang}_lang"):
+                    print(f"story_id '{story_id}' keyword '{keyword}' 的{lang}翻譯已存在，跳過")
                     continue
 
                 if lang == "id":
                     lang = "indonesia"
                 
-                prompt = f"請將以下關鍵字翻譯成{lang}:\n關鍵字: {keyword}\n"
+                prompt = f"請根據以下新聞內容{news_content},將以下關鍵字翻譯成{lang}:\n關鍵字: {keyword},翻譯時要考慮新聞內容的用詞,翻譯出來的{keyword}要對得上原文\n"
                 config = types.GenerateContentConfig(
                     system_instruction=f"你是一個專業的翻譯專家，請將提供的關鍵字準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
                     response_mime_type="application/json",
@@ -873,8 +932,10 @@ if __name__ == "__main__":
     #宣告Translate物件
     translate = Translate(supabase, gemini_client)
     
+    translate.translate_terms("c2e5b2dd-135a-4620-93bb-1c5361ce0d66")
+    
     #跑所有新聞的翻譯
-
+    """
     story_id_list = supabase.table("single_news").select("story_id").range(1501,2500).order("generated_date", desc=True).execute().data
     story_id_list = [item.get("story_id", "") for item in story_id_list]
     for story_id in story_id_list:
@@ -887,6 +948,7 @@ if __name__ == "__main__":
         translate.translate_pro_analyze(story_id)
         translate.translate_imagedescription(story_id)
         translate.translate_keyword(story_id)
+    """
     
     #跑所有topic的翻譯
 

@@ -10,13 +10,63 @@ function Header() {
   const { selectedCountry, setSelectedCountry } = useCountry();
   const { user, signOut } = useAuth();
   
+  // 穩定的邏輯陣列 (解決頁面載入時的競態條件) (START)
+  // 1. 新增：穩定的「分類」定義 (僅供 useEffect 邏輯使用)
+  const categoryDefinitionsLogic = useMemo(() => [
+    { id: 'international', name: 'International News' },
+    { id: 'politics', name: 'Politics' },
+    { id: 'scienceandtech', name: 'Science & Technology' },
+    { id: 'life', name: 'Lifestyle & Consumer' },
+    { id: 'sports', name: 'Sports' },
+    { id: 'entertainment', name: 'Entertainment' },
+    { id: 'finance', name: 'Business & Finance' },
+    { id: 'health', name: 'Health & Wellness' },
+  ], []); // 空依賴陣列，確保穩定
+
+  // 2. 新增：穩定的「國家」定義 (僅供 useEffect 邏輯使用)
+  const countriesLogic = useMemo(() => [
+    {
+      id: 'taiwan',
+      dbName: 'Taiwan',
+      categories: categoryDefinitionsLogic.map(cat => ({
+        ...cat,
+        path: `/category/Taiwan/${cat.name}`
+      }))
+    },
+    {
+      id: 'usa',
+      dbName: 'United States of America',
+      categories: categoryDefinitionsLogic.map(cat => ({
+        ...cat,
+        path: `/category/United States of America/${cat.name}`
+      }))
+    },
+    {
+      id: 'japan',
+      dbName: 'Japan',
+      categories: categoryDefinitionsLogic.map(cat => ({
+        ...cat,
+        path: `/category/Japan/${cat.name}`
+      }))
+    },
+    {
+      id: 'indonesia',
+      dbName: 'Indonesia',
+      categories: categoryDefinitionsLogic.map(cat => ({
+        ...cat,
+        path: `/category/Indonesia/${cat.name}`
+      }))
+    },
+  ], [categoryDefinitionsLogic]); // 依賴穩定的 categoryDefinitionsLogic
+  // (END)
+
   const domains = useMemo(() => [
     { id: '/', label: t('header.menu.home'), path: '/'},
     { id: 'yesterday', label: t('header.menu.yesterdayFocus'), path: '/yesterday-focus'},
     { id: 'project', label: t('header.menu.specialReports'), path: '/special-reports'},
   ], [t]);
 
-  // 定義類別的基本資料（不含路徑）
+  // 定義類別的基本資料（不含路徑）- 這是原有的，用於 UI 顯示
   const categoryDefinitions = useMemo(() => [
     { id: 'international', label: t('header.menu.international'), name: 'International News' },
     { id: 'politics', label: t('header.menu.politics'), name: 'Politics' },
@@ -28,7 +78,7 @@ function Header() {
     { id: 'health', label: t('header.menu.health'), name: 'Health & Wellness' },
   ], [t]);
   
-  // 定義國家及其分類
+  // 定義國家及其分類 - 這是原有的，用於 UI 顯示
   const countries = useMemo(() => [
     {
       id: 'taiwan',
@@ -109,7 +159,9 @@ function Header() {
   const handleCountryChange = (e) => {
     const newCountryId = e.target.value;
     setSelectedCountry(newCountryId);
-    setActiveDomain(null); // 清除主導航的 active 狀態
+    
+    // --- 標記 3: 刪除此行 (解決切換國家時高亮消失的問題) ---
+    // setActiveDomain(null); 
     
     const newCountry = countries.find(c => c.id === newCountryId);
     if (!newCountry) return;
@@ -123,8 +175,8 @@ function Header() {
       }
     }
     
-    // 如果在首頁或其他頁面，只更新國家狀態，不進行導航
-    // HomePage 會自動根據國家狀態更新新聞內容
+    // 如果在首頁或其他頁面（例如 焦點），只更新國家狀態，
+    // 頁面本身（例如 YesterdayFocus.js）會自動根據新國家重新載入
   };
 
   // 處理登出
@@ -153,8 +205,8 @@ function Header() {
       i18n.changeLanguage(currentLang);
     }
 
-    // 移除語言前綴來檢查路徑，使用正確的語言長度
-    const pathWithoutLang = location.pathname.replace(/^\/[a-z-]+/, '') || '/';
+    // (修正 Regex: 允許 A-Z)
+    const pathWithoutLang = location.pathname.replace(/^\/[a-z-A-Z]+/, '') || '/';
     
     // 設定當前 active 的類別
     if (pathWithoutLang === '/') {
@@ -172,8 +224,8 @@ function Header() {
     } else if (pathWithoutLang.startsWith('/category/')) {
       const categoryFromPath = decodeURIComponent(pathWithoutLang.substring(10));
       
-      // 檢查是否匹配國家
-      const matchedCountry = countries.find(country => 
+      // (使用 'countriesLogic' 修正競態條件)
+      const matchedCountry = countriesLogic.find(country => 
         categoryFromPath.startsWith(country.dbName)
       );
       if (matchedCountry) {
@@ -197,13 +249,22 @@ function Header() {
       });
       if (domain) setActiveDomain(domain.id);
     }
-  }, [location.pathname, domains, countries, selectedLanguage, i18n, setSelectedCountry]);
+    // (使用 'countriesLogic' 修正競態條件)
+  }, [location.pathname, domains, countriesLogic, selectedLanguage, i18n, setSelectedCountry]);
 
   return (
     <header className={`header lang-${selectedLanguage}`}>
       <div className="mainBar">
         <div className="brandSection">
-          <Link to={`/${selectedLanguage}`} className="brandLink">
+          {/* Logo 點擊狀態修正 (已包含) */}
+          <Link 
+            to={`/${selectedLanguage}`} 
+            className="brandLink"
+            onClick={() => {
+              setActiveDomain('/');
+              setActiveCategory(null);
+            }}
+          >
             <div className="logo">{t('header.brand')}</div>
           </Link>
           <span className="tagline">{t('header.tagline')}</span>
