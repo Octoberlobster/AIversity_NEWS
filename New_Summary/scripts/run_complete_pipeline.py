@@ -6,7 +6,7 @@
 import os
 import sys
 import json
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import List
 import logging
 
@@ -97,8 +97,8 @@ class CompletePipeline:
         """
         執行完整流水線
         """
-        
-        start_time = datetime.now()
+        tz_taipei = timezone(timedelta(hours=8))
+        start_time = datetime.now(tz_taipei)
         logger.info(f"⏰ 流水線開始時間: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         
         try:
@@ -184,7 +184,7 @@ class CompletePipeline:
             db_client.clear_updated_story_ids()
             
             # 結束
-            end_time = datetime.now()
+            end_time = datetime.now(tz_taipei)
             duration = end_time - start_time
             logger.info(f"\n🎉 流水線執行完成！")
             logger.info(f"⏰ 總耗時: {duration}")

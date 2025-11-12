@@ -367,7 +367,10 @@ def get_article_links_from_story(story_info):
                                         "Haibunda","Investing.com India","dotdotnews","MSNBC News","KTVZ","Euronews.com",
                                         "Báo Nhân Dân điện tử","FXStreet","三菱マテリアル","Fox News","六度世界","forecastock.tw",
                                         "the-independent.com","TBS NEWS DIG","20 Minutes","Daily Tribune","Federal News Network",
-                                        "WKMG","CNBC Indonesia","Albert Lea Tribune","Facebook","地球黃金線","4Gamer.net"
+                                        "WKMG","CNBC Indonesia","Albert Lea Tribune","Facebook","地球黃金線","4Gamer.net", "MarketWatch",
+                                        "The Daily Beast", "美麗島電子報", "經理人", "X", "Newswav", "PressReader", "Men's Journal", 
+                                        "The Hill", "ESPN", "The Wall Street Journal", "bola.okezone.com", "台灣新聞雲報", "Ottumwa Courier",
+                                        "Washington Times", "San Francisco Examiner"
                                         ]:
                                 continue
 
@@ -394,14 +397,14 @@ def get_article_links_from_story(story_info):
                                 
 
                                 # 檢查文章是否需要處理
-                                # should_skip, action_type, story_data, skip_reason, final_url, final_title = check_story_exists_in_supabase(
-                                #     story_info['url'], story_info['category'], article_datetime, full_href, ""
-                                # )
+                                should_skip, action_type, story_data, skip_reason, final_url, final_title = check_story_exists_in_supabase(
+                                    story_info['url'], story_info['category'], article_datetime, full_href, ""
+                                )
                                 
-                                # if should_skip and action_type == "skip":
-                                #     print(f"     跳過文章: {link_text}")
-                                #     print(f"        原因: {skip_reason}")
-                                #     continue
+                                if should_skip and action_type == "skip":
+                                    print(f"     跳過文章: {link_text}")
+                                    print(f"        原因: {skip_reason}")
+                                    continue
                                 
                                 article_links.append({
                                     "story_id": story_info['story_id'],
@@ -798,24 +801,24 @@ def check_story_exists_in_supabase(story_url, category, article_datetime="", art
         # 1. 先檢查完整 story_url 是否存在
         story_response = supabase.table("stories").select("*").eq("story_url", story_url).order("crawl_date", desc=True).limit(1).execute()
 
-        # 2. 如果完整URL不存在，檢查前89個字符是否匹配
+        # 2. 如果完整URL不存在，檢查前88個字符是否匹配
         if not story_response.data:
-            url_prefix = story_url[:89]
-            # 使用 LIKE 查詢前89個字符相同的記錄
+            url_prefix = story_url[:88]
+            # 使用 LIKE 查詢前88個字符相同的記錄
             prefix_response = supabase.table("stories").select("*").like("story_url", f"{url_prefix}%").order("crawl_date", desc=True).execute()
             
             if prefix_response.data:
-                print(f"   找到前89字符匹配的故事，開始內容比對...")
+                print(f"   找到前88字符匹配的故事，開始內容比對...")
                 
                 # 使用 get_hash 比較內容
                 for existing_story in prefix_response.data:
                     existing_url = existing_story["story_url"]
                     try:
                         # 比較兩個URL的內容hash
-                        new_hash = get_hash_smart_env(story_url)  # 改為同步版本
-                        existing_hash = get_hash_smart_env(existing_url)  # 改為同步版本
+                        new_hash, new_text = get_hash_smart_env(story_url)  # 改為同步版本
+                        existing_hash, existing_text = get_hash_smart_env(existing_url)  # 改為同步版本
 
-                        if new_hash and existing_hash and new_hash == existing_hash:
+                        if new_hash == existing_hash or new_text == existing_text:
                             print(f"   內容相同！沿用舊連結: {existing_url}")
                             print(f"   沿用舊標題: {existing_story.get('story_title', title)}")
                             
@@ -831,7 +834,7 @@ def check_story_exists_in_supabase(story_url, category, article_datetime="", art
                         print(f"   內容比對失敗: {hash_error}")
                         continue
                 
-                print(f"   前89字符匹配但內容不同，創建新故事")
+                print(f"   前88字符匹配但內容不同，創建新故事")
         
         if not story_response.data:
             # 故事不存在，需要创建新故事
@@ -958,6 +961,17 @@ def get_hash_sync_threaded(url):
                     html = page.content()
                     soup = BeautifulSoup(html, "html.parser")
                     
+                    # 提取第一筆 link_text
+                    link_text = None
+                    articles = soup.find_all("article", class_="MQsxIb xTewfe tXImLc R7GTQ keNKEd keNKEd VkAdve GU7x0c JMJvke q4atFc")
+                    if articles and len(articles) > 0:
+                        article = articles[0]  # 取第一筆
+                        h4_element = article.find("h4", class_="ipQwMb ekueJc RD0gLb")
+                        if h4_element:
+                            link = h4_element.find("a", class_="DY5T1d RZIKme")
+                            if link:
+                                link_text = link.text.strip()
+                                
                     for script in soup(["script", "style", "noscript"]):
                         script.decompose()
                     
@@ -966,14 +980,14 @@ def get_hash_sync_threaded(url):
                     text_content = re.sub(r'\s+', ' ', text_content).strip()
                     
                     if len(text_content) < 100:
-                        return None
+                        return (None, link_text)
                     
                     hash_value = hashlib.md5(text_content.encode("utf-8")).hexdigest()
-                    return hash_value
+                    return (hash_value, link_text)
                     
                 except Exception as e:
                     print(f"處理頁面時發生錯誤: {e}")
-                    return None
+                    return (None, None)
                     
                 finally:
                     try:
@@ -988,12 +1002,14 @@ def get_hash_sync_threaded(url):
                         
         except Exception as e:
             print(f"創建瀏覽器失敗: {e}")
-            return None
+            return (None, None)
     
     # 在線程池中執行
     with ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(_get_hash_in_thread)
         return future.result(timeout=10)  # 30秒超時
+
+    return _get_hash_in_thread()
     
 # 方案5: 檢測環境並選擇適當方法
 def get_hash_smart_env(url):
@@ -1099,7 +1115,8 @@ def save_article_to_supabase(article_data, story_id):
             "article_url": article_data["article_url"],
             "content": article_data["content"],
             "media": article_data["media"],
-            "story_id": story_id
+            "story_id": story_id,
+            "write_date": article_data.get("article_datetime", "")
         }
         
         # 使用 upsert 来避免重复插入
@@ -1291,7 +1308,7 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                     "article_url": article["final_url"],
                     "media": article["media"],
                     "content": article["content"],
-                    "original_datetime": article.get("article_datetime", "未知时间")
+                    "article_datetime": article.get("article_datetime", "未知时间")
                 })
             
             # 创建故事数据结构
@@ -1618,6 +1635,9 @@ def main():
             "Politics": {
                 "url": "https://news.google.com/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNRFZ4ZERBU0FtVnVLQUFQAQ?hl=en-US&gl=US&ceid=US%3Aen"
             },
+            "Sports": {
+                "url": "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US%3Aen"
+            },
             "International News": {
                 "url": "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US%3Aen"
             },
@@ -1629,9 +1649,6 @@ def main():
             # },
             "Lifestyle & Consumer": {
                 "url": "https://news.google.com/topics/CAAqIggKIhxDQkFTRHdvSkwyMHZNREUwWkhONEVnSmxiaWdBUAE?hl=en-US&gl=US&ceid=US%3Aen"
-            },
-            "Sports": {
-                "url": "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US%3Aen"
             },
             # "Entertainment": {
             #     "url": "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNREpxYW5RU0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US%3Aen"

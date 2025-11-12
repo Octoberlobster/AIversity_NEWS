@@ -37,7 +37,7 @@ import base64
 import json
 from typing import Optional
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from postgrest.exceptions import APIError
 
 
@@ -450,8 +450,9 @@ for i, r in enumerate(rows, start=1):
                 print(f"已寫入 generated_image (story_id={story_id})")
                 # 同步更新 single_news 表的 generated_date 欄位為目前時間
                 try:
-                    generated_date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-                    upd = sb.table('single_news').update({'generated_date': generated_date_str}).eq('story_id', story_id).execute()
+                    tz_taipei = timezone(timedelta(hours=8))
+                    generated_date_str = datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M")
+                    upd = sb.table('single_news').update({'updated_date': generated_date_str}).eq('story_id', story_id).execute()
                     if getattr(upd, 'error', None):
                         print(f"更新 single_news.generated_date 失敗 (story_id={story_id}): {upd.error}")
                     else:

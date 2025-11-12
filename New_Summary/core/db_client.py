@@ -6,7 +6,7 @@ import os
 import logging
 from typing import Dict, List, Optional, Any, Set
 from supabase import create_client, Client
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -187,8 +187,9 @@ class SupabaseClient:
             是否成功儲存
         """
         try:
+            tz_taipei = timezone(timedelta(hours=8))
             # 準備要插入的資料
-            insert_data = {
+            base_data = {
                 'story_id': story_id,
                 'category': processed_data.get('category', ''),
                 'total_articles': processed_data.get('total_articles', 0),
@@ -196,7 +197,7 @@ class SupabaseClient:
                 'ultra_short': processed_data.get('ultra_short', ''),
                 'short': processed_data.get('short', ''),
                 'long': processed_data.get('long', ''),
-                'generated_date': processed_data.get('processed_at', '') or str(datetime.now().isoformat(sep=' ', timespec='minutes'))
+                'attribution': None,
             }
             
             # 檢查是否已存在
@@ -204,12 +205,22 @@ class SupabaseClient:
             
             if existing.data:
                 # 更新現有記錄
-                response = self.client.table('single_news').update(insert_data).eq('story_id', story_id).execute()
+                update_data = {
+                    **base_data,
+                    'updated_date': str(datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M")),
+                }
+                
+                response = self.client.table('single_news').update(update_data).eq('story_id', story_id).execute()
                 logger.info(f"更新 single_news 記錄: {story_id}")
                 # 記錄此 story_id 已更新，需要重新生成 terms
                 self.updated_story_ids.add(story_id)
             else:
                 # 插入新記錄
+                insert_data = {
+                    **base_data,
+                    'generated_date': str(datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M")),
+                }
+
                 response = self.client.table('single_news').insert(insert_data).execute()
                 logger.info(f"插入新的 single_news 記錄: {story_id}")
                 # 記錄此 story_id 為新的，需要生成 terms

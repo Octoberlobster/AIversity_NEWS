@@ -32,16 +32,7 @@ class RelativeItem(BaseModel):
 class RelativeNews(BaseModel):
     relatives: List[RelativeItem]
 
-response = []
-batch_size = 1000
-start = 0
-
-while True:
-    temp = supabase.table("single_news").select("story_id,category,short,generated_date").range(start, start + batch_size - 1).order("generated_date", desc=True).execute()
-    if not temp.data:
-        break
-    response.extend(temp.data)
-    start += batch_size
+data = supabase.table("single_news").select("story_id,category,short,generated_date").range(0, 200).order("generated_date", desc=True).execute()
 
 all_data = []
 batch_size = 1000
@@ -57,8 +48,6 @@ while True:
 
 # 去重
 constraints = list(set(all_data))
-
-data = response
 
 # m_data = json.dumps(data, indent=4)
 # with open("relative_json.json", "w") as f:
@@ -86,19 +75,19 @@ def filter_related_news(current_story: dict, all_stories: list[dict]) -> list[di
     candidate_list = "\n".join(f"{i+1}. {t}" for i, t in enumerate(candidate_shorts))
 
     prompt = f"""
-你是一個新聞分析助手。
-我會提供一則「當前新聞」和多則「候選新聞」。
-請判斷哪些候選新聞與當前新聞「高度相關」，並回傳各個相關新聞的編號和相關的原因(務必使用繁體中文)。
-確保回傳的編號個數與原因個數一致，要呈現1對1的狀態。
-在撰寫理由時，請不要提及「當前新聞」或「候選新聞」這些詞彙，而是直接描述，因為這是給使用者看的，希望能夠讓使用者理解為什麼這些新聞是相關的。
-最多回傳 3 個相關新聞，且不能有重複新聞，如果違反將會受到嚴厲懲罰。
+    你是一個新聞分析助手。
+    我會提供一則「當前新聞」和多則「候選新聞」。
+    請判斷哪些候選新聞與當前新聞「高度相關」，並回傳各個相關新聞的編號和相關的原因(務必使用繁體中文)。
+    確保回傳的編號個數與原因個數一致，要呈現1對1的狀態。
+    在撰寫理由時，請不要提及「當前新聞」或「候選新聞」這些詞彙，而是直接描述，因為這是給使用者看的，希望能夠讓使用者理解為什麼這些新聞是相關的。
+    最多回傳 3 個相關新聞，且不能有重複新聞，如果違反將會受到嚴厲懲罰。
 
-當前新聞：
-{current_short}
+    當前新聞：
+    {current_short}
 
-候選新聞：
-{candidate_list}
-"""
+    候選新聞：
+    {candidate_list}
+    """
 
     # 嘗試呼叫 Gemini API 並取得 parsed.relatives；若失敗則重試幾次
     max_retries = 3

@@ -6,8 +6,11 @@ WORKDIR /app
 
 # 安裝 Python 需求 (如果你有 requirements.txt)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir playwright==1.56.0 && \
+    playwright install --with-deps
+    
 # 複製程式碼
 COPY . .
 

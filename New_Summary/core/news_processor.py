@@ -1,7 +1,7 @@
 import json
 import time
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
 import logging
 
@@ -145,6 +145,7 @@ class NewsProcessor:
                             clean_text = '\n'.join(lines[1:-1])
 
                     result = json.loads(clean_text)
+                    tz_taipei = timezone(timedelta(hours=8))
 
                     # 添加原始文章資訊
                     result.update({
@@ -152,7 +153,7 @@ class NewsProcessor:
                         "original_title": article.get('article_title'),
                         "publish_date": article.get('publish_date') or article.get('crawl_date'),
                         "source_url": article.get('final_url'),
-                        "processed_at": datetime.now().isoformat(sep=' ', timespec='minutes')
+                        "processed_at": datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M")
                     })
 
                     logger.info(f"成功處理文章: {article.get('article_title', '')[:50]}...")
@@ -198,6 +199,7 @@ class NewsProcessor:
             # 添加延遲避免 API 速率限制
             time.sleep(NewsProcessorConfig.API_DELAY)
 
+        tz_taipei = timezone(timedelta(hours=8))
         story_result = {
             "story_id": story_id,
             "story_title": story.get('story_title'),
@@ -207,7 +209,7 @@ class NewsProcessor:
             "failed_articles": len(failed_articles),
             "articles_analysis": processed_articles,
             "failed_list": failed_articles,
-            "processed_at": datetime.now().isoformat(sep=' ', timespec='minutes')
+            "processed_at": datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M")
         }
 
         logger.info(f"Story {story_id} 處理完成: 成功 {len(processed_articles)}/{len(articles)} 篇")

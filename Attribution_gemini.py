@@ -216,12 +216,26 @@ def save_attribution_to_db(story_id: str, attribution_json: Dict[str, List[str]]
     except Exception as e:
         print(f"✗ 儲存到資料庫時發生錯誤: {e}")
         return False
+    
+def check_generated(story_id: str) -> bool:
+    """
+    檢查 single_news 表中的 attribution 欄位是否有內容
+    """
+    try:
+        single_news_data = supabase.table("single_news").select("attribution").eq("story_id", story_id).execute().data
+        if not single_news_data or not single_news_data[0].get("attribution"):
+            print("此 story_id 尚未生成歸因結果。")
+            return False
+        return True
+    except Exception as e:
+        print(f"錯誤：從 Supabase 讀取資料失敗: {e}")
+        return False
 
 if __name__ == "__main__":
     
     print("--- 開始測試 (方法二：Call Gemini API) ---")
     all_require = []
-    batch_size = 1000
+    batch_size = 500
     start = 0
 
     while True:
@@ -229,6 +243,7 @@ if __name__ == "__main__":
         if not temp.data:
             break
         all_require.extend(temp.data)
+        break
         start += batch_size
     
     # 步驟 1: 執行歸因分析
@@ -236,6 +251,13 @@ if __name__ == "__main__":
         # story_id_to_test = "bad3db95-1117-4b10-8675-80827b3a5102"
         # story_id_to_test = "4dc8514f-523f-46a5-b7e0-78cc320d7873"
         story_id_to_test = item['story_id']
+        generate = check_generated(story_id_to_test)
+        
+        #如果已生成，跳過
+        if generate:
+            print(f"{story_id_to_test} 已生成。")
+            continue
+        
         annotated_result = attribute_sources_for_story(story_id_to_test)
     
         print("\n\n--- 最終標註結果 ---")

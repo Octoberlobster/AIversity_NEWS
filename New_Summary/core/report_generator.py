@@ -1,6 +1,6 @@
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
 import logging
 import os
@@ -293,6 +293,7 @@ class ReportGenerator:
         content_ok = bool((comprehensive_report.get('content') or "").strip())
         result["processing_stats"]["comprehensive_report_success"] = (title_ok or content_ok)
 
-        result["processed_at"] = str(datetime.now().isoformat(sep=' ', timespec='minutes'))
+        tz_taipei = timezone(timedelta(hours=8))
+        result["processed_at"] = str(datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M"))
         logger.info(f"Story {story_data.get('story_id')} 處理完成")
         return result

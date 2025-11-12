@@ -1,7 +1,7 @@
 # Web Automation
 selenium>=4.10.0
 webdriver-manager>=4.0.0
-playwright>=1.40.0
+playwright>=1.56.0
 
 # HTML 解析與數據處理
 beautifulsoup4>=4.12.2

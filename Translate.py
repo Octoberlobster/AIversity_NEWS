@@ -19,20 +19,7 @@ class termResponse(BaseModel):
     example: str
     
 class positionResponse(BaseModel):
-    positive: list[str]
-
-def execute_with_retry(self, query, max_retries=5, initial_delay=1):
-    """Execute a Supabase query with retry logic"""
-    for attempt in range(max_retries):
-        try:
-            return query.execute()
-        except postgrest.exceptions.APIError as e:
-            if attempt == max_retries - 1:  # Last attempt
-                raise  # Re-raise the last error if all retries failed
-            delay = initial_delay * (2 ** attempt)  # Exponential backoff
-            print(f"API Error occurred. Retrying in {delay} seconds... (Attempt {attempt + 1}/{max_retries})")
-            time.sleep(delay)
-    return None  # This will only be reached if all retries fail
+    positive: list[str]    
     negative: list[str]
 
 class pro_analyzeResponse(BaseModel):
@@ -64,6 +51,19 @@ class Translate:
         self.supabase = supabase
         self.gemini_client = gemini_client
         self.lang_list = ["en","id","jp"]
+
+    def execute_with_retry(self, query, max_retries=3, initial_delay=1):
+        """Execute a Supabase query with retry logic"""
+        for attempt in range(max_retries):
+            try:
+                return query.execute()
+            except postgrest.exceptions.APIError as e:
+                if attempt == max_retries - 1:  # Last attempt
+                    raise  # Re-raise the last error if all retries failed
+                delay = initial_delay * (2 ** attempt)  # Exponential backoff
+                print(f"API Error occurred. Retrying in {delay} seconds... (Attempt {attempt + 1}/{max_retries})")
+                time.sleep(delay)
+        return None  # This will only be reached if all retries fail
         
     def callgemini(self, prompt,config):
         try:
@@ -109,7 +109,7 @@ class Translate:
             
             prompt = f"請將以下新聞標題及內容翻譯成{lang}:\n標題: {news_title}\n簡短內容: {ultra_short}\n詳細內容: {long}\n"
             config = types.GenerateContentConfig(
-                system_instruction=f"你是一個專業的翻譯專家，請將提供的新聞標題及內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格。",
+                system_instruction=f"你是一個專業的翻譯專家，請將提供的新聞標題及內容準確且流暢地翻譯成{lang}。請確保翻譯後的文本符合{lang}語法和用詞習慣，並保持原文的意思和風格，務必保持分段。",
                 response_mime_type="application/json",
                 response_schema=singleNewsResponse
             )
@@ -309,7 +309,7 @@ class Translate:
                 except Exception as e:
                     print(f"更新翻譯後的term資料時發生錯誤: {e}")
                     return None
- 
+
     def translate_position(self,story_id):
         try:
             response = self.supabase.table("position").select("*").eq("story_id", story_id).execute().data
@@ -500,15 +500,10 @@ class Translate:
         for keyword in keyword_list:
             for lang in self.lang_list:
                 
-                query = self.supabase.table("keywords_map").select(f"keyword_{lang}_lang").eq("story_id", story_id).eq("keyword", keyword)
-                try:
-                    result = self.execute_with_retry(query)
-                    if result.data:
-                        print(f"story_id '{story_id}' 的{lang} keywords_map資料已存在，跳過翻譯")
-                        continue
-                except Exception as e:
-                    print(f"Error checking keyword existence: {e}")
-                    continue  # Skip this keyword if we can't check its existence
+                keyword_check = self.supabase.table("keywords_map").select(f"keyword_{lang}_lang").eq("story_id", story_id).eq("keyword", keyword).execute().data
+                if keyword_check:
+                    print(f"story_id '{story_id}' 的{lang} keywords_map資料已存在，跳過翻譯")
+                    continue
 
                 if lang == "id":
                     lang = "indonesia"
@@ -534,8 +529,7 @@ class Translate:
                         f"keyword_{lang}_lang": translated_keyword
                     }
                     
-                    update_query = self.supabase.table("keywords_map").update(update_data).eq("story_id", story_id).eq("keyword", keyword)
-                    self.execute_with_retry(update_query)
+                    self.supabase.table("keywords_map").update(update_data).eq("story_id", story_id).eq("keyword", keyword).execute()
                     print(f"翻譯成功，已更新story_id '{story_id}' keyword '{keyword}' 的 {lang} keywords_map資料")
                 except Exception as e:
                     print(f"更新翻譯後的keywords_map資料時發生錯誤: {e}")
@@ -907,6 +901,8 @@ if __name__ == "__main__":
             if not temp.data:
                 break
             all_require.extend(temp.data)
+            # break
+
             start += batch_size
         except postgrest.exceptions.APIError as e:
             if attempt == max_retries - 1:  # Last attempt
