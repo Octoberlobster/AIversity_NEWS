@@ -11,6 +11,17 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
   const { t } = useTranslation();
   const ITEMS_PER_PAGE = 18;
 
+  // 國家名稱映射
+  const getCountryInfo = (country) => {
+    const countryMap = {
+      'Taiwan': { key: 'header.countries.taiwan', className: 'country-taiwan' },
+      'United States of America': { key: 'header.countries.usa', className: 'country-usa' },
+      'Japan': { key: 'header.countries.japan', className: 'country-japan' },
+      'Indonesia': { key: 'header.countries.indonesia', className: 'country-indonesia' }
+    };
+    return countryMap[country] || null;
+  };
+
   const getLanguageRoute = (path) => {
     return `/${getCurrentLanguage()}${path}`;
   };
@@ -123,6 +134,11 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
             <div className="card__info">
               <span className="dateText">{news.date}</span>
               <span className="authorText">{t('common.editor')} {t('common.editorName')}</span>
+              {news.country && getCountryInfo(news.country) && (
+                <span className={`countryText ${getCountryInfo(news.country).className}`}>
+                  {t(getCountryInfo(news.country).key)}
+                </span>
+              )}
             </div>
 
             <div className="card__content">

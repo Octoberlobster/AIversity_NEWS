@@ -31,6 +31,22 @@
   overflow: hidden; /* 確保圓角效果 */
 }
 
+/* 國家標籤 */
+.unifiedNewsCard .card__country-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
 .unifiedNewsCard .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 30px rgba(0,0,0,.12);
@@ -118,9 +134,46 @@
   color: #6b7280;
 }
 .unifiedNewsCard .dateText,
-.unifiedNewsCard .authorText {
+.unifiedNewsCard .authorText,
+.unifiedNewsCard .countryText {
   color: #6b7280;
   font-size: 0.8rem;
+}
+
+.unifiedNewsCard .countryText {
+  margin-left: auto;
+  font-weight: 600;
+  color: #fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.unifiedNewsCard .countryText:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 台灣 - 紫色 */
+.unifiedNewsCard .countryText.country-taiwan {
+  background: #8b5cf6;
+}
+
+/* 美國 - 藍色 */
+.unifiedNewsCard .countryText.country-usa {
+  background: #3b82f6;
+}
+
+/* 日本 - 粉紅色 */
+.unifiedNewsCard .countryText.country-japan {
+  background: #ec4899;
+}
+
+/* 印尼 - 綠色 */
+.unifiedNewsCard .countryText.country-indonesia {
+  background: #10b981;
 }
 
 /* 標籤與來源數 */

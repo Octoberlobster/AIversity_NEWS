@@ -451,7 +451,14 @@ function SpecialReportDetail() {
             
             const { data: stories, error: storiesError } = await supabase
               .from('single_news')
-              .select(`story_id, ${newsSelectFields}, category, generated_date, total_articles`)
+              .select(`
+                story_id, 
+                ${newsSelectFields}, 
+                category, 
+                generated_date, 
+                total_articles,
+                stories!inner(country)
+              `)
               .in('story_id', storyIds);
             if (storiesError) {
               console.warn(`無法獲取分支 ${branch.id} 的新聞內容:`, storiesError);
@@ -463,11 +470,12 @@ function SpecialReportDetail() {
             const customData = (stories || []).map(s => ({
               story_id: s.story_id,
               title: s[getFieldName('news_title')] || s.news_title,
-              category: s.category, // 若需中文化，可在這裡自行映射
-              date: s.generated_date, // 改為 date 以符合 UnifiedNewsCard 的需求
+              category: s.category,
+              date: s.generated_date,
               author: 'Gemini',
               sourceCount: s.total_articles,
               shortSummary: s[getFieldName('ultra_short')] || s.ultra_short,
+              country: s.stories?.country || null,
               relatedNews: [],
               views: 0,
               keywords: [],
