@@ -233,7 +233,7 @@ function LatestTopics() {
         {/* 右側：專題分支 - 仿照側欄卡片樣式 */}
         <div className="topic-sidebar">
           <div className="sidebar-card">
-            <h3 className="sidebar-title">{t('home.topicpreview')}</h3>
+            <h3 className="sidebar-title">{t('home.topicNavigation')}</h3>
             <div className="branches-list">
               {currentTopic.branches.length > 0 ? (
                 currentTopic.branches.map((branch, index) => (

@@ -36,12 +36,13 @@
     "latestTopic": "Topik Terbaru",
     "focusNews": "Berita Fokus",
     "newsSources": "Sumber Berita",
-    "noSources": "Tidak ada sumber",
+    "noSources": "Tidak ada informasi sumber",
     "latestNews": "Berita Terbaru",
-    "articles": "artikel berita terkait",
+    "articles": "artikel terkait",
+    "topicNavigation": "Navigasi Topik",
     "topicpreview": "Pratinjau Topik",
-    "nobranches": "Belum ada pratinjau topik",
-    "noTopics": "Tidak ada topik"
+    "nobranches": "Tidak ada pratinjau topik",
+    "noTopics": "Tidak ada Topik"
   },
   "yesterdayFocus": {
     "title": "Fokus {{country}}",

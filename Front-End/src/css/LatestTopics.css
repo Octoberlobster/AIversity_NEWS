@@ -303,8 +303,8 @@
 }
 
 .sidebar-title {
-  color: #1e3a8a;
-  font-size: 1.2rem;
+  color: #1e3a8a !important;
+  font-size: 1.5rem !important;
   font-weight: 600;
   margin: 0 0 1rem 0;
 }

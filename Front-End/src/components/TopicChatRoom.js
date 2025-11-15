@@ -279,7 +279,15 @@ function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onC
         {messages.map((m) => (
           <div key={m.id} className={`message ${m.isOwn ? 'message--own' : ''} ${m.isLoading ? 'message--loading' : ''}`}>
             <div className={`bubble ${m.isOwn ? 'bubble--own' : ''} ${m.isLoading ? 'bubble--loading' : ''}`}>
-              {m.isLoading ? ( <div className="loading-dots"><span/><span/><span/></div> ) : ( <ReactMarkdown>{m.text}</ReactMarkdown> )}
+              {m.isLoading ? ( 
+                <div className="loading-dots">
+                  <span className="loading-dot"/>
+                  <span className="loading-dot"/>
+                  <span className="loading-dot"/>
+                </div> 
+              ) : ( 
+                <ReactMarkdown>{m.text}</ReactMarkdown> 
+              )}
             </div>
             <span className="time">{m.time}</span>
           </div>

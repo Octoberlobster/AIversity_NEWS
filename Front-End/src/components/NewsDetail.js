@@ -609,10 +609,9 @@ function NewsDetail() {
   useEffect(() => {
     window.scrollTo(0, 0);
     setShowAllSources(false);
-    setPositionLoading(true); // 重置載入狀態
-    setAnalysisLoading(true); // 重置專家分析載入狀態
-    setShowContent('loading'); // 重置顯示狀態
-  }, [id, currentLanguage]); // 當 id 或語言改變時執行
+    setPositionLoading(true);
+    setAnalysisLoading(true);
+  }, [id, currentLanguage]);
 
   // 根據當前語言獲取國家觀點內容
   const getCountryAnalysisContent = () => {
