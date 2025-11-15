@@ -5,6 +5,7 @@ import './../css/SpecialReportPage.css';
 import { useLanguageFields } from '../utils/useLanguageFields';
 import { useSpecialReportsList } from '../hooks/useSpecialReports';
 import { useCountry } from './CountryContext';
+import LatestTopics from './LatestTopics';
 
 function SpecialReportPage() {
   const { t } = useTranslation();
@@ -22,13 +23,16 @@ function SpecialReportPage() {
   const specialReports = useMemo(() => {
     if (!topicDetails || topicDetails.length === 0) return [];
 
-    return topicDetails.map(topic => ({
+    const reports = topicDetails.map(topic => ({
       ...topic,
       topic_title: topic[getFieldName('topic_title')] || topic.topic_title,
       topic_short: topic[getFieldName('topic_short')] || topic.topic_short,
       articles: topicCounts[topic.topic_id] || 0,
-      lastUpdate: topic.generated_date
+      lastUpdate: topic.update_date || topic.generated_date
     }));
+
+    // 按更新時間排序 (最新的在前)
+    return reports.sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate));
   }, [topicDetails, topicCounts, getFieldName]);
 
   if (isLoading) {
@@ -58,7 +62,6 @@ function SpecialReportPage() {
       <div className="srp-page">
         <header className="srp-header">
           <h1 className="srp-title">{t('specialReportPage.title')}</h1>
-          <p className="srp-subtitle">{t('specialReportPage.subtitle')}</p>
         </header>
         <section className="srp-grid">
           <div className="no-data-message">{t('specialReportPage.empty.noTopics')}</div>
@@ -69,10 +72,8 @@ function SpecialReportPage() {
 
   return (
     <div className="srp-page">
-      <header className="srp-header">
-        <h1 className="srp-title">{t('specialReportPage.title')}</h1>
-        <p className="srp-subtitle">{t('specialReportPage.subtitle')}</p>
-      </header>
+      {/* 最新專題輪播 */}
+      <LatestTopics />
 
       <section className="srp-grid">
         {specialReports.length === 0 ? (

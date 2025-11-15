@@ -15,14 +15,35 @@ import SpecialReportDetail from './components/SpecialReportDetail';
 import AbroadNewsPage from './components/AbroadNewsPage';
 import YesterdayFocus from './components/YesterdayFocus';
 import { SupabaseProvider } from './components/supabase';
-import { CountryProvider } from './components/CountryContext';
+import { CountryProvider, useCountry } from './components/CountryContext';
 import { QueryProvider } from './providers/QueryProvider';
-import { useCountry } from './components/CountryContext';
 import { AuthProvider } from './login/AuthContext';
 import ProtectedRoute from './login/ProtectedRoute';
 import LoginPage from './login/LoginPage';
 import './i18n'; 
 import './css/App.css';
+
+// 專題報導路由保護元件 (只有台灣可以訪問)
+function TaiwanOnlyRoute({ children }) {
+  const { selectedCountry } = useCountry();
+  const location = useLocation();
+  
+  // 從當前路徑提取語言前綴
+  const currentLang = location.pathname.split('/')[1] || 'zh-TW';
+  
+  // 等待 country 初始化完成後再判斷
+  React.useEffect(() => {
+    if (selectedCountry !== 'taiwan') {
+      window.location.href = `/${currentLang}/`;
+    }
+  }, [selectedCountry, currentLang]);
+  
+  if (selectedCountry !== 'taiwan') {
+    return <Navigate to={`/${currentLang}/`} replace />;
+  }
+  
+  return children;
+}
 
 // Layout 組件使用 Outlet 來渲染子路由
 function LanguageLayout() {
@@ -124,8 +145,8 @@ function App() {
                     <Route path="category/Japan/:categoryName" element={<CategorySection country="Japan" />} />
                     <Route path="category/Indonesia/:categoryName" element={<CategorySection country="Indonesia" />} />
                     
-                    <Route path="special-reports" element={<SpecialReportPage />} />
-                    <Route path="special-report/:id" element={<SpecialReportDetail />} />
+                    <Route path="special-reports" element={<TaiwanOnlyRoute><SpecialReportPage /></TaiwanOnlyRoute>} />
+                    <Route path="special-report/:id" element={<TaiwanOnlyRoute><SpecialReportDetail /></TaiwanOnlyRoute>} />
                     <Route path="yesterday-focus" element={<YesterdayFocus />} />
                     <Route path="abroad" element={<AbroadNewsPage />} />
                   </Route>

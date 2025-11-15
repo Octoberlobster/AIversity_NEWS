@@ -328,19 +328,33 @@ function Header() {
 
       <div className="tagBarWrapper">   
         <div className="domainTagBar">
-          {domains.map((domain) => (
-            <Link
-              key={domain.id}
-              to={`/${selectedLanguage}${domain.path}`}
-              className={`tagLink ${activeDomain === domain.id ? 'is-active' : ''}`}
-              onClick={() => {
-                setActiveDomain(domain.id);
-                setActiveCategory(null);
-              }}
-            >
-              {domain.label}
-            </Link>
-          ))}
+          {domains.map((domain) => {
+            // 專題報導只有台灣可以點擊
+            const isSpecialReport = domain.id === 'project';
+            const isDisabled = isSpecialReport && selectedCountry !== 'taiwan';
+            
+            return isDisabled ? (
+              <span
+                key={domain.id}
+                className="tagLink disabled"
+                title={t('header.menu.onlyTaiwan', '僅台灣地區提供')}
+              >
+                {domain.label}
+              </span>
+            ) : (
+              <Link
+                key={domain.id}
+                to={`/${selectedLanguage}${domain.path}`}
+                className={`tagLink ${activeDomain === domain.id ? 'is-active' : ''}`}
+                onClick={() => {
+                  setActiveDomain(domain.id);
+                  setActiveCategory(null);
+                }}
+              >
+                {domain.label}
+              </Link>
+            );
+          })}
           
           {/* 類別標籤 */}
           {countries

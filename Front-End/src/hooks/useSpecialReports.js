@@ -64,7 +64,7 @@ export function useSpecialReportsList() {
 
       const { data, error } = await supabase
         .from('topic')
-        .select(`topic_id, ${selectFields}, generated_date`)
+        .select(`topic_id, ${selectFields}, generated_date, update_date`)
         .in('topic_id', validTopicIds);
 
       if (error) {
@@ -341,13 +341,14 @@ export function useLatestTopics() {
 
       const { data, error } = await supabase
         .from('topic')
-        .select(`topic_id, ${selectFields}, generated_date`)
+        .select(`topic_id, ${selectFields}, generated_date, update_date`)
         .not('topic_title', 'is', null)
         .neq('topic_title', '')
         .not('topic_short', 'is', null)
         .neq('topic_short', '')
         .not('generated_date', 'is', null)
-        .order('generated_date', { ascending: false })
+        .eq('alive', 1)
+        .order('update_date', { ascending: false })
         .limit(10);
 
       if (error) throw error;

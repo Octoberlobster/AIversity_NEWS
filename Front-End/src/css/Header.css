@@ -380,6 +380,17 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
 }
+.tagLink.disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.tagLink.disabled:hover {
+  background: transparent;
+  color: #9ca3af;
+  transform: none;
+}
 
 /* 搜尋表單樣式 */
 .searchForm {
