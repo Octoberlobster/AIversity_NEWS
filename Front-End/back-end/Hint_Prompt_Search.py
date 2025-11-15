@@ -3,6 +3,10 @@ from google import genai
 from google.genai import types
 from env import gemini_client, supabase
 import os
+import logging
+
+# <<< 新增
+logger = logging.getLogger(__name__)
 
 class HintPromptResponse(BaseModel):
     Hint_Prompt: list[str]
@@ -21,8 +25,23 @@ def generate_hint_prompt(language="zh-TW"): # <<< MODIFIED
     output_language = language_map.get(language, "繁體中文 (Traditional Chinese)")
     language_instruction = f"\n\n# 語言規則\n- 你必須嚴格使用「{output_language}」來回覆所有提示詞。"
 
-    response = supabase.table("single_news").select("news_title,long").order("generated_date", desc=True).limit(10).execute()
-    news = response.data
+    # --- MODIFICATION START ---
+    try:
+        # 透過 !inner JOIN 一次性查詢 single_news 並過濾 stories.country
+        response = (
+            supabase.table("single_news")
+            .select("news_title, long, stories!inner(country)") # 請求 JOIN
+            .eq("stories.country", "Taiwan")  # 對 JOIN 的 'stories' 表下篩選條件
+            .order("generated_date", desc=True)
+            .limit(10) # 限制 10 筆
+            .execute()
+        )
+        news = response.data
+    
+    except Exception as e:
+         logger.error(f"Error fetching news for hint_prompt_search: {e}")
+         news = [] # 發生錯誤時，回退到空列表
+    # --- MODIFICATION END ---
     
     # <<< MODIFIED system_instruction >>>
     original_instruction = (

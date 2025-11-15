@@ -23,7 +23,17 @@ def initialize_services():
 def fetch_data_from_database(supabase):
     """從資料庫獲取專題和新聞資料"""
     topic = supabase.table("topic").select("topic_id, topic_title").execute()
-    news = supabase.table("single_news").select("story_id, news_title, short").execute()
+    
+    news = []
+    batch_size = 1000
+    start = 0
+    while True:
+        temp = supabase.table("single_news").select("story_id, news_title, short").order("generated_date", desc=True).range(start, start + batch_size - 1).execute()
+        if not temp.data:
+            break
+        news.extend(temp.data)
+        break
+        start += batch_size
     return topic, news
 
 def get_classified_news_ids(supabase) -> set[str]:
@@ -46,7 +56,7 @@ def filter_new_news_only(news_data, classified_story_ids: set[str]) -> list[dict
     new_news = []
     already_classified = []
     
-    for item in news_data.data:
+    for item in news_data:
         story_id = str(item["story_id"])
         news_title = item.get("news_title", "")
         
@@ -58,7 +68,7 @@ def filter_new_news_only(news_data, classified_story_ids: set[str]) -> list[dict
     print(f"\n📰 新聞分析統計:")
     print(f"   未分類新聞: {len(new_news)} 篇")
     print(f"   已分類新聞: {len(already_classified)} 篇")
-    print(f"   總新聞數: {len(news_data.data)} 篇")
+    print(f"   總新聞數: {len(news_data)} 篇")
     
     if not new_news:
         print("\n⚠️  所有新聞都已分類，無需處理")
@@ -602,7 +612,7 @@ def main():
     # 準備執行摘要
     execution_summary = {
         "total_topics": len(topic_data.data),
-        "total_news": len(news_data.data),
+        "total_news": len(news_data),
         "unclassified_news": len(unclassified_news),
         "newly_classified": sum(len(t["stories"]) for t in grouped_output["topics"]),
         "topics_with_new_news": sum(1 for g in grouped_output["topics"] if g["stories"]),

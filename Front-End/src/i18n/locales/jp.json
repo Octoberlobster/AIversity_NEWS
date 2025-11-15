@@ -36,7 +36,8 @@
     "latestNews": "最新ニュース",
     "articles": "件の関連ニュース",
     "topicpreview": "特集プレビュー",
-    "nobranches": "特集プレビューはありません"
+    "nobranches": "特集プレビューはありません",
+    "noTopics": "特集なし"
   },
   "yesterdayFocus": {
     "title": "{{country}}フォーカス",
@@ -215,6 +216,13 @@
       "generating": "生成中...",
       "generateError": "台湾の視点の生成に失敗しました。後でもう一度お試しください"
     },
+    "mediaLiteracy": {
+      "title": "メディアリテラシー警告",
+      "placeholder": "メディアリテラシー警告はまだ生成されていません",
+      "generateButton": "メディアリテラシー警告を生成",
+      "generating": "生成中...",
+      "generateError": "メディアリテラシー警告の生成に失敗しました。後でもう一度お試しください"
+    },
     "related": {
       "news": "関連ニュース",
       "topics": "関連特集",
@@ -295,7 +303,8 @@
     },
     "retry": "再読み込み",
     "empty": {
-      "noReports": "現在、特集記事はありません"
+      "noReports": "現在、特集記事はありません",
+      "noTopics": "特集なし"
     },
     "meta": {
       "articles": "件の記事",

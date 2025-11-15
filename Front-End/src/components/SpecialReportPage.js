@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import './../css/SpecialReportPage.css';
 import { useLanguageFields } from '../utils/useLanguageFields';
 import { useSpecialReportsList } from '../hooks/useSpecialReports';
+import { useCountry } from './CountryContext';
 
 function SpecialReportPage() {
   const { t } = useTranslation();
   const { getCurrentLanguage, getFieldName } = useLanguageFields();
+  const { selectedCountry } = useCountry();
   
   const getLanguageRoute = (path) => {
     return `/${getCurrentLanguage()}${path}`;
@@ -46,6 +48,21 @@ function SpecialReportPage() {
             {t('specialReportPage.retry')}
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // 如果不是選擇臺灣，就顯示沒有專題
+  if (selectedCountry !== 'taiwan') {
+    return (
+      <div className="srp-page">
+        <header className="srp-header">
+          <h1 className="srp-title">{t('specialReportPage.title')}</h1>
+          <p className="srp-subtitle">{t('specialReportPage.subtitle')}</p>
+        </header>
+        <section className="srp-grid">
+          <div className="no-data-message">{t('specialReportPage.empty.noTopics')}</div>
+        </section>
       </div>
     );
   }

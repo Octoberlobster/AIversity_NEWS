@@ -149,6 +149,25 @@ export async function generateCountryAnalysis(storyId, country) {
   return result;
 }
 
+// 生成媒體素養提醒
+export async function generateMediaLiteracy(storyId) {
+  console.log('generateMediaLiteracy 被呼叫，參數:', {
+    storyId
+  });
+
+  const requestBody = {
+    story_id: storyId
+  };
+
+  console.log('準備送出的媒體素養請求 body:', JSON.stringify(requestBody, null, 2));
+
+  const result = await fetchJson('/api/media_literacy/generate', requestBody);
+  
+  console.log('generateMediaLiteracy 收到結果:', result);
+  
+  return result;
+}
+
 /**
  * 從 Supabase 根據 story_ids 獲取新聞資料（輔助函數）
  * 一次拉取所有語言的資料,切換語言時不需重新調用

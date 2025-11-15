@@ -6,7 +6,7 @@ import ChatRoom from './ChatRoom';
 import TermTooltip from './TermTooltip';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { useLanguageFields} from '../utils/useLanguageFields';
-import { changeExperts as changeExpertsAPI, generateCountryAnalysis } from './api.js';
+import { changeExperts as changeExpertsAPI, generateCountryAnalysis, generateMediaLiteracy } from './api.js';
 import { getSuicideWarningText } from '../config/suicideWarningConfig';
 import { 
   useNewsData, 
@@ -19,7 +19,8 @@ import {
   useExpertAnalysis,
   useRelatedNews,
   useRelatedTopics,
-  useCountryAnalysis
+  useCountryAnalysis,
+  useMediaLiteracy
 } from '../hooks/useNewsDetail';
 
 function NewsDetail() {
@@ -54,6 +55,8 @@ function NewsDetail() {
   const [feedbackStatus, setFeedbackStatus] = useState({}); // 記錄每個專家的反饋狀態 {analyze_id: {useful: count, useless: count, userVoted: 'useful'|'useless'|null}}
   const [countryAnalysis, setCountryAnalysis] = useState(null); // 國家觀點資料
   const [generatingCountryAnalysis, setGeneratingCountryAnalysis] = useState(false); // 生成國家觀點中
+  const [mediaLiteracy, setMediaLiteracy] = useState(null); // 媒體素養提醒資料
+  const [generatingMediaLiteracy, setGeneratingMediaLiteracy] = useState(false); // 生成媒體素養提醒中
   
   // 正反方立場彈窗相關狀態
   const [showPositionModal, setShowPositionModal] = useState(false);
@@ -96,6 +99,9 @@ function NewsDetail() {
   
   // 🚀 使用 React Query Hook 載入國家觀點 (背景載入)
   const { data: countryAnalysisResult } = useCountryAnalysis(id);
+  
+  // 🚀 使用 React Query Hook 載入媒體素養提醒 (背景載入)
+  const { data: mediaLiteracyResult } = useMediaLiteracy(id);
   
   // 🚀 從 hook 結果中提取資料 (向後兼容舊的狀態)
   useEffect(() => {
@@ -220,6 +226,14 @@ function NewsDetail() {
       //console.log('台灣觀點資料更新:', countryAnalysisResult);
     }
   }, [countryAnalysisResult]);
+
+  // 🚀 更新媒體素養提醒資料
+  useEffect(() => {
+    if (mediaLiteracyResult) {
+      setMediaLiteracy(mediaLiteracyResult.literacy);
+      //console.log('媒體素養提醒資料更新:', mediaLiteracyResult);
+    }
+  }, [mediaLiteracyResult]);
 
   // 計算要顯示的文章內容 (包含防自殺聲明)
   const articleContent = useMemo(() => {
@@ -558,6 +572,39 @@ function NewsDetail() {
     }
   };
 
+  // 處理生成媒體素養提醒
+  const handleGenerateMediaLiteracy = async () => {
+    if (generatingMediaLiteracy) {
+      return;
+    }
+
+    try {
+      //console.log('=== 開始生成媒體素養提醒 ===');
+      setGeneratingMediaLiteracy(true);
+
+      // 調用 API 生成媒體素養提醒
+      const result = await generateMediaLiteracy(id);
+      
+      //console.log('媒體素養提醒生成成功:', result);
+      
+      // 將 API 返回的扁平結構轉換為資料庫格式
+      const formattedResult = {
+        alert: result.alert,
+        alert_en_lang: result.alert_en_lang,
+        alert_id_lang: result.alert_id_lang,
+        alert_jp_lang: result.alert_jp_lang
+      };
+      
+      setMediaLiteracy(formattedResult);
+      
+    } catch (error) {
+      console.error('生成媒體素養提醒失敗:', error);
+    } finally {
+      setGeneratingMediaLiteracy(false);
+      //console.log('=== 生成媒體素養提醒流程結束 ===');
+    }
+  };
+
   // 確保頁面載入時滾動到頂部，語言切換時也要重置
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -586,6 +633,21 @@ function NewsDetail() {
       return content.content;
     }
     return content;
+  };
+
+  // 根據當前語言獲取媒體素養內容
+  const getMediaLiteracyContent = () => {
+    if (!mediaLiteracy) return null;
+    
+    const languageFieldMap = {
+      'zh-TW': 'alert',
+      'en': 'alert_en_lang',
+      'jp': 'alert_jp_lang',
+      'id': 'alert_id_lang'
+    };
+    
+    const fieldName = languageFieldMap[currentLanguage] || 'alert';
+    return mediaLiteracy[fieldName];
   };
 
   // 名詞解釋 tooltip
@@ -886,60 +948,138 @@ function NewsDetail() {
                 <div className="loadingMessage">{t('newsDetail.loading.data')}</div>
               </div>
             ) : showContent === 'position' ? (
-              <div className="prosConsSection">
-                <h4 className="prosConsTitle">{t('newsDetail.positions.positive')} / {t('newsDetail.positions.negative')}</h4>
-                <div className="prosConsGrid">
-                  {/* 正方立場 */}
-                  <div className="prosColumn">
-                    <div className="prosHeader">
-                      <h5 className="prosTitle">{t('newsDetail.positions.positive')}</h5>
-                    </div>
-                    <div className="prosContent">
-                      {positionData.positive && positionData.positive.length > 0 ? (
-                        positionData.positive.map((point, index) => (
-                          <div 
-                            className="prosPoint clickable-point" 
-                            key={index}
-                            onClick={() => handlePositionClick(point, 'positive')}
-                            title="點擊查看完整內容"
-                          >
-                            {truncateText(point)}
+              <>
+                <div className="prosConsSection">
+                  <h4 className="prosConsTitle">{t('newsDetail.positions.positive')} / {t('newsDetail.positions.negative')}</h4>
+                  <div className="prosConsGrid">
+                    {/* 正方立場 */}
+                    <div className="prosColumn">
+                      <div className="prosHeader">
+                        <h5 className="prosTitle">{t('newsDetail.positions.positive')}</h5>
+                      </div>
+                      <div className="prosContent">
+                        {positionData.positive && positionData.positive.length > 0 ? (
+                          positionData.positive.map((point, index) => (
+                            <div 
+                              className="prosPoint clickable-point" 
+                              key={index}
+                              onClick={() => handlePositionClick(point, 'positive')}
+                              title="點擊查看完整內容"
+                            >
+                              {truncateText(point)}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="prosPoint">
+                            {t('newsDetail.positions.noPositive')}
                           </div>
-                        ))
-                      ) : (
-                        <div className="prosPoint">
-                          {t('newsDetail.positions.noPositive')}
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* 反方立場 */}
-                  <div className="consColumn">
-                    <div className="consHeader">
-                      <h5 className="consTitle">{t('newsDetail.positions.negative')}</h5>
-                    </div>
-                    <div className="consContent">
-                      {positionData.negative && positionData.negative.length > 0 ? (
-                        positionData.negative.map((point, index) => (
-                          <div 
-                            className="consPoint clickable-point" 
-                            key={index}
-                            onClick={() => handlePositionClick(point, 'negative')}
-                            title="點擊查看完整內容"
-                          >
-                            {truncateText(point)}
+                    {/* 反方立場 */}
+                    <div className="consColumn">
+                      <div className="consHeader">
+                        <h5 className="consTitle">{t('newsDetail.positions.negative')}</h5>
+                      </div>
+                      <div className="consContent">
+                        {positionData.negative && positionData.negative.length > 0 ? (
+                          positionData.negative.map((point, index) => (
+                            <div 
+                              className="consPoint clickable-point" 
+                              key={index}
+                              onClick={() => handlePositionClick(point, 'negative')}
+                              title="點擊查看完整內容"
+                            >
+                              {truncateText(point)}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="consPoint">
+                            {t('newsDetail.positions.noNegative')}
                           </div>
-                        ))
-                      ) : (
-                        <div className="consPoint">
-                          {t('newsDetail.positions.noNegative')}
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+                
+                {/* 台灣觀點區塊 - 在正反方觀點下方 */}
+                <div className="countryAnalysisSection countryAnalysisSection--inline">
+                  <h4 className="countryAnalysisTitle">{t('newsDetail.taiwanPerspective.title')}</h4>
+                  
+                  {countryAnalysis ? (
+                    <div className="countryAnalysisContent">
+                      <div className="countryAnalysisText">
+                        {getCountryAnalysisContent()}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="countryAnalysisPlaceholder">
+                      <button 
+                        className="generateCountryAnalysisBtn"
+                        onClick={handleGenerateCountryAnalysis}
+                        disabled={generatingCountryAnalysis}
+                      >
+                        {generatingCountryAnalysis ? (
+                          <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rotating">
+                              <path d="M1 4v6h6M23 20v-6h-6" />
+                              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                            </svg>
+                            {t('newsDetail.taiwanPerspective.generating')}
+                          </>
+                        ) : (
+                          <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M12 5v14M5 12h14" />
+                            </svg>
+                            {t('newsDetail.taiwanPerspective.generateButton')}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+                
+                {/* 媒體素養提醒區塊 - 在台灣觀點下方 */}
+                <div className="mediaLiteracySection mediaLiteracySection--inline">
+                  <h4 className="mediaLiteracyTitle">{t('newsDetail.mediaLiteracy.title')}</h4>
+                  
+                  {mediaLiteracy ? (
+                    <div className="mediaLiteracyContent">
+                      <div className="mediaLiteracyText">
+                        {getMediaLiteracyContent()}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mediaLiteracyPlaceholder">
+                      <button 
+                        className="generateMediaLiteracyBtn"
+                        onClick={handleGenerateMediaLiteracy}
+                        disabled={generatingMediaLiteracy}
+                      >
+                        {generatingMediaLiteracy ? (
+                          <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rotating">
+                              <path d="M1 4v6h6M23 20v-6h-6" />
+                              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                            </svg>
+                            {t('newsDetail.mediaLiteracy.generating')}
+                          </>
+                        ) : (
+                          <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M12 5v14M5 12h14" />
+                            </svg>
+                            {t('newsDetail.mediaLiteracy.generateButton')}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : showContent === 'expert' ? (
               <div className="expertAnalysisSection">
                 <div className="expertAnalysisTitleBar">
@@ -1051,6 +1191,44 @@ function NewsDetail() {
                               <path d="M12 5v14M5 12h14" />
                             </svg>
                             {t('newsDetail.taiwanPerspective.generateButton')}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+                
+                {/* 媒體素養提醒區塊 - 在台灣觀點下方 */}
+                <div className="mediaLiteracySection mediaLiteracySection--inline">
+                  <h4 className="mediaLiteracyTitle">{t('newsDetail.mediaLiteracy.title')}</h4>
+                  
+                  {mediaLiteracy ? (
+                    <div className="mediaLiteracyContent">
+                      <div className="mediaLiteracyText">
+                        {getMediaLiteracyContent()}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mediaLiteracyPlaceholder">
+                      <button 
+                        className="generateMediaLiteracyBtn"
+                        onClick={handleGenerateMediaLiteracy}
+                        disabled={generatingMediaLiteracy}
+                      >
+                        {generatingMediaLiteracy ? (
+                          <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rotating">
+                              <path d="M1 4v6h6M23 20v-6h-6" />
+                              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                            </svg>
+                            {t('newsDetail.mediaLiteracy.generating')}
+                          </>
+                        ) : (
+                          <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M12 5v14M5 12h14" />
+                            </svg>
+                            {t('newsDetail.mediaLiteracy.generateButton')}
                           </>
                         )}
                       </button>

@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useSupabase } from '../components/supabase';
+import { useLanguageFields } from '../utils/useLanguageFields';
 
 /**
  * 自定義 Hook: 拉取分類新聞 (支援無限載入)
@@ -7,11 +8,13 @@ import { useSupabase } from '../components/supabase';
  */
 export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
   const supabase = useSupabase();
+  const { getMultiLanguageSelect, getFieldName, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
 
   return useInfiniteQuery({
-    queryKey: ['category-news', country, categoryName, itemsPerPage],
+    queryKey: ['category-news', country, categoryName, itemsPerPage, currentLanguage],
     queryFn: async ({ pageParam = 0 }) => {
-      console.log('[useCategoryNews] 載入頁面:', pageParam, '國家:', country, '分類:', categoryName);
+      console.log('[useCategoryNews] 載入頁面:', pageParam, '國家:', country, '分類:', categoryName, '語言:', currentLanguage);
 
       const offset = pageParam * itemsPerPage;
 
@@ -42,10 +45,13 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
       const storyIds = storiesData.map(story => story.story_id);
       console.log(`[useCategoryNews] 找到 ${storyIds.length} 個 story_ids`);
 
-      // 2. 查詢 single_news 並按時間排序和分頁
+      // 2. 查詢 single_news 並按時間排序和分頁，支援多語言
+      const newsMultiLangFields = ['news_title', 'ultra_short'];
+      const newsSelectFields = getMultiLanguageSelect(newsMultiLangFields);
+
       const { data: newsData, error: newsError } = await supabase
         .from('single_news')
-        .select('story_id, news_title, ultra_short, generated_date, category')
+        .select(`story_id, ${newsSelectFields}, generated_date, category`)
         .in('story_id', storyIds)
         .order('generated_date', { ascending: false })
         .range(offset, offset + itemsPerPage - 1);
@@ -54,11 +60,11 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
       
       const allNews = newsData || [];
 
-      // 3. 轉換格式 (不包含圖片)
+      // 3. 轉換格式 (不包含圖片)，支援多語言
       const basicNews = allNews.map(news => ({
         story_id: news.story_id,
-        title: news.news_title,
-        shortSummary: news.ultra_short,
+        title: news[getFieldName('news_title')] || news.news_title,
+        shortSummary: news[getFieldName('ultra_short')] || news.ultra_short,
         date: news.generated_date,
         category: news.category,
         needsImage: true,

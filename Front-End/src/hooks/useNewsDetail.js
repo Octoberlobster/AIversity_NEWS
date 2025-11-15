@@ -629,3 +629,46 @@ export function useCountryAnalysis(storyId) {
     cacheTime: 30 * 60 * 1000,
   });
 }
+
+/**
+ * 載入媒體素養提醒
+ * @param {string} storyId - 新聞 ID
+ * @returns {UseQueryResult} React Query 結果
+ */
+export function useMediaLiteracy(storyId) {
+  const supabase = useSupabase();
+  const { getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
+
+  return useQuery({
+    queryKey: ['media-literacy', storyId, currentLanguage],
+    queryFn: async () => {
+      //console.log('[useMediaLiteracy] 開始查詢媒體素養提醒:', storyId);
+
+      // 查詢 media_literacy 表
+      const { data: literacyData, error: literacyError } = await supabase
+        .from('media_literacy')
+        .select('media_literacy_id, alert, alert_en_lang, alert_id_lang, alert_jp_lang')
+        .eq('story_id', storyId);
+
+      if (literacyError) {
+        console.error('[useMediaLiteracy] 查詢錯誤:', literacyError);
+        throw new Error(`載入媒體素養提醒失敗: ${literacyError.message}`);
+      }
+
+      const literacy = literacyData?.[0];
+      
+      if (!literacy) {
+        //console.log('[useMediaLiteracy] 沒有找到媒體素養提醒資料');
+        return { literacy: null };
+      }
+
+      //console.log('[useMediaLiteracy] 媒體素養提醒載入完成');
+      return { literacy };
+    },
+    enabled: !!supabase && !!storyId,
+    staleTime: 15 * 60 * 1000, // 15 分鐘
+    cacheTime: 30 * 60 * 1000,
+  });
+}
+

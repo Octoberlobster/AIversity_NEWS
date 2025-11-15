@@ -36,7 +36,8 @@
     "latestNews": "Latest News",
     "articles": "Related Articles",
     "topicpreview": "Topic Preview",
-    "nobranches": "No topic preview available"
+    "nobranches": "No topic preview available",
+    "noTopics": "No topics"
   },
   "yesterdayFocus": {
     "title": "{{country}} Focus",
@@ -212,6 +213,13 @@
       "generating": "Generating...",
       "generateError": "Failed to generate Taiwan perspective, please try again later"
     },
+    "mediaLiteracy": {
+      "title": "Media Literacy Alert",
+      "placeholder": "Media literacy alert not yet generated",
+      "generateButton": "Generate Media Literacy Alert",
+      "generating": "Generating...",
+      "generateError": "Failed to generate media literacy alert, please try again later"
+    },
     "related": {
       "news": "Related News",
       "topics": "Related Topics",
@@ -292,7 +300,8 @@
     },
     "retry": "Reload",
     "empty": {
-      "noReports": "No special reports available"
+      "noReports": "No special reports available",
+      "noTopics": "No topics"
     },
     "meta": {
       "articles": "articles",

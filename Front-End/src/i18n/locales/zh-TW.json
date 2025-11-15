@@ -36,7 +36,8 @@
     "latestNews": "最新新聞",
     "articles": "篇相關新聞",
     "topicpreview": "專題預覽",
-    "nobranches": "暫無專題預覽"
+    "nobranches": "暫無專題預覽",
+    "noTopics": "沒有專題"
   },
   "yesterdayFocus": {
     "title": "{{country}}焦點",
@@ -215,6 +216,13 @@
       "generating": "生成中...",
       "generateError": "生成台灣觀點失敗，請稍後再試"
     },
+    "mediaLiteracy": {
+      "title": "媒體素養提醒",
+      "placeholder": "尚未生成媒體素養提醒",
+      "generateButton": "生成媒體素養提醒",
+      "generating": "生成中...",
+      "generateError": "生成媒體素養提醒失敗，請稍後再試"
+    },
     "related": {
       "news": "相關新聞",
       "topics": "相關專題",
@@ -284,7 +292,8 @@
     },
     "retry": "重新載入",
     "empty": {
-      "noReports": "目前沒有專題報導"
+      "noReports": "目前沒有專題報導",
+      "noTopics": "沒有專題"
     },
     "meta": {
       "articles": "篇文章",

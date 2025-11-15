@@ -149,3 +149,24 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
 }
+
+/* 沒有專題訊息樣式 */
+.no-data-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #9ca3af;
+  font-size: 1.3rem;
+  font-style: italic;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: var(--radius-lg);
+  border: 2px dashed #e5e7eb;
+  margin: 2rem 0;
+  position: relative;
+}
+
+.no-data-message::before {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}

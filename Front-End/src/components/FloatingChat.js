@@ -183,7 +183,8 @@ function FloatingChat() {
       const shortField = 'ultra_short' + suffix;
 
       // 構建 select 查詢字串 (總是包含預設欄位作為 fallback, 加上圖片)
-      const selectFields = `story_id, news_title, ultra_short, generated_image(image)${suffix ? `, ${titleField}, ${shortField}` : ''}`;
+      // ===== TASK 1 MODIFICATION (1/3): Add generated_date =====
+      const selectFields = `story_id, news_title, ultra_short, generated_date, generated_image(image)${suffix ? `, ${titleField}, ${shortField}` : ''}`;
 
       // 延遲處理新聞訊息
       const newsMessagesPromises = reply
@@ -217,7 +218,7 @@ function FloatingChat() {
                         // Optionally return a placeholder or skip
                     }
 
-
+                    // ===== TASK 1 MODIFICATION (2/3): Add generated_date to object =====
                     return {
                       id: newsId + Math.random(), // Use newsId + random for key
                       type: 'news',
@@ -225,6 +226,7 @@ function FloatingChat() {
                       title: data[titleField] || data.news_title || t('floatingChat.newsImage.noTitle'), // Add fallback title
                       image: imageBase64, // Store base64 string
                       ultra_short: data[shortField] || data.ultra_short || '', // Add fallback short description
+                      generated_date: data.generated_date, // <-- Added this
                       newsId,
                       isOwn: false,
                       time: getFormattedTime(),
@@ -344,6 +346,13 @@ function FloatingChat() {
                         />
                         <div>
                           <h4>{m.title}</h4>
+                          {/* ===== TASK 1 MODIFICATION (3/3): Display the date ===== */}
+                          {m.generated_date && (
+                            <span className="news-card-date" style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '0.5rem', display: 'block' }}>
+                              {/* 使用 getCurrentLocale() 來確保日期格式正確 */}
+                              {new Date(m.generated_date).toLocaleDateString(getCurrentLocale(), { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                            </span>
+                          )}
                           <p>{m.ultra_short}</p>
                         </div>
                       </div>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguageFields } from '../utils/useLanguageFields';
 import { useLatestTopics } from '../hooks/useSpecialReports';
+import { useCountry } from './CountryContext';
 import '../css/LatestTopics.css';
 
 function LatestTopics() {
@@ -10,6 +11,7 @@ function LatestTopics() {
   const { t } = useTranslation();
   const { getCurrentLanguage } = useLanguageFields();
   const currentLanguage = getCurrentLanguage();
+  const { selectedCountry } = useCountry();
 
   // 🚀 使用 React Query Hook 載入資料
   const { topics: rawTopics, newsMap, imageData, branches, isLoading, error } = useLatestTopics();
@@ -111,6 +113,25 @@ function LatestTopics() {
     return (
       <div className="latest-topics">
         <div className="latest-topics-loading">{t('common.loading')}</div>
+      </div>
+    );
+  }
+
+  // 如果不是選擇臺灣，就顯示沒有專題
+  if (selectedCountry !== 'taiwan') {
+    return (
+      <div className="latest-topics">
+        <div className="latest-topics-title-section">
+          <div className="latest-topics-title-content">
+            <span className="star-icon">⭐</span>
+            {t('home.latestTopic')}
+          </div>
+        </div>
+        <div className="latest-topics-main">
+          <div className="no-topics-message">
+            {t('home.noTopics')}
+          </div>
+        </div>
       </div>
     );
   }

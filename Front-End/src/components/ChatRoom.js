@@ -18,8 +18,6 @@ const experts = [
   { id: 9, name: "健康顧問", category: "Health & Wellness" },
 ];
 
-// <<< REMOVED: Default prompts constant (will use t()) >>>
-
 // 輔助函數：安全地解析 who_talk
 const parseWhoTalk = (whoTalk) => {
   if (!whoTalk) return [];
@@ -59,7 +57,6 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
   const [isLoading, setIsLoading] = useState(false);
   const [quickPrompts, setQuickPrompts] = useState([]);
 
-  // <<< MODIFIED: Use t() for default prompts >>>
   const DEFAULT_QUICK_PROMPTS_SINGLE = useMemo(() => [
       t('chatRoom.prompts.default1'),
       t('chatRoom.prompts.default2'),
@@ -91,28 +88,11 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
 
   useImperativeHandle(ref, () => ({}), []);
 
-  useEffect(() => {
-    const whoTalkArray = parseWhoTalk(newsData?.who_talk);
-    if (whoTalkArray.length > 0) {
-      setSelectedExperts(prevSelected => {
-        const validExperts = prevSelected.filter(expertId => {
-          const expert = experts.find(e => e.id === expertId);
-          return expert && whoTalkArray.includes(expert.category);
-        });
-        if (validExperts.length === 0) {
-          const firstAvailableExpert = experts.find(expert => whoTalkArray.includes(expert.category));
-          if (firstAvailableExpert) return [firstAvailableExpert.id];
-        }
-        return validExperts;
-      });
-    } else {
-        if (newsData?.category) {
-            const initialExpert = experts.find(expert => expert.category === newsData.category);
-            if (initialExpert) setSelectedExperts([initialExpert.id]);
-            else if (experts.length > 0) setSelectedExperts([experts[0].id]);
-        } else if (experts.length > 0) setSelectedExperts([experts[0].id]);
-    }
-  }, [newsData?.who_talk, newsData?.category]);
+  // 🔴 (舊) 移除這個會導致競爭條件的 useEffect
+  // useEffect(() => {
+  //   const whoTalkArray = parseWhoTalk(newsData?.who_talk);
+  //   ... (舊的選取邏輯)
+  // }, [newsData?.who_talk, newsData?.category]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -122,7 +102,7 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
   }, [messages]);
 
   const changeQuickPrompt = useCallback(async (chat_content = '') => {
-    setQuickPrompts(DEFAULT_QUICK_PROMPTS_SINGLE); // Set defaults initially
+    // 🔴 (修復閃爍 1/2) 移除這一行： setQuickPrompts(DEFAULT_QUICK_PROMPTS_SINGLE);
     try{
       const options = selectedExperts.map(expertId => experts.find(e => e.id === expertId)?.category).filter(Boolean);
        if (options.length === 0) {
@@ -134,7 +114,9 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
       });
       console.log('Fetched quick prompts:', response);
        if (response && Array.isArray(response.Hint_Prompt)) {
-            setQuickPrompts(response.Hint_Prompt.filter(p => p && p.trim()));
+            // 🟢 (修復閃爍 2/2) 改為合併提示，而不是完全替換
+            const dynamicPrompts = response.Hint_Prompt.filter(p => p && p.trim());
+            setQuickPrompts([...dynamicPrompts, ...DEFAULT_QUICK_PROMPTS_SINGLE]);
        } else {
             console.warn("Received invalid hint prompts response:", response);
              setQuickPrompts(DEFAULT_QUICK_PROMPTS_SINGLE);
@@ -143,7 +125,7 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
       console.error('Error updating quick prompts:', error);
        setQuickPrompts(DEFAULT_QUICK_PROMPTS_SINGLE);
     }
-  }, [selectedExperts, user_id, room_id, newsData?.long, getCurrentLocale, DEFAULT_QUICK_PROMPTS_SINGLE]); // Added DEFAULT to deps
+  }, [selectedExperts, user_id, room_id, newsData?.long, getCurrentLocale, DEFAULT_QUICK_PROMPTS_SINGLE]);
 
 
   useEffect(() => {
@@ -155,13 +137,13 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
   }, [isDropdownOpen]);
 
   useEffect(() => {
-    setQuickPrompts(DEFAULT_QUICK_PROMPTS_SINGLE); // Set defaults on mount/selection change
+    // 🔴 (修復閃爍) 移除這行： setQuickPrompts(DEFAULT_QUICK_PROMPTS_SINGLE);
     if (selectedExperts.length > 0) {
       changeQuickPrompt();
     } else {
        setQuickPrompts(DEFAULT_QUICK_PROMPTS_SINGLE); // Ensure defaults if selection becomes empty
     }
-  }, [selectedExperts, changeQuickPrompt, DEFAULT_QUICK_PROMPTS_SINGLE]); // Added DEFAULT to deps
+  }, [selectedExperts, changeQuickPrompt, DEFAULT_QUICK_PROMPTS_SINGLE]);
 
   useEffect(() => {
     updateExpertNamesByChatExperts(chatExperts);
@@ -169,8 +151,8 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
 
   useEffect(() => {
     setMessages([ { id: Date.now() + Math.random(), text: t('exportChat.welcome.chat.greeting'), isOwn: false, time: getFormattedTime() } ]);
-    // Initial expert selection logic moved to the who_talk effect
-  }, [newsData?.category, t, getFormattedTime]); // Keep category dependency
+    // 初始專家選擇邏輯移至下面新的 useEffect
+  }, [newsData?.category, t, getFormattedTime]);
 
 
   const toggleExpert = (id) => {
@@ -268,6 +250,22 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
       }
       return experts.filter(expert => whoTalkArray.includes(expert.category));
   }, [chatExperts, newsData?.who_talk, newsData?.category]);
+
+  // 🟢 (修復計數問題) 新增此 useEffect 來同步 selectedExperts 和 availableExperts
+  useEffect(() => {
+    const availableIds = new Set(availableExperts.map(e => e.id));
+    
+    setSelectedExperts(prevSelected => {
+      const validSelected = prevSelected.filter(id => availableIds.has(id));
+      
+      // 如果所有選中的專家都失效了 (例如從無到有載入了新的專家列表)
+      // 並且新的可用專家列表不為空，則預選第一位
+      if (validSelected.length === 0 && availableExperts.length > 0) {
+        return [availableExperts[0].id];
+      }
+      return validSelected;
+    });
+  }, [availableExperts]); // 當 availableExperts 列表變化時觸發
 
   return (
     <div className="chat">

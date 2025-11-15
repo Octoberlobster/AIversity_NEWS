@@ -392,6 +392,18 @@
   font-size: 1rem;
 }
 
+/* 沒有專題訊息 */
+.no-topics-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #9ca3af;
+  font-size: 1.2rem;
+  font-style: italic;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 2px dashed #e5e7eb;
+}
+
 /* 響應式設計 */
 @media (max-width: 768px) {
   .carousel-container {

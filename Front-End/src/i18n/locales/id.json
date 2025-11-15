@@ -36,7 +36,8 @@
     "latestNews": "Berita Terbaru",
     "articles": "artikel berita terkait",
     "topicpreview": "Pratinjau Topik",
-    "nobranches": "Belum ada pratinjau topik"
+    "nobranches": "Belum ada pratinjau topik",
+    "noTopics": "Tidak ada topik"
   },
   "yesterdayFocus": {
     "title": "Fokus {{country}}",
@@ -215,6 +216,13 @@
       "generating": "Membuat...",
       "generateError": "Gagal membuat perspektif Taiwan, silakan coba lagi nanti"
     },
+    "mediaLiteracy": {
+      "title": "Peringatan Literasi Media",
+      "placeholder": "Peringatan literasi media belum dibuat",
+      "generateButton": "Buat Peringatan Literasi Media",
+      "generating": "Membuat...",
+      "generateError": "Gagal membuat peringatan literasi media, silakan coba lagi nanti"
+    },
     "related": {
       "news": "Berita Terkait",
       "topics": "Topik Terkait",
@@ -297,7 +305,8 @@
     },
     "retry": "Coba Lagi",
     "empty": {
-      "noReports": "Saat ini tidak ada laporan khusus"
+      "noReports": "Saat ini tidak ada laporan khusus",
+      "noTopics": "Tidak ada topik"
     },
     "meta": {
       "articles": "artikel",

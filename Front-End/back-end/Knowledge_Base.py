@@ -1,4 +1,3 @@
-# Knowledge_Base.py (修正後完整版)
 import logging
 from typing import List, Dict, Any
 from pydantic import BaseModel
@@ -237,23 +236,36 @@ def set_knowledge_base(prompt, category, id=None, topic_flag=False, language="zh
 
     if category == "search":
         try:
-             # Fetch recent news for the search knowledge base
-             response = supabase.table("single_news").select("story_id,news_title,short,category,generated_date").order("generated_date", desc=True).limit(60).execute()
-             if not response.data:
-                  logger.warning("No recent news found for search knowledge base.")
-                  news_base_content = "目前無法獲取最新新聞。"
-             else:
-                  # Find relevant news based on the prompt
-                  navigation_result = navigate_to_paragraphs(response.data, prompt)
-                  relevant_news = navigation_result.get("paragraphs", [])
-                  if not relevant_news:
-                      logger.warning(f"No relevant news found for prompt: '{prompt}'. Using generic base.")
-                      # Fallback: maybe use top N news titles/summaries
-                      news_base_content = "\n".join([f"ID {n['story_id']}: {n['news_title']} - {n['short']}" for n in response.data[:5]]) # Limit fallback size
-                  else:
-                      news_base_content = "\n".join([f"ID {n['story_id']}: {n['news_title']} - {n['short']}" for n in relevant_news])
+            # --- MODIFICATION START ---
+            # 透過 !inner JOIN 一次性查詢 single_news 並過濾 stories.country
+            # 假設 'single_news' 表有 'story_id' 欄位作為外鍵關聯到 'stories' 表的 'story_id'
+            
+            response = (
+                supabase.table("single_news")
+                .select("story_id, news_title, short, category, generated_date, stories!inner(country)") # 請求 JOIN
+                .eq("stories.country", "Taiwan")  # 對 JOIN 的 'stories' 表下篩選條件
+                .order("generated_date", desc=True)
+                .limit(60) # 限制 60 筆最新的台灣新聞
+                .execute()
+            )
+            
+            # --- MODIFICATION END ---
 
-             original_instruction = f"""
+            if not response.data:
+                 logger.warning("No recent news found for search knowledge base (post-filter).")
+                 news_base_content = "目前無法獲取最新台灣新聞。"
+            else:
+                 # Find relevant news based on the prompt
+                 navigation_result = navigate_to_paragraphs(response.data, prompt)
+                 relevant_news = navigation_result.get("paragraphs", [])
+                 if not relevant_news:
+                     logger.warning(f"No relevant news found for prompt: '{prompt}'. Using generic base.")
+                     # Fallback: maybe use top N news titles/summaries
+                     news_base_content = "\n".join([f"ID {n['story_id']}: {n['news_title']} - {n['short']}" for n in response.data[:5]]) # Limit fallback size
+                 else:
+                     news_base_content = "\n".join([f"ID {n['story_id']}: {n['news_title']} - {n['short']}" for n in relevant_news])
+
+            original_instruction = f"""
                  # 角色與任務
                  你是一位專業的新聞搜尋助手。你的任務是根據我提供的最新新聞資料庫，簡潔且精確地回答我的問題。
 
@@ -278,8 +290,8 @@ def set_knowledge_base(prompt, category, id=None, topic_flag=False, language="zh
 
                  請根據上述規則生成你的回覆。
              """
-             knowledge_base_dict["search"] = original_instruction + language_instruction
-             logger.info("Knowledge base set for 'search' category.")
+            knowledge_base_dict["search"] = original_instruction + language_instruction
+            logger.info("Knowledge base set for 'search' category.")
         except Exception as e:
              logger.error(f"Error setting knowledge base for 'search': {e}", exc_info=True)
              knowledge_base_dict["search"] = "作為新聞搜尋助手，我目前無法訪問資料庫，請稍後再試。" + language_instruction # Fallback instruction

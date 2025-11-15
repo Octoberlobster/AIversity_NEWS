@@ -12,6 +12,7 @@ from Hint_Prompt_Topic import Hint_Prompt_Topic
 import Change_experts
 import Change_experts_Topic
 import country_pro_analyze
+import media_literacy
 from env import supabase
 
 # --- Logging Setup ---
@@ -524,6 +525,40 @@ def country_analyze_route():
 
     except Exception as e:
         logger.error(f"Error during country analysis generation for {story_id}: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/media_literacy/generate", methods=["POST"])
+def media_literacy_route():
+    """
+    提供針對特定新聞的即時媒體識讀提醒。
+    """
+    data = request.json
+    story_id = data.get("story_id")
+
+    logger.info(f"Received /api/media_literacy/generate request for story_id: {story_id}")
+
+    if not story_id:
+        logger.warning("Missing 'story_id' in /api/media_literacy/generate request.")
+        return jsonify({"error": "Missing 'story_id'"}), 400
+
+    try:
+        # 1. 呼叫 Gemini 生成提醒 (回傳扁平的 dict)
+        alert_result = media_literacy.generate_media_literacy_alert(story_id)
+        
+        # 2. 呼叫函式將提醒結果插入資料庫 (此函式內部會處理錯誤，不會中斷流程)
+        #    這樣下次就可以直接從 'media_literacy' 表中讀取，不需重覆生成
+        try:
+            media_literacy.insert_media_literacy_data(story_id, alert_result)
+        except Exception as db_e:
+            # 記錄插入錯誤，但不中斷
+            logger.error(f"DB insert failed for {story_id} (media literacy), but alert will be returned. Error: {db_e}", exc_info=True)
+
+        # 3. 將扁平的 JSON 提醒結果回傳給前端
+        logger.info(f"Successfully processed media literacy alert for {story_id}. Returning alert.")
+        return jsonify(alert_result)
+
+    except Exception as e:
+        logger.error(f"Error during media literacy generation for {story_id}: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
