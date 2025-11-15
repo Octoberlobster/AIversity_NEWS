@@ -165,35 +165,44 @@ class NewsEventGrouper:
         # 構建提示語
         prompt = f"""
 # 角色
-你是一位頂尖的新聞分析專家，擁有超過20年的產業經驗。你的核心能力是快速洞察大量快訊背後的核心事件脈絡，將看似獨立的報導整合成清晰、有邏輯的事件群組，並為其命名精準的標題。
+你是一位頂尖的新聞分析專家，擁有超過20年的產業經驗。你擅長識別真正相關的新聞事件，並以**嚴格的標準**進行分組。
 
 # 核心任務
-分析下方提供的 {len(news_items)} 則新聞，將它們依據「核心事件」進行合併分組。
+分析下方提供的 {len(news_items)} 則新聞，將它們依據「核心事件」進行**嚴格且精準的**合併分組。
 
-# 兩大絕對原則 (必須嚴格遵守)
-1.  **禁止任何形式的「其他」或「未分類」分組**：所有新聞都必須被歸入一個有具體事件意義的分組。這條原則沒有例外。
-2.  **杜絕單一新聞分組**：每個分組必須包含至少 2 則新聞。如果某則新聞看似獨立，你必須重新審視所有新聞，找出與它最相關的事件並將其併入。你的職責是找出關聯，而非製造孤島。
+# 三大絕對原則 (必須嚴格遵守)
+1.  **每個分組必須至少包含 5 則新聞**：這是硬性規定。如果某個事件分組不足 5 則新聞，不要單獨成立分組，應將這些新聞暫時歸類為「其他」，或強制併入相關度最高的其他分組中。
+2.  **採用嚴格的分組標準**：只有核心事件、關鍵人物、主要政策或重大議題完全一致的新聞才能歸為同一組。不要將泛泛相關的新聞硬性合併。
+3.  **寧少勿濫**：如果無法找到至少 5 則新聞的明確共同事件，這些新聞應該歸類為「其他相關新聞」，不要強制製造不合理的分組。
 
 # 新聞資料
 {chr(1000).join(news_summaries)}
 
 # 執行步驟 (請在內部依序思考，僅最終輸出 JSON)
 
-### 步驟一：初步掃描與主題識別
-快速閱讀全部 {len(news_items)} 則新聞，為每一則新聞標記出 2-3 個核心關鍵詞（例如：人物、地點、事件類型）。
+### 步驟一：識別核心事件
+仔細閱讀全部 {len(news_items)} 則新聞，識別出真正明確的核心事件。核心事件必須具備：
+- 明確的主題或議題（例如：特定法案、特定人物醜聞、特定災害事件）
+- 至少 5 則新聞直接相關
+- 新聞之間有明確的關聯性（同一事件的不同面向、發展階段或影響層面）
 
-### 步驟二：強制關聯與合併
-這是最重要的步驟。檢視所有新聞的關鍵詞，開始強制尋找關聯性並進行合併：
-- **因果關聯**：事件A是否導致了事件B？它們應屬同一組。
-- **人物/地點關聯**：不同新聞是否涉及相同的關鍵人物、公司或地點？它們應屬同一組。
-- **主題延伸**：報導A是否是事件B的後續發展或不同面向的探討？它們應屬同一組。
-- **建立草稿分組**：基於以上關聯，建立 3-5 個草稿分組。**你的預設行為應該是合併，而不是拆分**。
+### 步驟二：建立嚴格的分組
+只為符合以下條件的事件建立分組：
+- **至少 5 則新聞**明確討論同一核心事件
+- 新聞之間的關聯性強（不是泛泛相關）
+- 事件有清晰的主題定義
 
-### 步驟三：審核與調整
-檢查你的草稿分組是否違反了「兩大絕對原則」：
-- 是否存在只有一則新聞的分組？若有，立刻將該新聞併入最相關的現有分組中，並調整該組的標題與摘要以涵蓋新內容。
-- 是否所有新聞都已分配完畢？確保編號 1 到 {len(news_items)} 都被分配。
-- 分組數量是否在 3-5 個之間？這是最佳實踐，除非新聞內容極度單一或分散。
+如果某些新聞：
+- 看似相關但不足 5 則
+- 主題較為分散
+- 無法找到明確的核心事件
+→ 將這些新聞全部歸類為「其他相關新聞」
+
+### 步驟三：驗證分組嚴格性
+檢查每個分組：
+- ✓ 是否至少包含 5 則新聞？（不足 5 則→移到「其他」）
+- ✓ 新聞之間是否有明確的核心事件連結？（關聯太弱→移到「其他」）
+- ✓ 事件標題是否精準描述所有新聞的共同主題？（太模糊→重新評估）
 
 ### 步驟四：生成最終輸出
 在你確認所有原則都已滿足後，才將最終結果格式化為 JSON。
@@ -216,14 +225,16 @@ class NewsEventGrouper:
   ]
 }}
 
-分組原則：
-1. 以主要事件或政策為核心分組
-2. 同一事件的不同發展階段可以放在同一組
-
-4. 事件標題要能涵蓋組內所有新聞的共同主題
+嚴格分組原則：
+1. **每個分組至少 5 則新聞** - 這是強制要求
+2. 只有核心事件完全一致的新聞才能分在一組
+3. 事件標題必須精準（8-10字），能清楚描述核心事件
+4. 不足 5 則的相關新聞統一放入「其他相關新聞」分組
 5. news_indices 對應新聞的編號（從1開始）
-6. 確保所有新聞都被分配到某個分組
+6. 寧願有一個大的「其他」分組，也不要製造不合理的小分組
 7. 只回傳 JSON，不要其他說明文字
+
+注意：如果所有新聞都無法形成至少 5 則的明確事件組，則全部歸類為「其他相關新聞」。
 
 """
 
@@ -243,10 +254,11 @@ class NewsEventGrouper:
             result = json.loads(result_text)
             groups = result.get('groups', [])
             
-            print(f"AI 分析完成，共分為 {len(groups)} 個事件分支")
+            print(f"AI 分析完成，初步分為 {len(groups)} 個事件分支")
             
-            # 轉換為最終格式，並確保每則新聞只出現在一個分支
+            # 轉換為最終格式，並嚴格過濾不足5篇的分支
             event_groups = []
+            other_news_items = []  # 收集不足5篇或未分配的新聞
             used_news_indices = set()  # 追蹤已使用的新聞索引
             
             for group in groups:
@@ -261,7 +273,15 @@ class NewsEventGrouper:
                         group_news.append(news_items[idx - 1])  # 轉換為0-based索引
                         used_news_indices.add(idx)  # 標記為已使用
                 
-                if group_news:  # 只添加有新聞的分組
+                # 檢查是否為「其他」類別的分支（標題包含「其他」關鍵字）
+                is_other_branch = '其他' in event_title or 'other' in event_title.lower()
+                
+                # 嚴格檢查：只保留至少5篇新聞的分支，但「其他」分支會特別處理
+                if is_other_branch:
+                    # AI 標記為「其他」的新聞直接加入 other_news_items
+                    other_news_items.extend(group_news)
+                    print(f"  ⚙️  AI分組的「其他」: {event_title} ({len(group_news)} 篇) → 併入統一「其他」分支")
+                elif len(group_news) >= 5:
                     event_groups.append({
                         'event_id': str(uuid.uuid4()),
                         'event_title': event_title,
@@ -269,22 +289,33 @@ class NewsEventGrouper:
                         'news_count': len(group_news),
                         'news_items': group_news
                     })
+                    print(f"  ✓ 保留分支: {event_title} ({len(group_news)} 篇)")
+                elif len(group_news) > 0:
+                    # 不足5篇的新聞放入「其他」
+                    other_news_items.extend(group_news)
+                    print(f"  ✗ 分支不足5篇: {event_title} ({len(group_news)} 篇) → 移至「其他」")
             
             # 檢查是否有未分配的新聞
             all_indices = set(range(1, len(news_items) + 1))
             unused_indices = all_indices - used_news_indices
             
             if unused_indices:
-                # 將未分配的新聞創建為一個額外的分組
                 unused_news = [news_items[idx - 1] for idx in unused_indices]
+                other_news_items.extend(unused_news)
+                print(f"  ⚠️  發現 {len(unused_indices)} 則未分配的新聞 → 移至「其他」")
+            
+            # 統一創建一個「其他相關新聞」分支（合併所有來源）
+            if other_news_items:
                 event_groups.append({
                     'event_id': str(uuid.uuid4()),
                     'event_title': '其他相關新聞',
-                    'event_summary': f'包含 {len(unused_news)} 則未被其他分支包含的相關新聞',
-                    'news_count': len(unused_news),
-                    'news_items': unused_news
+                    'event_summary': f'包含 {len(other_news_items)} 則未達分支門檻或無明確主題的相關新聞',
+                    'news_count': len(other_news_items),
+                    'news_items': other_news_items
                 })
-                print(f"注意：有 {len(unused_indices)} 則新聞未被 AI 分組，已自動創建「其他相關新聞」分支")
+                print(f"  → 建立統一「其他相關新聞」分支 ({len(other_news_items)} 篇)")
+            
+            print(f"\n最終結果：{len(event_groups)} 個分支")
             
             return event_groups
             
@@ -686,6 +717,142 @@ class NewsEventGrouper:
             print(f"✗ AI 生成標題和概要時發生錯誤: {e}")
             return f"主題事件 ({len(news_items)} 則新聞)", f"包含 {len(news_items)} 則相關新聞的主題事件"
     
+    def redistribute_small_branches(self, all_topic_events, min_news_count=5):
+        """將不足指定數量的分支拆掉重新分配
+        
+        Args:
+            all_topic_events: 所有主題事件資料
+            min_news_count: 最小新聞數量門檻（預設為5）
+        
+        Returns:
+            重新分配後的主題事件資料
+        """
+        print("\n" + "=" * 60)
+        print(f"開始處理不足 {min_news_count} 篇的分支")
+        print("=" * 60)
+        
+        redistributed_events = []
+        other_news_items = []  # 收集不足門檻的新聞
+        
+        for topic in all_topic_events:
+            topic_id = topic.get('topic_id')
+            topic_title = topic.get('topic_title')
+            sub_events = topic.get('sub_events', [])
+            
+            valid_sub_events = []
+            small_branches_news = []
+            
+            print(f"\n檢查主題: {topic_title} (ID: {topic_id})")
+            
+            for sub_event in sub_events:
+                news_count = sub_event.get('news_count', 0)
+                event_title = sub_event.get('event_title', '')
+                
+                if news_count < min_news_count:
+                    print(f"  ✗ 分支不足 {min_news_count} 篇: {event_title} ({news_count} 篇) - 將重新分配")
+                    # 收集這個分支的所有新聞
+                    small_branches_news.extend(sub_event.get('news_items', []))
+                else:
+                    print(f"  ✓ 分支保留: {event_title} ({news_count} 篇)")
+                    valid_sub_events.append(sub_event)
+            
+            # 如果該主題還有保留的分支，則繼續保留該主題
+            if valid_sub_events:
+                redistributed_events.append({
+                    'topic_id': topic_id,
+                    'topic_title': topic_title,
+                    'sub_events': valid_sub_events
+                })
+            
+            # 將小分支的新聞加入待分配清單
+            if small_branches_news:
+                other_news_items.extend(small_branches_news)
+        
+        # 如果有需要重新分配的新聞，創建「其他」分支
+        if other_news_items:
+            print(f"\n找到 {len(other_news_items)} 則需要重新分配的新聞")
+            print("建立「其他相關新聞」分支...")
+            
+            # 創建一個特殊的 topic_id 用於「其他」類別
+            other_topic_id = "other_news_" + str(uuid.uuid4())[:8]
+            
+            other_topic = {
+                'topic_id': other_topic_id,
+                'topic_title': '其他相關新聞',
+                'sub_events': [
+                    {
+                        'event_id': str(uuid.uuid4()),
+                        'event_title': '其他相關新聞',
+                        'event_summary': f'包含 {len(other_news_items)} 則來自不同分支的新聞',
+                        'news_count': len(other_news_items),
+                        'news_items': other_news_items
+                    }
+                ]
+            }
+            redistributed_events.append(other_topic)
+            print(f"  → 「其他」分支包含 {len(other_news_items)} 則新聞")
+        
+        # 顯示重新分配結果統計
+        print("\n" + "=" * 60)
+        print("重新分配結果統計")
+        print("=" * 60)
+        print(f"原始主題數: {len(all_topic_events)}")
+        print(f"重新分配後主題數: {len(redistributed_events)}")
+        
+        original_branch_count = sum(len(t.get('sub_events', [])) for t in all_topic_events)
+        new_branch_count = sum(len(t.get('sub_events', [])) for t in redistributed_events)
+        print(f"原始分支數: {original_branch_count}")
+        print(f"重新分配後分支數: {new_branch_count}")
+        
+        original_news_count = sum(
+            sum(sub.get('news_count', 0) for sub in t.get('sub_events', []))
+            for t in all_topic_events
+        )
+        new_news_count = sum(
+            sum(sub.get('news_count', 0) for sub in t.get('sub_events', []))
+            for t in redistributed_events
+        )
+        print(f"總新聞數: {original_news_count} (不變)")
+        print(f"移到「其他」的新聞數: {len(other_news_items)}")
+        
+        return redistributed_events
+    
+    def display_redistribution_preview(self, original_events, redistributed_events):
+        """顯示重新分配的詳細預覽"""
+        print("\n" + "=" * 60)
+        print("詳細預覽 - 重新分配結果")
+        print("=" * 60)
+        
+        for i, topic in enumerate(redistributed_events, 1):
+            topic_id = topic.get('topic_id')
+            topic_title = topic.get('topic_title')
+            sub_events = topic.get('sub_events', [])
+            
+            print(f"\n【主題 {i}】{topic_title} (ID: {topic_id})")
+            print(f"分支數量: {len(sub_events)}")
+            
+            for j, sub_event in enumerate(sub_events, 1):
+                event_title = sub_event.get('event_title')
+                event_summary = sub_event.get('event_summary', '')
+                news_count = sub_event.get('news_count')
+                news_items = sub_event.get('news_items', [])
+                
+                print(f"\n  分支 {j}: {event_title}")
+                print(f"  新聞數量: {news_count}")
+                print(f"  概要: {event_summary[:100]}...")
+                
+                # 顯示前3則新聞標題
+                print(f"  包含新聞:")
+                for k, news in enumerate(news_items[:3], 1):
+                    news_title = news.get('news_title', '')[:60]
+                    story_id = news.get('story_id')
+                    print(f"    {k}. [{story_id}] {news_title}")
+                
+                if len(news_items) > 3:
+                    print(f"    ... 還有 {len(news_items) - 3} 則新聞")
+        
+        print("\n" + "=" * 60)
+    
     def process(self, json_file_path, output_path):
         """完整處理流程（原版 - 從JSON檔案開始）"""
         print("=" * 60)
@@ -726,9 +893,10 @@ class NewsEventGrouper:
 
 
 def main():
-    """主程式入口 - 直接執行即可"""
+    """主程式入口 - 測試模式（不寫入資料庫）"""
     print("🚀 新聞事件分組器 - 啟動中...")
-    print("💾 模式：從 topic_news_map 讀取資料，AI分組後儲存到資料庫")
+    print("🔒 嚴格模式：每個分支至少需要 5 篇新聞")
+    print("🧪 測試模式：僅顯示結果，不寫入資料庫")
     print("=" * 60)
     
     # 創建處理器
@@ -741,32 +909,79 @@ def main():
     
     # 設定輸出檔案名稱（包含時間戳記）
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_path = f"topic_grouped_news_{timestamp}.json"
+    output_path = f"topic_grouped_news_strict_{timestamp}.json"
     
-    # 預設模式：從 topic_news_map 處理並儲存到資料庫
-    save_to_db = True
+    # 測試模式：不儲存到資料庫
+    save_to_db = False
     
     print(f"📄 結果將儲存到: {output_path}")
-    print("💾 將同時生成預覽檔案並儲存到資料庫")
+    print("⚠️  測試模式：不會寫入資料庫")
     print()
     
     try:
-        # 執行主要處理流程
+        # 執行主要處理流程（已內建嚴格的5篇門檻）
+        print("開始從 topic_news_map 獲取資料並進行嚴格分組...")
+        print("分組標準：")
+        print("  • 每個分支至少 5 篇新聞")
+        print("  • 核心事件必須明確一致")
+        print("  • 不足門檻的新聞自動歸入「其他」")
+        print()
+        
         result = grouper.process_from_topic_map(output_path, save_to_db)
         
-        if result:
-            print("\n🎉 處理完成！")
-            print(f"✅ JSON 檔案: {output_path}")
-            print("✅ 資料庫預覽檔案: database_preview_*.json")
-            print("✅ 資料已儲存到 Supabase 資料庫")
-        else:
+        if not result:
             print("\n⚠️ 處理過程中遇到問題，請檢查輸出訊息")
+            return
+        
+        # 顯示詳細統計
+        print("\n" + "=" * 60)
+        print("📊 最終統計結果")
+        print("=" * 60)
+        
+        total_branches = 0
+        total_news = 0
+        other_branches = 0
+        valid_branches = 0
+        
+        for topic in result:
+            topic_title = topic.get('topic_title')
+            sub_events = topic.get('sub_events', [])
             
+            print(f"\n【{topic_title}】")
+            for sub_event in sub_events:
+                event_title = sub_event.get('event_title')
+                news_count = sub_event.get('news_count')
+                total_branches += 1
+                total_news += news_count
+                
+                if '其他' in event_title:
+                    other_branches += 1
+                    print(f"  • {event_title}: {news_count} 篇 ⚠️")
+                else:
+                    valid_branches += 1
+                    print(f"  • {event_title}: {news_count} 篇 ✓")
+        
+        print("\n" + "=" * 60)
+        print("總覽：")
+        print(f"  • 總主題數: {len(result)}")
+        print(f"  • 總分支數: {total_branches}")
+        print(f"  • 有效分支數: {valid_branches} (≥5篇)")
+        print(f"  • 「其他」分支數: {other_branches}")
+        print(f"  • 總新聞數: {total_news}")
+        print("=" * 60)
+        
+        print("\n✅ 測試完成！")
+        print(f"📄 結果已儲存到: {output_path}")
+        print("⚠️  這是測試模式，未寫入資料庫")
+        print("\n💡 提示：如果結果符合預期，可修改 save_to_db = True 來寫入資料庫")
+        
     except KeyboardInterrupt:
         print("\n\n⏹️ 使用者中斷程式執行")
     except Exception as e:
         print(f"\n❌ 執行過程中發生錯誤: {e}")
         print("請檢查網路連線和資料庫設定")
+        import traceback
+        traceback.print_exc()
     
     print("\n程式結束")
 

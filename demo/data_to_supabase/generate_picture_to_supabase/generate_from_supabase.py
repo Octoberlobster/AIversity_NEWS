@@ -276,7 +276,7 @@ for a in args:
 NO_WRITE = 'no-write' in args
 # 若傳入 'force' 則忽略 existing_story_ids 檢查（強制重生成，僅用於測試）
 FORCE = 'force' in args
-MODEL_ID = 'gemini-2.0-flash-preview-image-generation'
+MODEL_ID = 'imagen-3.0-generate-001'
 RETRY_TIMES = 3
 SLEEP_BETWEEN = 0.6
 
