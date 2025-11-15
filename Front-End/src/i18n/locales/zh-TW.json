@@ -179,6 +179,8 @@
     }
   },
   "newsDetail": {
+    "publishedDate": "發布時間",
+    "updatedDate": "更新時間",
     "loading": {
       "terms": "載入術語定義時發生錯誤",
       "positions": "載入中...",

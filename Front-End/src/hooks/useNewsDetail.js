@@ -19,7 +19,7 @@ export function useNewsData(storyId) {
 
       const { data, error } = await supabase
         .from('single_news')
-        .select(`${selectFields}, generated_date, category, story_id, who_talk, position_flag, attribution, suicide_flag`)
+        .select(`${selectFields}, generated_date, updated_date, category, story_id, who_talk, position_flag, attribution, suicide_flag`)
         .eq('story_id', storyId);
 
       if (error) {
@@ -37,6 +37,7 @@ export function useNewsData(storyId) {
       const newsData = {
         title: row[getFieldName('news_title')] || row.news_title,
         date: row.generated_date,
+        updateDate: row.updated_date,
         author: 'Gemini',
         short: row[getFieldName('ultra_short')] || row.short,
         long: longContent,

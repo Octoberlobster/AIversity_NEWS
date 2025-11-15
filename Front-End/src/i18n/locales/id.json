@@ -179,6 +179,8 @@
     }
   },
   "newsDetail": {
+    "publishedDate": "Diterbitkan",
+    "updatedDate": "Diperbarui",
     "loading": {
       "terms": "Terjadi kesalahan saat memuat definisi istilah",
       "positions": "Memuat...",

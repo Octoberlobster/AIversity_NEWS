@@ -902,7 +902,14 @@ function NewsDetail() {
             <div className="articleContent">
               <h2 className="articleTitle">{newsData.title}</h2>
               <div className="articleInfo">
-                <span className="articleDate">{newsData.date}</span>
+                <span className="articleDate">
+                  {t('newsDetail.publishedDate')}: {newsData.date}
+                </span>
+                {newsData.updateDate && (
+                  <span className="articleDate">
+                    {t('newsDetail.updatedDate')}: {newsData.updateDate}
+                  </span>
+                )}
                 {newsKeywords && newsKeywords.length > 0 && (
                   <div className="articleKeywords">
                     {newsKeywords.map((kw, index) => (
@@ -1302,6 +1309,13 @@ function NewsDetail() {
             media: item.media || t('newsDetail.sources.unknownMedia'),
             date: item.write_date || null
           }));
+          
+          // 按 write_date 由新到舊排序
+          sources.sort((a, b) => {
+            if (!a.date) return 1;
+            if (!b.date) return -1;
+            return new Date(b.date) - new Date(a.date);
+          });
         }
         
         // 如果沒有 newsUrl 資料,使用 newsData.source 作為後備

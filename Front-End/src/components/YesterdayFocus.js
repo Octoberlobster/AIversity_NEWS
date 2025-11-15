@@ -161,27 +161,6 @@ function YesterdayFocus() {
     setSelectedDate(e.target.value);
   };
 
-  // 時間選擇處理函數
-  const handleTimeChange = (time) => {
-    setSelectedTime(time);
-  };
-
-  // 根據時間生成人性化的時間標籤 (使用 i18n)
-  const getTimeLabel = (time) => {
-    const timeKeyMap = {
-      '00:00': { labelKey: 'yesterdayFocus.timeLabels.midnightLabel', periodKey: 'yesterdayFocus.timeLabels.midnightPeriod' },
-      '06:00': { labelKey: 'yesterdayFocus.timeLabels.morningLabel', periodKey: 'yesterdayFocus.timeLabels.morningPeriod' },
-      '12:00': { labelKey: 'yesterdayFocus.timeLabels.noonLabel', periodKey: 'yesterdayFocus.timeLabels.noonPeriod' },
-      '18:00': { labelKey: 'yesterdayFocus.timeLabels.eveningLabel', periodKey: 'yesterdayFocus.timeLabels.eveningPeriod' }
-    };
-
-    const keys = timeKeyMap[time] || timeKeyMap['00:00'];
-    return {
-      label: t(keys.labelKey),
-      period: t(keys.periodKey)
-    };
-  };
-
   // 快速日期選擇函數
   const selectLatestDate = () => {
     // 使用台灣時區計算當前時間
@@ -257,21 +236,6 @@ function YesterdayFocus() {
               />
               <button onClick={selectLatestDate} className="date-btn date-btn-primary">{t('yesterdayFocus.dateButtons.latest')}</button>
               </div>
-              <div className="time-controls">
-                {['00:00', '06:00', '12:00', '18:00'].map(time => {
-                  const timeInfo = getTimeLabel(time);
-                  return (
-                    <button
-                      key={time}
-                      onClick={() => handleTimeChange(time)}
-                      className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
-                      title={timeInfo.period}
-                    >
-                      {timeInfo.label}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
           </div>
           <div className="loading-container">{t('common.loading')}</div>
@@ -301,21 +265,6 @@ function YesterdayFocus() {
                 />
                 <button onClick={selectLatestDate} className="date-btn date-btn-primary">{t('yesterdayFocus.dateButtons.latest')}</button>
               </div>
-              <div className="time-controls">
-                {['00:00', '06:00', '12:00', '18:00'].map(time => {
-                  const timeInfo = getTimeLabel(time);
-                  return (
-                    <button
-                      key={time}
-                      onClick={() => handleTimeChange(time)}
-                      className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
-                      title={timeInfo.period}
-                    >
-                      {timeInfo.label}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
           </div>
           <div className="no-content">{t('yesterdayFocus.loadFailed')}</div>
@@ -333,8 +282,6 @@ function YesterdayFocus() {
             <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
             <div className="date-selector">
               <div className="date-controls">
-                <button onClick={() => selectDateOffset(-7)} className="date-btn">{t('yesterdayFocus.dateButtons.sevenDaysAgo')}</button>
-                <button onClick={() => selectDateOffset(-3)} className="date-btn">{t('yesterdayFocus.dateButtons.threeDaysAgo')}</button>
                 <button onClick={() => selectDateOffset(-1)} className="date-btn">{t('yesterdayFocus.dateButtons.yesterday')}</button>
                 <input 
                   type="date" 
@@ -344,21 +291,6 @@ function YesterdayFocus() {
                   max={getTodayDate()}
                 />
                 <button onClick={selectLatestDate} className="date-btn date-btn-primary">{t('yesterdayFocus.dateButtons.latest')}</button>
-              </div>
-              <div className="time-controls">
-                {['00:00', '06:00', '12:00', '18:00'].map(time => {
-                  const timeInfo = getTimeLabel(time);
-                  return (
-                    <button
-                      key={time}
-                      onClick={() => handleTimeChange(time)}
-                      className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
-                      title={timeInfo.period}
-                    >
-                      {timeInfo.label}
-                    </button>
-                  );
-                })}
               </div>
             </div>
           </div>
@@ -377,20 +309,6 @@ function YesterdayFocus() {
           </h1>
           <div className="date-selector">
             <div className="date-controls">
-              <button 
-                onClick={() => selectDateOffset(-7)}
-                className="date-btn"
-                title={t('yesterdayFocus.dateButtonTitles.sevenDaysAgo')}
-              >
-                {t('yesterdayFocus.dateButtons.sevenDaysAgo')}
-              </button>
-              <button 
-                onClick={() => selectDateOffset(-3)}
-                className="date-btn"
-                title={t('yesterdayFocus.dateButtonTitles.threeDaysAgo')}
-              >
-                {t('yesterdayFocus.dateButtons.threeDaysAgo')}
-              </button>
               <button 
                 onClick={() => selectDateOffset(-1)}
                 className="date-btn"
@@ -412,21 +330,6 @@ function YesterdayFocus() {
               >
                 {t('yesterdayFocus.dateButtons.latest')}
               </button>
-            </div>
-            <div className="time-controls">
-              {['00:00', '06:00', '12:00', '18:00'].map(time => {
-                const timeInfo = getTimeLabel(time);
-                return (
-                  <button
-                    key={time}
-                    onClick={() => handleTimeChange(time)}
-                    className={`time-btn ${selectedTime === time ? 'time-btn-active' : ''}`}
-                    title={timeInfo.period}
-                  >
-                    {timeInfo.label}
-                  </button>
-                );
-              })}
             </div>
           </div>
         </div>
