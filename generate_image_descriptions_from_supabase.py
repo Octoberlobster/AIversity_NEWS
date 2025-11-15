@@ -153,32 +153,47 @@ class ImageDescriptionGenerator:
             img_bytes = img_byte_arr.getvalue()
             
             # 建立提示詞
-            prompt = f"""請根據以下新聞內容和圖片，生成一個簡短完整的圖片說明。
+            prompt = f"""請根據以下新聞內容和圖片，生成一個簡短且語意完整的圖片說明。
 
 新聞內容：
-{news_content[:500]}
+{news_content[:1000]}
 
-嚴格要求：
-1. 說明必須是完整的句子，不可以中途截斷
-2. 說明字數必須在 15 個字以內（包含標點符號）
-3. 如果超過 15 字，請縮短句子但必須保持完整性
-4. 必須準確描述圖片內容
-5. 必須與新聞內容相關
-6. 使用客觀、中立的語氣
-7. 直接輸出說明文字，不要有任何前綴或後綴
-8. 不要使用「...」或「等」等省略符號
+【絕對嚴格的要求 - 必須100%遵守】：
 
-正確範例：
-- 總統出席國際會議
-- 股市收盤創新高
-- 新款手機發表會
-- 民眾參與遊行活動
+1. 字數限制：說明必須在 15 個字以內（含標點符號）
+2. 完整性要求：說明必須是完整的句子，絕對不可以中途截斷
+3. 標點符號：不要以逗號（，）、頓號（、）、分號（；）、冒號（：）結尾
+4. 可接受的結尾：句號（。）、驚嘆號（！）、問號（？）或直接以名詞/動詞結尾
+5. 禁止使用：「...」、「等」、「之類」等任何省略表達
+6. 內容準確：必須準確描述圖片實際內容
+7. 相關性：必須與新聞內容相關
+8. 語氣：客觀、中立、不帶情感色彩
+9. 格式：直接輸出說明文字，不要有任何前綴或說明
+10. 精簡原則：在字數限制內，用最精煉的方式表達完整意思
 
-錯誤範例（會被截斷）：
-- 總統出席重要的國際經濟... (X - 不完整)
-- 股市收盤創下史上最高記... (X - 被截斷)
+【正確範例】（完整且符合字數）：
+✓ 總統參加經濟論壇
+✓ 股市今日收盤上漲
+✓ 新手機產品發表
+✓ 民眾街頭示威遊行
+✓ 颱風造成淹水災情
+✓ 新遊戲即將上市
+✓ 遊戲發表會現場
 
-請確保生成的說明是一個語意完整、不會被截斷的句子。
+【錯誤範例】（會被系統拒絕）：
+✗ 總統出席重要的國際經濟會議並發表... (超過15字且被截斷)
+✗ 股市收盤創下史上最高, (以逗號結尾)
+✗ 新款科技產品等 (使用「等」省略)
+✗ 民眾參與 (語意不完整)
+✗ 《邊緣禁地4》2025年9月上市 (包含具體日期太長，應改為「新遊戲即將上市」)
+✗ 退休金改革：法國政府面臨嚴峻挑戰 (應改為「退休金改革面臨挑戰」)
+
+【重要提醒】：
+- 如果原本想表達的內容會超過 15 字，請重新組織語句，用更精簡的方式表達完整意思
+- 寧可犧牲細節，也要保證句子的完整性
+- 每個字都要有意義，避免冗詞贅字
+
+現在請生成符合所有要求的圖片說明：
 """
             
             # 使用 Gemini Vision API
@@ -201,24 +216,204 @@ class ImageDescriptionGenerator:
             # 提取生成的文字
             description = response.text.strip()
             
-            # 智能截斷：確保是完整句子
-            if len(description) > 15:
-                # 嘗試在標點符號處截斷
-                for i in range(14, 0, -1):
-                    if description[i] in '。！？，、；：':
-                        description = description[:i+1]
-                        break
-                else:
-                    # 如果沒有找到標點符號，在最後一個完整詞處截斷
-                    # 避免截斷到詞的中間
-                    description = description[:15]
-                    # 移除可能的不完整標點
-                    while description and description[-1] in '的了在與和':
-                        description = description[:-1]
+            # 移除可能的引號或多餘空白
+            description = description.strip('"\'「」『』 ')
             
-            # 確保不是空字串
-            if not description:
+            # 檢查長度
+            if len(description) > 15:
+                print(f"⚠️  警告：AI 生成的說明超過 15 字（{len(description)} 字）：{description}")
+                print("   正在智能分析並修正...")
+                
+                # 定義一個函數來檢查縮寫是否會造成語意失真
+                def is_meaningful_truncation(original: str, truncated: str) -> bool:
+                    """檢查截斷後的內容是否仍保有完整語意，不會造成誤導"""
+                    # 檢查1: 是否截斷了重要的時間、數字、地點等關鍵資訊的一半
+                    # 例如："2025年9月" 被截成 "2025年" 就會失真
+                    if '年' in truncated and '月' in original and '月' not in truncated:
+                        # 有年但缺月，可能失真
+                        if original.find('年') < original.find('月'):
+                            return False
+                    
+                    # 檢查2: 是否截斷在數字中間（例如：2025年9 → 不完整）
+                    if truncated and truncated[-1].isdigit():
+                        # 找到原文中這個數字的完整範圍
+                        truncated_end = len(truncated) - 1
+                        if truncated_end < len(original) - 1 and original[truncated_end + 1].isdigit():
+                            return False  # 數字被截斷
+                    
+                    # 檢查3: 是否以「於」、「在」、「將」等介詞或助詞結尾（表示後面還有資訊）
+                    incomplete_endings = ['於', '在', '將', '至', '從', '向', '對', '為', '給', '被', '把']
+                    if truncated and truncated[-1] in incomplete_endings:
+                        return False
+                    
+                    # 檢查4: 是否包含書名號、引號但沒有閉合
+                    quote_pairs = [
+                        ('《', '》'), ('「', '」'), ('『', '』'), 
+                        ('"', '"'), (''', '''), ('(', ')'), ('（', '）'), ('[', ']')
+                    ]
+                    for open_q, close_q in quote_pairs:
+                        if open_q in truncated and close_q not in truncated:
+                            return False  # 引號未閉合
+                    
+                    # 檢查5: 基本長度檢查 - 太短可能失去意義
+                    if len(truncated) < 5:
+                        return False
+                    
+                    return True
+                
+                # 策略1: 優先在句號、驚嘆號、問號處截斷（完整句子）
+                best_cut = -1
+                for i in range(14, 0, -1):
+                    if description[i] in '。！？':
+                        candidate = description[:i+1]
+                        if is_meaningful_truncation(description, candidate):
+                            best_cut = i + 1
+                            break
+                
+                if best_cut > 0:
+                    description = description[:best_cut]
+                    print("   → 策略1：在句號處截斷為完整句子")
+                else:
+                    # 策略2: 智能分析語意結構
+                    # 檢查是否有冒號（通常表示後面有解釋或列舉）
+                    has_colon = '：' in description or ':' in description
+                    
+                    # 如果有冒號且在15字內，不適合截斷（會造成語意不完整）
+                    if has_colon:
+                        colon_pos = description.find('：')
+                        if colon_pos == -1:
+                            colon_pos = description.find(':')
+                        
+                        # 如果冒號在前半部，說明後面是重點，但前面可能有關鍵主題
+                        if colon_pos < 10:
+                            print("   → 偵測到冒號結構，分析最佳處理方式...")
+                            
+                            before_colon = description[:colon_pos].strip()
+                            after_colon = description[colon_pos+1:].strip()
+                            
+                            # 策略2A: 嘗試結合主題和重點（如果能放進15字內）
+                            # 提取冒號前的關鍵詞（主題）
+                            subject_keywords = before_colon.split()[-2:] if len(before_colon.split()) >= 2 else [before_colon]
+                            subject = ''.join(subject_keywords)
+                            
+                            # 嘗試組合：主題 + 簡化的重點
+                            combined_options = []
+                            
+                            # 選項1: 主題 + 冒號後內容（去掉句號）
+                            option1 = f"{subject}{after_colon.rstrip('。！？')}"
+                            if len(option1) <= 15:
+                                combined_options.append(('option1', option1, '保留主題和重點'))
+                            
+                            # 選項2: 主題 + 動詞片段（如果冒號後有逗號，取第一部分）
+                            if '，' in after_colon or '、' in after_colon:
+                                first_part = after_colon.split('，')[0].split('、')[0].strip()
+                                option2 = f"{subject}{first_part}"
+                                if len(option2) <= 15 and len(option2) >= 5:
+                                    combined_options.append(('option2', option2, '主題+第一重點'))
+                            
+                            # 選項3: 只取冒號後內容（如果夠精準）
+                            if len(after_colon) <= 15 and len(after_colon) >= 5:
+                                combined_options.append(('option3', after_colon, '只保留重點部分'))
+                            
+                            # 評估選項：優先選擇包含主題的
+                            best_option = None
+                            for opt_name, opt_text, opt_desc in combined_options:
+                                if is_meaningful_truncation(description, opt_text):
+                                    # 檢查是否保留了主題資訊
+                                    has_subject = any(word in opt_text for word in before_colon[:6])
+                                    if has_subject:
+                                        best_option = (opt_text, f"策略2A-{opt_name}: {opt_desc}（保留主題）")
+                                        break
+                            
+                            # 如果沒有包含主題的，退而求其次選不失真的
+                            if not best_option:
+                                for opt_name, opt_text, opt_desc in combined_options:
+                                    if is_meaningful_truncation(description, opt_text):
+                                        best_option = (opt_text, f"策略2A-{opt_name}: {opt_desc}")
+                                        break
+                            
+                            if best_option:
+                                description, reason = best_option
+                                print(f"   → {reason}")
+                            else:
+                                # 所有選項都不合適，使用備用說明
+                                description = None
+                                print("   → 策略2 失敗：無法找到精準且不失真的表達")
+                        
+                        # 如果策略2失敗，使用備用說明
+                        if description is None:
+                            # 生成簡短的備用說明（確保不超過15字）
+                            category_map = {
+                                '政治': '政治新聞',
+                                '經濟': '經濟新聞',
+                                '社會': '社會新聞',
+                                '國際': '國際新聞',
+                                '科技': '科技新聞',
+                                '體育': '體育新聞',
+                                '娛樂': '娛樂新聞',
+                                'Science & Technology': '科技新聞',
+                                'Technology': '科技新聞',
+                                'Business': '商業新聞',
+                                'Sports': '體育新聞',
+                                'Entertainment': '娛樂新聞'
+                            }
+                            description = category_map.get(category, '新聞圖片')
+                            print(f"   → 使用備用說明：{description}")
+                    
+                    # 策略3: 在逗號、頓號處尋找語意完整的片段
+                    if len(description) > 15:  # 如果還是太長
+                        candidates = []
+                        original_desc = description
+                        for i in range(min(14, len(description)-1), 4, -1):
+                            if description[i] in '，、':
+                                candidate = description[:i]
+                                # 檢查結尾是否完整（不以助詞、冒號結尾）
+                                if candidate and candidate[-1] not in '的了在與和及或：:':
+                                    # 驗證語意是否失真
+                                    if is_meaningful_truncation(original_desc, candidate):
+                                        candidates.append((i, candidate))
+                        
+                        if candidates:
+                            best_idx, description = candidates[0]
+                            print("   → 策略3：在標點處取語意完整部分")
+                        else:
+                            print("   → 策略3 失敗：找不到不失真的截斷點")
+                            
+                            # 策略4: 檢查是否仍需處理
+                            if len(description) > 15:
+                                # 使用簡短備用說明，避免失真
+                                print("   → 無法在不失真的情況下縮短，使用備用說明")
+                                category_map = {
+                                    '政治': '政治新聞',
+                                    '經濟': '經濟新聞',
+                                    '社會': '社會新聞',
+                                    '國際': '國際新聞',
+                                    '科技': '科技新聞',
+                                    '體育': '體育新聞',
+                                    '娛樂': '娛樂新聞',
+                                    'Science & Technology': '科技新聞',
+                                    'Technology': '科技新聞',
+                                    'Business': '商業新聞',
+                                    'Sports': '體育新聞',
+                                    'Entertainment': '娛樂新聞'
+                                }
+                                description = category_map.get(category, '新聞圖片')
+                
+                print(f"   ✓ 最終結果：{description} ({len(description)}字)")
+            
+            # 最終清理：確保不以不適當的標點結尾
+            while description and description[-1] in '，、；：':
+                description = description[:-1]
+            
+            # 確保不是空字串且有實際內容
+            if not description or len(description) < 3:
+                print("⚠️  生成的說明過短或為空，使用備用說明")
                 description = f"{category}新聞圖片" if category else "新聞圖片"
+            
+            # 最終驗證
+            if len(description) > 15:
+                print("❌ 錯誤：截斷後仍超過 15 字，強制截斷")
+                description = description[:15].rstrip('的了在與和，、；：及或是有到被給為著過')
             
             return description
             
