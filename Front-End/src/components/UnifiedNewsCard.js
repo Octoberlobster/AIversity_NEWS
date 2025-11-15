@@ -107,6 +107,12 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
       <div className="newsGrid">
         {displayNews.map((news) => (
           <div className="card" key={news.story_id}>
+            {/* 國家標籤 - 右上角 */}
+            {news.country && getCountryInfo(news.country) && (
+              <div className={`card__country-badge ${getCountryInfo(news.country).className}`}>
+                {t(getCountryInfo(news.country).key)}
+              </div>
+            )}
             <div className="card__image">
               <Link to={getLanguageRoute(`/news/${news.story_id}`)}>
                 <img
@@ -134,11 +140,6 @@ function UnifiedNewsCard({ limit, keyword, customData, onNewsCountUpdate, countr
             <div className="card__info">
               <span className="dateText">{news.date}</span>
               <span className="authorText">{t('common.editor')} {t('common.editorName')}</span>
-              {news.country && getCountryInfo(news.country) && (
-                <span className={`countryText ${getCountryInfo(news.country).className}`}>
-                  {t(getCountryInfo(news.country).key)}
-                </span>
-              )}
             </div>
 
             <div className="card__content">
