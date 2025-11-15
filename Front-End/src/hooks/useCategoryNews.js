@@ -46,19 +46,39 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
       console.log(`[useCategoryNews] 找到 ${storyIds.length} 個 story_ids`);
 
       // 2. 查詢 single_news 並按時間排序和分頁，支援多語言
+      // 只查詢有 generated_image 完整多語言 description 的新聞
       const newsMultiLangFields = ['news_title', 'ultra_short'];
       const newsSelectFields = getMultiLanguageSelect(newsMultiLangFields);
 
       const { data: newsData, error: newsError } = await supabase
         .from('single_news')
-        .select(`story_id, ${newsSelectFields}, generated_date, category`)
+        .select(`
+          story_id, 
+          ${newsSelectFields}, 
+          generated_date, 
+          category,
+          generated_image!inner(
+            description_en_lang,
+            description_id_lang,
+            description_jp_lang
+          )
+        `)
         .in('story_id', storyIds)
         .order('generated_date', { ascending: false })
         .range(offset, offset + itemsPerPage - 1);
       
       if (newsError) throw newsError;
       
-      const allNews = newsData || [];
+      // 過濾掉沒有完整多語言 description 的新聞
+      const filteredNews = (newsData || []).filter(news => {
+        const img = news.generated_image;
+        return img && 
+               img.description_en_lang && 
+               img.description_id_lang && 
+               img.description_jp_lang;
+      });
+      
+      const allNews = filteredNews;
 
       // 3. 轉換格式 (不包含圖片)，支援多語言
       const basicNews = allNews.map(news => ({

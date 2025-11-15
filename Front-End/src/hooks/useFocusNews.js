@@ -1,0 +1,145 @@
+import { useQuery } from '@tanstack/react-query';
+import { useSupabase } from '../components/supabase';
+import { useLanguageFields } from '../utils/useLanguageFields';
+
+/**
+ * 自定義 Hook: 拉取焦點新聞 (從 top_ten_news 表)
+ * @param {string} country - 國家名稱
+ */
+export function useFocusNews(country = 'taiwan') {
+  const supabase = useSupabase();
+  const { getFieldName, getCurrentLanguage } = useLanguageFields();
+  const currentLanguage = getCurrentLanguage();
+
+  // 國家名稱映射
+  const countryMap = {
+    'taiwan': 'Taiwan',
+    'japan': 'Japan',
+    'indonesia': 'Indonesia',
+    'usa': 'United States of America'
+  };
+
+  const dbCountry = countryMap[country] || 'Taiwan';
+
+  return useQuery({
+    queryKey: ['focus-news', dbCountry, currentLanguage],
+    queryFn: async () => {
+      console.log('[useFocusNews] 開始載入焦點新聞:', dbCountry);
+
+      // 1. 獲取昨天的日期 (YYYY-MM-DD 格式)
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const dateString = yesterday.toISOString().split('T')[0];
+
+      console.log('[useFocusNews] 查詢日期:', dateString);
+
+      // 2. 查詢 top_ten_news 表
+      const { data: topTenData, error: topTenError } = await supabase
+        .from('top_ten_news')
+        .select('top_ten_news_id')
+        .eq('date', dateString)
+        .eq('country', dbCountry)
+        .single();
+
+      if (topTenError) {
+        console.error('[useFocusNews] 查詢 top_ten_news 錯誤:', topTenError);
+        throw topTenError;
+      }
+
+      if (!topTenData || !topTenData.top_ten_news_id) {
+        console.log('[useFocusNews] 沒有找到焦點新聞資料');
+        return [];
+      }
+
+      // 3. 解析 JSON，獲取 story_ids
+      const storyIds = topTenData.top_ten_news_id;
+      console.log('[useFocusNews] 找到', storyIds.length, '則焦點新聞');
+
+      if (!Array.isArray(storyIds) || storyIds.length === 0) {
+        return [];
+      }
+
+      // 4. 根據 story_ids 查詢新聞詳細資料
+      const newsMultiLangFields = ['news_title', 'ultra_short'];
+      const selectFields = newsMultiLangFields.map(field => 
+        `${field}, ${field}_en_lang, ${field}_jp_lang, ${field}_id_lang`
+      ).join(', ');
+
+      const { data: newsData, error: newsError } = await supabase
+        .from('single_news')
+        .select(`
+          story_id,
+          ${selectFields},
+          generated_date
+        `)
+        .in('story_id', storyIds);
+
+      if (newsError) {
+        console.error('[useFocusNews] 查詢新聞詳細資料錯誤:', newsError);
+        throw newsError;
+      }
+
+      // 5. 獲取圖片資料
+      const { data: imagesData, error: imagesError } = await supabase
+        .from('generated_image')
+        .select('story_id, image')
+        .in('story_id', storyIds);
+
+      if (imagesError) {
+        console.warn('[useFocusNews] 查詢圖片資料錯誤:', imagesError);
+      }
+
+      const imageMap = {};
+      (imagesData || []).forEach(img => {
+        if (img.image) {
+          const cleanBase64 = img.image.replace(/\s/g, '');
+          imageMap[img.story_id] = `data:image/png;base64,${cleanBase64}`;
+        }
+      });
+
+      // 6. 獲取來源資料
+      const { data: sourcesData, error: sourcesError } = await supabase
+        .from('cleaned_news')
+        .select('story_id, article_url, article_title, media')
+        .in('story_id', storyIds);
+
+      if (sourcesError) {
+        console.warn('[useFocusNews] 查詢來源資料錯誤:', sourcesError);
+      }
+
+      const sourcesMap = {};
+      (sourcesData || []).forEach(source => {
+        if (!sourcesMap[source.story_id]) {
+          sourcesMap[source.story_id] = [];
+        }
+        sourcesMap[source.story_id].push({
+          url: source.article_url,
+          title: source.article_title,
+          media: source.media
+        });
+      });
+
+      // 7. 組合最終資料
+      const newsList = (newsData || []).map(news => ({
+        story_id: news.story_id,
+        title: news[getFieldName('news_title')] || news.news_title,
+        summary: news[getFieldName('ultra_short')] || news.ultra_short,
+        date: news.generated_date,
+        imageUrl: imageMap[news.story_id] || 'https://placehold.co/1200x600/e5e7eb/9ca3af?text=News',
+        sources: sourcesMap[news.story_id] || []
+      }));
+
+      // 按照 storyIds 的順序排序
+      const orderedNewsList = storyIds
+        .map(id => newsList.find(news => news.story_id === id))
+        .filter(Boolean);
+
+      console.log('[useFocusNews] 焦點新聞載入完成:', orderedNewsList.length, '則');
+      
+      return orderedNewsList;
+    },
+    enabled: !!supabase && !!dbCountry,
+    staleTime: 10 * 60 * 1000, // 10分鐘
+    cacheTime: 30 * 60 * 1000, // 30分鐘
+  });
+}

@@ -26,14 +26,19 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
         console.log('[useHomeNews] 使用巢狀查詢,國家:', country);
 
         // 一次查詢: 從 single_news 查詢,並透過 stories 表過濾國家
-        // 查詢符合國家的前 90 筆新聞
+        // 只查詢有 generated_image 完整多語言 description 的新聞
         const { data: newsData, error: newsError } = await supabase
           .from('single_news')
           .select(`
             story_id,
             generated_date,
             ${multiLangFields},
-            stories!inner(country)
+            stories!inner(country),
+            generated_image!inner(
+              description_en_lang,
+              description_id_lang,
+              description_jp_lang
+            )
           `)
           .or(`country.eq.${country},country.eq.${country.toLowerCase()}`, { foreignTable: 'stories' })
           .order('generated_date', { ascending: false })
@@ -44,21 +49,49 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
           throw newsError;
         }
         
-        console.log('[useHomeNews] 查詢結果總數:', newsData?.length || 0, '筆');
+        // 過濾掉沒有完整多語言 description 的新聞
+        const filteredNews = (newsData || []).filter(news => {
+          const img = news.generated_image;
+          return img && 
+                 img.description_en_lang && 
+                 img.description_id_lang && 
+                 img.description_jp_lang;
+        });
         
-        allNewsData = newsData || [];
+        console.log('[useHomeNews] 查詢結果總數:', newsData?.length || 0, '筆，過濾後:', filteredNews.length, '筆');
+        
+        allNewsData = filteredNews;
       } else {
-        // 全部新聞模式
+        // 全部新聞模式 - 只查詢有 generated_image 完整多語言 description 的新聞
         const multiLangFields = getMultiLanguageSelect(["news_title", "ultra_short"]);
         
         const { data: newsData, error: newsError } = await supabase
           .from('single_news')
-          .select(`story_id, generated_date, ${multiLangFields}`)
+          .select(`
+            story_id, 
+            generated_date, 
+            ${multiLangFields},
+            generated_image!inner(
+              description_en_lang,
+              description_id_lang,
+              description_jp_lang
+            )
+          `)
           .order('generated_date', { ascending: false })
           .limit(90);
 
         if (newsError) throw newsError;
-        allNewsData = newsData || [];
+        
+        // 過濾掉沒有完整多語言 description 的新聞
+        const filteredNews = (newsData || []).filter(news => {
+          const img = news.generated_image;
+          return img && 
+                 img.description_en_lang && 
+                 img.description_id_lang && 
+                 img.description_jp_lang;
+        });
+        
+        allNewsData = filteredNews;
       }
 
       // 從查詢結果中取出當前頁面的資料

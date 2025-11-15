@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from './components/Header';
-import LatestTopics from './components/LatestTopics';
+import FocusNews from './components/FocusNews';
 import CategorySection from './components/CategorySection';
 import UnifiedNewsCard from './components/UnifiedNewsCard';
 import NewsDetail from './components/NewsDetail';
@@ -61,7 +61,7 @@ function HomePage() {
   
   return (
     <>
-      <LatestTopics />
+      <FocusNews />
       <div className="contentGrid news-section-overlap">
         <div className="mainColumn">
           <h2 className="sectionTitle">

@@ -32,7 +32,10 @@
     "aiWarning": "⚠️ AI may make errors, please use with caution"
   },
   "home":{
-    "latestTopic": "Latest Topic",
+    "latestTopic": "Latest Topics",
+    "focusNews": "Focus News",
+    "newsSources": "News Sources",
+    "noSources": "No sources available",
     "latestNews": "Latest News",
     "articles": "Related Articles",
     "topicpreview": "Topic Preview",

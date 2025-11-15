@@ -32,7 +32,10 @@
     "aiWarning": "⚠️ AIは間違いを犯す可能性があります。\n慎重にご参照ください"
   },
   "home": {
-    "latestTopic": "最新特集",
+        "latestTopic": "最新トピック",
+    "focusNews": "注目ニュース",
+    "newsSources": "ニュースソース",
+    "noSources": "ソース情報なし",
     "latestNews": "最新ニュース",
     "articles": "件の関連ニュース",
     "topicpreview": "特集プレビュー",

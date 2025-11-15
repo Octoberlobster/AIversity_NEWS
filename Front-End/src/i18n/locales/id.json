@@ -33,6 +33,9 @@
   },
   "home": {
     "latestTopic": "Topik Terbaru",
+    "focusNews": "Berita Fokus",
+    "newsSources": "Sumber Berita",
+    "noSources": "Tidak ada sumber",
     "latestNews": "Berita Terbaru",
     "articles": "artikel berita terkait",
     "topicpreview": "Pratinjau Topik",

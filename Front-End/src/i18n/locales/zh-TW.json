@@ -33,6 +33,9 @@
   },
   "home":{
     "latestTopic": "最新專題",
+    "focusNews": "最新焦點",
+    "newsSources": "新聞來源",
+    "noSources": "暫無來源資訊",
     "latestNews": "最新新聞",
     "articles": "篇相關新聞",
     "topicpreview": "專題預覽",
