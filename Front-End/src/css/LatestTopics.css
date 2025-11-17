@@ -302,10 +302,11 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.sidebar-title {
+/* 最新焦點和專題導覽的側邊欄標題 */
+.latest-topics .sidebar-title {
   color: #1e3a8a !important;
   font-size: 1.5rem !important;
-  font-weight: 600;
+  font-weight: 600 !important;
   margin: 0 0 1rem 0;
 }
 

@@ -42,47 +42,6 @@ function YesterdayFocus() {
 
   // 日期狀態 (預設為今天)
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
-  
-  // 時間狀態 (預設為 00:00)
-  const [selectedTime, setSelectedTime] = useState('00:00');
-
-  // 將日期和時間組合成資料庫格式: 2025-11-07 00-06
-  const formattedDateTime = useMemo(() => {
-    // 時間區間映射：選擇的時間對應到該時間區間的結束時間
-    // 例如：選06:00 → 查詢00-06區間 (00:00~06:00)
-    const timeRangeMap = {
-      '00:00': '18-24', // 前一天18:00~24:00 區間
-      '06:00': '00-06', // 00:00~06:00 區間
-      '12:00': '06-12', // 06:00~12:00 區間
-      '18:00': '12-18'  // 12:00~18:00 區間
-    };
-    
-    const timeRange = timeRangeMap[selectedTime] || '00-06';
-    
-    // 如果選擇 00:00，需要用前一天的日期
-    let targetDate = selectedDate;
-    if (selectedTime === '00:00') {
-      const date = new Date(selectedDate);
-      date.setDate(date.getDate() - 1);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      targetDate = `${year}-${month}-${day}`;
-    }
-    
-    const formatted = `${targetDate} ${timeRange}`;
-    
-    console.log('[YesterdayFocus] 格式化日期時間:', {
-      原始日期: selectedDate,
-      原始時間: selectedTime,
-      實際查詢日期: targetDate,
-      時間區間: timeRange,
-      最終格式: formatted,
-      說明: selectedTime === '00:00' ? '00:00查詢前一天18:00~24:00' : `時間區間${timeRange}`
-    });
-    
-    return formatted;
-  }, [selectedDate, selectedTime]);
 
   // 國家 ID 對應到翻譯 key
   const countryTranslationMap = {
@@ -108,7 +67,7 @@ function YesterdayFocus() {
   // 🎯 第一階段: 載入基本新聞資料 (文字內容)
   console.log('[YesterdayFocus] 呼叫 useYesterdayNews:', {
     國家: currentCountryDbName,
-    日期時間: formattedDateTime,
+    日期: selectedDate,
     語言: currentLang
   });
   
@@ -116,7 +75,7 @@ function YesterdayFocus() {
     data: basicNewsData = [], 
     isLoading: isLoadingBasic,
     error: basicError 
-  } = useYesterdayNews(currentCountryDbName, formattedDateTime, currentLang);
+  } = useYesterdayNews(currentCountryDbName, selectedDate, currentLang);
   
   console.log('[YesterdayFocus] useYesterdayNews 回傳:', {
     資料筆數: basicNewsData.length,
@@ -163,7 +122,7 @@ function YesterdayFocus() {
 
   // 快速日期選擇函數
   const selectLatestDate = () => {
-    // 使用台灣時區計算當前時間
+    // 使用台灣時區計算今天日期
     const now = new Date();
     const taiwanTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
     
@@ -172,33 +131,12 @@ function YesterdayFocus() {
     const day = String(taiwanTime.getDate()).padStart(2, '0');
     const currentDate = `${year}-${month}-${day}`;
     
-    // 根據當前小時數判斷應該選擇哪個時間區間
-    const currentHour = taiwanTime.getHours();
-    let selectedTimeSlot;
-    
-    if (currentHour >= 0 && currentHour < 6) {
-      // 00:00-05:59 → 選擇 00:00 (會查詢前一天18-24)
-      selectedTimeSlot = '00:00';
-    } else if (currentHour >= 6 && currentHour < 12) {
-      // 06:00-11:59 → 選擇 06:00 (會查詢當天00-06)
-      selectedTimeSlot = '06:00';
-    } else if (currentHour >= 12 && currentHour < 18) {
-      // 12:00-17:59 → 選擇 12:00 (會查詢當天06-12)
-      selectedTimeSlot = '12:00';
-    } else {
-      // 18:00-23:59 → 選擇 18:00 (會查詢當天12-18)
-      selectedTimeSlot = '18:00';
-    }
-    
     console.log('[YesterdayFocus] 最新按鈕:', {
       台灣時間: taiwanTime.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
-      當前小時: currentHour,
-      選擇日期: currentDate,
-      選擇時段: selectedTimeSlot
+      選擇日期: currentDate
     });
     
     setSelectedDate(currentDate);
-    setSelectedTime(selectedTimeSlot);
   };
 
   const selectDateOffset = (days) => {
@@ -224,8 +162,6 @@ function YesterdayFocus() {
             <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
           <div className="date-selector">
             <div className="date-controls">
-              <button onClick={() => selectDateOffset(-7)} className="date-btn">{t('yesterdayFocus.dateButtons.sevenDaysAgo')}</button>
-              <button onClick={() => selectDateOffset(-3)} className="date-btn">{t('yesterdayFocus.dateButtons.threeDaysAgo')}</button>
               <button onClick={() => selectDateOffset(-1)} className="date-btn">{t('yesterdayFocus.dateButtons.yesterday')}</button>
               <input 
                 type="date" 
@@ -253,8 +189,6 @@ function YesterdayFocus() {
             <h1 className="yesterday-title">{t('yesterdayFocus.title', { country: currentCountryLabel })}</h1>
             <div className="date-selector">
               <div className="date-controls">
-                <button onClick={() => selectDateOffset(-7)} className="date-btn">{t('yesterdayFocus.dateButtons.sevenDaysAgo')}</button>
-                <button onClick={() => selectDateOffset(-3)} className="date-btn">{t('yesterdayFocus.dateButtons.threeDaysAgo')}</button>
                 <button onClick={() => selectDateOffset(-1)} className="date-btn">{t('yesterdayFocus.dateButtons.yesterday')}</button>
                 <input 
                   type="date" 

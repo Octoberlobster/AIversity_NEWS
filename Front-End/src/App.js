@@ -25,21 +25,29 @@ import './css/App.css';
 
 // 專題報導路由保護元件 (只有台灣可以訪問)
 function TaiwanOnlyRoute({ children }) {
-  const { selectedCountry } = useCountry();
+  const { selectedCountry, setSelectedCountry } = useCountry();
   const location = useLocation();
+  const hasCheckedRef = React.useRef(false);
   
   // 從當前路徑提取語言前綴
-  const currentLang = location.pathname.split('/')[1] || 'zh-TW';
+  const pathParts = location.pathname.split('/').filter(p => p);
+  const currentLang = pathParts[0] || 'zh-TW';
   
-  // 等待 country 初始化完成後再判斷
+  // 只在第一次進入時檢查,避免干擾頁面內的國家切換導航
   React.useEffect(() => {
-    if (selectedCountry !== 'taiwan') {
-      window.location.href = `/${currentLang}/`;
+    if (!hasCheckedRef.current && selectedCountry !== 'taiwan') {
+      hasCheckedRef.current = true;
+      // 路由爆破保護:非台灣模式直接訪問專題頁面,切換到台灣並導航到首頁
+      localStorage.setItem('selectedCountry', 'taiwan');
+      setSelectedCountry('taiwan');
+      window.location.href = window.location.origin + `/${currentLang}/`;
     }
-  }, [selectedCountry, currentLang]);
+  }, []); // 空依賴,只執行一次
   
-  if (selectedCountry !== 'taiwan') {
-    return <Navigate to={`/${currentLang}/`} replace />;
+  // 如果是第一次進入且不是台灣,不渲染內容
+  if (!hasCheckedRef.current && selectedCountry !== 'taiwan') {
+    hasCheckedRef.current = true;
+    return null;
   }
   
   return children;

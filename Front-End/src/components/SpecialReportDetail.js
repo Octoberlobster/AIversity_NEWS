@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import TopicChatRoom from './TopicChatRoom';
@@ -7,6 +7,7 @@ import UnifiedNewsCard from './UnifiedNewsCard';
 import { useSupabase } from './supabase';
 import { createHeaderVisualization } from './FiveW1HVisualization';
 import { useLanguageFields } from '../utils/useLanguageFields';
+import { useCountry } from './CountryContext';
 import { getOrCreateUserId, createRoomId } from './utils.js';
 import { changeExpertsTopic } from './api.js';
 import './../css/SpecialReportDetail.css';
@@ -14,11 +15,20 @@ import './../css/SpecialReportDetail.css';
 function SpecialReportDetail() {
   const { t } = useTranslation();
   const { getCurrentLanguage, getFieldName, getMultiLanguageSelect } = useLanguageFields();
+  const { selectedCountry } = useCountry();
+  const navigate = useNavigate();
   const { id } = useParams();
   
-  const getLanguageRoute = (path) => {
+  const getLanguageRoute = useCallback((path) => {
     return `/${getCurrentLanguage()}${path}`;
-  };
+  }, [getCurrentLanguage]);
+  
+  // 當國家切換時，導航到首頁(保持當前語言和國家選擇)
+  useEffect(() => {
+    if (selectedCountry !== 'taiwan') {
+      navigate(getLanguageRoute('/'), { replace: true });
+    }
+  }, [selectedCountry, navigate, getLanguageRoute]);
   const [report, setReport] = useState(null);
   const [branches, setBranches] = useState([]); // 專題分支列表
   const [loading, setLoading] = useState(true);

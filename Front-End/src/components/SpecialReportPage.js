@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import './../css/SpecialReportPage.css';
 import { useLanguageFields } from '../utils/useLanguageFields';
@@ -11,10 +11,18 @@ function SpecialReportPage() {
   const { t } = useTranslation();
   const { getCurrentLanguage, getFieldName } = useLanguageFields();
   const { selectedCountry } = useCountry();
+  const navigate = useNavigate();
   
-  const getLanguageRoute = (path) => {
+  const getLanguageRoute = useCallback((path) => {
     return `/${getCurrentLanguage()}${path}`;
-  };
+  }, [getCurrentLanguage]);
+
+  // 當國家切換時，導航到首頁(保持當前語言和國家選擇)
+  useEffect(() => {
+    if (selectedCountry !== 'taiwan') {
+      navigate(getLanguageRoute('/'), { replace: true });
+    }
+  }, [selectedCountry, navigate, getLanguageRoute]);
 
   // 🚀 使用 React Query Hook 載入資料
   const { topicCounts, topicDetails, isLoading, error, refetch } = useSpecialReportsList();

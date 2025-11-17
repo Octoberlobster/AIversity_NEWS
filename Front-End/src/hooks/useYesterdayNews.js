@@ -5,10 +5,10 @@ import { useSupabase } from '../components/supabase';
  * 自定義 Hook: 拉取昨日焦點新聞
  * 使用 React Query 管理快取和狀態
  * @param {string} country - 國家名稱
- * @param {string} dateTime - 日期時間字串，格式: "2025-11-07 00-06"
+ * @param {string} date - 日期字串，格式: "2025-11-17"
  * @param {string} currentLanguage - 當前語言
  */
-export function useYesterdayNews(country, dateTime, currentLanguage = 'zh-TW') {
+export function useYesterdayNews(country, date, currentLanguage = 'zh-TW') {
   const supabase = useSupabase();
 
   // 語言欄位後綴映射
@@ -22,14 +22,14 @@ export function useYesterdayNews(country, dateTime, currentLanguage = 'zh-TW') {
   const suffix = LANGUAGE_SUFFIX_MAP[currentLanguage] || '';
 
   return useQuery({
-    // Query Key: 用於快取識別,加入語言參數和完整的日期時間
-    queryKey: ['yesterday-news', country, dateTime, currentLanguage],
+    // Query Key: 用於快取識別,加入語言參數和日期
+    queryKey: ['yesterday-news', country, date, currentLanguage],
     
     // Query Function: 實際的資料請求
     queryFn: async () => {
       console.log('[useYesterdayNews] 開始載入:', {
         country,
-        dateTime,
+        date,
         currentLanguage,
         語言後綴: suffix
       });
@@ -37,14 +37,14 @@ export function useYesterdayNews(country, dateTime, currentLanguage = 'zh-TW') {
       // 1. 拉取 top_ten_news
       console.log('[useYesterdayNews] 執行查詢:', {
         資料表: 'top_ten_news',
-        查詢條件: { country, date: dateTime }
+        查詢條件: { country, date }
       });
       
       const { data: topTenData, error: topTenError } = await supabase
         .from('top_ten_news')
         .select('*')
         .eq('country', country)
-        .eq('date', dateTime);
+        .eq('date', date);
 
       console.log('[useYesterdayNews] 查詢結果:', {
         成功: !topTenError,
@@ -90,7 +90,8 @@ export function useYesterdayNews(country, dateTime, currentLanguage = 'zh-TW') {
       const { data: newsData, error: newsError } = await supabase
         .from('single_news')
         .select(`story_id, ${titleField}, ${summaryField}, generated_date`)
-        .in('story_id', allStoryIds);
+        .in('story_id', allStoryIds)
+        .order('generated_date', { ascending: false });
 
       console.log('[useYesterdayNews] 新聞查詢結果:', {
         成功: !newsError,
@@ -120,8 +121,8 @@ export function useYesterdayNews(country, dateTime, currentLanguage = 'zh-TW') {
       return basicNews;
     },
     
-    // 啟用條件: 只有當 country 和 dateTime 都存在時才執行
-    enabled: !!country && !!dateTime,
+    // 啟用條件: 只有當 country 和 date 都存在時才執行
+    enabled: !!country && !!date,
     
     // 快取設定
     staleTime: 10 * 60 * 1000, // 10分鐘內不重新請求

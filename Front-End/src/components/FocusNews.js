@@ -94,16 +94,18 @@ function FocusNews() {
                     className={`carousel-slide ${index === currentNewsIndex ? 'active' : ''}`}
                   >
                     {news.imageUrl && (
-                      <div className="slide-image">
-                        <img 
-                          src={news.imageUrl} 
-                          alt={news.title}
-                          onError={(e) => {
-                            e.target.src = 'https://placehold.co/1200x600/e5e7eb/9ca3af?text=News';
-                          }}
-                        />
-                        <div className="slide-overlay"></div>
-                      </div>
+                      <Link to={getLanguageRoute(`/news/${news.story_id}`)} className="slide-image-link">
+                        <div className="slide-image">
+                          <img 
+                            src={news.imageUrl} 
+                            alt={news.title}
+                            onError={(e) => {
+                              e.target.src = 'https://placehold.co/1200x600/e5e7eb/9ca3af?text=News';
+                            }}
+                          />
+                          <div className="slide-overlay"></div>
+                        </div>
+                      </Link>
                     )}
                     
                     <div className="slide-content">
@@ -120,7 +122,7 @@ function FocusNews() {
                       </p>
                       <div className="slide-meta">
                         <span className="slide-date">
-                          {news.date ? new Date(news.date).toLocaleDateString('zh-TW') : ''}
+                          {news.date || ''}
                         </span>
                       </div>
                     </div>

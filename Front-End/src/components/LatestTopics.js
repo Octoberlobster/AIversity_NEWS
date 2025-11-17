@@ -165,16 +165,18 @@ function LatestTopics() {
                     className={`carousel-slide ${index === currentTopicIndex ? 'active' : ''}`}
                   >
                     {topic.representativeImage && (
-                      <div className="slide-image">
-                        <img 
-                          src={topic.representativeImage.imageUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop'} 
-                          alt={topic.representativeImage.description || topic.topic_title}
-                          onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop';
-                          }}
-                        />
-                        <div className="slide-overlay"></div>
-                      </div>
+                      <Link to={getLanguageRoute(`/special-report/${topic.topic_id}`)} className="slide-image-link">
+                        <div className="slide-image">
+                          <img 
+                            src={topic.representativeImage.imageUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop'} 
+                            alt={topic.representativeImage.description || topic.topic_title}
+                            onError={(e) => {
+                              e.target.src = 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop';
+                            }}
+                          />
+                          <div className="slide-overlay"></div>
+                        </div>
+                      </Link>
                     )}
                     
                     <div className="slide-content">
@@ -191,7 +193,7 @@ function LatestTopics() {
                       </p>
                       <div className="slide-meta">
                         <span className="slide-date">
-                          {new Date(topic.generated_date).toLocaleDateString('zh-TW')}
+                          {topic.generated_date || ''}
                         </span>
                         <span className="slide-news-count">
                           {topic.newsCount} {t('home.articles')}

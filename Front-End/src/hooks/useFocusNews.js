@@ -26,10 +26,9 @@ export function useFocusNews(country = 'taiwan') {
     queryFn: async () => {
       console.log('[useFocusNews] 開始載入焦點新聞:', dbCountry);
 
-      // 1. 獲取昨天的日期 (YYYY-MM-DD 格式)
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const dateString = yesterday.toISOString().split('T')[0];
+      // 1. 獲取今天的日期 (YYYY-MM-DD 格式)
+      const today = new Date();
+      const dateString = today.toISOString().split('T')[0];
 
       console.log('[useFocusNews] 查詢日期:', dateString);
 
@@ -38,28 +37,36 @@ export function useFocusNews(country = 'taiwan') {
         .from('top_ten_news')
         .select('top_ten_news_id')
         .eq('date', dateString)
-        .eq('country', dbCountry)
-        .single();
+        .eq('country', dbCountry);
 
       if (topTenError) {
         console.error('[useFocusNews] 查詢 top_ten_news 錯誤:', topTenError);
         throw topTenError;
       }
 
-      if (!topTenData || !topTenData.top_ten_news_id) {
+      if (!topTenData || topTenData.length === 0) {
         console.log('[useFocusNews] 沒有找到焦點新聞資料');
         return [];
       }
 
-      // 3. 解析 JSON，獲取 story_ids
-      const storyIds = topTenData.top_ten_news_id;
-      console.log('[useFocusNews] 找到', storyIds.length, '則焦點新聞');
+      // 3. 解析所有結果的 story_ids
+      const allStoryIds = [];
+      topTenData.forEach(item => {
+        const parsedJson = typeof item.top_ten_news_id === 'string' 
+          ? JSON.parse(item.top_ten_news_id) 
+          : item.top_ten_news_id;
+        if (parsedJson.top_ten_story_ids && Array.isArray(parsedJson.top_ten_story_ids)) {
+          allStoryIds.push(...parsedJson.top_ten_story_ids);
+        }
+      });
 
-      if (!Array.isArray(storyIds) || storyIds.length === 0) {
+      console.log('[useFocusNews] 找到', allStoryIds.length, '則焦點新聞');
+
+      if (allStoryIds.length === 0) {
         return [];
       }
 
-      // 4. 根據 story_ids 查詢新聞詳細資料
+      // 4. 根據 story_ids 查詢新聞詳細資料,按照 generated_date 排序
       const newsMultiLangFields = ['news_title', 'ultra_short'];
       const selectFields = newsMultiLangFields.map(field => 
         `${field}, ${field}_en_lang, ${field}_jp_lang, ${field}_id_lang`
@@ -72,7 +79,8 @@ export function useFocusNews(country = 'taiwan') {
           ${selectFields},
           generated_date
         `)
-        .in('story_id', storyIds);
+        .in('story_id', allStoryIds)
+        .order('generated_date', { ascending: false });
 
       if (newsError) {
         console.error('[useFocusNews] 查詢新聞詳細資料錯誤:', newsError);
@@ -83,7 +91,7 @@ export function useFocusNews(country = 'taiwan') {
       const { data: imagesData, error: imagesError } = await supabase
         .from('generated_image')
         .select('story_id, image')
-        .in('story_id', storyIds);
+        .in('story_id', allStoryIds);
 
       if (imagesError) {
         console.warn('[useFocusNews] 查詢圖片資料錯誤:', imagesError);
@@ -101,7 +109,7 @@ export function useFocusNews(country = 'taiwan') {
       const { data: sourcesData, error: sourcesError } = await supabase
         .from('cleaned_news')
         .select('story_id, article_url, article_title, media')
-        .in('story_id', storyIds);
+        .in('story_id', allStoryIds);
 
       if (sourcesError) {
         console.warn('[useFocusNews] 查詢來源資料錯誤:', sourcesError);
@@ -119,24 +127,22 @@ export function useFocusNews(country = 'taiwan') {
         });
       });
 
-      // 7. 組合最終資料
+      // 7. 組合最終資料 (已經按 generated_date 排序)
       const newsList = (newsData || []).map(news => ({
         story_id: news.story_id,
         title: news[getFieldName('news_title')] || news.news_title,
         summary: news[getFieldName('ultra_short')] || news.ultra_short,
         date: news.generated_date,
         imageUrl: imageMap[news.story_id] || 'https://placehold.co/1200x600/e5e7eb/9ca3af?text=News',
-        sources: sourcesMap[news.story_id] || []
+        sources: (sourcesMap[news.story_id] || []).slice(0, 5) // 最多5個來源
       }));
 
-      // 按照 storyIds 的順序排序
-      const orderedNewsList = storyIds
-        .map(id => newsList.find(news => news.story_id === id))
-        .filter(Boolean);
+      // 最多返回10則新聞
+      const limitedNewsList = newsList.slice(0, 10);
 
-      console.log('[useFocusNews] 焦點新聞載入完成:', orderedNewsList.length, '則');
+      console.log('[useFocusNews] 焦點新聞載入完成:', limitedNewsList.length, '則');
       
-      return orderedNewsList;
+      return limitedNewsList;
     },
     enabled: !!supabase && !!dbCountry,
     staleTime: 10 * 60 * 1000, // 10分鐘
