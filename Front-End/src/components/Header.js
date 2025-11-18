@@ -62,7 +62,7 @@ function Header() {
 
   const domains = useMemo(() => [
     { id: '/', label: t('header.menu.home'), path: '/'},
-    { id: 'yesterday', label: t('header.menu.yesterdayFocus'), path: '/yesterday-focus'},
+    { id: 'yesterday', label: t('header.menu.yesterdayFocus'), path: '/focus-news'},
     { id: 'project', label: t('header.menu.specialReports'), path: '/special-reports'},
   ], [t]);
 
@@ -212,7 +212,7 @@ function Header() {
     if (pathWithoutLang === '/') {
       setActiveDomain('/');
       setActiveCategory(null);
-    } else if (pathWithoutLang.startsWith('/yesterday-focus')) {
+    } else if (pathWithoutLang.startsWith('/focus-news')) {
       setActiveDomain('yesterday');
       setActiveCategory(null);
     } else if (pathWithoutLang.startsWith('/special-reports')) {

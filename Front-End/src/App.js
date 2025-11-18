@@ -155,7 +155,7 @@ function App() {
                     
                     <Route path="special-reports" element={<TaiwanOnlyRoute><SpecialReportPage /></TaiwanOnlyRoute>} />
                     <Route path="special-report/:id" element={<TaiwanOnlyRoute><SpecialReportDetail /></TaiwanOnlyRoute>} />
-                    <Route path="yesterday-focus" element={<YesterdayFocus />} />
+                    <Route path="focus-news" element={<YesterdayFocus />} />
                     <Route path="abroad" element={<AbroadNewsPage />} />
                   </Route>
                 ))}
