@@ -28,25 +28,7 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
       };
       const dbCountry = countryMap[country] || country;
 
-      // 1. 從 stories 表獲取 story_id (大範圍查詢)
-      let storiesQuery = supabase
-        .from('stories')
-        .select('story_id')
-        .eq('country', dbCountry)
-        .eq('category', categoryName)
-        .limit(200);
-
-      const { data: storiesData, error: storiesError } = await storiesQuery;
-      if (storiesError) throw storiesError;
-      if (!storiesData || storiesData.length === 0) {
-        return { news: [], nextPage: null };
-      }
-
-      const storyIds = storiesData.map(story => story.story_id);
-      console.log(`[useCategoryNews] 找到 ${storyIds.length} 個 story_ids`);
-
-      // 2. 查詢 single_news 並按時間排序和分頁，支援多語言
-      // 只查詢有 generated_image 完整多語言 description 的新聞
+      // 使用 join 直接從 single_news 查詢,並過濾國家和分類
       const newsMultiLangFields = ['news_title', 'ultra_short'];
       const newsSelectFields = getMultiLanguageSelect(newsMultiLangFields);
 
@@ -61,13 +43,26 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
             description_en_lang,
             description_id_lang,
             description_jp_lang
+          ),
+          stories!inner(
+            country,
+            category
           )
         `)
-        .in('story_id', storyIds)
+        .eq('stories.country', dbCountry)
+        .eq('stories.category', categoryName)
         .order('generated_date', { ascending: false })
         .range(offset, offset + itemsPerPage - 1);
       
       if (newsError) throw newsError;
+      
+      if (!newsData || newsData.length === 0) {
+        console.log(`[useCategoryNews] 沒有找到 ${dbCountry} - ${categoryName} 的新聞`);
+        return { news: [], nextPage: null };
+      }
+      
+      console.log(`[useCategoryNews] 找到 ${newsData.length} 筆新聞`);
+
       
       // 過濾掉沒有完整多語言 description 的新聞
       const filteredNews = (newsData || []).filter(news => {

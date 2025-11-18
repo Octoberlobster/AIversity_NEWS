@@ -343,9 +343,19 @@
 }
 
 /* 圖片區塊 */
-.newsDetail .articleImage { margin: 2rem 0; text-align: center; }
+.newsDetail .articleImage { 
+  margin: 2rem 0; 
+  text-align: center; 
+  display: flex;
+  flex-direction: column; /* 垂直排列,讓 caption 在圖片下方 */
+  align-items: center; /* 水平居中 */
+}
 .newsDetail .articleImage img {
-  max-width: 60%; height: auto; border-radius: 12px;
+  width: 540px;  /* 固定寬度 - 可自行調整 */
+  height: 315px; /* 固定高度 - 可自行調整 */
+  object-fit: cover; /* 自動縮放並裁切以填滿容器 */
+  object-position: center; /* 居中顯示 */
+  border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   transition: transform 0.3s ease;
 }
@@ -358,13 +368,17 @@
 /* 響應式調整 */
 @media (max-width: 768px) {
   .newsDetail .articleImage img {
-    max-width: 90%;
+    width: 90%;
+    height: auto;
+    object-fit: contain;
   }
 }
 
 @media (max-width: 480px) {
   .newsDetail .articleImage img {
-    max-width: 100%;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
   }
 }
 .newsDetail .imageCaption { margin-top: 0.5rem; color: #666; font-size: 0.9rem; font-style: italic; }

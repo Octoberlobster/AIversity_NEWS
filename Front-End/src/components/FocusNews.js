@@ -172,8 +172,9 @@ function FocusNews() {
                     rel="noopener noreferrer"
                     className="branch-item"
                   >
-                    <span className="branch-icon">📰</span>
-                    <span className="branch-name">{source.media || source.title}</span>
+                    <span className="branch-name">
+                      {source.media + " : " + (source.title.length > 25 ? source.title.substring(0, 25) + '...' : source.title)}
+                    </span>
                     <span className="branch-arrow">→</span>
                   </a>
                 ))

@@ -87,23 +87,46 @@ export function useFocusNews(country = 'taiwan') {
         throw newsError;
       }
 
-      // 5. 獲取圖片資料
-      const { data: imagesData, error: imagesError } = await supabase
-        .from('generated_image')
-        .select('story_id, image')
-        .in('story_id', allStoryIds);
+      // 5. 批次獲取圖片資料 (避免一次拉太多報錯)
+      const BATCH_SIZE = 3; // 每批 3 張圖片
+      const imageMap = {};
 
-      if (imagesError) {
-        console.warn('[useFocusNews] 查詢圖片資料錯誤:', imagesError);
+      for (let i = 0; i < allStoryIds.length; i += BATCH_SIZE) {
+        const batch = allStoryIds.slice(i, i + BATCH_SIZE);
+        
+        try {
+          const { data: imagesData, error: imagesError } = await supabase
+            .from('generated_image')
+            .select('story_id, image')
+            .in('story_id', batch);
+
+          if (imagesError) {
+            console.warn('[useFocusNews] 批次', i, '查詢圖片資料錯誤:', imagesError);
+            continue;
+          }
+
+          (imagesData || []).forEach(img => {
+            if (img.image) {
+              try {
+                const cleanBase64 = img.image.replace(/\s/g, '');
+                imageMap[img.story_id] = `data:image/png;base64,${cleanBase64}`;
+              } catch (e) {
+                console.error('[useFocusNews] 圖片處理失敗:', img.story_id, e);
+              }
+            }
+          });
+        } catch (err) {
+          console.error('[useFocusNews] 批次異常:', err);
+          continue;
+        }
+
+        // 批次間添加小延遲
+        if (i + BATCH_SIZE < allStoryIds.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
       }
 
-      const imageMap = {};
-      (imagesData || []).forEach(img => {
-        if (img.image) {
-          const cleanBase64 = img.image.replace(/\s/g, '');
-          imageMap[img.story_id] = `data:image/png;base64,${cleanBase64}`;
-        }
-      });
+      console.log('[useFocusNews] 圖片載入完成:', Object.keys(imageMap).length, '/', allStoryIds.length, '張');
 
       // 6. 獲取來源資料
       const { data: sourcesData, error: sourcesError } = await supabase
