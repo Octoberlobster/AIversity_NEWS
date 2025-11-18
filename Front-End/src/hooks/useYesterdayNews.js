@@ -152,12 +152,24 @@ export function useNewsImages(storyIds) {
 
       if (error) throw error;
 
-      // 轉換為 Map 格式
+      // 轉換為 Map 格式,拉不到圖片時使用預設圖
       const imagesMap = {};
       data.forEach(item => {
         if (item.image) {
-          const cleanBase64 = item.image.replace(/\s/g, '');
-          imagesMap[item.story_id] = `data:image/png;base64,${cleanBase64}`;
+          try {
+            const cleanBase64 = item.image.replace(/\s/g, '');
+            imagesMap[item.story_id] = `data:image/png;base64,${cleanBase64}`;
+          } catch (e) {
+            console.error('[useNewsImages] 圖片處理失敗:', item.story_id, e);
+            imagesMap[item.story_id] = 'https://placehold.co/300x200/e5e7eb/9ca3af?text=News';
+          }
+        }
+      });
+
+      // 為沒有圖片的 story_id 也加入預設圖
+      storyIds.forEach(storyId => {
+        if (!imagesMap[storyId]) {
+          imagesMap[storyId] = 'https://placehold.co/300x200/e5e7eb/9ca3af?text=News';
         }
       });
 

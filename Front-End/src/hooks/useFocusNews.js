@@ -156,8 +156,8 @@ export function useFocusNews(country = 'taiwan') {
         title: news[getFieldName('news_title')] || news.news_title,
         summary: news[getFieldName('ultra_short')] || news.ultra_short,
         date: news.generated_date,
-        imageUrl: imageMap[news.story_id] || 'https://placehold.co/1200x600/e5e7eb/9ca3af?text=News',
-        sources: (sourcesMap[news.story_id] || []).slice(0, 5) // 最多5個來源
+        imageUrl: imageMap[news.story_id] || 'https://placehold.co/300x200/e5e7eb/9ca3af?text=…',
+        sources: (sourcesMap[news.story_id] || []).slice(0, 4) // 最多5個來源
       }));
 
       // 最多返回10則新聞
