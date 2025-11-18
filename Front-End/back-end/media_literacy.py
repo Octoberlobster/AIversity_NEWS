@@ -1,3 +1,5 @@
+# back-end/media_literacy.py
+
 import logging
 import uuid
 from pydantic import BaseModel
@@ -19,7 +21,7 @@ class MediaLiteracyResponse(BaseModel):
     alert_id_lang: str  # 印尼文提醒
     alert_jp_lang: str  # 日文提醒
 
-# --- 核心功能 ---
+# --- Kärnfunktioner ---
 
 def generate_media_literacy_alert(story_id: str) -> dict:
     """
@@ -37,7 +39,6 @@ def generate_media_literacy_alert(story_id: str) -> dict:
             
         news_title = response.data.get("news_title", "無標題")
         long_content = response.data.get("long", "無內容")
-        # 處理 suicide_flag 可能為 None 的情況
         suicide_flag = response.data.get("suicide_flag", False) 
         
     except Exception as e:
@@ -54,31 +55,46 @@ def generate_media_literacy_alert(story_id: str) -> dict:
             "3. 鼓勵尋求專業協助，而不是僅依賴 AI 資訊。\n"
             "這是最高優先級！"
         )
-        # 稍微提高溫度以增加關懷感
-        generation_temperature = 0.6
+        generation_temperature = 0.7 
     else:
         special_emphasis_instruction = (
             "一般準則：此新聞 (suicide_flag=False) 為一般內容。\n"
-            "請專注於 AI 內容核實的基本提醒，鼓勵多方查證。"
+            "你的提醒必須將「AI 提醒」與「情境建議」自然地融合在一起。"
         )
-        # 媒體識讀提醒應保持一致性
-        generation_temperature = 0.4
+        generation_temperature = 0.9 
 
     # 3. 定義 System Instruction (角色扮演與任務)
+    # <<< MODIFIED v3: 這是修改後的新版本，導入「情境判斷」邏輯 >>>
     system_instruction = f"""
-    你是一位頂級的「媒體識讀專家」與「AI 內容分析師」。
-
-    # 核心任務
-    你的唯一任務是分析一篇「由 AI 產生的新聞」，並提供一段簡短（約 50-80 字）的「媒體識讀提醒」。
-    這段提醒的目的是告訴讀者，在閱讀這篇 AI 新聞時應該注意什麼。
+    你是一位頂級的「媒體識讀專家」。
+    你的職責是站在「台灣讀者」的立場，分析一篇「由 AI 產生的新聞」，並提供一段簡短（約 50-80 字）的「媒體識讀提醒」，幫助讀者「批判性地思考」這篇 AI 新聞並獲得「有價值的提醒」。
 
     # 核心準則
-    1.  **強調 AI 來源：** 必須溫和地提醒讀者，這篇文章是由 AI 生成的，內容可能包含錯誤、偏見或過時資訊，需要獨立核實。
-    2.  **批判性思維：** 鼓勵讀者保持批判性思維，並從多方來源查證資訊。
-    3.  **避免恐慌：** 你的語氣應該是「提醒」而非「警告」（除非 suicide_flag 為 True）。
+    1.  **AI 來源提醒 (基本)：** 必須溫和地提醒讀者，這篇文章是由 AI 生成的，內容可能包含錯誤、偏見或過時資訊。
+    2.  **文句多樣性 (!!!)：** 你的提醒「開頭」和「結構」必須多樣化。
+        -   (範例句式: "AI生成的報導僅供參考...", "閱讀這篇AI新聞時...", "AI在處理...議題時...", "此AI報導...，建議您...","請注意，這篇報導由AI生成...")
+    3.  **情境關聯性 (!!! 關鍵變更 !!!)：** 你的提醒必須是「AI 提醒」和「情境建議」的結合。你必須判斷新聞主題，並提供最適合「台灣讀者」的提醒：
+
+        -   **A. 若為「國際新聞 - 旅遊安全 / 災害 / 治安 / 疫情」(例如: 日本熊害、歐洲罷工、泰國詐騙、某國疫情)：**
+            -   **應**：提供「對台灣旅客的實用安全提醒」。
+            -   **範例**：提醒 AI 資訊非即時，並建議「計畫前往該國的台灣讀者」，應查閱我國「外交部領事事務局」的最新旅遊警示，並注意人身安全。
+            -   **(這就是您提的日本熊害情境)**
+
+        -   **B. 若為「國際新聞 - 政治 / 經濟」(例如: 美國選舉、聯準會利率)：**
+            -   **應**：提醒 AI 在分析複雜國際情勢時，可能存在「觀點片面」或「文化理解不足」。
+            -   **範例**：建議讀者多方查證專業分析，以理解其對「台灣」的潛在影響。
+
+        -   **C. 若為「國內新聞 - 財經 / 健康 / 災害」(例如: 台股、醫療、颱風)：**
+            -   **應**：提醒 AI 資訊非即時或不具專業建議資格，並引導讀者查閱「台灣的官方權威來源」。
+            -   **範例**：(金融) "AI 報導不應作為投資依據，請以金管會公告為準。" (天氣) "天氣資訊請以中央氣象署即時公告為準。" (健康) "AI 資訊無法取代專業醫師診斷。"
+
+        -   **D. 若為「國內新聞 - 犯罪 / 詐騙」：**
+            -   **應**：提醒 AI 資訊僅供參考，並引導讀者查閱「台灣的官方權威來源」。
+            -   **範例**："AI 描述的手法僅供參考，若遇可疑情況，請立即撥打 165 反詐騙專線。"
+
     4.  **簡潔扼要：** 提醒內容必須精煉，直接切入重點。
 
-    # {special_emphasis_instruction}
+    # {special_emphasis_instruction} 
 
     # 輸出任務
     你必須同時產生四種語言的提醒（內容必須簡潔、切中要點）：
@@ -87,13 +103,12 @@ def generate_media_literacy_alert(story_id: str) -> dict:
     3.  `alert_id_lang`: 印尼文 (Bahasa Indonesia)
     4.  `alert_jp_lang`: 日文 (Japanese)
 
-    # 嚴格禁止
+    # Veto
     -   禁止總結文章內容。
     -   你的回覆必須嚴格遵守 Pydantic JSON Schema。
     """
 
     # 4. 組合 User Prompt
-    # 截斷部分內容，避免 Prompt 過長
     user_prompt = f"""
     請根據以下 AI 生成的新聞內容，分析並產生四種語言的「媒體識讀提醒」。
 
@@ -110,13 +125,13 @@ def generate_media_literacy_alert(story_id: str) -> dict:
     # 5. 呼叫 Gemini
     try:
         response = gemini_client.models.generate_content(
-            model="gemini-2.0-flash", # 使用 flash 以求即時互動
+            model="gemini-2.0-flash", 
             contents=user_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 response_mime_type="application/json",
-                response_schema=MediaLiteracyResponse, # 套用 Pydantic Schema
-                temperature=generation_temperature # 根據 suicide_flag 動態調整
+                response_schema=MediaLiteracyResponse, 
+                temperature=generation_temperature
             ),
         )
         
@@ -132,7 +147,6 @@ def generate_media_literacy_alert(story_id: str) -> dict:
 def insert_media_literacy_data(story_id: str, alert_data: dict):
     """
     將媒體識讀提醒資料插入 'media_literacy' 資料表。
-    此處的欄位是 text，不需要像 country_pro_analyze 一樣包裝成 {"content": ...}
     """
     
     try:
@@ -142,13 +156,10 @@ def insert_media_literacy_data(story_id: str, alert_data: dict):
             "alert_en_lang": alert_data.get("alert_en_lang"),
             "alert_id_lang": alert_data.get("alert_id_lang"),
             "alert_jp_lang": alert_data.get("alert_jp_lang"),
-            # media_literacy_id 會由資料庫 default gen_random_uuid() 自動生成
         }
         
         supabase.table("media_literacy").insert(insert_payload).execute()
         logger.info(f"Successfully inserted media literacy alert for story_id: {story_id}")
         
     except Exception as e:
-        # 即使插入失敗，前端也已經收到回應，這裡只記錄錯誤
         logger.error(f"Failed to insert media literacy alert for {story_id}: {e}")
-        # 不需 re-raise，避免前端在已收到 200 OK 後又看到 500 錯誤
