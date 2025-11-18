@@ -161,7 +161,7 @@ export function useNewsImages(storyIds) {
             imagesMap[item.story_id] = `data:image/png;base64,${cleanBase64}`;
           } catch (e) {
             console.error('[useNewsImages] 圖片處理失敗:', item.story_id, e);
-            imagesMap[item.story_id] = 'https://placehold.co/300x200/e5e7eb/9ca3af?text=News';
+            imagesMap[item.story_id] = 'https://placehold.co/300x200/e5e7eb/9ca3af?text=…';
           }
         }
       });
@@ -169,7 +169,7 @@ export function useNewsImages(storyIds) {
       // 為沒有圖片的 story_id 也加入預設圖
       storyIds.forEach(storyId => {
         if (!imagesMap[storyId]) {
-          imagesMap[storyId] = 'https://placehold.co/300x200/e5e7eb/9ca3af?text=News';
+          imagesMap[storyId] = 'https://placehold.co/300x200/e5e7eb/9ca3af?text=…';
         }
       });
 
