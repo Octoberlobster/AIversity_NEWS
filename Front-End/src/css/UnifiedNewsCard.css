@@ -1,18 +1,29 @@
 /* 網格容器 */
+.unifiedNewsCard {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .unifiedNewsCard .newsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* 固定三欄 */
   gap: 1.5rem;
   margin-bottom: 2rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 @media (max-width: 1200px) {
   .unifiedNewsCard .newsGrid {
     grid-template-columns: repeat(2, 1fr); /* 中等螢幕顯示兩欄 */
+    gap: 1rem;
   }
 }
 @media (max-width: 768px) {
   .unifiedNewsCard .newsGrid {
     grid-template-columns: 1fr; /* 小螢幕顯示一欄 */
+    gap: 1rem;
   }
 }
 
@@ -29,6 +40,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden; /* 確保圓角效果 */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* 國家標籤 */

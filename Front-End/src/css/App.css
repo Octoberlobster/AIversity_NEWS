@@ -14,11 +14,36 @@
   overflow-x: hidden; /* 防止水平滾動 */
 }
 
+@media (max-width: 768px) {
+  .mainContent {
+    padding-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContent {
+    padding-top: 4px;
+  }
+}
+
 /* 主欄 + 側欄 */
 .contentGrid {
   display: flex; /* 改用 flex 而不是 grid */
   gap: 2rem;
   margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .contentGrid {
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contentGrid {
+    gap: 0.5rem;
+  }
 }
 
 /* 新聞區域重疊效果 */
@@ -29,16 +54,42 @@
 }
 
 .news-section-overlap .mainColumn {
-  background: #f8fafc; /* 與主背景色相同，不用漸層 */
-  /* 移除圓角，讓它看起來一體化 */
+  background: #f8fafc; /* 與主背景色相同,不用漸層 */
+  /* 移除圓角,讓它看起來一體化 */
   padding-top: 100px; /* 上方內邊距 */
   padding-left: 2rem;
   padding-right: 2rem;
   margin-top: 0;
-  /* 移除陰影，避免看出重疊 */
+  /* 移除陰影,避免看出重疊 */
   /* 確保內容不會溢出 */
   width: 100%;
   max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .news-section-overlap {
+    margin-top: -80px; /* 手機版減少重疊 */
+  }
+  
+  .news-section-overlap .mainColumn {
+    padding-top: 60px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .news-section-overlap {
+    margin-top: -50px;
+  }
+  
+  .news-section-overlap .mainColumn {
+    padding-top: 40px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
 }
 
 @media (max-width: 1200px) {
@@ -54,7 +105,15 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  width: 1335px;
+  flex: 1;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .mainColumn {
+    gap: 1rem;
+  }
 }
 
 .sidebar {
@@ -66,6 +125,19 @@
   position: sticky;       /* 讓側欄在滾動時吸附 */
   top: 2rem;
   height: fit-content;
+}
+
+@media (max-width: 1200px) {
+  .sidebar {
+    position: static; /* 手機版取消 sticky */
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    gap: 1rem;
+  }
 }
 
 .sidebarCard {
@@ -96,6 +168,26 @@
 .sectionTitle::before {
   content: "📰";
   font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 1.4rem;
+    margin: 1rem 0 0 0;
+  }
+  .sectionTitle::before {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sectionTitle {
+    font-size: 1.2rem;
+    gap: 0.3rem;
+  }
+  .sectionTitle::before {
+    font-size: 1rem;
+  }
 }
 
 /* 熱門新聞標題 */
