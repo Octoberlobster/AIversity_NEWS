@@ -416,12 +416,22 @@ function SpecialReportDetail() {
       if (topicError) throw new Error(`無法獲取專題資訊: ${topicError.message}`);
       if (!topicData) throw new Error('專題不存在');
 
-      // 專題新聞數量
-      const { data: newsCountData, error: countError } = await supabase
-        .from('topic_news_map')
-        .select('topic_id')
-        .eq('topic_id', id);
-      if (countError) console.warn('無法獲取新聞數量:', countError);
+      // 專題新聞數量 (從 topic_branch_news_map 統計,因為頁面顯示的是分支新聞)
+      const { data: branchNewsData, error: branchNewsError } = await supabase
+        .from('topic_branch_news_map')
+        .select('story_id, topic_branch_id, topic_branch!inner(topic_id)')
+        .eq('topic_branch.topic_id', id);
+      if (branchNewsError) console.warn('無法獲取分支新聞數量:', branchNewsError);
+
+      console.log(`[SpecialReportDetail] topic_branch_news_map 原始筆數:`, branchNewsData?.length);
+      
+      // 計算不重複的 story_id 數量
+      const uniqueStoryIds = new Set((branchNewsData || []).map(item => item.story_id).filter(Boolean));
+      const articleCount = uniqueStoryIds.size;
+
+      console.log(`[SpecialReportDetail] 專題 ${id} 過濾前: ${branchNewsData?.length} 筆`);
+      console.log(`[SpecialReportDetail] 專題 ${id} 文章數 (不重複): ${articleCount} 篇`);
+      console.log(`[SpecialReportDetail] uniqueStoryIds:`, Array.from(uniqueStoryIds).slice(0, 5));
 
       // 專題分支列表（topic_branch）
       const branchMultiLangFields = ['topic_branch_title', 'topic_branch_content'];
@@ -506,7 +516,7 @@ function SpecialReportDetail() {
         topic_id: topicData.topic_id,
         topic_title: topicData[getFieldName('topic_title')] || topicData.topic_title,
         description: topicData[getFieldName('topic_long')] || topicData[getFieldName('topic_short')] || topicData.topic_long || topicData.topic_short || '',
-        articles: newsCountData ? newsCountData.length : 0,
+        articles: articleCount,
         views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
         lastUpdate: topicData.generated_date ? new Date(topicData.generated_date).toLocaleDateString('zh-TW') : '',
         report: topicData[getFieldName('report')] || topicData.report || '',

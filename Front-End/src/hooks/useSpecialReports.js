@@ -18,7 +18,7 @@ export function useSpecialReportsList() {
 
       const { data, error } = await supabase
         .from('topic_news_map')
-        .select('topic_id');
+        .select('topic_id, story_id');
 
       if (error) {
         throw new Error(`無法獲取專題新聞對應關係: ${error.message}`);
@@ -28,21 +28,34 @@ export function useSpecialReportsList() {
         return { topicCounts: {}, validTopicIds: [] };
       }
 
-      // 計算每個 topic_id 的新聞數量
-      const topicCounts = data.reduce((acc, item) => {
-        if (item.topic_id) {
-          acc[item.topic_id] = (acc[item.topic_id] || 0) + 1;
+      console.log('[useSpecialReportsList] topic_news_map 原始資料筆數:', data.length);
+
+      // 計算每個 topic_id 的不重複 story_id 數量
+      const topicStoryMap = {};
+      data.forEach(item => {
+        if (item.topic_id && item.story_id) {
+          if (!topicStoryMap[item.topic_id]) {
+            topicStoryMap[item.topic_id] = new Set();
+          }
+          topicStoryMap[item.topic_id].add(item.story_id);
         }
-        return acc;
-      }, {});
+      });
+
+      // 轉換為數量
+      const topicCounts = {};
+      Object.entries(topicStoryMap).forEach(([topicId, storySet]) => {
+        topicCounts[topicId] = storySet.size;
+        console.log(`[useSpecialReportsList] 專題 ${topicId}: ${storySet.size} 篇文章 (不重複)`);
+      });
 
       const validTopicIds = Object.keys(topicCounts).filter(id => id.trim() !== '');
 
       console.log('[useSpecialReportsList] 專題統計:', validTopicIds.length, '個專題');
+      console.log('[useSpecialReportsList] topicCounts:', topicCounts);
       return { topicCounts, validTopicIds };
     },
     enabled: !!supabase,
-    staleTime: 10 * 60 * 1000, // 10 分鐘
+    staleTime: 0, // 改為 0,強制重新載入
     cacheTime: 30 * 60 * 1000,
   });
 
