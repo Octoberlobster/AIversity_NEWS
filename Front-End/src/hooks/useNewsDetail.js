@@ -77,8 +77,10 @@ export function useNewsData(storyId) {
  */
 export function useNewsImage(storyId) {
   const supabase = useSupabase();
-  const { getFieldName, getCurrentLanguage } = useLanguageFields();
+  const { getMultiLanguageSelect, getFieldName, getCurrentLanguage } = useLanguageFields();
   const currentLanguage = getCurrentLanguage();
+  const multiLangFields = ['description'];
+  const selectFields = getMultiLanguageSelect(multiLangFields);
 
   return useQuery({
     queryKey: ['news-image', storyId, currentLanguage],
@@ -87,7 +89,7 @@ export function useNewsImage(storyId) {
 
       const { data, error } = await supabase
         .from('generated_image')
-        .select('image, description')
+        .select(`image, ${selectFields}`)
         .eq('story_id', storyId);
 
       if (error) {

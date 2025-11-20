@@ -518,7 +518,7 @@ function SpecialReportDetail() {
         description: topicData[getFieldName('topic_long')] || topicData[getFieldName('topic_short')] || topicData.topic_long || topicData.topic_short || '',
         articles: articleCount,
         views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
-        lastUpdate: topicData.generated_date ? new Date(topicData.generated_date).toLocaleDateString('zh-TW') : '',
+        lastUpdate: topicData.generated_date,
         report: topicData[getFieldName('report')] || topicData.report || '',
         who_talk: topicData.who_talk || ''
       };
