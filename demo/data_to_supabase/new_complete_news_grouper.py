@@ -800,7 +800,24 @@ class NewsEventGrouper:
 def main():
     """主程式入口"""
     print("🚀 新聞事件分組器 - 啟動中...")
-    print("💾 模式：從 topic_news_map 讀取資料，AI分組後儲存到資料庫")
+    
+    # 檢查命令列參數
+    test_mode = False
+    if len(sys.argv) > 1:
+        command = sys.argv[1].lower()
+        if command in ['test', '--test', '-t']:
+            test_mode = True
+            print("🧪 測試模式：只生成預覽檔案，不寫入資料庫")
+        elif command in ['help', '--help', '-h']:
+            print("\n使用方式:")
+            print("  python new_complete_news_grouper.py           # 正常模式（寫入資料庫）")
+            print("  python new_complete_news_grouper.py test      # 測試模式（只生成預覽）")
+            print("  python new_complete_news_grouper.py --help    # 顯示此幫助")
+            return
+    
+    if not test_mode:
+        print("💾 模式：從 topic_news_map 讀取資料，AI分組後儲存到資料庫")
+    
     print("=" * 60)
     
     try:
@@ -812,13 +829,23 @@ def main():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_path = f"topic_grouped_news_{timestamp}.json"
     print(f"📄 結果將儲存到: {output_path}")
-    print("💾 將同時生成預覽檔案並儲存到資料庫")
+    
+    if test_mode:
+        print("📋 將只生成預覽檔案，不會寫入資料庫")
+    else:
+        print("💾 將同時生成預覽檔案並儲存到資料庫")
     print()
     
     try:
-        result = grouper.process_from_topic_map(output_path, save_to_db=True)
+        result = grouper.process_from_topic_map(output_path, save_to_db=(not test_mode))
         if result:
-            print("\n🎉 全部處理完成！")
+            if test_mode:
+                print("\n🎉 測試完成！請檢查預覽檔案:")
+                print("  - database_preview_topic_branch.json")
+                print("  - database_preview_topic_branch_news_map.json")
+                print(f"  - {output_path}")
+            else:
+                print("\n🎉 全部處理完成！")
         else:
             print("\n⚠️ 處理未完成或無資料，請檢查上方輸出訊息。")
     except KeyboardInterrupt:

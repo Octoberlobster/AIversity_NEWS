@@ -192,12 +192,17 @@ class ImageDescriptionGenerator:
 - 如果原本想表達的內容會超過 15 字，請重新組織語句，用更精簡的方式表達完整意思
 - 寧可犧牲細節，也要保證句子的完整性
 - 每個字都要有意義，避免冗詞贅字
+- 如果不遵守將會受到極為嚴厲的懲罰
 
 現在請生成符合所有要求的圖片說明：
 """
             
             # 使用 Gemini Vision API
             response = self.genai_client.models.generate_content(
+                
+                
+               
+                
                 model=self.model_name,
                 contents=[
                     types.Content(
@@ -210,7 +215,10 @@ class ImageDescriptionGenerator:
                             types.Part.from_text(text=prompt)
                         ]
                     )
-                ]
+                ],
+                config=types.GenerateContentConfig(
+                    temperature=0.0
+                )
             )
             
             # 提取生成的文字
