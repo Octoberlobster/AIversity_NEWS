@@ -53,7 +53,7 @@ class SupabaseClient:
             all_stories = []
             batch_size = 1000
             start = 0
-            
+
             while True:
                 # 查詢指定範圍的 stories,並過濾日期
                 temp = (self.client.table("stories")
@@ -76,6 +76,7 @@ class SupabaseClient:
                     break
                 
                 all_stories.extend(temp.data)
+                # break
                 start += batch_size
                 logger.info(f"已拉取 {len(all_stories)} 筆 stories...")
             
@@ -198,6 +199,16 @@ class SupabaseClient:
                 'short': processed_data.get('short', ''),
                 'long': processed_data.get('long', ''),
                 'attribution': None,
+                'ultra_short_en_lang': None,
+                'ultra_short_id_lang': None,
+                'ultra_short_jp_lang': None,
+                'long_en_lang': None,
+                'long_id_lang': None,
+                'long_jp_lang': None,
+                'news_title_en_lang': None,
+                'news_title_id_lang': None,
+                'news_title_jp_lang': None,
+
             }
             
             # 檢查是否已存在

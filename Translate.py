@@ -501,9 +501,9 @@ class Translate:
             for lang in self.lang_list:
                 
                 keyword_check = self.supabase.table("keywords_map").select(f"keyword_{lang}_lang").eq("story_id", story_id).eq("keyword", keyword).execute().data
-                if keyword_check:
-                    print(f"story_id '{story_id}' 的{lang} keywords_map資料已存在，跳過翻譯")
-                    continue
+                if keyword_check and keyword_check[0].get(f"keyword_{lang}_lang"):
+                    print(f"story_id '{story_id}' 的 {lang} keywords_map資料已存在 ({keyword_check[0][f"keyword_{lang}_lang"]})，跳過翻譯")
+                    continue  # 或其他跳過邏輯
 
                 if lang == "id":
                     lang = "indonesia"
@@ -891,7 +891,7 @@ if __name__ == "__main__":
     #跑所有新聞的翻譯
     all_require = []
     batch_size = 1000
-    start = 0
+    start = 800
     initial_delay = 1  # seconds
 
     while True:
@@ -914,13 +914,16 @@ if __name__ == "__main__":
     story_id_list = [item.get("story_id", "") for item in all_require]
     for num, story_id in enumerate(story_id_list, start=1):
         print(f"{num}.開始翻譯story_id '{story_id}' 的新聞資料")
-        translate.translate_singleNews(story_id)
-        translate.translate_relativeNews(story_id)
-        translate.translate_relativeTopics(story_id)
-        translate.translate_terms(story_id)
-        translate.translate_position(story_id)
-        translate.translate_pro_analyze(story_id)
-        translate.translate_imagedescription(story_id)
+
+        # translate.translate_singleNews(story_id)
+        # translate.translate_relativeNews(story_id)
+
+        # translate.translate_relativeTopics(story_id)
+        # translate.translate_terms(story_id)
+
+        # translate.translate_position(story_id)
+        # translate.translate_pro_analyze(story_id)
+        # translate.translate_imagedescription(story_id)
         translate.translate_keyword(story_id)
     
     #跑所有topic的翻譯

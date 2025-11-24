@@ -33,7 +33,7 @@ class RelativeNews(BaseModel):
     relatives: List[RelativeItem]
 
 data = supabase.table("single_news").select("story_id,category,short,generated_date").range(0, 200).order("generated_date", desc=True).execute()
-
+data = data.data
 all_data = []
 batch_size = 1000
 start = 0

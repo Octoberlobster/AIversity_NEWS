@@ -2,7 +2,6 @@
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 from bs4 import BeautifulSoup
 import time
-import datetime as dt
 from datetime import datetime, timedelta, timezone
 import pytz
 import requests
@@ -370,12 +369,13 @@ def get_article_links_from_story(story_info):
                                         "WKMG","CNBC Indonesia","Albert Lea Tribune","Facebook","地球黃金線","4Gamer.net", "MarketWatch",
                                         "The Daily Beast", "美麗島電子報", "經理人", "X", "Newswav", "PressReader", "Men's Journal", 
                                         "The Hill", "ESPN", "The Wall Street Journal", "bola.okezone.com", "台灣新聞雲報", "Ottumwa Courier",
-                                        "Washington Times", "San Francisco Examiner"
+                                        "Washington Times", "San Francisco Examiner", "Toronto Sun", "Investing.com", "Business Insider", "video.okezone.com",
+                                        "netralnews.com"
                                         ]:
                                 continue
 
                             time_element = article.find(class_="WW6dff uQIVzc Sksgp slhocf")
-                            article_datetime = "未知時間"
+                            article_datetime = ""
                             
                             if time_element and time_element.get("datetime"):
                                 dt_str = time_element.get("datetime")
@@ -396,16 +396,8 @@ def get_article_links_from_story(story_info):
                                     full_href = "https://news.google.com" + href
                                 
 
-                                # 檢查文章是否需要處理
-                                should_skip, action_type, story_data, skip_reason, final_url, final_title = check_story_exists_in_supabase(
-                                    story_info['url'], story_info['category'], article_datetime, full_href, ""
-                                )
-                                
-                                if should_skip and action_type == "skip":
-                                    print(f"     跳過文章: {link_text}")
-                                    print(f"        原因: {skip_reason}")
-                                    continue
-                                
+                                print("story_url" + story_info['url'])
+
                                 article_links.append({
                                     "story_id": story_info['story_id'],
                                     "story_title": story_info['title'],
@@ -416,8 +408,8 @@ def get_article_links_from_story(story_info):
                                     "article_url": full_href,
                                     "media": media,
                                     "article_datetime": article_datetime,
-                                    # "action_type": action_type,
-                                    # "existing_story_data": story_data
+                                    "action_type": story_info["action_type"],
+                                    "existing_story_data": story_info.get("existing_story_data", None)
                                 })
                                 
                                 processed_count += 1
@@ -524,7 +516,8 @@ def get_final_content(article_info, page):
                     "https://www.independent.co.uk/bulletin/news/",
                     "https://www.the-independent.com/bulletin/news/",
                     "https://www.socialnews.xyz/",
-                    "https://tw.tv.yahoo.com/"
+                    "https://tw.tv.yahoo.com/",
+                    "https://tw.sports.yahoo.com/video/"
                 ]
                 
                 # 簡化URL獲取邏輯
@@ -769,8 +762,10 @@ def get_final_content(article_info, page):
                 "final_url": final_url,
                 "media": article_info.get('media', '未知来源'),
                 "content": body_content,
-                "article_datetime": article_info.get('article_datetime', '未知时间'),
-                "action_type": article_info.get('action_type', 'process'),
+                "article_datetime": article_info.get('article_datetime', ''),
+
+                # 待處理欄位
+                "action_type": article_info.get('action_type', 'create_new_story'),
                 "existing_story_data": article_info.get('existing_story_data')
             }
             
@@ -842,6 +837,7 @@ def check_story_exists_in_supabase(story_url, category, article_datetime="", art
             return False, "create_new_story", None, "新故事", story_url, title
         
         existing_story = story_response.data[0]
+        existing_url = existing_story["story_url"]
         return check_existing_story_logic(existing_story, article_datetime, article_url, existing_url, title)
             
     except Exception as e:
@@ -938,80 +934,123 @@ def check_existing_story_logic(existing_story, article_datetime, article_url, fi
 # 方案1: 使用線程池執行同步代碼
 def get_hash_sync_threaded(url):
     """
-    在線程池中執行同步 Playwright 代碼
+    在線程池中執行同步 Playwright 代碼 (強化版)
+    功能：
+    1. 阻擋圖片載入 (加速)
+    2. 清洗 HTML 雜訊 (Header, Footer, Script, Ads)
+    3. 正規化文字 (去除標點與大小寫差異)
+    4. 提取 Google News 特定標題作為 link_text
     """
     def _get_hash_in_thread():
+        browser = None
+        context = None
+        page = None
         try:
             with sync_playwright() as p:
-                browser = None
-                context = None
-                page = None
+                # 創建瀏覽器 (假設 create_robust_browser 已定義)
+                # 如果沒有定義，請將其替換為 p.chromium.launch(headless=True)
+                browser, context = create_robust_browser(p, headless=True)
+                page = context.new_page()
+                
+                # [優化 1] 阻擋圖片、字型、媒體資源以加快速度
+                page.route("**/*", lambda route: route.abort() 
+                           if route.request.resource_type in ["image", "font", "media", "stylesheet"] 
+                           else route.continue_())
+
+                page.set_default_timeout(15000) #稍微增加超時寬容度
                 
                 try:
-                    browser, context = create_robust_browser(p, headless=True)
-                    page = context.new_page()
+                    # [優化 2] Domcontentloaded 通常就夠了，不需要等到 networkidle (會太慢)
+                    page.goto(url, wait_until='domcontentloaded', timeout=15000)
                     
-                    page.set_default_timeout(10000)
-                    page.goto(url, wait_until='domcontentloaded', timeout=10000)
-
+                    # 短暫等待確保動態內容載入，但設限
                     try:
-                        page.wait_for_load_state('networkidle', timeout=3000)
+                        page.wait_for_load_state('networkidle', timeout=2000)
                     except:
                         pass
-                    
-                    html = page.content()
-                    soup = BeautifulSoup(html, "html.parser")
-                    
-                    # 提取第一筆 link_text
-                    link_text = None
-                    articles = soup.find_all("article", class_="MQsxIb xTewfe tXImLc R7GTQ keNKEd keNKEd VkAdve GU7x0c JMJvke q4atFc")
-                    if articles and len(articles) > 0:
-                        article = articles[0]  # 取第一筆
-                        h4_element = article.find("h4", class_="ipQwMb ekueJc RD0gLb")
-                        if h4_element:
-                            link = h4_element.find("a", class_="DY5T1d RZIKme")
-                            if link:
-                                link_text = link.text.strip()
-                                
-                    for script in soup(["script", "style", "noscript"]):
-                        script.decompose()
-                    
-                    text_content = soup.get_text(separator=' ', strip=True)
-                    import re
-                    text_content = re.sub(r'\s+', ' ', text_content).strip()
-                    
-                    if len(text_content) < 100:
-                        return (None, link_text)
-                    
-                    hash_value = hashlib.md5(text_content.encode("utf-8")).hexdigest()
-                    return (hash_value, link_text)
-                    
                 except Exception as e:
-                    print(f"處理頁面時發生錯誤: {e}")
+                    print(f"頁面導航超時或錯誤: {e}")
                     return (None, None)
-                    
-                finally:
-                    try:
-                        if page:
-                            page.close()
-                        if context:
-                            context.close()
-                        if browser:
-                            browser.close()
-                    except:
-                        pass
-                        
-        except Exception as e:
-            print(f"創建瀏覽器失敗: {e}")
-            return (None, None)
-    
-    # 在線程池中執行
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(_get_hash_in_thread)
-        return future.result(timeout=10)  # 30秒超時
 
-    return _get_hash_in_thread()
-    
+                html = page.content()
+                soup = BeautifulSoup(html, "html.parser")
+
+                # === 提取 link_text (保留您原本的 Google News 邏輯) ===
+                link_text = None
+                gn_articles = soup.find_all("article", class_="MQsxIb xTewfe tXImLc R7GTQ keNKEd keNKEd VkAdve GU7x0c JMJvke q4atFc")
+                if gn_articles:
+                    first_article = gn_articles[0]
+                    h4_element = first_article.find("h4", class_="ipQwMb ekueJc RD0gLb")
+                    if h4_element:
+                        link = h4_element.find("a", class_="DY5T1d RZIKme")
+                        if link:
+                            link_text = link.text.strip()
+
+                # === [優化 3] DOM 清洗與去雜訊 ===
+                # 移除技術性標籤
+                for tag in soup(['script', 'style', 'noscript', 'iframe', 'svg', 'meta', 'link']):
+                    tag.decompose()
+                
+                # 移除通常無關的版面區塊 (導航、頁尾、側邊欄)
+                for tag in soup(['header', 'footer', 'nav', 'aside']):
+                    tag.decompose()
+
+                # === [優化 4] 智慧內容提取 ===
+                # 如果是 Google News 頁面，我們只 Hash 那些新聞卡片的內容，忽略其他 Google 介面文字
+                content_text = ""
+                if gn_articles:
+                    # 只將前 10 篇新聞的標題與摘要組合成 Hash 來源
+                    # 這樣如果只有側邊欄廣告變了，Hash 也不會變
+                    for art in gn_articles[:10]:
+                        content_text += art.get_text(separator=' ', strip=True)
+                else:
+                    # 如果不是 Google News 結構 (可能是原始新聞頁面)，則抓取 Body
+                    # 嘗試移除常見的廣告/推薦區塊
+                    noise_regex = re.compile(r'ad-|advert|sidebar|menu|social|comment|footer', re.I)
+                    for div in soup.find_all('div'):
+                        if div.get('class') and any(noise_regex.search(str(c)) for c in div.get('class')):
+                            div.decompose()
+                    
+                    if soup.body:
+                        content_text = soup.body.get_text(separator=' ', strip=True)
+
+                # === [優化 5] 文字正規化 (Normalization) ===
+                # 1. 去除非文字字元 (只保留中英文數字)，去除標點符號造成的差異
+                # 2. 轉小寫
+                # 3. 去除多餘空白
+                if content_text:
+                    content_text = re.sub(r'[^\w\u4e00-\u9fff]+', '', content_text)
+                    content_text = content_text.lower()
+                
+                if not content_text or len(content_text) < 50:
+                    # print(f"警告: 提取內容過短，Hash 可能不準確")
+                    pass
+
+                hash_value = hashlib.md5(content_text.encode("utf-8")).hexdigest()
+                return (hash_value, link_text)
+
+        except Exception as e:
+            print(f"Hash 計算過程發生錯誤: {e}")
+            return (None, None)
+        
+        finally:
+            # 確保資源釋放
+            try:
+                if page: page.close()
+                if context: context.close()
+                if browser: browser.close()
+            except:
+                pass
+
+    # 在線程池中執行
+    try:
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_get_hash_in_thread)
+            return future.result(timeout=20) # 稍微增加總體超時時間
+    except Exception as e:
+        print(f"線程池執行超時或錯誤: {e}")
+        return (None, None)
+      
 # 方案5: 檢測環境並選擇適當方法
 def get_hash_smart_env(url):
     """
@@ -1029,7 +1068,7 @@ def get_hash_smart_env(url):
     
 def get_hash_sync(url):
     """
-    獲取URL內容的hash值 - 同步版本
+    獲取URL內容的 "特徵" hash值 - 強化版
     """
     try:
         with sync_playwright() as p:
@@ -1037,12 +1076,73 @@ def get_hash_sync(url):
             page = context.new_page()
             
             try:
-                page.goto(url)
+                # 阻擋圖片和字型以加快速度
+                page.route("**/*", lambda route: route.abort() if route.request.resource_type in ["image", "font"] else route.continue_())
+                
+                page.goto(url, wait_until='domcontentloaded', timeout=15000)
+                
+                # 嘗試獲取 HTML
                 html = page.content()
                 soup = BeautifulSoup(html, "html.parser")
-                element = soup.get_text(strip=True)
-                hash_value = hashlib.md5(element.encode("utf-8")).hexdigest()
+
+                # === 強化步驟 1: 移除網頁雜訊 (Header, Footer, Nav, Ads, Scripts) ===
+                # 這些標籤通常包含變動內容，必須移除
+                for tag in soup(['script', 'style', 'noscript', 'iframe', 'header', 'footer', 'nav', 'aside', 'form']):
+                    tag.decompose()
+                
+                # 移除常見的干擾 Class (廣告、推薦閱讀、時間戳記)
+                # 這裡使用正規表達式模糊匹配
+                noise_patterns = re.compile(r'date|time|comment|share|recommend|ad-|sidebar|menu|cookie', re.I)
+                for div in soup.find_all('div'):
+                    if div.get('class') and any(noise_patterns.search(c) for c in div.get('class') if isinstance(c, str)):
+                        div.decompose()
+                
+                # === 強化步驟 2: 鎖定核心內容 ===
+                # 嘗試只抓取 <article> 或主要內容區塊
+                content_text = ""
+                
+                # 優先尋找 article 標籤
+                article = soup.find('article')
+                if article:
+                    content_text = article.get_text(separator=' ', strip=True)
+                else:
+                    # 如果沒有 article，嘗試找 h1 標題加上字數最多的幾個 p 標籤 (簡單的啟發式演算法)
+                    h1 = soup.find('h1')
+                    title_text = h1.get_text(strip=True) if h1 else ""
+                    
+                    # 找出所有段落，過濾掉太短的 (通常是導航或廣告文字)
+                    paragraphs = [p.get_text(strip=True) for p in soup.find_all('p') if len(p.get_text(strip=True)) > 20]
+                    
+                    # 組合標題和前 10 個主要段落 (這通常足夠代表文章特徵)
+                    content_text = title_text + " " + " ".join(paragraphs[:10])
+
+                # 如果真的抓不到東西，才回退到 body
+                if not content_text.strip() and soup.body:
+                    content_text = soup.body.get_text(separator=' ', strip=True)
+
+                # === 強化步驟 3: 內容標準化 (Normalization) ===
+                # 1. 轉小寫 (忽略大小寫差異)
+                # 2. 去除所有標點符號和特殊字元 (只保留中英文數字)
+                # 3. 去除多餘空白
+                
+                # 正規化：只保留文字與數字，去除標點符號
+                content_text = re.sub(r'[^\w\u4e00-\u9fff]+', '', content_text) 
+                content_text = content_text.lower()
+
+                if len(content_text) < 50:
+                    print(f"  Hash警告: 提取的內容過短 ({len(content_text)}字)，可能無法代表文章")
+                    return None
+
+                # 計算 MD5
+                hash_value = hashlib.md5(content_text.encode("utf-8")).hexdigest()
+                
+                # 同時返回提取的文字長度供除錯
+                # print(f"  [Hash Debug] 提取特徵文字: {content_text[:50]}...") 
                 return hash_value
+
+            except Exception as e:
+                print(f"  Hash計算過程出錯: {e}")
+                return None
             finally:
                 page.close()
                 context.close()
@@ -1182,8 +1282,8 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
         if is_existing_story:
             print(f"\n更新现有故事: {story_title}")
             print(f"   Story ID: {story_id}")
-            print(f"   原有 Crawl Date: {existing_story_data.get('crawl_date', '未知')}")
-            print(f"   原有时间范围: {existing_story_data.get('time_range', '未知')}")
+            print(f"   原有 Crawl Date: {existing_story_data.get('crawl_date', '')}")
+            print(f"   原有时间范围: {existing_story_data.get('time_range', '')}")
             base_action_type = "update_existing_story"
         else:
             print(f"\n处理新故事: {story_title}")
@@ -1195,8 +1295,8 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
         # 解析所有文章的时间
         articles_with_time = []
         for article in articles:
-            article_datetime = article.get('article_datetime', '未知时间')
-            if article_datetime and article_datetime != '未知时间':
+            article_datetime = article.get('article_datetime', '')
+            if article_datetime and article_datetime != '':
                 try:
                     parsed_dt = parser.parse(article_datetime)
                     articles_with_time.append({
@@ -1213,22 +1313,40 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                 # 没有时间的文章使用当前时间
                 articles_with_time.append({
                     'article': article,
-                    'datetime': datetime.now()
+                    'datetime': datetime.now(tz=pytz.timezone('Asia/Taipei'))
                 })
         
         # 按时间排序
         articles_with_time.sort(key=lambda x: x['datetime'])
         
+        base_start_time = None
+        if is_existing_story:
+            crawl_date_str = existing_story_data.get('crawl_date')
+            if crawl_date_str:
+                try:
+                    # 1. 解析字串為 datetime
+                    parsed_crawl_date = parser.parse(crawl_date_str)
+                    # 2. 確保加上台北時區 (因為文章時間也都是台北時間，必須一致才能相減)
+                    if parsed_crawl_date.tzinfo is None:
+                        base_start_time = taipei_tz.localize(parsed_crawl_date)
+                    else:
+                        base_start_time = parsed_crawl_date.astimezone(taipei_tz)
+                    print(f"   基準時間 (Parsed): {base_start_time}")
+                except Exception as e:
+                    print(f"   解析原有 crawl_date 失敗 ({crawl_date_str}): {e}，將使用新文章時間作為基準")
+                    base_start_time = None
+
         # 执行时间窗口分组
-        time_groups = _create_time_groups(articles_with_time, time_window_days)
+        time_groups = _create_time_groups(articles_with_time, time_window_days, base_start_time)
         print(f"   在故事内分成 {len(time_groups)} 个时间组")
 
         # 为每个时间组创建最终的故事数据
-        for group_idx, group in enumerate(time_groups):
+        for group_idx, group in time_groups:
             # 找到组内最早和最晚的时间
             earliest_time = min(item['datetime'] for item in group)
             latest_time = max(item['datetime'] for item in group)
-            
+            taipei_tz = pytz.timezone('Asia/Taipei')
+
             # 决定使用哪个时间作为 crawl_date
             if is_existing_story:
                 # 现有故事：优先使用原有的 crawl_date，如果没有则使用当前时间
@@ -1237,12 +1355,11 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                     crawl_date = original_crawl_date
                     print(f"      保持原有 Crawl Date: {crawl_date}")
                 else:
-                    taipei_tz = pytz.timezone('Asia/Taipei')
-                    crawl_date = datetime.now(taipei_tz).strftime("%Y/%m/%d %H:%M")
-                    print(f"      使用当前台北时间作为 Crawl Date: {crawl_date}")
+                    crawl_date = earliest_time.astimezone(taipei_tz).strftime("%Y/%m/%d %H:%M")
+                    print(f"      使用最早文章时间作为 Crawl Date: {crawl_date}")
             else:
                 # 新故事：使用最早文章时间
-                crawl_date = earliest_time.strftime("%Y/%m/%d %H:%M")
+                crawl_date = earliest_time.astimezone(taipei_tz).strftime("%Y/%m/%d %H:%M")
             
             # 计算实际的时间范围 - 对于现有故事，优先使用原有时间范围
             if is_existing_story and existing_story_data.get('time_range'):
@@ -1283,20 +1400,38 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                     time_range = f"{earliest_time.strftime('%Y/%m/%d')} - {latest_time.strftime('%Y/%m/%d')}"
             
             # 生成最终的故事ID和标题
-            if len(time_groups) > 1:
-                # 多个时间组：需要为每组生成新的ID
-                # 新故事分组：标准的分组逻辑
-                base_story_id = story_id[:-2] if len(story_id) >= 2 else story_id
-                final_story_id = f"{base_story_id}{group_idx + 1:02d}"
-                final_action_type = f"{base_action_type}_with_time_grouping"
+            # if len(time_groups) > 1:
+            #     # 多个时间组：需要为每组生成新的ID
+            #     # 新故事分组：标准的分组逻辑
+            #     base_story_id = story_id[:-2] if len(story_id) >= 2 else story_id
+            #     final_story_id = f"{base_story_id}{group_idx + 1:02d}"
+            #     final_action_type = f"{base_action_type}_with_time_grouping"
                 
-                final_story_title = f"{story_title} (第{group_idx + 1}组)"
-            else:
-                # 单一组：保持原有ID和标题
+            #     final_story_title = f"{story_title} (第{group_idx + 1}组)"
+            # else:
+            #     # 单一组：保持原有ID和标题
+            #     final_story_id = story_id
+            #     final_story_title = story_title
+            #     final_action_type = "update_existing_story" if is_existing_story else "create_new_story"
+            
+            # === 5. ID 生成邏輯 (重點修改) ===
+            if group_idx == 0:
+                # 第 0 組 (在 crawl_date + 3天內)：保持原始 ID
                 final_story_id = story_id
                 final_story_title = story_title
-                final_action_type = base_action_type
-            
+                # 如果是現有故事，Action 是 update；如果是新故事的第0組，是 create
+                final_action_type = "update_existing_story" if is_existing_story else "create_new_story"
+            else:
+                # 超過 3 天的組別 (index 1, 2, 3...)
+                # 邏輯：生成新 ID
+                final_story_id = str(uuid.uuid4())  # 使用全新 UUID 作為 ID
+                final_story_title = f"{story_title} 第({group_idx + 1}組)"
+                
+                # 這些分出去的組別，對於資料庫來說是「新故事」
+                final_action_type = "create_new_story_from_group"
+                
+                print(f"      [分組] 產生新 ID: {final_story_id} (原始: {story_id}, Index: {group_idx})")
+
             # 准备文章列表
             grouped_articles = []
             for article_idx, item in enumerate(group, 1):
@@ -1309,7 +1444,7 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                     "article_url": article["final_url"],
                     "media": article["media"],
                     "content": article["content"],
-                    "article_datetime": article.get("article_datetime", "未知时间")
+                    "article_datetime": article.get("article_datetime", "")
                 })
             
             # 创建故事数据结构
@@ -1329,7 +1464,7 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
             }
             
             # 如果是现有故事，保留更多原有数据的参考
-            if is_existing_story:
+            if group_idx == 0 and is_existing_story:
                 story_data["original_story_data"] = existing_story_data
                 story_data["time_range_updated"] = existing_story_data.get('time_range') != time_range
                 story_data["crawl_date_preserved"] = existing_story_data.get('crawl_date') == crawl_date
@@ -1352,48 +1487,98 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
     print(f"\n总共处理完成 {len(all_final_stories)} 个最终故事")
     return all_final_stories
 
-def _create_time_groups(articles_with_time, time_window_days):
-    """
-    根据时间窗口将文章分组的内部函数
-    """
-    time_groups = []
-    current_group = []
-    current_group_start_time = None
-    current_group_end_time = None
+# def _create_time_groups(articles_with_time, time_window_days):
+#     """
+#     根据时间窗口将文章分组的内部函数
+#     """
+#     time_groups = []
+#     current_group = []
+#     current_group_start_time = None
+#     current_group_end_time = None
     
+#     for item in articles_with_time:
+#         article_time = item['datetime']
+        
+#         if current_group_start_time is None:
+#             # 第一篇文章，开始第一组
+#             current_group_start_time = article_time
+#             current_group_end_time = article_time + timedelta(days=time_window_days)
+#             current_group.append(item)
+#             print(f"      开始新组: {current_group_start_time.strftime('%Y/%m/%d %H:%M')} - {current_group_end_time.strftime('%Y/%m/%d %H:%M')}")
+#         else:
+#             # 检查是否在当前组的时间窗口内
+#             if article_time < current_group_end_time:
+#                 # 在同一组内
+#                 current_group.append(item)
+#                 print(f"         加入当前组: {article_time.strftime('%Y/%m/%d %H:%M')}")
+#             else:
+#                 # 超出时间窗口，开始新的一组
+#                 if current_group:
+#                     time_groups.append(current_group)
+#                     print(f"      完成组别，包含 {len(current_group)} 篇文章")
+                
+#                 # 开始新组
+#                 current_group = [item]
+#                 current_group_start_time = article_time
+#                 current_group_end_time = article_time + timedelta(days=time_window_days)
+#                 print(f"      开始新组: {current_group_start_time.strftime('%Y/%m/%d %H:%M')} - {current_group_end_time.strftime('%Y/%m/%d %H:%M')}")
+    
+#     # 添加最后一组
+#     if current_group:
+#         time_groups.append(current_group)
+#         print(f"      完成最后组别，包含 {len(current_group)} 篇文章")
+    
+#     return time_groups
+
+def _create_time_groups(articles_with_time, time_window_days, base_start_time=None):
+    """
+    根據基準時間將文章分組。
+    如果提供了 base_start_time (現有故事)，則以該時間為錨點，每3天切一組。
+    如果沒有 (新故事)，則以第一篇文章為錨點。
+    
+    Returns:
+        dict: { group_index: [articles] } 
+        group_index 0 = 原始故事 (0~3天)
+        group_index 1 = 第2組 (3~6天)
+        ...
+    """
+    groups = defaultdict(list)
+    
+    # 如果沒有提供基準時間，就用第一篇文章的時間 (針對新故事)
+    if base_start_time is None and articles_with_time:
+        base_start_time = articles_with_time[0]['datetime']
+    print(f"      基準時間 (crawl_date): {base_start_time.strftime('%Y/%m/%d %H:%M')}")
+
+    if not articles_with_time:
+        return []
+
     for item in articles_with_time:
         article_time = item['datetime']
         
-        if current_group_start_time is None:
-            # 第一篇文章，开始第一组
-            current_group_start_time = article_time
-            current_group_end_time = article_time + timedelta(days=time_window_days)
-            current_group.append(item)
-            print(f"      开始新组: {current_group_start_time.strftime('%Y/%m/%d %H:%M')} - {current_group_end_time.strftime('%Y/%m/%d %H:%M')}")
+        # 計算這篇文章距離基準時間幾天
+        # 使用 total_seconds() 確保計算精確，然後除以一天的秒數
+        time_diff = article_time - base_start_time
+        days_diff = time_diff.total_seconds() / (24 * 3600)
+        
+        if days_diff < 0:
+            # 如果文章時間比 crawl_date 還早 (補抓到的舊聞)，
+            # 強制歸類到第 0 組 (原始故事)
+            group_index = 0
         else:
-            # 检查是否在当前组的时间窗口内
-            if article_time < current_group_end_time:
-                # 在同一组内
-                current_group.append(item)
-                print(f"         加入当前组: {article_time.strftime('%Y/%m/%d %H:%M')}")
-            else:
-                # 超出时间窗口，开始新的一组
-                if current_group:
-                    time_groups.append(current_group)
-                    print(f"      完成组别，包含 {len(current_group)} 篇文章")
-                
-                # 开始新组
-                current_group = [item]
-                current_group_start_time = article_time
-                current_group_end_time = article_time + timedelta(days=time_window_days)
-                print(f"      开始新组: {current_group_start_time.strftime('%Y/%m/%d %H:%M')} - {current_group_end_time.strftime('%Y/%m/%d %H:%M')}")
+            # 計算落在哪個區間 (例如 0-2.99天 -> index 0, 3-5.99天 -> index 1)
+            group_index = int(days_diff // time_window_days)
+            
+        groups[group_index].append(item)
+        
+        # Log 方便除錯
+        print(f"      文章時間: {article_time}, 距離基準: {days_diff:.1f}天 -> 分入第 {group_index + 1} 組")
+
+    # 將字典轉換回列表，並按 index 排序，確保回傳順序正確
+    # 這裡回傳格式改為 list of tuples: [(index, articles), (index, articles)...]
+    # 這樣我們在外面才能知道他是第幾組
+    sorted_groups = sorted(groups.items())
     
-    # 添加最后一组
-    if current_group:
-        time_groups.append(current_group)
-        print(f"      完成最后组别，包含 {len(current_group)} 篇文章")
-    
-    return time_groups
+    return sorted_groups
 
 def save_stories_to_supabase(stories):
     """
@@ -1466,11 +1651,11 @@ def process_news_pipeline(main_url, country, category):
     # 步驟2: 處理每個故事，獲取所有文章連結
     all_article_links = []
     if(category=="Politics" or category=="International News" or category=="Science & Technology" or category=="Business & Finance"):
-        for story_info in story_links[:4]:
+        for story_info in story_links[:7]:
             article_links = get_article_links_from_story(story_info)
             all_article_links.extend(article_links)
     else:
-        for story_info in story_links[:2]:
+        for story_info in story_links[:3]:
             article_links = get_article_links_from_story(story_info)
             all_article_links.extend(article_links)
     

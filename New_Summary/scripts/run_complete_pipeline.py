@@ -162,26 +162,26 @@ class CompletePipeline:
             logger.info(f"💾 資料庫儲存完成：{success_count}/{len(report_result)} 成功")
             
             # 第四步：生成困難關鍵字
-            logger.info("\n" + "="*60)
-            logger.info("🔤 第四步：生成困難關鍵字")
-            logger.info("="*60)
+            # logger.info("\n" + "="*60)
+            # logger.info("🔤 第四步：生成困難關鍵字")
+            # logger.info("="*60)
             
             # 獲取需要生成 terms 的 story_ids
-            updated_story_ids = db_client.get_updated_story_ids()
+            # updated_story_ids = db_client.get_updated_story_ids()
             
-            if updated_story_ids:
-                logger.info(f"📝 需要生成 terms 的 stories: {len(updated_story_ids)} 個")
-                terms_success = self._run_keyword_extraction(list(updated_story_ids))
+            # if updated_story_ids:
+            #     logger.info(f"📝 需要生成 terms 的 stories: {len(updated_story_ids)} 個")
+            #     terms_success = self._run_keyword_extraction(list(updated_story_ids))
                 
-                if terms_success:
-                    logger.info(f"✅ 困難關鍵字生成完成: {len(updated_story_ids)} 個 stories")
-                else:
-                    logger.warning("⚠️ 困難關鍵字生成部分失敗，但不影響主流程")
-            else:
-                logger.info("✨ 沒有需要生成困難關鍵字的 stories")
+            #     if terms_success:
+            #         logger.info(f"✅ 困難關鍵字生成完成: {len(updated_story_ids)} 個 stories")
+            #     else:
+            #         logger.warning("⚠️ 困難關鍵字生成部分失敗，但不影響主流程")
+            # else:
+            #     logger.info("✨ 沒有需要生成困難關鍵字的 stories")
             
             # 清空更新記錄
-            db_client.clear_updated_story_ids()
+            # db_client.clear_updated_story_ids()
             
             # 結束
             end_time = datetime.now(tz_taipei)
@@ -189,8 +189,8 @@ class CompletePipeline:
             logger.info(f"\n🎉 流水線執行完成！")
             logger.info(f"⏰ 總耗時: {duration}")
             logger.info(f"📊 處理結果: {len(processed_result)} stories → {len(report_result)} reports → {success_count} saved")
-            if updated_story_ids:
-                logger.info(f"🔤 困難關鍵字: {len(updated_story_ids)} stories")
+            # if updated_story_ids:
+            #     logger.info(f"🔤 困難關鍵字: {len(updated_story_ids)} stories")
             
             return report_result
 

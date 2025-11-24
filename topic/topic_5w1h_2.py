@@ -291,7 +291,7 @@ class NewsAnalyzer:
             
             # 讓AI進行5W1H分析
             response = gemini_client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash-lite",
                 contents=user_prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction,
@@ -430,51 +430,6 @@ class NewsAnalyzer:
                 
         except Exception as e:
             print(f"上傳心智圖資料到Supabase時發生錯誤: {e}")
-            return False
-
-# 使用範例和測試函數
-def validate_analysis_result(result: Dict[str, Any]) -> bool:
-        """
-        驗證分析結果是否符合要求
-        
-        Args:
-            result: 分析結果
-            
-        Returns:
-            是否符合要求
-        """
-        try:
-            # 檢查基本結構
-            required_keys = ["center_node", "main_nodes", "detailed_nodes"]
-            for key in required_keys:
-                if key not in result:
-                    print(f"缺少必要欄位: {key}")
-                    return False
-            
-            # 檢查detailed_nodes結構
-            detailed_keys = ["who_nodes", "what_nodes", "when_nodes", "where_nodes", "why_nodes", "how_nodes"]
-            for key in detailed_keys:
-                if key not in result["detailed_nodes"]:
-                    print(f"缺少detailed_nodes欄位: {key}")
-                    return False
-            
-            # 檢查what_nodes是否包含topic_branch_title
-            what_nodes = result["detailed_nodes"]["what_nodes"]
-            if not what_nodes:
-                print("what_nodes為空")
-                return False
-            
-            # 檢查when_nodes是否使用topic_branch_title作為description
-            when_nodes = result["detailed_nodes"]["when_nodes"]
-            if not when_nodes:
-                print("when_nodes為空")
-                return False
-            
-            print("分析結果驗證通過")
-            return True
-            
-        except Exception as e:
-            print(f"驗證分析結果時發生錯誤: {e}")
             return False
 
 # 使用範例和測試函數
@@ -730,31 +685,31 @@ def process_single_topic(topic_info: Dict[str, Any]) -> Optional[str]:
     
     analyzer.knowledge_base_dict["5W1H_Analysis"] = f"""你是一個專業的新聞與專題 AI 助手，專門提供某一事件或議題的5W1H分析。
 
-請根據以下知識庫內容進行分析：
+    請根據以下知識庫內容進行分析：
 
-主題：{topic_title}
-{news_text}{branches_text}
+    主題：{topic_title}
+    {news_text}{branches_text}
 
-分析要求：
-1. **What（什麼）**：topic_branch_title的內容，標題 + 80字左右敘述
-2. **Where（哪裡）**：topic_branch_title提及的地點，標題 + 80字左右敘述
-3. **Why（為什麼）**：為什麼會產生這個topic，100字敘述
-4. **Who（誰）**：與topic有關的人及其重要關係，標題 + 80字左右敘述
-5. **When（何時）**：當要建立when_nodes時，必須使用topic_branch_title作為description內容，而label則使用相關的時間資訊，需要具體時間
-6. **How（如何）**：who中提及的人做了什麼事，標題 + 80字左右敘述
+    分析要求：
+    1. **What（什麼）**：topic_branch_title的內容，標題 + 80字左右敘述
+    2. **Where（哪裡）**：topic_branch_title提及的地點，標題 + 80字左右敘述
+    3. **Why（為什麼）**：為什麼會產生這個topic，100字敘述
+    4. **Who（誰）**：與topic有關的人及其重要關係，標題 + 80字左右敘述
+    5. **When（何時）**：當要建立when_nodes時，必須使用topic_branch_title作為description內容，而label則使用相關的時間資訊，需要具體時間
+    6. **How（如何）**：who中提及的人做了什麼事，標題 + 80字左右敘述
 
-特別注意：
-- 固定 "center_node": "id": "center"
-- detailed_nodes 中 what_nodes 的 label 必須使用原始的 topic_branch_title，不要修改
-- detailed_nodes 中 when_nodes 的 description 必須使用原始的 topic_branch_title 作為內容
-- 每個節點的描述要具體且完整
-- 內容必須基於提供的知識庫資料
-- 輸出格式必須是有效的JSON格式
+    特別注意：
+    - 固定 "center_node": "id": "center"
+    - detailed_nodes 中 what_nodes 的 label 必須使用原始的 topic_branch_title，不要修改
+    - detailed_nodes 中 when_nodes 的 description 必須使用原始的 topic_branch_title 作為內容
+    - 每個節點的描述要具體且完整
+    - 內容必須基於提供的知識庫資料
+    - 輸出格式必須是有效的JSON格式
 
-分析結果需要包含三個層次：
-1. 中心節點：主題的簡略概述
-2. 5W1H主節點：六個主要分析維度的簡略描述  
-3. 詳細節點：每個5W1H維度下的具體子項目"""
+    分析結果需要包含三個層次：
+    1. 中心節點：主題的簡略概述
+    2. 5W1H主節點：六個主要分析維度的簡略描述  
+    3. 詳細節點：每個5W1H維度下的具體子項目"""
     
     # 5. 執行分析
     try:
@@ -762,18 +717,18 @@ def process_single_topic(topic_info: Dict[str, Any]) -> Optional[str]:
         
         user_prompt = f"""請對主題 '{topic_title}' 進行5W1H分析。
 
-分析時請特別注意：
-1. What節點：使用所有的topic_branch_title作為標題，並提供80字左右的敘述
-2. Where節點：從topic_branch_title中識別地點，提供標題和80字敘述
-3. Why節點：分析為什麼會產生這個topic，提供100字敘述
-4. Who節點：識別與topic相關的重要人物，說明其關係，提供標題和80字敘述
-5. When節點：使用topic_branch_title作為description內容，label使用相關的時間資訊，需要具體時間
-6. How節點：分析who中提及的人做了什麼事，提供標題和80字敘述
+        分析時請特別注意：
+        1. What節點：使用所有的topic_branch_title作為標題，並提供80字左右的敘述
+        2. Where節點：從topic_branch_title中識別地點，提供標題和80字敘述
+        3. Why節點：分析為什麼會產生這個topic，提供100字敘述
+        4. Who節點：識別與topic相關的重要人物，說明其關係，提供標題和80字敘述
+        5. When節點：使用topic_branch_title作為description內容，label使用相關的時間資訊，需要具體時間
+        6. How節點：分析who中提及的人做了什麼事，提供標題和80字敘述
 
-請確保：
-- 固定 "center_node": "id": "center"
-- detailed_nodes中what_nodes的label直接使用原始的topic_branch_title
-- detailed_nodes中when_nodes的description直接使用原始的topic_branch_title"""
+        請確保：
+        - 固定 "center_node": "id": "center"
+        - detailed_nodes中what_nodes的label直接使用原始的topic_branch_title
+        - detailed_nodes中when_nodes的description直接使用原始的topic_branch_title"""
         
         response = gemini_client.models.generate_content(
             model="gemini-2.0-flash",

@@ -254,17 +254,17 @@ def sync_topics_with_supabase(all_topics: List[str], supabase_titles: List[str])
         return []
 
 if __name__ == "__main__":
-    # topics = craw_cna_topic()
-    # print("CNA topics:", topics)
-    # mnews_cats = craw_mnews_categories()
-    # print("MNews categories:", mnews_cats)
-    # pts_navs = craw_pts_nav()
-    # print("PTS navs:", pts_navs)
+    topics = craw_cna_topic()
+    print("CNA topics:", topics)
+    mnews_cats = craw_mnews_categories()
+    print("MNews categories:", mnews_cats)
+    pts_navs = craw_pts_nav()
+    print("PTS navs:", pts_navs)
 
-    # all_topics = topics + mnews_cats + pts_navs
-    # print("All topics/categories:", all_topics) 
+    all_topics = topics + mnews_cats + pts_navs
+    print("All topics/categories:", all_topics) 
 
-    all_topics = ['颱風鳳凰', '非洲豬瘟', '藝人躲兵役案', '普發一萬', '蔡英文柏林行', '黃國昌爭議', '仁勳台積電', '颱風鳳凰', '普發1萬']
+    # all_topics = ['颱風鳳凰', '非洲豬瘟', '藝人躲兵役案', '普發一萬', '蔡英文柏林行', '黃國昌爭議', '仁勳台積電', '颱風鳳凰', '普發1萬']
     unique_topics = dedupe_topics_with_gemini(all_topics)
     print("Unique topics/categories:", unique_topics)
 

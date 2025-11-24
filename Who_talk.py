@@ -11,7 +11,7 @@ class InitChatResponse(BaseModel):
 def who_talk(story_id: str, max_retries: int = 3, sleep_between: float = 2.0):
     response = supabase.table("single_news").select("long").eq("story_id", story_id).execute()
     article_content = response.data[0]["long"]
-    model_name = "gemini-2.5-flash-lite"
+    model_name = "gemini-2.5-flash"
     
     for attempt in range(1, max_retries + 1):
         try:

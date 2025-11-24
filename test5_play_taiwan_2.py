@@ -302,6 +302,7 @@ def get_article_links_from_story(story_info):
             if existing_story_data and existing_story_data.get('crawl_date'):
                 try:
                     cutoff_date_str = existing_story_data['crawl_date']
+                    print(f"   现有故事的 crawl_date: {cutoff_date_str}")
                     if isinstance(cutoff_date_str, str):
                         # 先解析為台北時間
                         taipei_dt = datetime.strptime(cutoff_date_str, "%Y/%m/%d %H:%M")
@@ -370,18 +371,20 @@ def get_article_links_from_story(story_info):
                                         "WKMG","CNBC Indonesia","Albert Lea Tribune","Facebook","地球黃金線","4Gamer.net", "MarketWatch",
                                         "The Daily Beast", "美麗島電子報", "經理人", "X", "Newswav", "PressReader", "Men's Journal", 
                                         "The Hill", "ESPN", "The Wall Street Journal", "bola.okezone.com", "台灣新聞雲報", "Ottumwa Courier",
-                                        "Washington Times", "San Francisco Examiner"
+                                        "Washington Times", "San Francisco Examiner", "Toronto Sun", "Investing.com", "Business Insider", "video.okezone.com",
+                                        "netralnews.com"
                                         ]:
                                 continue
 
                             time_element = article.find(class_="WW6dff uQIVzc Sksgp slhocf")
-                            article_datetime = "未知時間"
+                            article_datetime = ""
                             
                             if time_element and time_element.get("datetime"):
                                 dt_str = time_element.get("datetime")
                                 dt_obj = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
                                 article_datetime_obj = dt_obj + timedelta(hours=8)
                                 article_datetime = article_datetime_obj.strftime("%Y/%m/%d %H:%M")
+                                print(f"        文章轉換後時間 (UTC+8): {article_datetime}")
                                 
                                 # 檢查文章時間是否在 cutoff_date 之後
                                 if cutoff_date and article_datetime_obj <= cutoff_date:
@@ -397,14 +400,14 @@ def get_article_links_from_story(story_info):
                                 
 
                                 # 檢查文章是否需要處理
-                                should_skip, action_type, story_data, skip_reason, final_url, final_title = check_story_exists_in_supabase(
-                                    story_info['url'], story_info['category'], article_datetime, full_href, ""
-                                )
+                                # should_skip, action_type, story_data, skip_reason, final_url, final_title = check_story_exists_in_supabase(
+                                #     story_info['url'], story_info['category'], article_datetime, full_href, ""
+                                # )
                                 
-                                if should_skip and action_type == "skip":
-                                    print(f"     跳過文章: {link_text}")
-                                    print(f"        原因: {skip_reason}")
-                                    continue
+                                # if should_skip and action_type == "skip":
+                                #     print(f"     跳過文章: {link_text}")
+                                #     print(f"        原因: {skip_reason}")
+                                #     continue
                                 
                                 article_links.append({
                                     "story_id": story_info['story_id'],
@@ -416,8 +419,8 @@ def get_article_links_from_story(story_info):
                                     "article_url": full_href,
                                     "media": media,
                                     "article_datetime": article_datetime,
-                                    # "action_type": action_type,
-                                    # "existing_story_data": story_data
+                                    "action_type": story_info.get("action_type"), 
+                                    "existing_story_data": story_info.get("existing_story_data")
                                 })
                                 
                                 processed_count += 1
@@ -523,7 +526,8 @@ def get_final_content(article_info, page):
                     "https://www.nbcnews.com/video/",
                     "https://www.independent.co.uk/bulletin/news/",
                     "https://www.the-independent.com/bulletin/news/",
-                    "https://www.socialnews.xyz/"
+                    "https://www.socialnews.xyz/",
+                    "https://tw.sports.yahoo.com/video/"
                 ]
                 
                 # 簡化URL獲取邏輯
@@ -935,81 +939,124 @@ def check_existing_story_logic(existing_story, article_datetime, article_url, fi
         return False, "create_new_story", None, f"日期解析错误: {date_error}", final_url, final_title
 
 # 方案1: 使用線程池執行同步代碼
-def get_hash_sync_threaded(url):
+
     """
-    在線程池中執行同步 Playwright 代碼
+    在線程池中執行同步 Playwright 代碼 (強化版)
+    功能：
+    1. 阻擋圖片載入 (加速)
+    2. 清洗 HTML 雜訊 (Header, Footer, Script, Ads)
+    3. 正規化文字 (去除標點與大小寫差異)
+    4. 提取 Google News 特定標題作為 link_text
     """
     def _get_hash_in_thread():
+        browser = None
+        context = None
+        page = None
         try:
             with sync_playwright() as p:
-                browser = None
-                context = None
-                page = None
+                # 創建瀏覽器 (假設 create_robust_browser 已定義)
+                # 如果沒有定義，請將其替換為 p.chromium.launch(headless=True)
+                browser, context = create_robust_browser(p, headless=True)
+                page = context.new_page()
+                
+                # [優化 1] 阻擋圖片、字型、媒體資源以加快速度
+                page.route("**/*", lambda route: route.abort() 
+                           if route.request.resource_type in ["image", "font", "media", "stylesheet"] 
+                           else route.continue_())
+
+                page.set_default_timeout(15000) #稍微增加超時寬容度
                 
                 try:
-                    browser, context = create_robust_browser(p, headless=True)
-                    page = context.new_page()
+                    # [優化 2] Domcontentloaded 通常就夠了，不需要等到 networkidle (會太慢)
+                    page.goto(url, wait_until='domcontentloaded', timeout=15000)
                     
-                    page.set_default_timeout(10000)
-                    page.goto(url, wait_until='domcontentloaded', timeout=10000)
-
+                    # 短暫等待確保動態內容載入，但設限
                     try:
-                        page.wait_for_load_state('networkidle', timeout=3000)
+                        page.wait_for_load_state('networkidle', timeout=2000)
                     except:
                         pass
-                    
-                    html = page.content()
-                    soup = BeautifulSoup(html, "html.parser")
-                    
-                    # 提取第一筆 link_text
-                    link_text = None
-                    articles = soup.find_all("article", class_="MQsxIb xTewfe tXImLc R7GTQ keNKEd keNKEd VkAdve GU7x0c JMJvke q4atFc")
-                    if articles and len(articles) > 0:
-                        article = articles[0]  # 取第一筆
-                        h4_element = article.find("h4", class_="ipQwMb ekueJc RD0gLb")
-                        if h4_element:
-                            link = h4_element.find("a", class_="DY5T1d RZIKme")
-                            if link:
-                                link_text = link.text.strip()
-                                
-                    for script in soup(["script", "style", "noscript"]):
-                        script.decompose()
-                    
-                    text_content = soup.get_text(separator=' ', strip=True)
-                    import re
-                    text_content = re.sub(r'\s+', ' ', text_content).strip()
-                    
-                    if len(text_content) < 100:
-                        return (None, link_text)
-                    
-                    hash_value = hashlib.md5(text_content.encode("utf-8")).hexdigest()
-                    return (hash_value, link_text)
-                    
                 except Exception as e:
-                    print(f"處理頁面時發生錯誤: {e}")
+                    print(f"頁面導航超時或錯誤: {e}")
                     return (None, None)
-                    
-                finally:
-                    try:
-                        if page:
-                            page.close()
-                        if context:
-                            context.close()
-                        if browser:
-                            browser.close()
-                    except:
-                        pass
-                        
-        except Exception as e:
-            print(f"創建瀏覽器失敗: {e}")
-            return (None, None)
-    
-    # 在線程池中執行
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(_get_hash_in_thread)
-        return future.result(timeout=10)  # 30秒超時
 
-    return _get_hash_in_thread()
+                html = page.content()
+                soup = BeautifulSoup(html, "html.parser")
+
+                # === 提取 link_text (保留您原本的 Google News 邏輯) ===
+                link_text = None
+                gn_articles = soup.find_all("article", class_="MQsxIb xTewfe tXImLc R7GTQ keNKEd keNKEd VkAdve GU7x0c JMJvke q4atFc")
+                if gn_articles:
+                    first_article = gn_articles[0]
+                    h4_element = first_article.find("h4", class_="ipQwMb ekueJc RD0gLb")
+                    if h4_element:
+                        link = h4_element.find("a", class_="DY5T1d RZIKme")
+                        if link:
+                            link_text = link.text.strip()
+
+                # === [優化 3] DOM 清洗與去雜訊 ===
+                # 移除技術性標籤
+                for tag in soup(['script', 'style', 'noscript', 'iframe', 'svg', 'meta', 'link']):
+                    tag.decompose()
+                
+                # 移除通常無關的版面區塊 (導航、頁尾、側邊欄)
+                for tag in soup(['header', 'footer', 'nav', 'aside']):
+                    tag.decompose()
+
+                # === [優化 4] 智慧內容提取 ===
+                # 如果是 Google News 頁面，我們只 Hash 那些新聞卡片的內容，忽略其他 Google 介面文字
+                content_text = ""
+                if gn_articles:
+                    # 只將前 10 篇新聞的標題與摘要組合成 Hash 來源
+                    # 這樣如果只有側邊欄廣告變了，Hash 也不會變
+                    for art in gn_articles[:10]:
+                        content_text += art.get_text(separator=' ', strip=True)
+                else:
+                    # 如果不是 Google News 結構 (可能是原始新聞頁面)，則抓取 Body
+                    # 嘗試移除常見的廣告/推薦區塊
+                    noise_regex = re.compile(r'ad-|advert|sidebar|menu|social|comment|footer', re.I)
+                    for div in soup.find_all('div'):
+                        if div.get('class') and any(noise_regex.search(str(c)) for c in div.get('class')):
+                            div.decompose()
+                    
+                    if soup.body:
+                        content_text = soup.body.get_text(separator=' ', strip=True)
+
+                # === [優化 5] 文字正規化 (Normalization) ===
+                # 1. 去除非文字字元 (只保留中英文數字)，去除標點符號造成的差異
+                # 2. 轉小寫
+                # 3. 去除多餘空白
+                if content_text:
+                    content_text = re.sub(r'[^\w\u4e00-\u9fff]+', '', content_text)
+                    content_text = content_text.lower()
+                
+                if not content_text or len(content_text) < 50:
+                    # print(f"警告: 提取內容過短，Hash 可能不準確")
+                    pass
+
+                hash_value = hashlib.md5(content_text.encode("utf-8")).hexdigest()
+                return (hash_value, link_text)
+
+        except Exception as e:
+            print(f"Hash 計算過程發生錯誤: {e}")
+            return (None, None)
+        
+        finally:
+            # 確保資源釋放
+            try:
+                if page: page.close()
+                if context: context.close()
+                if browser: browser.close()
+            except:
+                pass
+
+    # 在線程池中執行
+    try:
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_get_hash_in_thread)
+            return future.result(timeout=20) # 稍微增加總體超時時間
+    except Exception as e:
+        print(f"線程池執行超時或錯誤: {e}")
+        return (None, None)
       
 # 方案5: 檢測環境並選擇適當方法
 def get_hash_smart_env(url):
@@ -1028,7 +1075,7 @@ def get_hash_smart_env(url):
     
 def get_hash_sync(url):
     """
-    獲取URL內容的hash值 - 同步版本
+    獲取URL內容的 "特徵" hash值 - 強化版
     """
     try:
         with sync_playwright() as p:
@@ -1036,12 +1083,73 @@ def get_hash_sync(url):
             page = context.new_page()
             
             try:
-                page.goto(url)
+                # 阻擋圖片和字型以加快速度
+                page.route("**/*", lambda route: route.abort() if route.request.resource_type in ["image", "font"] else route.continue_())
+                
+                page.goto(url, wait_until='domcontentloaded', timeout=15000)
+                
+                # 嘗試獲取 HTML
                 html = page.content()
                 soup = BeautifulSoup(html, "html.parser")
-                element = soup.get_text(strip=True)
-                hash_value = hashlib.md5(element.encode("utf-8")).hexdigest()
+
+                # === 強化步驟 1: 移除網頁雜訊 (Header, Footer, Nav, Ads, Scripts) ===
+                # 這些標籤通常包含變動內容，必須移除
+                for tag in soup(['script', 'style', 'noscript', 'iframe', 'header', 'footer', 'nav', 'aside', 'form']):
+                    tag.decompose()
+                
+                # 移除常見的干擾 Class (廣告、推薦閱讀、時間戳記)
+                # 這裡使用正規表達式模糊匹配
+                noise_patterns = re.compile(r'date|time|comment|share|recommend|ad-|sidebar|menu|cookie', re.I)
+                for div in soup.find_all('div'):
+                    if div.get('class') and any(noise_patterns.search(c) for c in div.get('class') if isinstance(c, str)):
+                        div.decompose()
+                
+                # === 強化步驟 2: 鎖定核心內容 ===
+                # 嘗試只抓取 <article> 或主要內容區塊
+                content_text = ""
+                
+                # 優先尋找 article 標籤
+                article = soup.find('article')
+                if article:
+                    content_text = article.get_text(separator=' ', strip=True)
+                else:
+                    # 如果沒有 article，嘗試找 h1 標題加上字數最多的幾個 p 標籤 (簡單的啟發式演算法)
+                    h1 = soup.find('h1')
+                    title_text = h1.get_text(strip=True) if h1 else ""
+                    
+                    # 找出所有段落，過濾掉太短的 (通常是導航或廣告文字)
+                    paragraphs = [p.get_text(strip=True) for p in soup.find_all('p') if len(p.get_text(strip=True)) > 20]
+                    
+                    # 組合標題和前 10 個主要段落 (這通常足夠代表文章特徵)
+                    content_text = title_text + " " + " ".join(paragraphs[:10])
+
+                # 如果真的抓不到東西，才回退到 body
+                if not content_text.strip() and soup.body:
+                    content_text = soup.body.get_text(separator=' ', strip=True)
+
+                # === 強化步驟 3: 內容標準化 (Normalization) ===
+                # 1. 轉小寫 (忽略大小寫差異)
+                # 2. 去除所有標點符號和特殊字元 (只保留中英文數字)
+                # 3. 去除多餘空白
+                
+                # 正規化：只保留文字與數字，去除標點符號
+                content_text = re.sub(r'[^\w\u4e00-\u9fff]+', '', content_text) 
+                content_text = content_text.lower()
+
+                if len(content_text) < 50:
+                    print(f"  Hash警告: 提取的內容過短 ({len(content_text)}字)，可能無法代表文章")
+                    return None
+
+                # 計算 MD5
+                hash_value = hashlib.md5(content_text.encode("utf-8")).hexdigest()
+                
+                # 同時返回提取的文字長度供除錯
+                # print(f"  [Hash Debug] 提取特徵文字: {content_text[:50]}...") 
                 return hash_value
+
+            except Exception as e:
+                print(f"  Hash計算過程出錯: {e}")
+                return None
             finally:
                 page.close()
                 context.close()
@@ -1228,9 +1336,12 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
             earliest_time = min(item['datetime'] for item in group)
             latest_time = max(item['datetime'] for item in group)
             
-            # 决定使用哪个时间作为 crawl_date
+            # # 預設：crawl_date 使用這批文章中「最早」的時間
+            # crawl_date = earliest_time.strftime("%Y/%m/%d %H:%M")
+
+            # 決定使用哪個時間作為 crawl_date
             if is_existing_story:
-                # 现有故事：优先使用原有的 crawl_date，如果没有则使用当前时间
+                # 現有故事：優先使用原有的 crawl_date，如果沒有則使用當前時間
                 original_crawl_date = existing_story_data.get('crawl_date')
                 if original_crawl_date:
                     crawl_date = original_crawl_date
@@ -1351,7 +1462,7 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
     print(f"\n总共处理完成 {len(all_final_stories)} 个最终故事")
     return all_final_stories
 
-def _create_time_groups(articles_with_time, time_window_days):
+def _create_time_groups(articles_with_time, time_window_days, base_start_time=None):
     """
     根据时间窗口将文章分组的内部函数
     """
@@ -1360,6 +1471,15 @@ def _create_time_groups(articles_with_time, time_window_days):
     current_group_start_time = None
     current_group_end_time = None
     
+    groups = defaultdict(list)
+    
+    # 如果沒有提供基準時間，就用第一篇文章的時間 (針對新故事)
+    if base_start_time is None and articles_with_time:
+        base_start_time = articles_with_time[0]['datetime']
+    
+    if not articles_with_time:
+        return []
+        
     for item in articles_with_time:
         article_time = item['datetime']
         
@@ -1465,11 +1585,11 @@ def process_news_pipeline(main_url, country, category):
     # 步驟2: 處理每個故事，獲取所有文章連結
     all_article_links = []
     if(category=="Politics" or category=="International News" or category=="Science & Technology" or category=="Business & Finance"):
-        for story_info in story_links[:4]:
+        for story_info in story_links[:7]:
             article_links = get_article_links_from_story(story_info)
             all_article_links.extend(article_links)
     else:
-        for story_info in story_links[:2]:
+        for story_info in story_links[:3]:
             article_links = get_article_links_from_story(story_info)
             all_article_links.extend(article_links)
     

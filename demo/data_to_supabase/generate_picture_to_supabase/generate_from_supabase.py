@@ -236,6 +236,8 @@ def _gen_image_bytes_with_retry(client, prompt: str, model_id: str, retry_times:
             cands = getattr(resp, "candidates", [])
             if not cands:
                 raise RuntimeError("No candidates in response")
+            if cands[0].content.parts is None:
+                raise RuntimeError("No content parts in candidate")
             
             img_bytes = None
             for part in cands[0].content.parts:
@@ -261,20 +263,189 @@ def _gen_image_bytes_with_retry(client, prompt: str, model_id: str, retry_times:
             time.sleep(sleep_between_calls)
     return None
 
-def _generate_image_description(news_title: str, news_summary: str, category: str) -> str:
-    """為生成的圖片創建說明文字。"""
-    title_clean = news_title.replace("| 政治", "").replace("｜ 公視新聞網 PNN", "")
-    title_clean = title_clean.replace("｜", "").replace("|", "").replace("PNN", "")
-    title_clean = title_clean.replace("公視新聞網", "").replace("新聞網", "")
-    title_clean = title_clean.strip()
+def _generate_image_description_with_vision(gen_client, img_bytes: bytes, news_title: str, news_summary: str, category: str) -> str:
+    """使用 Gemini Vision API 分析圖片並結合新聞內容生成說明。
     
-    # 簡化的描述生成邏輯
-    if len(title_clean) <= 15:
-        return title_clean
-    else:
-        # 取前15個字符並嘗試在合理位置截斷
-        truncated = title_clean[:15]
-        return truncated
+    Args:
+        gen_client: Gemini client 實例
+        img_bytes: 圖片的 bytes 資料
+        news_title: 新聞標題
+        news_summary: 新聞摘要
+        category: 新聞類別
+        
+    Returns:
+        str: 生成的圖片說明（15字以內）
+    """
+    try:
+        # 建立提示詞
+        prompt = f"""請根據以下新聞內容和圖片，生成一個簡短且語意完整的圖片說明。
+
+新聞標題：
+{news_title}
+
+新聞內容：
+{news_summary[:1000]}
+
+【絕對嚴格的要求 - 必須100%遵守】：
+
+1. 字數限制：說明必須在 15 個字以內（含標點符號）
+2. 完整性要求：說明必須是完整的句子，絕對不可以中途截斷
+3. 標點符號：不要以逗號（，）、頓號（、）、分號（；）、冒號（：）結尾
+4. 可接受的結尾：句號（。）、驚嘆號（！）、問號（？）或直接以名詞/動詞結尾
+5. 禁止使用：「...」、「等」、「之類」等任何省略表達
+6. 內容準確：必須準確描述圖片實際內容
+7. 相關性：必須與新聞內容相關
+8. 語氣：客觀、中立、不帶情感色彩
+9. 格式：直接輸出說明文字，不要有任何前綴或說明
+10. 精簡原則：在字數限制內，用最精煉的方式表達完整意思
+
+【正確範例】（完整且符合字數）：
+✓ 總統參加經濟論壇
+✓ 股市今日收盤上漲
+✓ 新手機產品發表
+✓ 民眾街頭示威遊行
+✓ 颱風造成淹水災情
+✓ 新遊戲即將上市
+✓ 遊戲發表會現場
+
+【錯誤範例】（會被系統拒絕）：
+✗ 總統出席重要的國際經濟會議並發表... (超過15字且被截斷)
+✗ 股市收盤創下史上最高, (以逗號結尾)
+✗ 新款科技產品等 (使用「等」省略)
+✗ 民眾參與 (語意不完整)
+
+現在請生成符合所有要求的圖片說明：
+"""
+        
+        # 使用 Gemini Vision API
+        response = gen_client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=[
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_bytes(
+                            data=img_bytes,
+                            mime_type="image/png"
+                        ),
+                        types.Part.from_text(text=prompt)
+                    ]
+                )
+            ],
+            config=types.GenerateContentConfig(
+                temperature=0.0
+            )
+        )
+        
+        # 提取生成的文字
+        description = response.text.strip()
+        
+        # 移除可能的引號或多餘空白
+        description = description.strip('"\'\'「」『』 ')
+        
+        # 檢查長度並進行智能截斷
+        if len(description) > 15:
+            print(f"⚠️  警告：AI 生成的說明超過 15 字（{len(description)} 字）：{description}")
+            print("   正在智能分析並修正...")
+            
+            # 定義檢查函數
+            def is_meaningful_truncation(original: str, truncated: str) -> bool:
+                """檢查截斷後的內容是否仍保有完整語意"""
+                if '年' in truncated and '月' in original and '月' not in truncated:
+                    if original.find('年') < original.find('月'):
+                        return False
+                
+                if truncated and truncated[-1].isdigit():
+                    truncated_end = len(truncated) - 1
+                    if truncated_end < len(original) - 1 and original[truncated_end + 1].isdigit():
+                        return False
+                
+                incomplete_endings = ['於', '在', '將', '至', '從', '向', '對', '為', '給', '被', '把']
+                if truncated and truncated[-1] in incomplete_endings:
+                    return False
+                
+                quote_pairs = [
+                    ('《', '》'), ('「', '」'), ('『', '』'), 
+                    ('"', '"'), (''', '''), ('(', ')'), ('（', '）'), ('[', ']')
+                ]
+                for open_q, close_q in quote_pairs:
+                    if open_q in truncated and close_q not in truncated:
+                        return False
+                
+                if len(truncated) < 5:
+                    return False
+                
+                return True
+            
+            # 策略1: 在句號處截斷
+            best_cut = -1
+            for i in range(14, 0, -1):
+                if description[i] in '。！？':
+                    candidate = description[:i+1]
+                    if is_meaningful_truncation(description, candidate):
+                        best_cut = i + 1
+                        break
+            
+            if best_cut > 0:
+                description = description[:best_cut]
+                print("   → 策略1：在句號處截斷為完整句子")
+            else:
+                # 策略2: 在逗號處截斷
+                candidates = []
+                for i in range(min(14, len(description)-1), 4, -1):
+                    if description[i] in '，、':
+                        candidate = description[:i]
+                        if candidate and candidate[-1] not in '的了在與和及或：:':
+                            if is_meaningful_truncation(description, candidate):
+                                candidates.append((i, candidate))
+                
+                if candidates:
+                    best_idx, description = candidates[0]
+                    print("   → 策略2：在標點處取語意完整部分")
+                else:
+                    # 使用備用說明
+                    category_map = {
+                        '政治': '政治新聞',
+                        '經濟': '經濟新聞',
+                        '社會': '社會新聞',
+                        '國際': '國際新聞',
+                        '科技': '科技新聞',
+                        '體育': '體育新聞',
+                        '娛樂': '娛樂新聞',
+                    }
+                    description = category_map.get(category, '新聞圖片')
+                    print(f"   → 使用備用說明：{description}")
+            
+            print(f"   ✓ 最終結果：{description} ({len(description)}字)")
+        
+        # 最終清理
+        while description and description[-1] in '，、；：':
+            description = description[:-1]
+        
+        # 確保不是空字串
+        if not description or len(description) < 3:
+            print("⚠️  生成的說明過短或為空，使用備用說明")
+            description = f"{category}新聞圖片" if category else "新聞圖片"
+        
+        # 最終驗證
+        if len(description) > 15:
+            print("❌ 錯誤：截斷後仍超過 15 字，強制截斷")
+            description = description[:15].rstrip('的了在與和，、；：及或是有到被給為著過')
+        
+        return description
+        
+    except Exception as e:
+        print(f"❌ 使用 Vision API 生成說明時發生錯誤: {e}")
+        # 回退到簡單的標題截取
+        title_clean = news_title.replace("| 政治", "").replace("｜ 公視新聞網 PNN", "")
+        title_clean = title_clean.replace("｜", "").replace("|", "").replace("PNN", "")
+        title_clean = title_clean.replace("公視新聞網", "").replace("新聞網", "")
+        title_clean = title_clean.strip()
+        
+        if len(title_clean) <= 15:
+            return title_clean
+        else:
+            return title_clean[:15]
 
 # 建立 Supabase 與 Gemini client
 sb = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -293,7 +464,7 @@ for a in args:
 NO_WRITE = 'no-write' in args
 # 若傳入 'force' 則忽略 existing_story_ids 檢查（強制重生成，僅用於測試）
 FORCE = 'force' in args
-MODEL_ID = 'gemini-2.0-flash-preview-image-generation'
+MODEL_ID = 'gemini-2.5-flash-image'
 RETRY_TIMES = 3
 SLEEP_BETWEEN = 0.6
 
@@ -409,8 +580,9 @@ for i, r in enumerate(rows, start=1):
         fail_count += 1
         continue
 
-    # 產生描述（短）
-    description = _generate_image_description(title or '', content or '', '')
+    # 使用 Vision API 產生描述（15字以內）
+    print("正在使用 Vision API 生成圖片描述...")
+    description = _generate_image_description_with_vision(gen_client, img_bytes, title or '', content or '', '')
 
     # base64 encode
     b64 = base64.b64encode(img_bytes).decode('ascii')
@@ -448,17 +620,17 @@ for i, r in enumerate(rows, start=1):
             else:
                 insert_count += 1
                 print(f"已寫入 generated_image (story_id={story_id})")
-                # 同步更新 single_news 表的 generated_date 欄位為目前時間
+                # 同步更新 single_news 表的 updated_date 欄位為目前時間
                 try:
                     tz_taipei = timezone(timedelta(hours=8))
-                    generated_date_str = datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M")
-                    upd = sb.table('single_news').update({'updated_date': generated_date_str}).eq('story_id', story_id).execute()
+                    updated_date_str = datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M")
+                    upd = sb.table('single_news').update({'updated_date': updated_date_str}).eq('story_id', story_id).execute()
                     if getattr(upd, 'error', None):
-                        print(f"更新 single_news.generated_date 失敗 (story_id={story_id}): {upd.error}")
+                        print(f"更新 single_news.updated_date 失敗 (story_id={story_id}): {upd.error}")
                     else:
-                        print(f"已更新 single_news.generated_date (story_id={story_id}) -> {generated_date_str}")
+                        print(f"已更新 single_news.updated_date (story_id={story_id}) -> {updated_date_str}")
                 except Exception as e:
-                    print(f"更新 single_news.generated_date 發生例外 (story_id={story_id}): {e}")
+                    print(f"更新 single_news.updated_date 發生例外 (story_id={story_id}): {e}")
                 # 避免速率限制
                 time.sleep(0.5)
     except Exception as e:
