@@ -135,7 +135,8 @@ def attribute_sources_for_story(story_id: str) -> List[Dict[str, Any]]:
         config = types.GenerateContentConfig(
                 system_instruction=SYSTEM_INSTRUCTION,
                 response_mime_type="application/json",
-                response_schema=AttributionResponse
+                response_schema=AttributionResponse,
+                temperature=0.0
             )
         # 2. 呼叫 Gemini API
         try:

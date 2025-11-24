@@ -479,7 +479,8 @@ function SpecialReportDetail() {
                 total_articles,
                 stories!inner(country)
               `)
-              .in('story_id', storyIds);
+              .in('story_id', storyIds)
+              .order('generated_date', { ascending: false });
             if (storiesError) {
               console.warn(`無法獲取分支 ${branch.id} 的新聞內容:`, storiesError);
               return { ...branch, news: [] };

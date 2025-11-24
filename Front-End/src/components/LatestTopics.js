@@ -168,10 +168,10 @@ function LatestTopics() {
                       <Link to={getLanguageRoute(`/special-report/${topic.topic_id}`)} className="slide-image-link">
                         <div className="slide-image">
                           <img 
-                            src={topic.representativeImage.imageUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop'} 
+                            src={topic.representativeImage.imageUrl || 'https://placehold.co/300x200/e5e7eb/9ca3af?text=…'} 
                             alt={topic.representativeImage.description || topic.topic_title}
                             onError={(e) => {
-                              e.target.src = 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=600&fit=crop';
+                              e.target.src = 'https://placehold.co/300x200/e5e7eb/9ca3af?text=…';
                             }}
                           />
                           <div className="slide-overlay"></div>

@@ -38,7 +38,7 @@ function CategorySection({ country }) {
   const newsData = useMemo(() => {
     return basicNewsData.map(news => ({
       ...news,
-      imageUrl: imagesData[news.story_id] || '/api/placeholder/300/200',
+      imageUrl: imagesData[news.story_id] || 'https://placehold.co/300x200/e5e7eb/9ca3af?text=…',
       isImageLoading: !imagesData[news.story_id],
     }));
   }, [basicNewsData, imagesData]);
