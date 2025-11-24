@@ -410,7 +410,7 @@ function SpecialReportDetail() {
       
       const { data: topicData, error: topicError } = await supabase
         .from('topic')
-        .select(`topic_id, ${topicSelectFields}, generated_date, who_talk`)
+        .select(`topic_id, ${topicSelectFields}, generated_date, update_date, who_talk`)
         .eq('topic_id', id)
         .single();
       if (topicError) throw new Error(`無法獲取專題資訊: ${topicError.message}`);
@@ -519,7 +519,8 @@ function SpecialReportDetail() {
         description: topicData[getFieldName('topic_long')] || topicData[getFieldName('topic_short')] || topicData.topic_long || topicData.topic_short || '',
         articles: articleCount,
         views: `${(Math.floor(Math.random() * 20) + 1).toFixed(1)}k`,
-        lastUpdate: topicData.generated_date,
+        createdDate: topicData.generated_date,
+        lastUpdate: topicData.update_date || topicData.generated_date,
         report: topicData[getFieldName('report')] || topicData.report || '',
         who_talk: topicData.who_talk || ''
       };
@@ -609,7 +610,10 @@ function SpecialReportDetail() {
             <div className="srdHeader__meta">
               <div className="srdHeader__metaItem">
                 <span>📅</span>
-                <span>{report.lastUpdate}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', fontSize: '0.9em', lineHeight: '1.4' }}>
+                  <span>{t('specialReportDetail.header.created')}: {report.createdDate}</span>
+                  <span>{t('specialReportDetail.header.updated')}: {report.lastUpdate}</span>
+                </div>
               </div>
               <div className="srdHeader__metaItem">
                 <span>📄</span>

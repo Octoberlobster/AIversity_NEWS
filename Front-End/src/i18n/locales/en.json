@@ -332,6 +332,8 @@
     },
     "header": {
       "articlesCount": "articles",
+      "created": "Created",
+      "updated": "Updated",
       "reportButton": "Report",
       "reportButtonTitle": "View integrated analysis report",
       "clickToEnlarge": "Click to enlarge",

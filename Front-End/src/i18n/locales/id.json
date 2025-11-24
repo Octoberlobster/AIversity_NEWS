@@ -337,6 +337,8 @@
     },
     "header": {
       "articlesCount": "artikel",
+      "created": "Dibuat",
+      "updated": "Diperbarui",
       "reportButton": "Laporan Topik",
       "reportButtonTitle": "Lihat laporan terintegrasi topik",
       "clickToEnlarge": "Klik untuk memperbesar",

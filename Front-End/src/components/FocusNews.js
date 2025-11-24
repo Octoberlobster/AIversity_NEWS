@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguageFields } from '../utils/useLanguageFields';
 import { useFocusNews } from '../hooks/useFocusNews';
+import { useBatchNewsImages } from '../hooks/useCategoryNews';
 import { useCountry } from './CountryContext';
 import '../css/LatestTopics.css';
 
@@ -13,8 +14,12 @@ function FocusNews() {
   const currentLanguage = getCurrentLanguage();
   const { selectedCountry } = useCountry();
 
-  // 🚀 使用 React Query Hook 載入焦點新聞資料
+  // 🚀 使用 React Query Hook 載入焦點新聞資料 (僅文字)
   const { data: newsList = [], isLoading, error } = useFocusNews(selectedCountry);
+
+  // 🚀 並行載入圖片 (使用分批載入優化)
+  const storyIds = React.useMemo(() => newsList.map(news => news.story_id), [newsList]);
+  const { data: imagesData = {} } = useBatchNewsImages(storyIds);
 
   // 生成帶語言前綴的路由
   const getLanguageRoute = (path) => {
@@ -93,20 +98,18 @@ function FocusNews() {
                     key={news.story_id}
                     className={`carousel-slide ${index === currentNewsIndex ? 'active' : ''}`}
                   >
-                    {news.imageUrl && (
-                      <Link to={getLanguageRoute(`/news/${news.story_id}`)} className="slide-image-link">
-                        <div className="slide-image">
-                          <img 
-                            src={news.imageUrl} 
-                            alt={news.title}
-                            onError={(e) => {
-                              e.target.src = 'https://placehold.co/1200x600/e5e7eb/9ca3af?text=News';
-                            }}
-                          />
-                          <div className="slide-overlay"></div>
-                        </div>
-                      </Link>
-                    )}
+                    <Link to={getLanguageRoute(`/news/${news.story_id}`)} className="slide-image-link">
+                      <div className="slide-image">
+                        <img 
+                          src={imagesData[news.story_id] || 'https://placehold.co/300x200/e5e7eb/9ca3af?text=…'} 
+                          alt={news.title}
+                          onError={(e) => {
+                            e.target.src = 'https://placehold.co/300x200/e5e7eb/9ca3af?text=…';
+                          }}
+                        />
+                        <div className="slide-overlay"></div>
+                      </div>
+                    </Link>
                     
                     <div className="slide-content">
                       <Link to={getLanguageRoute(`/news/${news.story_id}`)} className="slide-title-link">

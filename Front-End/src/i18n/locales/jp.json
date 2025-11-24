@@ -335,6 +335,8 @@
     },
     "header": {
       "articlesCount": "件の記事",
+      "created": "作成日時",
+      "updated": "更新日時",
       "reportButton": "特集レポート",
       "reportButtonTitle": "特集統合レポートを表示",
       "clickToEnlarge": "クリックして拡大",

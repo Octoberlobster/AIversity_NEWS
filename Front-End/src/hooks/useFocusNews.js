@@ -66,78 +66,45 @@ export function useFocusNews(country = 'taiwan') {
         return [];
       }
 
-      // 4. 根據 story_ids 查詢新聞詳細資料,按照 generated_date 排序
+      // 4. 平行查詢新聞詳細資料與來源資料 (Parallel Fetching)
+      // 使用 Promise.all 同時發出請求，減少等待時間
       const newsMultiLangFields = ['news_title', 'ultra_short'];
       const selectFields = newsMultiLangFields.map(field => 
         `${field}, ${field}_en_lang, ${field}_jp_lang, ${field}_id_lang`
       ).join(', ');
 
-      const { data: newsData, error: newsError } = await supabase
-        .from('single_news')
-        .select(`
-          story_id,
-          ${selectFields},
-          generated_date
-        `)
-        .in('story_id', allStoryIds)
-        .order('generated_date', { ascending: false });
+      const [newsResult, sourcesResult] = await Promise.all([
+        // 查詢新聞內文
+        supabase
+          .from('single_news')
+          .select(`
+            story_id,
+            ${selectFields},
+            generated_date
+          `)
+          .in('story_id', allStoryIds)
+          .order('generated_date', { ascending: false }),
+        
+        // 查詢新聞來源
+        supabase
+          .from('cleaned_news')
+          .select('story_id, article_url, article_title, media')
+          .in('story_id', allStoryIds)
+      ]);
+
+      const { data: newsData, error: newsError } = newsResult;
+      const { data: sourcesData, error: sourcesError } = sourcesResult;
 
       if (newsError) {
         console.error('[useFocusNews] 查詢新聞詳細資料錯誤:', newsError);
         throw newsError;
       }
 
-      // 5. 批次獲取圖片資料 (避免一次拉太多報錯)
-      const BATCH_SIZE = 3; // 每批 3 張圖片
-      const imageMap = {};
-
-      for (let i = 0; i < allStoryIds.length; i += BATCH_SIZE) {
-        const batch = allStoryIds.slice(i, i + BATCH_SIZE);
-        
-        try {
-          const { data: imagesData, error: imagesError } = await supabase
-            .from('generated_image')
-            .select('story_id, image')
-            .in('story_id', batch);
-
-          if (imagesError) {
-            console.warn('[useFocusNews] 批次', i, '查詢圖片資料錯誤:', imagesError);
-            continue;
-          }
-
-          (imagesData || []).forEach(img => {
-            if (img.image) {
-              try {
-                const cleanBase64 = img.image.replace(/\s/g, '');
-                imageMap[img.story_id] = `data:image/png;base64,${cleanBase64}`;
-              } catch (e) {
-                console.error('[useFocusNews] 圖片處理失敗:', img.story_id, e);
-              }
-            }
-          });
-        } catch (err) {
-          console.error('[useFocusNews] 批次異常:', err);
-          continue;
-        }
-
-        // 批次間添加小延遲
-        if (i + BATCH_SIZE < allStoryIds.length) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
-      }
-
-      console.log('[useFocusNews] 圖片載入完成:', Object.keys(imageMap).length, '/', allStoryIds.length, '張');
-
-      // 6. 獲取來源資料
-      const { data: sourcesData, error: sourcesError } = await supabase
-        .from('cleaned_news')
-        .select('story_id, article_url, article_title, media')
-        .in('story_id', allStoryIds);
-
       if (sourcesError) {
         console.warn('[useFocusNews] 查詢來源資料錯誤:', sourcesError);
       }
 
+      // 5. 處理來源資料映射
       const sourcesMap = {};
       (sourcesData || []).forEach(source => {
         if (!sourcesMap[source.story_id]) {
@@ -150,13 +117,13 @@ export function useFocusNews(country = 'taiwan') {
         });
       });
 
-      // 7. 組合最終資料 (已經按 generated_date 排序)
+      // 6. 組合最終資料 (已經按 generated_date 排序)
       const newsList = (newsData || []).map(news => ({
         story_id: news.story_id,
         title: news[getFieldName('news_title')] || news.news_title,
         summary: news[getFieldName('ultra_short')] || news.ultra_short,
         date: news.generated_date,
-        imageUrl: imageMap[news.story_id] || 'https://placehold.co/300x200/e5e7eb/9ca3af?text=…',
+        // imageUrl 由組件層透過 useBatchNewsImages 載入
         sources: (sourcesMap[news.story_id] || []).slice(0, 4) // 最多5個來源
       }));
 
