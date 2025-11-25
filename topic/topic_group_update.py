@@ -137,6 +137,24 @@ class NewsBranchUpdater:
             print(f"✗ 獲取新聞詳細內容時發生錯誤: {e}")
             return []
     
+    def update_topic_timestamp(self, topic_id):
+        """
+        更新主題的 update_date 欄位
+        """
+        try:
+            current_time = datetime.now().isoformat()
+            response = self.supabase.table('topic').update({
+                'update_date': current_time
+            }).eq('topic_id', topic_id).execute()
+            
+            if response.data:
+                print(f"  ✓ 主題 {topic_id} 的 update_date 已更新")
+            else:
+                print(f"  ⚠️ 主題 {topic_id} update_date 更新未回傳資料")
+                
+        except Exception as e:
+            print(f"  ✗ 更新主題時間時發生錯誤: {e}")
+
     def fetch_existing_branches(self, topic_id):
         """
         獲取指定主題的所有現有分支資訊
@@ -712,6 +730,19 @@ class NewsBranchUpdater:
                     else:
                         print("✓ 已跳過創建新分支")
         
+        # 6. 更新主題的 update_date
+        # 只有在非測試模式，且確實有新聞變動（有匹配、有新增到其他、或有創建新分支）時才更新
+        has_changes = (
+            matched_count > 0 or 
+            other_count > 0 or 
+            result.get('new_branches_created', 0) > 0 or
+            result.get('news_reorganized', 0) > 0
+        )
+        
+        if not test_mode and has_changes:
+            print("\n" + "-" * 30)
+            self.update_topic_timestamp(topic_id)
+            
         return result
     
     def move_news_to_other_branch(self, story_ids, old_branch_id, new_branch_id):

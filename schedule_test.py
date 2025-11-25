@@ -16,18 +16,18 @@ logging.basicConfig(
 
 # 您目前的腳本清單
 scripts = [
-        # "test5_play_taiwan.py",
-        # "test5_play_usa.py",
-        # "test5_play_indo.py",
-        # "test5_play_japan.py",
+        "test5_play_taiwan.py",
+        "test5_play_usa.py",
+        "test5_play_indo.py",
+        "test5_play_japan.py",
 
-        # "test5_play_taiwan_2.py",
-        # "test5_play_usa_2.py",
-        # "test5_play_indo_2.py",
-        # "test5_play_japan_2.py",
+        "test5_play_taiwan_2.py",
+        "test5_play_usa_2.py",
+        "test5_play_indo_2.py",
+        "test5_play_japan_2.py",
 
-        "./New_Summary/scripts/quick_run.py",
-        "./supabase_error_fix/news_notitle.py",
+        # "./New_Summary/scripts/quick_run.py",
+        # "./supabase_error_fix/news_notitle.py",
 
         # "./demo/data_to_supabase/generate_categories_from_single_news.py",
         # "Position_flag.py",
@@ -153,4 +153,4 @@ def run_scripts_parallel(max_workers=None):
     logging.info("所有腳本執行完成")
 
 if __name__ == "__main__":
-    run_scripts_parallel(max_workers=1)
+    run_scripts_parallel(max_workers=4)

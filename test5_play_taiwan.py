@@ -308,8 +308,8 @@ def get_article_links_from_story(story_info):
                         taipei_tz = timezone(timedelta(hours=8))
                         taipei_dt = taipei_dt.replace(tzinfo=taipei_tz)
                         # 轉換為 UTC
-                        cutoff_date = taipei_dt.astimezone(timezone.utc)
-                    print(f"   只處理 {cutoff_date_str} (UTC: {cutoff_date.strftime('%Y/%m/%d %H:%M')}) 之後的文章")
+                        cutoff_date = taipei_dt.astimezone(taipei_tz)
+                    print(f"   只處理 {cutoff_date_str} (UTC+8: {cutoff_date.strftime('%Y/%m/%d %H:%M')}) 之後的文章")
                 except Exception as e:
                     print(f"   解析 cutoff_date 時出錯: {e}")
             
@@ -1254,6 +1254,8 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
     Returns:
         list: 处理后的故事列表，包含 action_type 字段
     """
+    taipei_tz = pytz.timezone('Asia/Taipei')
+
     print(f"\n=== 开始基于故事和时间分组文章 ===") 
     print(f"时间窗口: {time_window_days}天")
     
@@ -1307,13 +1309,13 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                     print(f"解析时间失败: {article_datetime}, 使用当前时间")
                     articles_with_time.append({
                         'article': article,
-                        'datetime': datetime.now()
+                        'datetime': datetime.now(taipei_tz)
                     })
             else:
                 # 没有时间的文章使用当前时间
                 articles_with_time.append({
                     'article': article,
-                    'datetime': datetime.now(tz=pytz.timezone('Asia/Taipei'))
+                    'datetime': datetime.now(taipei_tz)
                 })
         
         # 按时间排序
@@ -1345,7 +1347,6 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
             # 找到组内最早和最晚的时间
             earliest_time = min(item['datetime'] for item in group)
             latest_time = max(item['datetime'] for item in group)
-            taipei_tz = pytz.timezone('Asia/Taipei')
 
             # 决定使用哪个时间作为 crawl_date
             if is_existing_story:
@@ -1553,7 +1554,7 @@ def _create_time_groups(articles_with_time, time_window_days, base_start_time=No
         return []
 
     for item in articles_with_time:
-        article_time = item['datetime']
+        article_time = item['datetime'].astimezone(base_start_time.tzinfo)
         
         # 計算這篇文章距離基準時間幾天
         # 使用 total_seconds() 確保計算精確，然後除以一天的秒數

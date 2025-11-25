@@ -23,6 +23,7 @@ def initialize_services():
 def fetch_data_from_database(supabase):
     """從資料庫獲取專題和新聞資料"""
     topic = supabase.table("topic").select("topic_id, topic_title").eq("alive", 1).execute()
+    print(topic.data)
     
     news = []
     batch_size = 1000
@@ -32,7 +33,7 @@ def fetch_data_from_database(supabase):
         if not temp.data:
             break
         news.extend(temp.data)
-        break
+        # break
         start += batch_size
     return topic, news
 

@@ -237,10 +237,14 @@ def sync_topics_with_supabase(all_topics: List[str], supabase_titles: List[str])
         # 新增不存在的標題
         for new_title in result.get("new_topics", []):
             try:
+                
                 new_topic = {
                     "topic_id": str(uuid.uuid4()),
                     "topic_title": new_title,
-                    "alive": 1
+                    "alive": 1,
+
+                    # 加上台北時間
+                    "generated_date": types.Timestamp.now(tz="Asia/Taipei"),
                 }
                 supabase.table("topic").upsert(new_topic).execute()
                 print(f"已新增新 topic: {new_title}")

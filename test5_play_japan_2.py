@@ -2,7 +2,6 @@
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 from bs4 import BeautifulSoup
 import time
-import datetime as dt
 from datetime import datetime, timedelta, timezone
 import pytz
 import requests
@@ -69,7 +68,7 @@ def clean_data(data):
                     {cleaned_text}
 
                     你只需要回覆經過處理的內容，不需要任何其他說明或標題。
-                    如果沒有文章內容，請回覆 "[清洗失敗]"。
+                    如果沒有文章內容，請務必回覆 "[清洗失敗]"，否則將接受嚴厲懲罰。
                     """
                     
                     max_retries = 3
@@ -234,17 +233,17 @@ def get_main_story_links(main_url, country, category):
                             if action_type == "add_to_existing_story" and story_data:
                                 # 加入現有故事，使用現有 story_id
                                 story_id = story_data["story_id"]
-                            elif action_type == "create_new_group" and story_data:
-                                # 創建新組，生成新的 story_id
-                                existing_story_id = story_data["story_id"]
-                                if len(existing_story_id) >= 2 and existing_story_id[-2:].isdigit():
-                                    current_group_num = int(existing_story_id[-2:])
-                                    base_story_id = existing_story_id[:-2]
-                                    next_group_num = current_group_num + 1
-                                    story_id = f"{base_story_id}{next_group_num:02d}"
-                                else:
-                                    # 如果沒有分組格式，默認創建第二組
-                                    story_id = f"{existing_story_id}02"
+                            # elif action_type == "create_new_group" and story_data:
+                            #     # 創建新組，生成新的 story_id
+                            #     existing_story_id = story_data["story_id"]
+                            #     if len(existing_story_id) >= 2 and existing_story_id[-2:].isdigit():
+                            #         current_group_num = int(existing_story_id[-2:])
+                            #         base_story_id = existing_story_id[:-2]
+                            #         next_group_num = current_group_num + 1
+                            #         story_id = f"{base_story_id}{next_group_num:02d}"
+                            #     else:
+                            #         # 如果沒有分組格式，默認創建第二組
+                            #         story_id = f"{existing_story_id}02"
                             else:
                                 # 創建新故事，生成新的 UUID
                                 story_id = str(uuid.uuid4())
@@ -309,8 +308,8 @@ def get_article_links_from_story(story_info):
                         taipei_tz = timezone(timedelta(hours=8))
                         taipei_dt = taipei_dt.replace(tzinfo=taipei_tz)
                         # 轉換為 UTC
-                        cutoff_date = taipei_dt.astimezone(timezone.utc)
-                    print(f"   只處理 {cutoff_date_str} (UTC: {cutoff_date.strftime('%Y/%m/%d %H:%M')}) 之後的文章")
+                        cutoff_date = taipei_dt.astimezone(taipei_tz)
+                    print(f"   只處理 {cutoff_date_str} (UTC+8: {cutoff_date.strftime('%Y/%m/%d %H:%M')}) 之後的文章")
                 except Exception as e:
                     print(f"   解析 cutoff_date 時出錯: {e}")
             
@@ -376,7 +375,7 @@ def get_article_links_from_story(story_info):
                                 continue
 
                             time_element = article.find(class_="WW6dff uQIVzc Sksgp slhocf")
-                            article_datetime = "未知時間"
+                            article_datetime = ""
                             
                             if time_element and time_element.get("datetime"):
                                 dt_str = time_element.get("datetime")
@@ -397,16 +396,8 @@ def get_article_links_from_story(story_info):
                                     full_href = "https://news.google.com" + href
                                 
 
-                                # 檢查文章是否需要處理
-                                # should_skip, action_type, story_data, skip_reason, final_url, final_title = check_story_exists_in_supabase(
-                                #     story_info['url'], story_info['category'], article_datetime, full_href, ""
-                                # )
-                                
-                                # if should_skip and action_type == "skip":
-                                #     print(f"     跳過文章: {link_text}")
-                                #     print(f"        原因: {skip_reason}")
-                                #     continue
-                                
+                                print("story_url" + story_info['url'])
+
                                 article_links.append({
                                     "story_id": story_info['story_id'],
                                     "story_title": story_info['title'],
@@ -417,8 +408,8 @@ def get_article_links_from_story(story_info):
                                     "article_url": full_href,
                                     "media": media,
                                     "article_datetime": article_datetime,
-                                    # "action_type": action_type,
-                                    # "existing_story_data": story_data
+                                    "action_type": story_info["action_type"],
+                                    "existing_story_data": story_info.get("existing_story_data", None)
                                 })
                                 
                                 processed_count += 1
@@ -524,7 +515,9 @@ def get_final_content(article_info, page):
                     "https://www.nbcnews.com/video/",
                     "https://www.independent.co.uk/bulletin/news/",
                     "https://www.the-independent.com/bulletin/news/",
-                    "https://www.socialnews.xyz/"
+                    "https://www.socialnews.xyz/",
+                    "https://tw.tv.yahoo.com/",
+                    "https://tw.sports.yahoo.com/video/"
                 ]
                 
                 # 簡化URL獲取邏輯
@@ -769,8 +762,10 @@ def get_final_content(article_info, page):
                 "final_url": final_url,
                 "media": article_info.get('media', '未知来源'),
                 "content": body_content,
-                "article_datetime": article_info.get('article_datetime', '未知时间'),
-                "action_type": article_info.get('action_type', 'process'),
+                "article_datetime": article_info.get('article_datetime', ''),
+
+                # 待處理欄位
+                "action_type": article_info.get('action_type', 'create_new_story'),
                 "existing_story_data": article_info.get('existing_story_data')
             }
             
@@ -842,7 +837,8 @@ def check_story_exists_in_supabase(story_url, category, article_datetime="", art
             return False, "create_new_story", None, "新故事", story_url, title
         
         existing_story = story_response.data[0]
-        return check_existing_story_logic(existing_story, article_datetime, article_url, story_url, title)
+        existing_url = existing_story["story_url"]
+        return check_existing_story_logic(existing_story, article_datetime, article_url, existing_url, title)
             
     except Exception as e:
         print(f"   检查Supabase时出错: {e}")
@@ -1155,7 +1151,7 @@ def get_hash_sync(url):
     except Exception as e:
         print(f"獲取hash失敗: {e}")
         return None
-     
+    
 def save_story_to_supabase(story_data):
     """
     保存故事到 Supabase stories 表
@@ -1258,6 +1254,8 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
     Returns:
         list: 处理后的故事列表，包含 action_type 字段
     """
+    taipei_tz = pytz.timezone('Asia/Taipei')
+
     print(f"\n=== 开始基于故事和时间分组文章 ===") 
     print(f"时间窗口: {time_window_days}天")
     
@@ -1286,8 +1284,8 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
         if is_existing_story:
             print(f"\n更新现有故事: {story_title}")
             print(f"   Story ID: {story_id}")
-            print(f"   原有 Crawl Date: {existing_story_data.get('crawl_date', '未知')}")
-            print(f"   原有时间范围: {existing_story_data.get('time_range', '未知')}")
+            print(f"   原有 Crawl Date: {existing_story_data.get('crawl_date', '')}")
+            print(f"   原有时间范围: {existing_story_data.get('time_range', '')}")
             base_action_type = "update_existing_story"
         else:
             print(f"\n处理新故事: {story_title}")
@@ -1299,8 +1297,8 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
         # 解析所有文章的时间
         articles_with_time = []
         for article in articles:
-            article_datetime = article.get('article_datetime', '未知时间')
-            if article_datetime and article_datetime != '未知时间':
+            article_datetime = article.get('article_datetime', '')
+            if article_datetime and article_datetime != '':
                 try:
                     parsed_dt = parser.parse(article_datetime)
                     articles_with_time.append({
@@ -1311,28 +1309,45 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                     print(f"解析时间失败: {article_datetime}, 使用当前时间")
                     articles_with_time.append({
                         'article': article,
-                        'datetime': datetime.now()
+                        'datetime': datetime.now(taipei_tz)
                     })
             else:
                 # 没有时间的文章使用当前时间
                 articles_with_time.append({
                     'article': article,
-                    'datetime': datetime.now()
+                    'datetime': datetime.now(taipei_tz)
                 })
         
         # 按时间排序
         articles_with_time.sort(key=lambda x: x['datetime'])
         
+        base_start_time = None
+        if is_existing_story:
+            crawl_date_str = existing_story_data.get('crawl_date')
+            if crawl_date_str:
+                try:
+                    # 1. 解析字串為 datetime
+                    parsed_crawl_date = parser.parse(crawl_date_str)
+                    # 2. 確保加上台北時區 (因為文章時間也都是台北時間，必須一致才能相減)
+                    if parsed_crawl_date.tzinfo is None:
+                        base_start_time = taipei_tz.localize(parsed_crawl_date)
+                    else:
+                        base_start_time = parsed_crawl_date.astimezone(taipei_tz)
+                    print(f"   基準時間 (Parsed): {base_start_time}")
+                except Exception as e:
+                    print(f"   解析原有 crawl_date 失敗 ({crawl_date_str}): {e}，將使用新文章時間作為基準")
+                    base_start_time = None
+
         # 执行时间窗口分组
-        time_groups = _create_time_groups(articles_with_time, time_window_days)
+        time_groups = _create_time_groups(articles_with_time, time_window_days, base_start_time)
         print(f"   在故事内分成 {len(time_groups)} 个时间组")
 
         # 为每个时间组创建最终的故事数据
-        for group_idx, group in enumerate(time_groups):
+        for group_idx, group in time_groups:
             # 找到组内最早和最晚的时间
             earliest_time = min(item['datetime'] for item in group)
             latest_time = max(item['datetime'] for item in group)
-            
+
             # 决定使用哪个时间作为 crawl_date
             if is_existing_story:
                 # 现有故事：优先使用原有的 crawl_date，如果没有则使用当前时间
@@ -1341,12 +1356,11 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                     crawl_date = original_crawl_date
                     print(f"      保持原有 Crawl Date: {crawl_date}")
                 else:
-                    taipei_tz = pytz.timezone('Asia/Taipei')
-                    crawl_date = datetime.now(taipei_tz).strftime("%Y/%m/%d %H:%M")
-                    print(f"      使用当前台北时间作为 Crawl Date: {crawl_date}")
+                    crawl_date = earliest_time.astimezone(taipei_tz).strftime("%Y/%m/%d %H:%M")
+                    print(f"      使用最早文章时间作为 Crawl Date: {crawl_date}")
             else:
                 # 新故事：使用最早文章时间
-                crawl_date = earliest_time.strftime("%Y/%m/%d %H:%M")
+                crawl_date = earliest_time.astimezone(taipei_tz).strftime("%Y/%m/%d %H:%M")
             
             # 计算实际的时间范围 - 对于现有故事，优先使用原有时间范围
             if is_existing_story and existing_story_data.get('time_range'):
@@ -1387,20 +1401,38 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                     time_range = f"{earliest_time.strftime('%Y/%m/%d')} - {latest_time.strftime('%Y/%m/%d')}"
             
             # 生成最终的故事ID和标题
-            if len(time_groups) > 1:
-                # 多个时间组：需要为每组生成新的ID
-                # 新故事分组：标准的分组逻辑
-                base_story_id = story_id[:-2] if len(story_id) >= 2 else story_id
-                final_story_id = f"{base_story_id}{group_idx + 1:02d}"
-                final_action_type = f"{base_action_type}_with_time_grouping"
+            # if len(time_groups) > 1:
+            #     # 多个时间组：需要为每组生成新的ID
+            #     # 新故事分组：标准的分组逻辑
+            #     base_story_id = story_id[:-2] if len(story_id) >= 2 else story_id
+            #     final_story_id = f"{base_story_id}{group_idx + 1:02d}"
+            #     final_action_type = f"{base_action_type}_with_time_grouping"
                 
-                final_story_title = f"{story_title} (第{group_idx + 1}组)"
-            else:
-                # 单一组：保持原有ID和标题
+            #     final_story_title = f"{story_title} (第{group_idx + 1}组)"
+            # else:
+            #     # 单一组：保持原有ID和标题
+            #     final_story_id = story_id
+            #     final_story_title = story_title
+            #     final_action_type = "update_existing_story" if is_existing_story else "create_new_story"
+            
+            # === 5. ID 生成邏輯 (重點修改) ===
+            if group_idx == 0:
+                # 第 0 組 (在 crawl_date + 3天內)：保持原始 ID
                 final_story_id = story_id
                 final_story_title = story_title
-                final_action_type = base_action_type
-            
+                # 如果是現有故事，Action 是 update；如果是新故事的第0組，是 create
+                final_action_type = "update_existing_story" if is_existing_story else "create_new_story"
+            else:
+                # 超過 3 天的組別 (index 1, 2, 3...)
+                # 邏輯：生成新 ID
+                final_story_id = str(uuid.uuid4())  # 使用全新 UUID 作為 ID
+                final_story_title = f"{story_title} 第({group_idx + 1}組)"
+                
+                # 這些分出去的組別，對於資料庫來說是「新故事」
+                final_action_type = "create_new_story_from_group"
+                
+                print(f"      [分組] 產生新 ID: {final_story_id} (原始: {story_id}, Index: {group_idx})")
+
             # 准备文章列表
             grouped_articles = []
             for article_idx, item in enumerate(group, 1):
@@ -1413,7 +1445,7 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
                     "article_url": article["final_url"],
                     "media": article["media"],
                     "content": article["content"],
-                    "article_datetime": article.get("article_datetime", "未知时间")
+                    "article_datetime": article.get("article_datetime", "")
                 })
             
             # 创建故事数据结构
@@ -1433,7 +1465,7 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
             }
             
             # 如果是现有故事，保留更多原有数据的参考
-            if is_existing_story:
+            if group_idx == 0 and is_existing_story:
                 story_data["original_story_data"] = existing_story_data
                 story_data["time_range_updated"] = existing_story_data.get('time_range') != time_range
                 story_data["crawl_date_preserved"] = existing_story_data.get('crawl_date') == crawl_date
@@ -1456,48 +1488,98 @@ def group_articles_by_story_and_time(processed_articles, country, time_window_da
     print(f"\n总共处理完成 {len(all_final_stories)} 个最终故事")
     return all_final_stories
 
-def _create_time_groups(articles_with_time, time_window_days):
-    """
-    根据时间窗口将文章分组的内部函数
-    """
-    time_groups = []
-    current_group = []
-    current_group_start_time = None
-    current_group_end_time = None
+# def _create_time_groups(articles_with_time, time_window_days):
+#     """
+#     根据时间窗口将文章分组的内部函数
+#     """
+#     time_groups = []
+#     current_group = []
+#     current_group_start_time = None
+#     current_group_end_time = None
     
-    for item in articles_with_time:
-        article_time = item['datetime']
+#     for item in articles_with_time:
+#         article_time = item['datetime']
         
-        if current_group_start_time is None:
-            # 第一篇文章，开始第一组
-            current_group_start_time = article_time
-            current_group_end_time = article_time + timedelta(days=time_window_days)
-            current_group.append(item)
-            print(f"      开始新组: {current_group_start_time.strftime('%Y/%m/%d %H:%M')} - {current_group_end_time.strftime('%Y/%m/%d %H:%M')}")
-        else:
-            # 检查是否在当前组的时间窗口内
-            if article_time < current_group_end_time:
-                # 在同一组内
-                current_group.append(item)
-                print(f"         加入当前组: {article_time.strftime('%Y/%m/%d %H:%M')}")
-            else:
-                # 超出时间窗口，开始新的一组
-                if current_group:
-                    time_groups.append(current_group)
-                    print(f"      完成组别，包含 {len(current_group)} 篇文章")
+#         if current_group_start_time is None:
+#             # 第一篇文章，开始第一组
+#             current_group_start_time = article_time
+#             current_group_end_time = article_time + timedelta(days=time_window_days)
+#             current_group.append(item)
+#             print(f"      开始新组: {current_group_start_time.strftime('%Y/%m/%d %H:%M')} - {current_group_end_time.strftime('%Y/%m/%d %H:%M')}")
+#         else:
+#             # 检查是否在当前组的时间窗口内
+#             if article_time < current_group_end_time:
+#                 # 在同一组内
+#                 current_group.append(item)
+#                 print(f"         加入当前组: {article_time.strftime('%Y/%m/%d %H:%M')}")
+#             else:
+#                 # 超出时间窗口，开始新的一组
+#                 if current_group:
+#                     time_groups.append(current_group)
+#                     print(f"      完成组别，包含 {len(current_group)} 篇文章")
                 
-                # 开始新组
-                current_group = [item]
-                current_group_start_time = article_time
-                current_group_end_time = article_time + timedelta(days=time_window_days)
-                print(f"      开始新组: {current_group_start_time.strftime('%Y/%m/%d %H:%M')} - {current_group_end_time.strftime('%Y/%m/%d %H:%M')}")
+#                 # 开始新组
+#                 current_group = [item]
+#                 current_group_start_time = article_time
+#                 current_group_end_time = article_time + timedelta(days=time_window_days)
+#                 print(f"      开始新组: {current_group_start_time.strftime('%Y/%m/%d %H:%M')} - {current_group_end_time.strftime('%Y/%m/%d %H:%M')}")
     
-    # 添加最后一组
-    if current_group:
-        time_groups.append(current_group)
-        print(f"      完成最后组别，包含 {len(current_group)} 篇文章")
+#     # 添加最后一组
+#     if current_group:
+#         time_groups.append(current_group)
+#         print(f"      完成最后组别，包含 {len(current_group)} 篇文章")
     
-    return time_groups
+#     return time_groups
+
+def _create_time_groups(articles_with_time, time_window_days, base_start_time=None):
+    """
+    根據基準時間將文章分組。
+    如果提供了 base_start_time (現有故事)，則以該時間為錨點，每3天切一組。
+    如果沒有 (新故事)，則以第一篇文章為錨點。
+    
+    Returns:
+        dict: { group_index: [articles] } 
+        group_index 0 = 原始故事 (0~3天)
+        group_index 1 = 第2組 (3~6天)
+        ...
+    """
+    groups = defaultdict(list)
+    
+    # 如果沒有提供基準時間，就用第一篇文章的時間 (針對新故事)
+    if base_start_time is None and articles_with_time:
+        base_start_time = articles_with_time[0]['datetime']
+    print(f"      基準時間 (crawl_date): {base_start_time.strftime('%Y/%m/%d %H:%M')}")
+
+    if not articles_with_time:
+        return []
+
+    for item in articles_with_time:
+        article_time = item['datetime'].astimezone(base_start_time.tzinfo)
+        
+        # 計算這篇文章距離基準時間幾天
+        # 使用 total_seconds() 確保計算精確，然後除以一天的秒數
+        time_diff = article_time - base_start_time
+        days_diff = time_diff.total_seconds() / (24 * 3600)
+        
+        if days_diff < 0:
+            # 如果文章時間比 crawl_date 還早 (補抓到的舊聞)，
+            # 強制歸類到第 0 組 (原始故事)
+            group_index = 0
+        else:
+            # 計算落在哪個區間 (例如 0-2.99天 -> index 0, 3-5.99天 -> index 1)
+            group_index = int(days_diff // time_window_days)
+            
+        groups[group_index].append(item)
+        
+        # Log 方便除錯
+        print(f"      文章時間: {article_time}, 距離基準: {days_diff:.1f}天 -> 分入第 {group_index + 1} 組")
+
+    # 將字典轉換回列表，並按 index 排序，確保回傳順序正確
+    # 這裡回傳格式改為 list of tuples: [(index, articles), (index, articles)...]
+    # 這樣我們在外面才能知道他是第幾組
+    sorted_groups = sorted(groups.items())
+    
+    return sorted_groups
 
 def save_stories_to_supabase(stories):
     """
@@ -1570,11 +1652,11 @@ def process_news_pipeline(main_url, country, category):
     # 步驟2: 處理每個故事，獲取所有文章連結
     all_article_links = []
     if(category=="Politics" or category=="International News" or category=="Science & Technology" or category=="Business & Finance"):
-        for story_info in story_links[:4]:
+        for story_info in story_links[:7]:
             article_links = get_article_links_from_story(story_info)
             all_article_links.extend(article_links)
     else:
-        for story_info in story_links[:2]:
+        for story_info in story_links[:3]:
             article_links = get_article_links_from_story(story_info)
             all_article_links.extend(article_links)
     
@@ -1763,6 +1845,7 @@ def main():
             },
         }
     }
+
 
     
     # 可以選擇處理特定分類或全部分類

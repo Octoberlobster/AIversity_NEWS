@@ -36,7 +36,7 @@ def fetch_data_from_database(supabase):
     """從資料庫獲取專題和新聞資料"""
     try:
         # Get topics with retry
-        topic_query = supabase.table("topic").select("topic_id, topic_title")
+        topic_query = supabase.table("topic").select("topic_id, topic_title").eq("alive", 1)
         topic = execute_with_retry(topic_query)
         
         # Get topic news mapping with retry
@@ -216,7 +216,7 @@ def update_topic_summaries_to_database(supabase, topic_summaries):
             supabase.table("topic").update({
                 "topic_short": summary_data["short_summary"],
                 "topic_long": summary_data["long_summary"],
-                "generated_date": current_time
+                "update_date": current_time
             }).eq("topic_id", topic_id).execute()
             print(f"成功更新 topic {summary_data['topic_title']} 的摘要")
         except Exception as e:
