@@ -673,10 +673,12 @@ function NewsDetail() {
       if (!termsPattern) return line;
 
       // 只處理術語（terms），不再處理 highlights
+      
       return line.split(termsPattern).map((part, i) => {
         if (terms.includes(part)) {
           if (!seenTerms.has(part)) {
             seenTerms.add(part);
+            /*
             return (
               <strong
                 key={`term-${i}`}
@@ -686,6 +688,7 @@ function NewsDetail() {
                 {part}
               </strong>
             );
+            */
           } else {
             return <React.Fragment key={`txt-${i}`}>{part}</React.Fragment>;
           }
@@ -1404,7 +1407,7 @@ function NewsDetail() {
         </div>
       )}
 
-      {/* Tooltip */}
+      {/* Tooltip 
       {tooltipTerm && (
         <TermTooltip
           term={tooltipTerm}
@@ -1421,7 +1424,9 @@ function NewsDetail() {
           onClose={() => setTooltipTerm(null)}
           getLanguageRoute={getLanguageRoute}
         />
+        
       )}
+      */}
     </div>
   );
 }
