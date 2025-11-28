@@ -101,7 +101,7 @@ function SpecialReportPage() {
                 <div className="srp-meta">
                   <div className="srp-metaInfo">
                     <span>📄 {report.articles} {t('specialReportPage.meta.articles')}</span>
-                    <span>🕒 {report.lastUpdate}</span>
+                    <span>🕒 {report.generated_date}</span>
                   </div>
                   <Link to={getLanguageRoute(`/special-report/${report.topic_id}`)} target="_blank" rel="noopener noreferrer" className="srp-readMore">
                     {t('specialReportPage.meta.viewMore')}

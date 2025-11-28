@@ -203,6 +203,7 @@ export function useNewsKeywords(storyId) {
  * 第五階段: 背景載入術語
  */
 export function useNewsTerms(storyId) {
+  
   const supabase = useSupabase();
   const { getFieldName, getMultiLanguageSelect, getCurrentLanguage } = useLanguageFields();
   const currentLanguage = getCurrentLanguage();

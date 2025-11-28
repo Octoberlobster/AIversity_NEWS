@@ -14,10 +14,9 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
 
   return useInfiniteQuery({
     queryKey: ['category-news', country, categoryName, itemsPerPage, currentLanguage],
-    queryFn: async ({ pageParam = 0 }) => {
-      console.log('[useCategoryNews] 載入頁面:', pageParam, '國家:', country, '分類:', categoryName, '語言:', currentLanguage);
-
-      const offset = pageParam * itemsPerPage;
+    queryFn: async ({ pageParam = { page: 0, cursor: 0 } }) => {
+      const { page, cursor } = pageParam;
+      console.log('[useCategoryNews] 載入頁面:', page, 'cursor:', cursor, '國家:', country, '分類:', categoryName, '語言:', currentLanguage);
 
       // 對應資料庫的正確國家名稱
       const countryMap = {
@@ -32,6 +31,13 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
       // 使用 join 直接從 single_news 查詢,並過濾國家和分類
       const newsMultiLangFields = ['news_title', 'ultra_short'];
       const newsSelectFields = getMultiLanguageSelect(newsMultiLangFields);
+
+      // 🔧 為了確保過濾後仍有足夠的資料，多查詢一些 (2倍)
+      const fetchMultiplier = 2;
+      const fetchSize = itemsPerPage * fetchMultiplier;
+      
+      // 🔧 使用 cursor 作為實際的資料庫偏移量，避免重複
+      const fetchOffset = cursor;
 
       const { data: newsData, error: newsError } = await supabase
         .from('single_news')
@@ -53,7 +59,7 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
         .eq('stories.country', dbCountry)
         .eq('stories.category', categoryName)
         .order('generated_date', { ascending: false })
-        .range(offset, offset + itemsPerPage - 1);
+        .range(fetchOffset, fetchOffset + fetchSize - 1);
       
       if (newsError) throw newsError;
       
@@ -62,7 +68,7 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
         return { news: [], nextPage: null };
       }
       
-      console.log(`[useCategoryNews] 找到 ${newsData.length} 筆新聞`);
+      console.log(`[useCategoryNews] 查詢到 ${newsData.length} 筆新聞 (過濾前)`);
 
       
       // 過濾掉沒有完整多語言 description 的新聞
@@ -74,7 +80,8 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
                img.description_jp_lang;
       });
       
-      const allNews = filteredNews;
+      // 🔧 只取需要的數量 (itemsPerPage)
+      const allNews = filteredNews.slice(0, itemsPerPage);
 
       // 3. 轉換格式 (不包含圖片)，支援多語言
       const basicNews = allNews.map(news => ({
@@ -86,14 +93,22 @@ export function useCategoryNews(country, categoryName, itemsPerPage = 18) {
         needsImage: true,
       }));
 
-      console.log('[useCategoryNews] 頁面載入完成:', basicNews.length, '筆');
+      console.log('[useCategoryNews] 頁面載入完成:', basicNews.length, '筆 (過濾後)');
+
+      // 🔧 計算下一頁的 cursor (實際消耗的資料庫記錄數)
+      // 下一頁的 cursor = 當前 cursor + 這次查詢的原始資料數量
+      const nextCursor = cursor + newsData.length;
+      
+      // 🔧 判斷是否還有下一頁
+      const hasMore = filteredNews.length > itemsPerPage || newsData.length === fetchSize;
 
       return {
         news: basicNews,
-        nextPage: basicNews.length === itemsPerPage ? pageParam + 1 : null,
+        nextPage: hasMore ? { page: page + 1, cursor: nextCursor } : null,
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: { page: 0, cursor: 0 },
     enabled: !!country && !!supabase,
     staleTime: 10 * 60 * 1000, // 10分鐘
     cacheTime: 30 * 60 * 1000, // 30分鐘

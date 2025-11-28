@@ -193,7 +193,7 @@ function LatestTopics() {
                       </p>
                       <div className="slide-meta">
                         <span className="slide-date">
-                          {topic.generated_date || ''}
+                          {topic.update_date || ''}
                         </span>
                         <span className="slide-news-count">
                           {topic.newsCount} {t('home.articles')}

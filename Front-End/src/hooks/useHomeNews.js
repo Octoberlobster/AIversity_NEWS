@@ -4,6 +4,7 @@ import { useLanguageFields } from '../utils/useLanguageFields';
 
 /**
  * 自定義 Hook: 拉取首頁新聞 (支援無限滾動)
+ * 🔧 使用 cursor-based pagination 避免重複新聞
  */
 export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = true) {
   const supabase = useSupabase();
@@ -12,12 +13,18 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
 
   return useInfiniteQuery({
     queryKey: ['home-news', country, itemsPerPage, currentLanguage],
-    queryFn: async ({ pageParam = 0 }) => {
-      console.log('[useHomeNews] 載入頁面:', pageParam, '國家:', country);
+    queryFn: async ({ pageParam = { page: 0, cursor: 0 } }) => {
+      const { page, cursor } = pageParam;
+      console.log('[useHomeNews] 載入頁面:', page, 'cursor:', cursor, '國家:', country);
 
-      const offset = pageParam * itemsPerPage;
+      // 🔧 為了確保過濾後仍有足夠的資料，多查詢一些 (2倍)
+      const fetchMultiplier = 2;
+      const fetchSize = itemsPerPage * fetchMultiplier;
+      
+      // 🔧 使用 cursor 作為實際的資料庫偏移量，避免重複
+      const fetchOffset = cursor;
 
-      let allNewsData = [];
+      let newsData = [];
 
       if (country && country !== 'all') {
         // 國家模式 - 使用巢狀查詢直接在 single_news 中過濾
@@ -27,7 +34,7 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
 
         // 一次查詢: 從 single_news 查詢,並透過 stories 表過濾國家
         // 只查詢有 generated_image 完整多語言 description 的新聞
-        const { data: newsData, error: newsError } = await supabase
+        const { data, error: newsError } = await supabase
           .from('single_news')
           .select(`
             story_id,
@@ -42,30 +49,20 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
           `)
           .or(`country.eq.${country},country.eq.${country.toLowerCase()}`, { foreignTable: 'stories' })
           .order('generated_date', { ascending: false })
-          .limit(90);
+          .range(fetchOffset, fetchOffset + fetchSize - 1);
 
         if (newsError) {
           console.error('[useHomeNews] 查詢錯誤:', newsError);
           throw newsError;
         }
         
-        // 過濾掉沒有完整多語言 description 的新聞
-        const filteredNews = (newsData || []).filter(news => {
-          const img = news.generated_image;
-          return img && 
-                 img.description_en_lang && 
-                 img.description_id_lang && 
-                 img.description_jp_lang;
-        });
-        
-        console.log('[useHomeNews] 查詢結果總數:', newsData?.length || 0, '筆，過濾後:', filteredNews.length, '筆');
-        
-        allNewsData = filteredNews;
+        newsData = data || [];
+        console.log('[useHomeNews] 查詢結果總數:', newsData.length, '筆 (過濾前)');
       } else {
         // 全部新聞模式 - 只查詢有 generated_image 完整多語言 description 的新聞
         const multiLangFields = getMultiLanguageSelect(["news_title", "ultra_short"]);
         
-        const { data: newsData, error: newsError } = await supabase
+        const { data, error: newsError } = await supabase
           .from('single_news')
           .select(`
             story_id, 
@@ -78,31 +75,29 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
             )
           `)
           .order('generated_date', { ascending: false })
-          .limit(90);
+          .range(fetchOffset, fetchOffset + fetchSize - 1);
 
         if (newsError) throw newsError;
         
-        // 過濾掉沒有完整多語言 description 的新聞
-        const filteredNews = (newsData || []).filter(news => {
-          const img = news.generated_image;
-          return img && 
-                 img.description_en_lang && 
-                 img.description_id_lang && 
-                 img.description_jp_lang;
-        });
-        
-        allNewsData = filteredNews;
+        newsData = data || [];
       }
 
-      // 從查詢結果中取出當前頁面的資料
-      const startIndex = offset;
-      const endIndex = offset + itemsPerPage;
-      const fetchedData = allNewsData.slice(startIndex, endIndex);
+      // 過濾掉沒有完整多語言 description 的新聞
+      const filteredNews = newsData.filter(news => {
+        const img = news.generated_image;
+        return img && 
+               img.description_en_lang && 
+               img.description_id_lang && 
+               img.description_jp_lang;
+      });
       
-      console.log('[useHomeNews] 分頁結果:', fetchedData.length, '筆 (從索引', startIndex, '到', endIndex, ')');
+      // 🔧 只取需要的數量 (itemsPerPage)
+      const pageNews = filteredNews.slice(0, itemsPerPage);
+      
+      console.log('[useHomeNews] 過濾後:', filteredNews.length, '筆，本頁顯示:', pageNews.length, '筆');
 
       // 轉換格式 (不包含圖片)
-      const basicNews = fetchedData.map(news => ({
+      const basicNews = pageNews.map(news => ({
         story_id: news.story_id,
         title: news[getFieldName("news_title")] || news.news_title,
         shortSummary: news[getFieldName("ultra_short")] || news.ultra_short,
@@ -112,15 +107,19 @@ export function useHomeNews(country = 'Taiwan', itemsPerPage = 18, enabled = tru
 
       console.log('[useHomeNews] 頁面載入完成:', basicNews.length, '筆');
 
-      // 判斷是否還有下一頁 (檢查是否還有更多資料)
-      const hasMore = endIndex < allNewsData.length;
+      // 🔧 計算下一頁的 cursor (實際消耗的資料庫記錄數)
+      const nextCursor = cursor + newsData.length;
+      
+      // 🔧 判斷是否還有下一頁
+      const hasMore = filteredNews.length > itemsPerPage || newsData.length === fetchSize;
 
       return {
         news: basicNews,
-        nextPage: hasMore ? pageParam + 1 : null,
+        nextPage: hasMore ? { page: page + 1, cursor: nextCursor } : null,
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: { page: 0, cursor: 0 },
     enabled: enabled && !!supabase, // 加入 enabled 參數
     staleTime: 5 * 60 * 1000, // 5分鐘
     cacheTime: 30 * 60 * 1000, // 30分鐘
