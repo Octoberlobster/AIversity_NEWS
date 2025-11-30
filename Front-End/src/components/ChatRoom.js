@@ -162,9 +162,10 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
   const makeUserMsg = (text) => ({ id: Date.now(), text, isOwn: true, time: getFormattedTime() });
 
   const makeExpertReply = (expertId, replyText) => {
-    const expert = experts.find((e) => e.id === expertId);
+    // 先從 availableExperts 找（支援來自 chatExperts 的專家）
+    const expert = availableExperts.find((e) => e.id === expertId) || experts.find((e) => e.id === expertId);
     const expertName = expert ? expert.name : t('exportChat.defaultExpertName');
-    return { id: Date.now() + expertId + Math.random(), text: replyText || t('exportChat.noReply'), isOwn: false, time: getFormattedTime() };
+    return { id: Date.now() + String(expertId) + Math.random(), text: replyText || t('exportChat.noReply'), isOwn: false, time: getFormattedTime() };
   };
 
    const simulateReplies = async (currentInputMessage) => {
@@ -173,7 +174,17 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
      setMessages((prev) => [...prev, loadingMsg]);
      try {
        const expertsData = selectedExperts.map(expertId => {
-         const expertInfo = experts.find(e => e.id === expertId);
+         // 先從 availableExperts 找（支援來自 chatExperts 的專家）
+         const expertInfo = availableExperts.find(e => e.id === expertId);
+         // 如果是來自 chatExperts 的專家，直接用它的資料
+         if (expertInfo?.chatExpertData) {
+           return {
+             category: expertInfo.category,
+             role: expertInfo.chatExpertData.analyze?.Role || expertInfo.name || t('exportChat.defaultExpertName'),
+             analyze: expertInfo.chatExpertData.analyze?.Analyze || ''
+           };
+         }
+         // 否則是預設專家列表，用舊的方式找 chatExpertData
          const chatExpertData = Array.isArray(chatExperts) ? chatExperts.find(ce => ce?.category === expertInfo?.category) : null;
          return {
            category: expertInfo?.category,
@@ -235,21 +246,26 @@ function ChatRoom({newsData, onClose, chatExperts}, ref) {
   };
 
   const availableExperts = useMemo(() => {
-      // 優先使用 chatExperts 來決定可用的專家
+      // 優先使用 chatExperts（來自 pro_analyze）
+      // 不做 category 去重，相同 category 的專家也能顯示
       if (Array.isArray(chatExperts) && chatExperts.length > 0 && chatExperts[0] !== null) {
-          const chatExpertCategories = chatExperts.map(ce => ce?.category).filter(Boolean);
-          if (chatExpertCategories.length > 0) {
-              return experts.filter(expert => chatExpertCategories.includes(expert.category));
-          }
+          return chatExperts.map((ce, index) => {
+              // 找到對應的基本專家資訊
+              const baseExpert = experts.find(e => e.category === ce?.category);
+              return {
+                  // 使用 analyze_id 作為唯一 id，避免重複
+                  id: ce?.analyze_id || `chat-expert-${index}`,
+                  name: ce?.analyze?.Role || baseExpert?.name || `專家 ${index + 1}`,
+                  category: ce?.category,
+                  // 保留原始 chatExpert 資料供後續使用
+                  chatExpertData: ce
+              };
+          }).filter(e => e.category); // 過濾掉沒有 category 的
       }
       
-      // 如果沒有 chatExperts，則使用 who_talk
-      const whoTalkArray = parseWhoTalk(newsData?.who_talk);
-      if (whoTalkArray.length === 0) {
-          return newsData?.category ? experts.filter(expert => expert.category === newsData.category) : experts;
-      }
-      return experts.filter(expert => whoTalkArray.includes(expert.category));
-  }, [chatExperts, newsData?.who_talk, newsData?.category]);
+      // 如果沒有 chatExperts，則使用預設的 experts 陣列
+      return experts;
+  }, [chatExperts]);
 
   // 🟢 (修復計數問題) 新增此 useEffect 來同步 selectedExperts 和 availableExperts
   useEffect(() => {
