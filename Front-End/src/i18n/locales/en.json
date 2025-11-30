@@ -372,6 +372,12 @@
         "clickToView": "Click to view full analysis",
         "close": "Close"
       }
+    },
+    "feedback": {
+      "markUseful": "Mark as helpful",
+      "markedUseful": "Marked as helpful",
+      "markUseless": "Mark as unhelpful",
+      "markedUseless": "Marked as unhelpful"
     }
   },
   "topicChat":{

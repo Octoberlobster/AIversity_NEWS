@@ -377,6 +377,12 @@
         "clickToView": "Klik untuk melihat analisis lengkap",
         "close": "Tutup"
       }
+    },
+    "feedback": {
+      "markUseful": "Tandai sebagai berguna",
+      "markedUseful": "Sudah ditandai berguna",
+      "markUseless": "Tandai sebagai tidak berguna",
+      "markedUseless": "Sudah ditandai tidak berguna"
     }
   },
   "topicChat": {

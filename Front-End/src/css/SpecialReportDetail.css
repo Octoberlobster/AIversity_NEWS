@@ -263,9 +263,13 @@
 .srdHeader__expertCardHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 0.5rem;
   gap: 0.5rem;
+}
+
+/* 讓反饋按鈕緊貼換專家按鈕（用 margin-left: auto 把後面的按鈕推到右邊） */
+.srdHeader__feedbackBtns {
+  margin-left: auto;
 }
 
 /* 換專家按鈕 */
@@ -322,6 +326,88 @@
 
 .srdHeader__changeExpertBtn svg.rotating {
   animation: spin 1s linear infinite;
+}
+
+/* ===== 反饋按鈕容器 ===== */
+.srdHeader__feedbackBtns {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+/* 反饋按鈕基本樣式 */
+.srdHeader__feedbackBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  border: 1.5px solid #d1d5db;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.srdHeader__feedbackBtn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.srdHeader__feedbackBtn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.srdHeader__feedbackBtn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.srdHeader__feedbackBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 有益按鈕 */
+.srdHeader__feedbackBtn--useful {
+  color: #059669;
+  border-color: #10b981;
+}
+
+.srdHeader__feedbackBtn--useful:hover:not(:disabled) {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-color: transparent;
+}
+
+.srdHeader__feedbackBtn--useful.voted {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* 無益按鈕 */
+.srdHeader__feedbackBtn--useless {
+  color: #dc2626;
+  border-color: #ef4444;
+}
+
+.srdHeader__feedbackBtn--useless:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border-color: transparent;
+}
+
+.srdHeader__feedbackBtn--useless.voted {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .srdHeader__expandIcon {
@@ -457,6 +543,88 @@
   background: #f1f5f9;
   color: #1e293b;
   transform: rotate(90deg);
+}
+
+/* ===== 模態框內的反饋按鈕 ===== */
+.srdExpertModal__feedbackBtns {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+.srdExpertModal__feedbackBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  border: 1.5px solid #d1d5db;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.srdExpertModal__feedbackBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.srdExpertModal__feedbackBtn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.srdExpertModal__feedbackBtn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.srdExpertModal__feedbackBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 有益按鈕 */
+.srdExpertModal__feedbackBtn--useful {
+  color: #059669;
+  border-color: #10b981;
+}
+
+.srdExpertModal__feedbackBtn--useful:hover:not(:disabled) {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-color: transparent;
+}
+
+.srdExpertModal__feedbackBtn--useful.voted {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* 無益按鈕 */
+.srdExpertModal__feedbackBtn--useless {
+  color: #dc2626;
+  border-color: #ef4444;
+}
+
+.srdExpertModal__feedbackBtn--useless:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border-color: transparent;
+}
+
+.srdExpertModal__feedbackBtn--useless.voted {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .srdExpertModal__body {

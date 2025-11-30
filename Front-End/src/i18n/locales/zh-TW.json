@@ -364,6 +364,12 @@
         "clickToView": "點擊查看完整分析",
         "close": "關閉"
       }
+    },
+    "feedback": {
+      "markUseful": "標記為有益",
+      "markedUseful": "已標記為有益",
+      "markUseless": "標記為無益",
+      "markedUseless": "已標記為無益"
     }
   },
   "topicChat":{

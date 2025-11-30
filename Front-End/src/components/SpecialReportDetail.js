@@ -50,10 +50,40 @@ function SpecialReportDetail() {
   const [analysisLoading, setAnalysisLoading] = useState(true);
   const [generatingExperts, setGeneratingExperts] = useState(new Set()); // 正在生成的專家 ID
   const [batchGenerating, setBatchGenerating] = useState(false); // 批量生成中
+  const [feedbackStatus, setFeedbackStatus] = useState({}); // 記錄每個專家的反饋狀態 {analyze_id: {useful: count, useless: count, userVoted: 'useful'|'useless'|null}}
   
   // 專家分析彈出視窗狀態
   const [selectedExpert, setSelectedExpert] = useState(null);
   const [isExpertModalOpen, setIsExpertModalOpen] = useState(false);
+
+  // 處理專家分析反饋（只在本地記錄，不接資料庫）
+  const handleExpertFeedback = (analyzeId, feedbackType) => {
+    // 檢查用戶是否已經投過票
+    const localStorageKey = `expert_feedback_topic_${analyzeId}`;
+    const existingVote = localStorage.getItem(localStorageKey);
+    
+    if (existingVote) {
+      console.log(`用戶已經對專題專家 ${analyzeId} 投過票: ${existingVote}`);
+      return; // 已經投過票，不執行任何操作
+    }
+
+    console.log(`記錄專題反饋: analyzeId=${analyzeId}, feedbackType=${feedbackType}`);
+    
+    // 更新本地狀態
+    setFeedbackStatus(prev => ({
+      ...prev,
+      [analyzeId]: {
+        ...prev[analyzeId],
+        [feedbackType]: (prev[analyzeId]?.[feedbackType] || 0) + 1,
+        userVoted: feedbackType
+      }
+    }));
+
+    // 保存到 localStorage
+    localStorage.setItem(localStorageKey, feedbackType);
+    
+    console.log('專題反饋已記錄到本地');
+  };
 
   // 開啟專家分析彈出視窗
   const openExpertModal = (expert) => {
@@ -387,6 +417,28 @@ function SpecialReportDetail() {
         }));
         
         setExpertAnalysis(analysisData);
+        
+        // 初始化反饋狀態
+        setFeedbackStatus(prev => {
+          const newFeedback = {};
+          analysisData.forEach(expert => {
+            // 如果已經有狀態(用戶已投票),保留原狀態
+            if (prev[expert.analyze_id]) {
+              newFeedback[expert.analyze_id] = prev[expert.analyze_id];
+            } else {
+              // 否則從 localStorage 讀取
+              const localStorageKey = `expert_feedback_topic_${expert.analyze_id}`;
+              const savedVote = localStorage.getItem(localStorageKey);
+              
+              newFeedback[expert.analyze_id] = {
+                useful: 0,
+                useless: 0,
+                userVoted: savedVote || null
+              };
+            }
+          });
+          return newFeedback;
+        });
       } catch (error) {
         console.error(`Error fetching expert analysis for topic ${id}:`, error);
         setExpertAnalysis([]);
@@ -640,7 +692,7 @@ function SpecialReportDetail() {
           <div className="srdHeader__expertAnalysis">
             <div className="srdHeader__expertTitleBar">
               <h4 className="srdHeader__expertTitle">
-                💡 {t('specialReportDetail.header.expertAnalysis')}
+                {t('specialReportDetail.header.expertAnalysis')}
               </h4>
               {expertAnalysis && expertAnalysis.length > 0 && (
                 <button 
@@ -678,6 +730,7 @@ function SpecialReportDetail() {
                     };
 
                     const isGenerating = generatingExperts.has(analysis.analyze_id);
+                    const feedback = feedbackStatus[analysis.analyze_id] || { useful: 0, useless: 0, userVoted: null };
                     
                     return (
                       <div 
@@ -688,6 +741,35 @@ function SpecialReportDetail() {
                           <span className="srdHeader__categoryTag" onClick={() => openExpertModal(expertData)}>
                             {analyzeData?.Role || analysis.category || t('specialReportDetail.header.expert')}
                           </span>
+                          {/* 反饋按鈕區域 */}
+                          <div className="srdHeader__feedbackBtns">
+                            <button 
+                              className={`srdHeader__feedbackBtn srdHeader__feedbackBtn--useful ${feedback.userVoted === 'useful' ? 'voted' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleExpertFeedback(analysis.analyze_id, 'useful');
+                              }}
+                              disabled={feedback.userVoted !== null}
+                              title={feedback.userVoted === 'useful' ? t('specialReportDetail.feedback.markedUseful') : t('specialReportDetail.feedback.markUseful')}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill={feedback.userVoted === 'useful' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                              </svg>
+                            </button>
+                            <button 
+                              className={`srdHeader__feedbackBtn srdHeader__feedbackBtn--useless ${feedback.userVoted === 'useless' ? 'voted' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleExpertFeedback(analysis.analyze_id, 'useless');
+                              }}
+                              disabled={feedback.userVoted !== null}
+                              title={feedback.userVoted === 'useless' ? t('specialReportDetail.feedback.markedUseless') : t('specialReportDetail.feedback.markUseless')}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill={feedback.userVoted === 'useless' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+                              </svg>
+                            </button>
+                          </div>
                           <button 
                             className="srdHeader__changeExpertBtn"
                             onClick={(e) => {
@@ -874,6 +956,34 @@ function SpecialReportDetail() {
                   {selectedExpert.analyzeData?.Role || selectedExpert.category || t('specialReportDetail.header.expert')}
                 </span>
               </div>
+              {/* 反饋按鈕區域 - 在模態框 header */}
+              {(() => {
+                const feedback = feedbackStatus[selectedExpert.analyze_id] || { useful: 0, useless: 0, userVoted: null };
+                return (
+                  <div className="srdExpertModal__feedbackBtns">
+                    <button 
+                      className={`srdExpertModal__feedbackBtn srdExpertModal__feedbackBtn--useful ${feedback.userVoted === 'useful' ? 'voted' : ''}`}
+                      onClick={() => handleExpertFeedback(selectedExpert.analyze_id, 'useful')}
+                      disabled={feedback.userVoted !== null}
+                      title={feedback.userVoted === 'useful' ? t('specialReportDetail.feedback.markedUseful') : t('specialReportDetail.feedback.markUseful')}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill={feedback.userVoted === 'useful' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                      </svg>
+                    </button>
+                    <button 
+                      className={`srdExpertModal__feedbackBtn srdExpertModal__feedbackBtn--useless ${feedback.userVoted === 'useless' ? 'voted' : ''}`}
+                      onClick={() => handleExpertFeedback(selectedExpert.analyze_id, 'useless')}
+                      disabled={feedback.userVoted !== null}
+                      title={feedback.userVoted === 'useless' ? t('specialReportDetail.feedback.markedUseless') : t('specialReportDetail.feedback.markUseless')}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill={feedback.userVoted === 'useless' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })()}
               <button 
                 className="srdExpertModal__close"
                 onClick={closeExpertModal}

@@ -375,6 +375,12 @@
         "clickToView": "クリックして完全な分析を表示",
         "close": "閉じる"
       }
+    },
+    "feedback": {
+      "markUseful": "役に立つとマーク",
+      "markedUseful": "役に立つとマーク済み",
+      "markUseless": "役に立たないとマーク",
+      "markedUseless": "役に立たないとマーク済み"
     }
   },
   "topicChat": {
