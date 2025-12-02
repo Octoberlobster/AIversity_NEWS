@@ -39,8 +39,8 @@ function SpecialReportPage() {
       lastUpdate: topic.update_date || topic.generated_date
     }));
 
-    // 按更新時間排序 (最新的在前)
-    return reports.sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate));
+    // 按 generated_date 排序 (最新的在前)
+    return reports.sort((a, b) => new Date(b.generated_date) - new Date(a.generated_date));
   }, [topicDetails, topicCounts, getFieldName]);
 
   if (isLoading) {
