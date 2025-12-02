@@ -10,29 +10,55 @@ export function useSpecialReportsList() {
   const supabase = useSupabase();
   const { getMultiLanguageSelect } = useLanguageFields();
 
-  // 階段 1: 獲取專題新聞對應關係
+  // 階段 1: 獲取專題新聞對應關係 (分頁抓取所有資料)
   const topicCountsQuery = useQuery({
     queryKey: ['topic-news-counts'],
     queryFn: async () => {
       console.log('[useSpecialReportsList] 載入專題新聞對應關係');
 
-      const { data, error } = await supabase
-        .from('topic_news_map')
-        .select('topic_id, story_id');
+      // Supabase 預設限制 1000 筆，使用分頁抓取所有資料
+      const PAGE_SIZE = 1000;
+      let allData = [];
+      let page = 0;
+      let hasMore = true;
 
-      if (error) {
-        throw new Error(`無法獲取專題新聞對應關係: ${error.message}`);
+      while (hasMore) {
+        const from = page * PAGE_SIZE;
+        const to = from + PAGE_SIZE - 1;
+
+        const { data, error } = await supabase
+          .from('topic_news_map')
+          .select('topic_id, story_id')
+          .range(from, to);
+
+        if (error) {
+          throw new Error(`無法獲取專題新聞對應關係: ${error.message}`);
+        }
+
+        if (!data || data.length === 0) {
+          hasMore = false;
+        } else {
+          allData = [...allData, ...data];
+          console.log(`[useSpecialReportsList] 載入第 ${page + 1} 頁: ${data.length} 筆，累計 ${allData.length} 筆`);
+          
+          // 如果這頁資料少於 PAGE_SIZE，表示已經是最後一頁
+          if (data.length < PAGE_SIZE) {
+            hasMore = false;
+          } else {
+            page++;
+          }
+        }
       }
 
-      if (!data || data.length === 0) {
+      if (allData.length === 0) {
         return { topicCounts: {}, validTopicIds: [] };
       }
 
-      console.log('[useSpecialReportsList] topic_news_map 原始資料筆數:', data.length);
+      console.log('[useSpecialReportsList] topic_news_map 總資料筆數:', allData.length);
 
       // 計算每個 topic_id 的不重複 story_id 數量
       const topicStoryMap = {};
-      data.forEach(item => {
+      allData.forEach(item => {
         if (item.topic_id && item.story_id) {
           if (!topicStoryMap[item.topic_id]) {
             topicStoryMap[item.topic_id] = new Set();

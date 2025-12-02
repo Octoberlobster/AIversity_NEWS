@@ -81,21 +81,45 @@ function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onC
   const roomIdRef = useRef(createRoomId());
   const room_id = roomIdRef.current;
 
+  // 🟢 availableExperts 必須在使用它的 useEffect 之前定義
+  const availableExperts = useMemo(() => {
+      // 優先使用 topicExperts（來自 pro_analyze）
+      // 不做 category 去重，相同 category 的專家也能顯示
+      if (Array.isArray(topicExperts) && topicExperts.length > 0 && topicExperts[0] !== null) {
+          return topicExperts.map((te, index) => {
+              // 找到對應的基本專家資訊
+              const baseExpert = experts.find(e => e.category === te?.category);
+              return {
+                  // 使用 analyze_id 作為唯一 id，避免重複
+                  id: te?.analyze_id || `topic-expert-${index}`,
+                  name: te?.analyze?.Role || baseExpert?.name || `專家 ${index + 1}`,
+                  category: te?.category,
+                  // 保留原始 topicExpert 資料供後續使用
+                  topicExpertData: te
+              };
+          }).filter(e => e.category); // 過濾掉沒有 category 的
+      }
+      
+      // 如果沒有 topicExperts，則使用 topic_who_talk 過濾預設的 experts 陣列
+      const whoTalkArray = parseWhoTalk(topic_who_talk);
+      if (whoTalkArray.length === 0) return experts;
+      return experts.filter(expert => whoTalkArray.includes(expert.category));
+  }, [topicExperts, topic_who_talk]);
+
+  // 🟢 當 availableExperts 變化時，同步 selectedExperts
   useEffect(() => {
-    const whoTalkArray = parseWhoTalk(topic_who_talk);
-    const availableTopicExperts = experts.filter(expert =>
-        whoTalkArray.length === 0 || whoTalkArray.includes(expert.category)
-    );
-    if (availableTopicExperts.length > 0) {
-        setSelectedExperts(prevSelected => {
-            const validSelected = prevSelected.filter(expertId => availableTopicExperts.some(e => e.id === expertId));
-            if (validSelected.length === 0) return [availableTopicExperts[0].id];
-            return validSelected;
-        });
-    } else {
-        setSelectedExperts([]);
-    }
-  }, [topic_who_talk]);
+    const availableIds = new Set(availableExperts.map(e => e.id));
+    
+    setSelectedExperts(prevSelected => {
+      const validSelected = prevSelected.filter(id => availableIds.has(id));
+      
+      // 如果所有選中的專家都失效了，則預選第一位
+      if (validSelected.length === 0 && availableExperts.length > 0) {
+        return [availableExperts[0].id];
+      }
+      return validSelected;
+    });
+  }, [availableExperts]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -163,9 +187,10 @@ function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onC
   const makeUserMsg = (text) => ({ id: Date.now(), text, isOwn: true, time: getFormattedTime() });
 
   const makeExpertReply = (expertId, replyText) => {
-      const expert = experts.find((e) => e.id === expertId);
+      // 先從 availableExperts 找（支援來自 topicExperts 的專家）
+      const expert = availableExperts.find((e) => e.id === expertId) || experts.find((e) => e.id === expertId);
       const expertName = expert ? expert.name : t('topicChat.defaultExpertName');
-      return { id: Date.now() + expertId + Math.random(), text: replyText || t('topicChat.noReply'), isOwn: false, time: getFormattedTime() };
+      return { id: Date.now() + String(expertId) + Math.random(), text: replyText || t('topicChat.noReply'), isOwn: false, time: getFormattedTime() };
   };
 
    const simulateRepliesWithPrompt = async (promptText) => {
@@ -174,7 +199,17 @@ function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onC
      setMessages((prev) => [...prev, loadingMsg]);
      try {
        const expertsData = selectedExperts.map(expertId => {
-         const expertInfo = experts.find(e => e.id === expertId);
+         // 先從 availableExperts 找（支援來自 topicExperts 的專家）
+         const expertInfo = availableExperts.find(e => e.id === expertId);
+         // 如果是來自 topicExperts 的專家，直接用它的資料
+         if (expertInfo?.topicExpertData) {
+           return {
+             category: expertInfo.category,
+             role: expertInfo.topicExpertData.analyze?.Role || expertInfo.name || t('topicChat.defaultExpertName'),
+             analyze: expertInfo.topicExpertData.analyze?.Analyze || ''
+           };
+         }
+         // 否則是預設專家列表，用舊的方式找 topicExpertData
          const topicExpertData = Array.isArray(topicExperts) ? topicExperts.find(te => te?.category === expertInfo?.category) : null;
          return {
            category: expertInfo?.category,
@@ -232,12 +267,6 @@ function TopicChatRoom({topic_id, topic_title, topic_who_talk, topicExperts, onC
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isLoading) handleSendMessage();
   };
-
-  const availableExperts = useMemo(() => {
-      const whoTalkArray = parseWhoTalk(topic_who_talk);
-      if (whoTalkArray.length === 0) return experts;
-      return experts.filter(expert => whoTalkArray.includes(expert.category));
-  }, [topic_who_talk]);
 
   return (
     <div className="chat">
