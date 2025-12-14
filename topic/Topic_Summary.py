@@ -40,10 +40,19 @@ def fetch_data_from_database(supabase):
         topic = execute_with_retry(topic_query)
         
         # Get topic news mapping with retry
-        topic_news_map_query = supabase.table("topic_news_map").select("topic_id, story_id")
-        topic_news_map = execute_with_retry(topic_news_map_query)
+        topic_news_map = []
+        batch_size = 100
+        start = 0
+
+        while True:
+            temp = supabase.table("topic_news_map").select("topic_id, story_id").range(start, start + batch_size - 1).execute()
+            if not temp.data:
+                # print("Finished fetching all topic-news mappings.")
+                break
+            topic_news_map.extend(temp.data)
+            start += batch_size
         
-        story_ids = [item["story_id"] for item in topic_news_map.data]
+        story_ids = [item["story_id"] for item in topic_news_map]
         
         if not story_ids:
             return topic, topic_news_map, {}
@@ -67,7 +76,7 @@ def fetch_data_from_database(supabase):
         
         # Build topic to stories map
         topic_to_stories_map = {}
-        for item in topic_news_map.data:
+        for item in topic_news_map:
             t_id = item["topic_id"]
             s_id = item["story_id"]
             story_info = story_map.get(s_id)
@@ -88,7 +97,7 @@ def fetch_data_from_database(supabase):
     story_map = {item["story_id"]: item for item in news.data} if news and news.data else {}
     # 建立 topic_id -> stories 的 map
     topic_to_stories_map = {}
-    for item in topic_news_map.data:
+    for item in topic_news_map:
         t_id = item["topic_id"]
         s_id = item["story_id"]
         story_info = story_map.get(s_id)
@@ -209,14 +218,14 @@ def generate_topic_summary(gemini, topic_title, stories, summary_type):
 def update_topic_summaries_to_database(supabase, topic_summaries):
     """將生成的摘要存入資料庫"""
 
-    current_time = datetime.now().strftime("%Y/%m/%d %H:%M")
+    # current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
     
     for topic_id, summary_data in topic_summaries.items():
         try:
             supabase.table("topic").update({
                 "topic_short": summary_data["short_summary"],
                 "topic_long": summary_data["long_summary"],
-                "update_date": current_time
+                # "update_date": current_time
             }).eq("topic_id", topic_id).execute()
             print(f"成功更新 topic {summary_data['topic_title']} 的摘要")
         except Exception as e:

@@ -888,7 +888,7 @@ if __name__ == "__main__":
     
     #跑所有topic的翻譯
 
-    topic_id_list = supabase.table("topic").select("topic_id").execute().data
+    topic_id_list = supabase.table("topic").select("topic_id").eq("topic_id", "affb7eba-6fd4-4461-b9f9-a2f0e2f8ae1c").execute().data
     topic_id_list = [item.get("topic_id", "") for item in topic_id_list]
     for topic_id in topic_id_list:
         print(f"開始翻譯topic_id '{topic_id}' 的主題資料")

@@ -33,7 +33,7 @@ def fetch_data_from_database(supabase):
         if not temp.data:
             break
         news.extend(temp.data)
-        # break
+        break
         start += batch_size
     return topic, news
 

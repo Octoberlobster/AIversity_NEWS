@@ -243,7 +243,7 @@ if __name__ == "__main__":
         if not temp.data:
             break
         all_require.extend(temp.data)
-        break
+        # break
         start += batch_size
     
     # 步驟 1: 執行歸因分析

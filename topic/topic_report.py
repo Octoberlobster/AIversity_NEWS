@@ -39,7 +39,8 @@ class TopicComprehensiveReporter:
                 self.supabase
                 .table("topic")
                 .select("*")
-                # .eq("topic_id", "3d4df804-6f6a-4254-b7e7-ad3f18f9cbee")
+                .eq("alive", 1)
+                # .eq("topic_id", "997b1335-cb3a-4ca4-a37f-3eb69e26bca7")
                 .execute()
             )
             return response.data

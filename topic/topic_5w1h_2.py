@@ -368,7 +368,7 @@ class NewsAnalyzer:
             }
             
             # 儲存到JSON檔案
-            self.save_analysis_result(keyword, result_dict)
+            # self.save_analysis_result(keyword, result_dict)
             
             return result_dict
             
@@ -415,7 +415,10 @@ class NewsAnalyzer:
         try:
             # 準備要更新的資料
             update_data = {
-                "mind_map_detail": mind_map_data
+                "mind_map_detail": mind_map_data,
+                "mind_map_detail_en_lang": None,
+                "mind_map_detail_id_lang": None,
+                "mind_map_detail_jp_lang": None,
             }
             
             # 更新topic表中的mind_map_detail欄位
@@ -628,13 +631,14 @@ def batch_analyze_and_upload(keywords: List[str]) -> Dict[str, Optional[str]]:
 
 def get_all_topics() -> List[Dict[str, Any]]:
     """
-    取得所有topic資料
+    取得所有 alive"=1 的topic資料
     
     Returns:
-        所有topic的列表
+        所有alive"=1 的topic列表
     """
     try:
-        response = supabase.table("topic").select("*").execute()
+        # response = supabase.table("topic").select("*").execute()
+        response = supabase.table("topic").select("*").eq("topic_id", "affb7eba-6fd4-4461-b9f9-a2f0e2f8ae1c").execute()
         if response.data:
             print(f"成功取得 {len(response.data)} 個topics")
             return response.data
@@ -695,13 +699,13 @@ def process_single_topic(topic_info: Dict[str, Any]) -> Optional[str]:
     2. **Where（哪裡）**：topic_branch_title提及的地點，標題 + 80字左右敘述
     3. **Why（為什麼）**：為什麼會產生這個topic，100字敘述
     4. **Who（誰）**：與topic有關的人及其重要關係，標題 + 80字左右敘述
-    5. **When（何時）**：當要建立when_nodes時，必須使用topic_branch_title作為description內容，而label則使用相關的時間資訊，需要具體時間
+    5. **When（何時）**：當要建立when_nodes時，必須使用topic_branch_title作為description內容，而label則使用相關的時間資訊，需要具體時間，只需各一筆
     6. **How（如何）**：who中提及的人做了什麼事，標題 + 80字左右敘述
 
     特別注意：
     - 固定 "center_node": "id": "center"
     - detailed_nodes 中 what_nodes 的 label 必須使用原始的 topic_branch_title，不要修改
-    - detailed_nodes 中 when_nodes 的 description 必須使用原始的 topic_branch_title 作為內容
+    - detailed_nodes 中 when_nodes 的 description 必須使用原始的 topic_branch_title 作為內容，只需各一筆
     - 每個節點的描述要具體且完整
     - 內容必須基於提供的知識庫資料
     - 輸出格式必須是有效的JSON格式

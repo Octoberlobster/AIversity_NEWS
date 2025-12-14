@@ -197,8 +197,9 @@ def sync_topics_with_supabase(all_topics: List[str], supabase_titles: List[str])
     system_instruction = """
     你是一個文字比對專家。請比對兩個標題列表：
     1. 將 topics 中的標題與 supabase_titles 比對
-    2. 若發現相似標題（例：普發1萬 vs 普發一萬 vs 普發現金），從 topics 中移除該標題
-    3. 輸出 JSON 格式：{
+    2. 若發現相似標題（例：普發1萬 vs 普發一萬 vs 普發現金）或是 (例：日中關係 vs 中日緊張 vs 中日台灣有事)，從 topics 中移除該標題
+    3. 年度回顧類型的標題（例：2025回顧 vs 年度回顧）略過不處理
+    4. 輸出 JSON 格式：{
         "alive_status": {
             "supabase標題1": true/false,  # 表示該標題是否出現在topics中
             "supabase標題2": true/false
@@ -237,14 +238,14 @@ def sync_topics_with_supabase(all_topics: List[str], supabase_titles: List[str])
         # 新增不存在的標題
         for new_title in result.get("new_topics", []):
             try:
-                
+                current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
                 new_topic = {
                     "topic_id": str(uuid.uuid4()),
                     "topic_title": new_title,
                     "alive": 1,
 
                     # 加上台北時間
-                    "generated_date": types.Timestamp.now(tz="Asia/Taipei"),
+                    "generated_date": current_time
                 }
                 supabase.table("topic").upsert(new_topic).execute()
                 print(f"已新增新 topic: {new_title}")

@@ -320,7 +320,7 @@ def get_article_links_from_story(story_info):
             #     cutoff_date = cutoff_date.astimezone(timezone.utc)
 
             page.goto(story_info['url'])
-            time.sleep(random.randint(3, 6))
+            time.sleep(random.randint(4, 7))
             
             content = page.content()
             soup = BeautifulSoup(content, "html.parser")
@@ -370,7 +370,7 @@ def get_article_links_from_story(story_info):
                                         "The Daily Beast", "美麗島電子報", "經理人", "X", "Newswav", "PressReader", "Men's Journal", 
                                         "The Hill", "ESPN", "The Wall Street Journal", "bola.okezone.com", "台灣新聞雲報", "Ottumwa Courier",
                                         "Washington Times", "San Francisco Examiner", "Toronto Sun", "Investing.com", "Business Insider", "video.okezone.com",
-                                        "netralnews.com"
+                                        "netralnews.com", "singtao.ca"
                                         ]:
                                 continue
 
@@ -449,26 +449,32 @@ def get_final_content(article_info, page):
             page.set_default_timeout(TIMEOUT)
             
             try:
-                # 簡化頁面加載，只等待 DOM 加載完成
+                # 1. 主要導航：等待 DOM 就緒 (這是必須的)
+                # 使用 domcontentloaded 可以大幅加快速度
                 page.goto(article_info['article_url'], timeout=TIMEOUT, wait_until='domcontentloaded')
                 
-                # 簡化等待邏輯，避免過度等待
+                # 2. 次要等待：嘗試等待網絡靜止 (這是加分的)
                 try:
-                    # 短暫等待網絡空閒，但不強制要求
+                    # 給予最多 3 秒讓動態內容載入
                     page.wait_for_load_state('networkidle', timeout=3000)
                 except PlaywrightTimeoutError:
-                    # 網絡空閒超時不是致命錯誤，繼續執行
-                    print(f"   网络空闲超时，继续处理...")
-                    
+                    # 這在新聞網站非常常見，不是錯誤
+                    print(f"   網絡繁忙 (廣告/追蹤器)，不再等待，直接開始抓取...")
+                except Exception as e:
+                    # 處理其他可能的網絡錯誤，但不中斷流程
+                    print(f"   等待網絡靜止時發生微小錯誤 (忽略): {e}")
+
             except PlaywrightTimeoutError:
-                print(f"   页面加载超时，尝试继续...")
-                # 超時後嘗試基本等待
+                print(f"   页面加载 (DOM) 超时，尝试強制抓取...")
+                # 超時後嘗試基本等待，給最後一次機會
                 try:
                     page.wait_for_load_state('domcontentloaded', timeout=2000)
                 except:
-                    print(f"   基本DOM加载也超时，强制继续...")
+                    print(f"   基本DOM加载也超时，强制繼續解析當前HTML...")
+            
             except Exception as e:
-                print(f"   页面导航错误: {e}")
+                # 這是導航層級的錯誤 (如 DNS 錯誤、連線拒絕)
+                print(f"   页面导航严重错误: {e}")
                 if attempt < MAX_RETRIES - 1:
                     print(f"   2秒后重试...")
                     time.sleep(2)
@@ -1545,34 +1551,51 @@ def _create_time_groups(articles_with_time, time_window_days, base_start_time=No
     """
     groups = defaultdict(list)
     
+    # 定義時區 (雖然我們主要靠 astimezone 自動轉換，但定義一下以防萬一)
+    taipei_tz = pytz.timezone('Asia/Taipei')
+
     # 如果沒有提供基準時間，就用第一篇文章的時間 (針對新故事)
     if base_start_time is None and articles_with_time:
         base_start_time = articles_with_time[0]['datetime']
-    print(f"      基準時間 (crawl_date): {base_start_time.strftime('%Y/%m/%d %H:%M')}")
+        print(f"      使用新故事的基準時間 (crawl_date): {base_start_time.strftime('%Y/%m/%d %H:%M')}")
+    else:
+        print(f"      使用提供的基準時間 (crawl_date): {base_start_time.strftime('%Y/%m/%d %H:%M')}")
 
     if not articles_with_time:
         return []
 
+    # === 防呆 1: 確保 base_start_time 是有時區的 (Aware) ===
+    if base_start_time.tzinfo is None:
+        # 如果它是 Naive，假設它是台北時間
+        base_start_time = taipei_tz.localize(base_start_time)
+    print(f"      基準時間 (crawl_date): {base_start_time.strftime('%Y/%m/%d %H:%M')}")
+
     for item in articles_with_time:
-        article_time = item['datetime'].astimezone(base_start_time.tzinfo)
+        article_time = item['datetime']
         
-        # 計算這篇文章距離基準時間幾天
-        # 使用 total_seconds() 確保計算精確，然後除以一天的秒數
-        time_diff = article_time - base_start_time
-        days_diff = time_diff.total_seconds() / (24 * 3600)
-        
-        if days_diff < 0:
-            # 如果文章時間比 crawl_date 還早 (補抓到的舊聞)，
-            # 強制歸類到第 0 組 (原始故事)
-            group_index = 0
+        if article_time.tzinfo is None:
+            article_time = taipei_tz.localize(article_time)
         else:
-            # 計算落在哪個區間 (例如 0-2.99天 -> index 0, 3-5.99天 -> index 1)
-            group_index = int(days_diff // time_window_days)
+            # 如果原本就有時區，轉成跟 base 一樣的時區以確保可以相減
+            article_time = article_time.astimezone(base_start_time.tzinfo)
+
+        # 計算這篇文章距離基準時間幾天
+        try:
+            time_diff = article_time - base_start_time
+            days_diff = time_diff.total_seconds() / (24 * 3600)
             
-        groups[group_index].append(item)
-        
-        # Log 方便除錯
-        print(f"      文章時間: {article_time}, 距離基準: {days_diff:.1f}天 -> 分入第 {group_index + 1} 組")
+            if days_diff < 0:
+                group_index = 0
+            else:
+                group_index = int(days_diff // time_window_days)
+                
+            groups[group_index].append(item)
+            # Log 方便除錯
+            print(f"      文章時間: {article_time}, 距離基準: {days_diff:.1f}天 -> 分入第 {group_index + 1} 組")
+        except Exception as e:
+            print(f"      [錯誤] 時間計算失敗: {e}")
+            # 發生錯誤時，默認歸到第0組，避免程式崩潰
+            groups[0].append(item)
 
     # 將字典轉換回列表，並按 index 排序，確保回傳順序正確
     # 這裡回傳格式改為 list of tuples: [(index, articles), (index, articles)...]
@@ -1651,8 +1674,8 @@ def process_news_pipeline(main_url, country, category):
     
     # 步驟2: 處理每個故事，獲取所有文章連結
     all_article_links = []
-    if(category=="Politics" or category=="International News" or category=="Science & Technology" or category=="Business & Finance"):
-        for story_info in story_links[:7]:
+    if(category=="Politics" or category=="Lifestyle & Consumer" or category=="Science & Technology" or category=="Business & Finance"):
+        for story_info in story_links[:8]:
             article_links = get_article_links_from_story(story_info)
             all_article_links.extend(article_links)
     else:

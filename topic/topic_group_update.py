@@ -142,7 +142,7 @@ class NewsBranchUpdater:
         更新主題的 update_date 欄位
         """
         try:
-            current_time = datetime.now().isoformat()
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
             response = self.supabase.table('topic').update({
                 'update_date': current_time
             }).eq('topic_id', topic_id).execute()
@@ -720,8 +720,9 @@ class NewsBranchUpdater:
                 
                 if analysis_result:
                     print("\n是否要根據 AI 建議創建新分支？")
-                    user_input = input("輸入 y 確認創建，其他鍵跳過: ").strip().lower()
-                    
+                    # user_input = input("輸入 y 確認創建，其他鍵跳過: ").strip().lower()
+                    user_input = 'n'  # 自動確認以便非互動式環境運行
+
                     if user_input == 'y':
                         create_result = self.create_branches_from_suggestions(topic_id, analysis_result)
                         if create_result:
@@ -742,7 +743,7 @@ class NewsBranchUpdater:
         if not test_mode and has_changes:
             print("\n" + "-" * 30)
             self.update_topic_timestamp(topic_id)
-            
+
         return result
     
     def move_news_to_other_branch(self, story_ids, old_branch_id, new_branch_id):
@@ -1240,7 +1241,7 @@ def review_and_analyze_mode(updater, topic_id=None, auto_fix=False):
     if not auto_fix:
         print("\n是否要自動修復低內聚性分支？")
         print("（將內聚性過低的分支中的新聞移動到「其他新聞」分支）")
-        auto_fix_input = input("輸入 y 啟用，其他鍵跳過: ").strip().lower()
+        auto_fix_input = 'y'#input("輸入 y 啟用，其他鍵跳過: ").strip().lower()
         auto_fix = (auto_fix_input == 'y')
     
     # 3. 執行深度分析
@@ -1390,7 +1391,8 @@ def main():
     print("4. 檢視分支並分析分群品質")
     
     try:
-        choice = input("\n請輸入選項 (1/2/3/4): ").strip()
+        # choice = input("\n請輸入選項 (1/2/3/4): ").strip()
+        choice = '2'  # 預設為處理所有主題
         
         if choice == '1':
             topic_id = input("請輸入主題 ID: ").strip()

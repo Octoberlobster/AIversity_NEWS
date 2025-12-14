@@ -59,14 +59,21 @@ class NewsEventGrouper:
     def fetch_topic_news_map_from_supabase(self):
         """從 Supabase 的 topic_news_map 表獲取主題新聞映射"""
         try:
-           
-            response = self.supabase.table('topic_news_map').select(
-                'topic_id, story_id'
-            ).execute()
+            response = []
+            batch_size = 1000
+            start = 0
+
+            while True:
+                temp = self.supabase.table('topic_news_map').select('topic_id, story_id').range(start, start + batch_size - 1).execute()
+                if not temp.data:
+                    break
+                response.extend(temp.data)
+                print(f"✓ 已獲取 {len(response)} 筆資料...")
+                start += batch_size
             
-            if response.data:
-                print(f"✓ 成功獲取 {len(response.data)} 筆主題新聞映射資料")
-                return response.data
+            if response and len(response) > 0:
+                print(f"✓ 成功獲取 {len(response)} 筆主題新聞映射資料")
+                return response
             else:
                 print("✗ topic_news_map 表無資料")
                 return []
@@ -487,6 +494,21 @@ class NewsEventGrouper:
         all_topic_events = []
         
         for topic_id, story_ids in topic_groups.items():
+
+            try:
+                # 檢查 topic_branch 表中是否已存在該 topic_id
+                # 使用 limit(1) 提高查詢效率，只要有一筆資料就代表已處理過
+                check_response = self.supabase.table('topic_branch').select(
+                    'topic_branch_id'
+                ).eq('topic_id', topic_id).limit(1).execute()
+                
+                if check_response.data and len(check_response.data) > 0:
+                    print(f"⏩ 主題 {topic_id} 已存在於 topic_branch，跳過處理。")
+                    continue  # 跳過本次迴圈，進行下一個 topic_id
+                    
+            except Exception as e:
+                print(f"⚠️ 檢查主題 {topic_id} 是否存在時發生錯誤: {e}，將嘗試繼續處理。")
+                
             print(f"\n處理主題 {topic_id} ({len(story_ids)} 則新聞)...")
             
             # 獲取該主題的新聞內容
@@ -540,7 +562,7 @@ class NewsEventGrouper:
                     print(f"    分支 {i}: {sub_event['event_title']} ({sub_event['news_count']} 則新聞)")
         
         # 4. 儲存結果到 JSON
-        self.save_to_json(all_topic_events, output_path)
+        # self.save_to_json(all_topic_events, output_path)
         
         # 5. 儲存到資料庫或生成預覽
         if save_to_db:
@@ -708,7 +730,7 @@ class NewsEventGrouper:
         event_groups = self.group_news_by_events_ai(news_items)
         
         # 4. 儲存結果到 JSON 檔案
-        self.save_to_json(event_groups, output_path)
+        # self.save_to_json(event_groups, output_path)
         
         # 5. 儲存結果到資料庫
         self.save_to_database(event_groups)

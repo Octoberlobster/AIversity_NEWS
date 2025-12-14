@@ -19,12 +19,12 @@ scripts = [
         "test5_play_taiwan.py",
         "test5_play_usa.py",
         "test5_play_indo.py",
-        "test5_play_japan.py",
+        # "test5_play_japan.py",
 
         "test5_play_taiwan_2.py",
-        "test5_play_usa_2.py",
-        "test5_play_indo_2.py",
-        "test5_play_japan_2.py",
+        # "test5_play_usa_2.py",
+        # "test5_play_indo_2.py",
+        # "test5_play_japan_2.py",
 
         # "./New_Summary/scripts/quick_run.py",
         # "./supabase_error_fix/news_notitle.py",
@@ -51,13 +51,19 @@ scripts = [
         # 專題相關(每天執行)
         # "topic/topic_get_title.py",
         # "topic/Classfication.py",
+        # "topic/complete_news_grouper.py",
+        # 'topic/topic_group_update.py',
+        # "topic/topic_summary.py",
+        # "topic/Pro_Analyze_Topic.py",
+        # "topic/topic_5w1h_2.py",
+        # "topic/topic_report.py",
         # "topic/translate_topic.py",
 
         # 專題相關(每週執行)
         # "topic/complete_news_grouper.py",
         # "topic/topic_summary.py",
         # "topic/Pro_Analyze_Topic.py",
-        # "topic/topic_5w1h_2.py",
+        "topic/topic_5w1h_2.py",
         # "topic/topic_report.py",
         # "topic/translate_topic.py",
 ]
