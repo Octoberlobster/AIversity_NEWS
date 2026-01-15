@@ -1,0 +1,280 @@
+/* --- Common Styles --- */
+.fivew1h-container {
+  font-family: 'Arial', sans-serif;
+  width: 100%;
+  height: 100%; /* Use height 100% for flex to work */
+  padding: 5px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.fivew1h-graph {
+  width: 100%;
+  flex: 1; /* Allow graph to fill container */
+  border-radius: 8px;
+  background: radial-gradient(circle at center, #f8fafc 0%, #e9ecef 100%);
+  overflow: hidden;
+  cursor: grab;
+  box-sizing: border-box;
+}
+
+.fivew1h-graph:active {
+  cursor: grabbing;
+}
+
+.node {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.node:hover {
+  transform: scale(1.05);
+}
+
+/* --- 
+  節點顏色修改 (目標 2 & 3)
+--- */
+
+/* Goal 2: 中間節點改為白底 */
+.node-center { 
+  fill: #ffffff; /* 白色背景 */
+  stroke: #adb5bd; /* 中性灰色外框 */
+  /* 加強陰影讓白底更突出 */
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+}
+.node-center:hover {
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.2));
+}
+
+/* Goal 3: 5W1H 節點改為灰底 */
+.node-who { fill: #e9ecef; stroke: #adb5bd; }
+.node-what { fill: #e9ecef; stroke: #adb5bd; }
+.node-when { fill: #e9ecef; stroke: #adb5bd; }
+.node-where { fill: #e9ecef; stroke: #adb5bd; }
+.node-why { fill: #e9ecef; stroke: #adb5bd; }
+.node-how { fill: #e9ecef; stroke: #adb5bd; }
+
+.node-5w1h { 
+  stroke: #adb5bd; /* 5W1H 節點的統一外框色 */
+} 
+.node-detail { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 1px; }
+
+.link {
+  stroke: #7f8c8d;
+  fill: none;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+.link-center { stroke: #e74c3c; } /* 連接線保持紅色 */
+
+.text {
+  font-family: 'Arial', sans-serif;
+  fill: #2c3e50; /* 基礎文字顏色 (已是深色) */
+  text-anchor: middle;
+  pointer-events: none;
+  font-weight: 500;
+  opacity: 1 !important; /* Override from default css */
+  dominant-baseline: middle;
+}
+
+/* --- 
+  文字顏色修改 (配合淺色背景)
+--- */
+.text-center { 
+  font-weight: bold; 
+  fill: #333333; /* 白色背景搭配深色文字 */
+}
+.text-5w1h { 
+  font-weight: bold; 
+  fill: #333333; /* 灰色背景搭配深色文字 */
+}
+
+.fivew1h-tooltip {
+  position: absolute;
+  background: rgba(44, 62, 80, 0.95);
+  color: white;
+  padding: 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  max-width: 200px;
+  line-height: 1.3;
+  z-index: 1000;
+}
+
+/* --- Header Mode Specific Styles --- */
+.header-mode.fivew1h-container {
+  background: transparent;
+  box-shadow: none;
+}
+
+.header-mode .fivew1h-graph {
+  border: none;
+}
+
+.header-mode .node {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+.header-mode .node.node-center { /* 確保 header 模式下的中心點陰影 */
+   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+}
+.header-mode .node:hover {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+}
+.header-mode .node-center { stroke-width: 2px; }
+.header-mode .node-5w1h { stroke-width: 1.5px; }
+
+.header-mode .link { stroke-width: 1.5px; }
+.header-mode .link-center { stroke-width: 2px; }
+
+.header-mode .text { font-size: 10px; }
+.header-mode .text-center { font-size: 12px; }
+.header-mode .text-5w1h { font-size: 10px; }
+
+.header-mode .fivew1h-tooltip {
+  font-size: 12px;
+}
+
+/* --- Default (Full) Mode Specific Styles --- */
+.default-mode.fivew1h-container {
+  max-width: 100%;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 15px 20px 20px 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  height: auto; /* Let content define height */
+}
+
+.default-mode .fivew1h-title {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 2em;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.default-mode .fivew1h-subtitle {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 1.1em;
+  margin-bottom: 20px;
+}
+
+.default-mode .fivew1h-graph {
+  /* height is set by the SVG child */
+  min-height: 400px; 
+  border: 2px solid #e0e6ed;
+  border-radius: 15px;
+  margin-top: 0;
+  flex: none; /* Override header-mode's flex: 1 */
+}
+
+/* This ensures the SVG (which has height set by JS) defines the container height */
+.default-mode .fivew1h-graph svg {
+  display: block;
+}
+
+.default-mode .node {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+.default-mode .node.node-center { /* 確保 default 模式下的中心點陰影 */
+   filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
+}
+.default-mode .node:hover {
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
+}
+.default-mode .node-center { stroke-width: 3px; }
+.default-mode .node-5w1h { stroke-width: 2px; }
+
+.default-mode .link { stroke-width: 2px; }
+.default-mode .link:hover { stroke-width: 3px; opacity: 1; }
+.default-mode .link-center { stroke-width: 3px; }
+
+.default-mode .text { font-size: 12px; }
+.default-mode .text-center { font-size: 16px; }
+.default-mode .text-5w1h { font-size: 14px; }
+
+.default-mode .fivew1h-tooltip {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  max-width: 250px;
+  line-height: 1.4;
+}
+
+.default-mode .fivew1h-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.default-mode .fivew1h-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 6px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.default-mode .fivew1h-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid #34495e;
+}
+
+.default-mode .fivew1h-controls {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.default-mode .fivew1h-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  margin: 0;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+  min-width: 80px;
+}
+.default-mode .fivew1h-btn:hover {
+  background: #2980b9;
+}
+
+.default-mode .fivew1h-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0px;
+  padding: 0 10px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.default-mode .fivew1h-instructions {
+  color: #7f8c8d;
+  font-size: 11px;
+  margin: 0;
+  flex: 1;
+  line-height: 1.2;
+}
+
+.default-mode .loading {
+  text-align: center;
+  padding: 30px;
+  color: #7f8c8d;
+}

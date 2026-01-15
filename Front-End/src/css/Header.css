@@ -1,0 +1,472 @@
+/* 外層 Header（固定在頂端） */
+.header {
+  background: #f8fafc;
+  color: #1e3a8a;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* ============================================
+   語言特定字體大小調整
+   ============================================ */
+
+/* 繁體中文 - 標準大小 */
+.header.lang-zh-TW .logo {
+  font-size: 2.1rem;
+}
+.header.lang-zh-TW .tagline {
+  font-size: 1.05rem;
+}
+.header.lang-zh-TW .tagLink {
+  font-size: 1.3rem;
+}
+.header.lang-zh-TW .aiWarning {
+  font-size: 1.2rem;
+}
+.header.lang-zh-TW .countrySelect {
+  font-size: 1.3rem;
+}
+
+/* 英文 - 稍微縮小 */
+.header.lang-en .logo {
+  font-size: 1.9rem;
+}
+.header.lang-en .tagline {
+  font-size: 0.95rem;
+}
+.header.lang-en .tagLink {
+  font-size: 1.15rem;
+}
+.header.lang-en .aiWarning {
+  font-size: 1.05rem;
+}
+.header.lang-en .countrySelect {
+  font-size: 1.05rem;
+}
+
+/* 日文 - 與中文相近 */
+.header.lang-jp .logo {
+  font-size: 2.0rem;
+}
+.header.lang-jp .tagline {
+  font-size: 1.0rem;
+}
+.header.lang-jp .tagLink {
+  font-size: 1.25rem;
+}
+.header.lang-jp .aiWarning {
+  font-size: 1.15rem;
+}
+.header.lang-jp .countrySelect {
+  font-size: 1.25rem;
+}
+
+/* 印尼文 - 與英文相近 */
+.header.lang-id .logo {
+  font-size: 1.85rem;
+}
+.header.lang-id .tagline {
+  font-size: 0.9rem;
+}
+.header.lang-id .tagLink {
+  font-size: 1.0rem;
+}
+.header.lang-id .aiWarning {
+  font-size: 1.0rem;
+}
+.header.lang-id .countrySelect {
+  font-size: 1.0rem;
+}
+
+/* 手機版字體調整 */
+@media (max-width: 700px) {
+  .header.lang-zh-TW .aiWarning {
+    font-size: 1.0rem;
+  }
+  .header.lang-en .aiWarning {
+    font-size: 0.9rem;
+  }
+  .header.lang-jp .aiWarning {
+    font-size: 0.95rem;
+  }
+  .header.lang-id .aiWarning {
+    font-size: 0.85rem;
+  }
+}
+
+/* 第一列：品牌 + 搜尋 */
+.mainBar {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem 0.5rem 2rem;
+  background: #f8fafc;
+}
+@media (max-width: 700px) {
+  .mainBar {
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1rem 1rem 0.5rem 1rem;
+  }
+}
+
+.brandSection {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+@media (max-width: 700px) {
+  .brandSection {
+    justify-content: center;
+    width: 100%;
+  }
+}
+.brandLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo {
+  font-weight: 800;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  background-clip: text;
+  -webkit-background-clip: text;      /* 需要這行來支援文字裁切 */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+}
+
+.tagline {
+  opacity: 0.95;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: #1e3a8a;
+}
+@media (max-width: 700px) {
+  .tagline { display: none; }
+}
+
+/* 搜尋列 */
+.searchSection {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+@media (max-width: 700px) {
+  .searchSection {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* 右側區域（搜尋+語言） */
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+@media (max-width: 700px) {
+  .rightSection {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+.searchInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #667eea;
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+.searchInput {
+  padding: 0.5rem 1.2rem 0.5rem 2.5rem;
+  border-radius: 25px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  min-width: 220px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+  transition: box-shadow 0.2s, border 0.2s;
+  color: #1e3a8a;
+  border: 2px solid transparent;
+}
+.searchInput:focus {
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+  border: 2px solid #667eea;
+}
+
+/* 語言選擇器 */
+.languageSection {
+  display: flex;
+  align-items: center;
+}
+
+.languageSelect {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 2px solid #e5e7eb;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #1e3a8a;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  min-width: 120px;
+}
+
+.languageSelect:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.1);
+}
+
+.languageSelect:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+}
+
+.languageSelect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* AI 警語文字 */
+.aiWarning {
+  color: #dc2626;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .aiWarning {
+    white-space: normal;
+    text-align: center;
+    width: 100%;
+  }
+}
+
+/* 第二列：類別標籤列 */
+.tagBarWrapper {
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(30,58,138,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0 0 18px 18px;
+  min-height: 40px;
+  transition: all 0.3s ease;
+}
+@media (max-width: 700px) {
+  .tagBarWrapper {
+    border-radius: 0;
+    padding: 0.2rem;
+  }
+}
+
+.domainTagBar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  overflow-x: auto;
+  scrollbar-width: thin;              /* 支援 Firefox 簡單細捲軸 */
+}
+@media (max-width: 700px) {
+  .domainTagBar { gap: 0.5rem; }
+}
+
+/* 國家選擇器包裹容器 */
+.countrySelectWrapper {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 國家下拉選單 */
+.countrySelect {
+  padding: 0.5rem 2.5rem 0.5rem 1.2rem;
+  border-radius: 25px;
+  border: 2px solid #e5e7eb;
+  background: #fff;
+  color: #1e3a8a;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1.2em;
+  white-space: nowrap;
+}
+
+.countrySelect:hover {
+  border-color: #667eea;
+  background-color: rgba(102, 126, 234, 0.05);
+  box-shadow: 0 2px 8px rgba(102,126,234,0.1);
+}
+
+.countrySelect:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+}
+
+/* 類別標籤（用於顯示在國家選單右側） */
+.categoryTag {
+  background: rgba(102, 126, 234, 0.08);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.categoryTag:hover {
+  background: rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.categoryTag.is-active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-color: transparent;
+}
+
+.categoryTag.is-active:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+/* 國家包裹容器 */
+.countryWrapper {
+  display: inline-block;
+}
+
+/* 類別標籤（Link） */
+.tagLink {
+  background: transparent;
+  color: #1e3a8a;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
+}
+.tagLink:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+.tagLink.is-active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+.tagLink.is-active:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+.tagLink.disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.tagLink.disabled:hover {
+  background: transparent;
+  color: #9ca3af;
+  transform: none;
+}
+
+/* 搜尋表單樣式 */
+.searchForm {
+  display: flex;
+  align-items: center;
+}
+
+.searchInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: all 0.2s;
+}
+
+.searchButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.searchButton:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .searchForm {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .searchButton {
+    margin-left: 0;
+    align-self: stretch;
+  }
+}
+
+/* 登出按鈕樣式 */
+.logoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+  margin-left: 0.75rem;
+}
+
+.logoutButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.logoutButton:active {
+  transform: translateY(0);
+}
+
+.logoutButton svg {
+  width: 16px;
+  height: 16px;
+}

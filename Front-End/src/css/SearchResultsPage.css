@@ -1,0 +1,288 @@
+/* 搜尋結果頁面樣式 */
+.searchPage {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.searchPage__main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.searchPage__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.searchPage__mainCol {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .searchPage__grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Header */
+.searchPage__header {
+  margin-bottom: 2rem;
+}
+
+.searchPage__sectionTitle {
+  color: #1e3a8a;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+}
+
+.searchPage__info {
+  background: #e0f2fe;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #0284c7;
+}
+
+.searchPage__resultCount {
+  color: #0f172a;
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.searchPage__keywords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.searchPage__keyword {
+  background: #3b82f6;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* 載入狀態 */
+.searchPage__loading {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.searchPage__loading p {
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+/* 錯誤狀態 */
+.searchPage__error {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.searchPage__error h2 {
+  color: #ef4444;
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.searchPage__error p {
+  color: #6b7280;
+  margin: 0 0 2rem 0;
+}
+
+.searchPage__backBtn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.searchPage__backBtn:hover {
+  background: #2563eb;
+}
+
+/* 無結果狀態 */
+.searchPage__noResults {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.searchPage__noResults h3 {
+  color: #374151;
+  font-size: 1.3rem;
+  margin: 0 0 1rem 0;
+}
+
+.searchPage__noResults p {
+  color: #6b7280;
+  margin: 0 0 2rem 0;
+}
+
+.searchPage__suggestionTags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.searchPage__suggestionTag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.searchPage__suggestionTag:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* 更多結果按鈕 */
+.searchPage__moreWrap {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.searchPage__moreBtn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.searchPage__moreBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 側邊欄 */
+.searchPage__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.searchPage__card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.searchPage__cardTitle {
+  color: #1e293b;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 熱門搜尋雲 */
+.searchPage__cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.searchPage__kw {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+  color: #0284c7;
+  padding: 0.4rem 0.8rem;
+  border-radius: 15px;
+  font-size: var(--size, 1rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #bae6fd;
+}
+
+.searchPage__kw:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* 相關搜尋 */
+.searchPage__relatedSearch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.searchPage__relatedItem {
+  color: #475569;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+}
+
+.searchPage__relatedItem:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+  .searchPage__main {
+    padding: 1rem 0.5rem;
+  }
+  
+  .searchPage__sectionTitle {
+    font-size: 1.5rem;
+  }
+  
+  .searchPage__sidebar {
+    order: -1;
+  }
+  
+  .searchPage__card {
+    padding: 1rem;
+  }
+}

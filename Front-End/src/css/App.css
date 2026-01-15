@@ -1,0 +1,315 @@
+/* App 外層 */
+.app {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden; /* 防止水平滾動 */
+}
+
+/* 主要內容容器 */
+.mainContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: 16px;
+  overflow-x: hidden; /* 防止水平滾動 */
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    padding-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContent {
+    padding-top: 4px;
+  }
+}
+
+/* 主欄 + 側欄 */
+.contentGrid {
+  display: flex; /* 改用 flex 而不是 grid */
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .contentGrid {
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contentGrid {
+    gap: 0.5rem;
+  }
+}
+
+/* 新聞區域重疊效果 */
+.news-section-overlap {
+  margin-top: -130px; /* 改回原來的重疊距離 */
+  position: relative;
+  z-index: 2;
+}
+
+.news-section-overlap .mainColumn {
+  background: #f8fafc; /* 與主背景色相同,不用漸層 */
+  /* 移除圓角,讓它看起來一體化 */
+  padding-top: 100px; /* 上方內邊距 */
+  padding-left: 2rem;
+  padding-right: 2rem;
+  margin-top: 0;
+  /* 移除陰影,避免看出重疊 */
+  /* 確保內容不會溢出 */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .news-section-overlap {
+    margin-top: -80px; /* 手機版減少重疊 */
+  }
+  
+  .news-section-overlap .mainColumn {
+    padding-top: 60px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .news-section-overlap {
+    margin-top: -50px;
+  }
+  
+  .news-section-overlap .mainColumn {
+    padding-top: 40px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .contentGrid { 
+    flex-direction: column; /* 改為垂直排列 */
+  }
+  .sidebar {
+    width: 100%; /* 小螢幕時佔滿寬度 */
+  }
+}
+
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex: 1;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .mainColumn {
+    gap: 1rem;
+  }
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 350px; /* 明確設定 sidebar 寬度 */
+  flex-shrink: 0; /* 防止縮小 */
+  position: sticky;       /* 讓側欄在滾動時吸附 */
+  top: 2rem;
+  height: fit-content;
+}
+
+@media (max-width: 1200px) {
+  .sidebar {
+    position: static; /* 手機版取消 sticky */
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    gap: 1rem;
+  }
+}
+
+.sidebarCard {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.sidebarTitle {
+  color: #1e3a8a;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+/* 區塊標題 */
+.sectionTitle {
+  color: #1e3a8a;
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0 0;
+  line-height: 1;
+}
+.sectionTitle::before {
+  content: "📰";
+  font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 1.4rem;
+    margin: 1rem 0 0 0;
+  }
+  .sectionTitle::before {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sectionTitle {
+    font-size: 1.2rem;
+    gap: 0.3rem;
+  }
+  .sectionTitle::before {
+    font-size: 1rem;
+  }
+}
+
+/* 熱門新聞標題 */
+.carousel-title-section {
+  color: #1e3a8a;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  
+  /* 完全模擬 contentGrid 的佈局 */
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+}
+
+.carousel-title-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1e3a8a;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+@media (max-width: 1200px) {
+  .carousel-title-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fire-icon {
+  font-size: 1.5rem;
+  animation: flicker 2s infinite alternate;
+}
+
+@keyframes flicker {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+.newsCount {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-family: 'Courier New', monospace;
+  margin-left: 0.5rem;
+}
+
+/* 熱門關鍵字雲 */
+.keywordCloud {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.8rem;
+  padding: 0.5rem 0.2rem;
+  align-items: stretch; /* 讓所有項目高度一致 */
+}
+
+@media (max-width: 768px) {
+  .keywordCloud {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 0.6rem;
+  }
+}
+
+.keyword {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e0e7ef 100%);
+  color: #667eea;
+  font-weight: 600;
+  font-size: clamp(0.75rem, var(--size, 0.9rem), 1.1rem); /* 稍微調小字體範圍 */
+  border-radius: 18px;
+  padding: 0.6rem 0.8rem; /* 增加垂直 padding */
+  min-height: 50px; /* 增加最小高度以容納換行文字 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(102, 126, 234, 0.04);
+  white-space: normal; /* 允許換行 */
+  overflow: visible; /* 顯示所有內容 */
+  word-break: break-word; /* 在需要時斷詞 */
+  hyphens: auto; /* 自動連字符 */
+  line-height: 1.3; /* 調整行高 */
+}
+
+@media (max-width: 768px) {
+  .keyword {
+    min-height: 45px; /* 手機版也增加高度 */
+    padding: 0.5rem 0.6rem; /* 增加垂直 padding */
+    font-size: clamp(0.7rem, var(--size, 0.8rem), 0.95rem);
+    line-height: 1.2;
+  }
+}
+.keyword:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.10);
+}
+
+/* 「閱讀更多新聞」按鈕 */
+.moreButtonWrap {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+.moreButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 0.7rem 2.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+  transition: all 0.2s;
+}
+.moreButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102,126,234,0.20);
+}

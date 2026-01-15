@@ -1,0 +1,469 @@
+{
+  "header": {
+    "brand": "AIversity",
+  "tagline": "スマートニュース、深い洞察",
+    "menu": {
+      "home": "最新",
+      "yesterdayFocus": "焦点",
+      "specialReports": "特集",
+      "onlyTaiwan": "台湾地域のみ",
+      "abroad": "海外ニュース",
+      "politics": "政治",
+      "taiwan": "台湾",
+      "international": "国際",
+      "scienceAndTech": "テクノロジー",
+      "life": "生活",
+      "sports": "スポーツ",
+      "entertainment": "エンタメ",
+      "finance": "経済",
+      "health": "健康"
+    },
+    "countries": {
+      "taiwan": "台湾",
+      "usa": "アメリカ",
+      "japan": "日本",
+      "indonesia": "インドネシア"
+    },
+    "search": {
+      "placeholder": "ニュース/キーワードを検索..."
+    },
+    "language": {
+      "select": "言語を選択"
+    },
+    "aiWarning": "⚠️ AIは間違いを犯す可能性があります。\n慎重にご参照ください"
+  },
+  "home": {
+        "latestTopic": "最新トピック",
+    "focusNews": "注目ニュース",
+    "newsSources": "ニュースソース",
+    "noSources": "ソース情報なし",
+    "latestNews": "最新ニュース",
+    "articles": "件の関連ニュース",
+    "topicNavigation": "トピックナビゲーション",
+    "topicpreview": "特集プレビュー",
+    "nobranches": "特集プレビューはありません",
+    "noTopics": "特集なし"
+  },
+  "yesterdayFocus": {
+    "title": "{{country}}フォーカス",
+    "moreNews": "その他のニュース",
+    "relatedSources": "関連ソース",
+    "noContent": "フォーカスニュースがありません",
+    "loadFailed": "読み込みに失敗しました。後でもう一度お試しください",
+    "dateButtons": {
+      "sevenDaysAgo": "-7日",
+      "threeDaysAgo": "-3日",
+      "yesterday": "昨日",
+      "latest": "最新"
+    },
+    "dateButtonTitles": {
+      "sevenDaysAgo": "7日前",
+      "threeDaysAgo": "3日前",
+      "yesterday": "昨日",
+      "latest": "最新"
+    },
+    "timeLabels": {
+      "midnightLabel": "深夜ニュース",
+      "midnightPeriod": "18:00-24:00",
+      "morningLabel": "朝のニュース",
+      "morningPeriod": "00:00-06:00",
+      "noonLabel": "昼のニュース",
+      "noonPeriod": "06:00-12:00",
+      "eveningLabel": "夕方ニュース",
+      "eveningPeriod": "12:00-18:00"
+    },
+    "loadMore": "前日のフォーカスを見る"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "loadMore": "もっと読み込む",
+    "loadingMore": "読み込み中...",
+    "error": "読み込みに失敗しました",
+    "retry": "再読み込み",
+    "readMore": "続きを読む",
+    "close": "閉じる",
+    "search": "検索",
+    "noContent": "コンテンツがありません",
+    "searchError": "検索中にエラーが発生しました",
+    "reporter": "記者",
+    "editor": "編集者:",
+    "editorName": "AIversityニュース編集部",
+    "backToTop": "トップに戻る"
+  },
+  "categorySection": {
+    "news": "ニュース",
+    "title": "カテゴリ別ニュース",
+    "newsTitle": "{{category}}ニュース",
+    "loading": "読み込み中...",
+    "loadMore": "もっと読み込む",
+    "loadingMore": "読み込み中...",
+    "error": {
+      "loadFailed": "ニュースデータを読み込めません",
+      "loadError": "ニュースの読み込み中にエラーが発生しました"
+    },
+    "empty": {
+      "categoryNotFound": "このカテゴリのニュースは見つかりませんでした",
+      "noNews": "現在、{{category}}関連のニュースはありません"
+    },
+    "categories": {
+      "politics": "政治",
+      "taiwan": "台湾",
+      "scienceAndTech": "科学と技術",
+      "international": "国際",
+      "life": "生活",
+      "sports": "スポーツ",
+      "entertainment": "エンタメ",
+      "finance": "ビジネス・経済",
+      "health": "健康"
+    }
+  },
+  "abroad": {
+    "title": "海外ニュース",
+    "selectCountry": "国を選択：",
+    "allCountries": "すべての国",
+    "loading": "読み込み中...",
+    "loadingMore": "さらに読み込み中...",
+    "loadMore": "もっと見る",
+    "error": {
+      "loadFailed": "海外ニュースを読み込めません",
+      "loadError": "海外ニュースの読み込み中にエラーが発生しました",
+      "loadStories": "記事データを読み込めません",
+      "loadNews": "ニュースデータを読み込めません"
+    },
+    "empty": {
+      "categoryNotFound": "このカテゴリの海外ニュースは見つかりませんでした",
+      "noNews": "現在、海外ニュースはありません",
+      "noCountryNews": "現在、{{country}}のニュースはありません"
+    },
+    "countries": {
+      "United States of America": "アメリカ合衆国",
+      "Japan": "日本",
+      "Korea": "韓国",
+      "France": "フランス",
+      "Germany": "ドイツ",
+      "Vietnam": "ベトナム",
+      "Philippines": "フィリピン",
+      "Indonesia": "インドネシア",
+      "Spain": "スペイン",
+      "United Kingdom": "イギリス",
+      "Italy": "イタリア",
+      "Canada": "カナダ",
+      "Australia": "オーストラリア",
+      "Thailand": "タイ",
+      "Malaysia": "マレーシア",
+      "Singapore": "シンガポール"
+    }
+  },
+  "floatingChat": {
+    "title": "スマート検索アシスタント",
+    "subtitle": "AIによるニュース検索と分析",
+    "description": "🔍 キーワード、質問、またはトピックを入力してください。関連ニュースを検索し、分析的な洞察を提供し、関連レポートをお勧めします",
+    "aria": {
+      "expand": "スマート検索アシスタントを展開",
+      "collapse": "折りたたむ"
+    },
+    "welcome": {
+      "title": "スマート検索アシスタントへようこそ",
+      "message": "検索したいニュースのトピックや質問を入力してください"
+    },
+    "placeholders": {
+      "input": "検索したいニュースのトピックや質問を入力..."
+    },
+    "prompts": {
+      "recentNews": "最近の重要なニュースは何ですか？",
+      "default1": "国際情勢はどうですか？",
+      "default2": "テクノロジー業界の新しい動向は？"
+    },
+    "error": {
+      "serverError": "申し訳ありませんが、サーバーエラーが発生しました。しばらくしてからもう一度お試しください。"
+    },
+    "newsImage": {
+      "alt": "ニュース画像"
+    }
+  },
+  "newsDetail": {
+    "publishedDate": "公開日時",
+    "updatedDate": "更新日時",
+    "loading": {
+      "terms": "用語定義の読み込み中にエラーが発生しました",
+      "positions": "読み込み中...",
+      "data": "データを読み込み中...",
+      "generating": "コンテンツを生成中、お待ちください..."
+    },
+    "chat": {
+      "open": "チャットを開く",
+      "close": "チャットを閉じる"
+    },
+    "factCheck": {
+      "button": "🔍 ファクトチェック"
+    },
+    "author": "作者：",
+    "backToHome": "← ホームに戻る",
+    "positions": {
+      "positive": "賛成意見",
+      "negative": "反対意見",
+      "noPositive": "賛成意見のデータは現在ありません",
+      "noNegative": "反対意見のデータは現在ありません",
+      "positiveModal": "賛成の立場",
+      "negativeModal": "反対の立場"
+    },
+    "expertAnalysis": {
+      "title": "専門家分析",
+      "noData": "専門家分析のデータは現在ありません",
+      "noAnalysis": "分析データは現在ありません",
+      "noContent": "現在、賛成・反対の立場または専門家分析のデータはありません",
+      "refreshAll": "一括更新",
+      "changeExpert": "専門家変更",
+      "generating": "生成中...",
+      "refreshAllTitle": "すべての専門家の視点を再生成",
+      "changeExpertTitle": "専門家の視点を変更"
+    },
+    "taiwanPerspective": {
+      "title": "台湾の視点",
+      "placeholder": "台湾視点の分析はまだ生成されていません",
+      "generateButton": "台湾の視点を生成",
+      "generating": "生成中...",
+      "generateError": "台湾の視点の生成に失敗しました。後でもう一度お試しください"
+    },
+    "mediaLiteracy": {
+      "title": "メディアリテラシー警告",
+      "placeholder": "メディアリテラシー警告はまだ生成されていません",
+      "generateButton": "メディアリテラシー警告を生成",
+      "generating": "生成中...",
+      "generateError": "メディアリテラシー警告の生成に失敗しました。後でもう一度お試しください"
+    },
+    "related": {
+      "news": "関連ニュース",
+      "topics": "関連特集",
+      "topicRelation": "このニュースは該当特集に含まれています"
+    },
+    "sources": {
+      "title": "情報源：",
+      "noSources": "（情報源なし）",
+      "unknownMedia": "不明なメディア",
+      "showMore": "さらに表示（残り{{count}}件）",
+      "showLess": "折りたたむ"
+    }
+  },
+  "term": {
+    "example": "使用例"
+  },
+  "exportChat": {
+    "experts": {
+      "政治專家": "政治専門家",
+      "台灣議題分析師": "台湾問題アナリスト",
+      "國際專家": "国際問題専門家",
+      "科技專家": "テクノロジー専門家",
+      "生活達人": "生活の達人",
+      "體育專家": "スポーツ専門家",
+      "娛樂專家": "エンタメ専門家",
+      "財經專家": "経済専門家",
+      "健康顧問": "健康コンサルタント"
+    },
+    "titles": {
+      "chat": "AI専門家アシスタント"
+    },
+    "subtitles": {
+      "chat": "{{count}}人の専門家がオンライン"
+    },
+    "buttons": {
+      "selectExperts": "専門家を選択",
+      "backToChat": "チャットに戻る",
+      "close": "チャットを閉じる",
+      "send": "➤"
+    },
+    "welcome": {
+      "chat": {
+        "greeting": "ニュースアシスタントへようこそ。ここでは、複数の異なる分野の専門家に同時に質問したり、クイックプロンプトで最初の話題を開始したり。",
+        "title": "AI専門家ディスカッションルームへようこそ",
+        "description": "専門家を選んでディスカッションを始めましょう！"
+      }
+    },
+    "placeholders": {
+      "selectFirst": "まず専門家を選択してください...",
+      "enterQuestion": "質問を入力してください..."
+    },
+    "error": {
+      "serverError": "申し訳ありませんが、サーバーエラーが発生しました。しばらくしてからもう一度お試しください。"
+    },
+    "verification": {
+      "failed": "ファクトチェックに失敗しました",
+      "systemError": "システムエラー",
+      "errorReason": "エラー原因：",
+      "cannotConnect": "検証サービスに接続できません",
+      "suggestion": "提案：",
+      "tryLater": "しばらくしてから再試行するか、システム管理者にお問い合わせください",
+      "checkSource": "ニュースソースの信頼性を確認するか、他の検証方法を試してください。"
+    },
+    "tooltips": {
+      "backToChat": "専門家チャットに戻る",
+      "closeChat": "チャットを閉じる"
+    }
+  },
+  "specialReportPage": {
+    "title": "特集記事",
+    "subtitle": "重要課題を深く掘り下げ、包括的で深いニュース分析を提供します",
+    "loading": "読み込み中...",
+    "error": {
+      "loadFailed": "読み込み失敗: {{error}}",
+      "fetchTopicNews": "特集ニュースの関連を取得できません: {{error}}",
+      "fetchTopicDetails": "特集の詳細情報を取得できません: {{error}}",
+      "fetchReports": "特集記事データの取得に失敗しました"
+    },
+    "retry": "再読み込み",
+    "empty": {
+      "noReports": "現在、特集記事はありません",
+      "noTopics": "特集なし"
+    },
+    "meta": {
+      "articles": "件の記事",
+      "viewMore": "特集を見る →"
+    }
+  },
+  "specialReportDetail": {
+    "loading": "読み込み中...",
+    "error": {
+      "notFound": "特集記事が存在しません",
+      "fallback": "特集記事一覧に戻ってください",
+      "fetchFailed": "特集情報を取得できません: {{error}}",
+      "newsCountFailed": "ニュース数を取得できません",
+      "branchFailed": "ブランチリストを取得できません",
+      "dataFailed": "特集詳細データの取得に失敗しました"
+    },
+    "backToList": "特集記事に戻る",
+    "chat": {
+      "open": "チャットを開く",
+      "close": "チャットを閉じる"
+    },
+    "header": {
+      "articlesCount": "件の記事",
+      "created": "作成日時",
+      "updated": "更新日時",
+      "reportButton": "特集レポート",
+      "reportButtonTitle": "特集統合レポートを表示",
+      "clickToEnlarge": "クリックして拡大",
+      "relationMap": "関連図",
+      "expertAnalysis": "専門家分析",
+      "noExpertAnalysis": "専門家分析がありません",
+      "loadingAnalysis": "専門家分析を読み込み中...",
+      "expert": "専門家",
+      "noContent": "コンテンツがありません",
+      "clickToViewFull": "クリックして完全な分析を表示"
+    },
+    "navigation": {
+      "title": "特集ナビゲーション",
+      "noBranches": "まだブランチはありません"
+    },
+    "section": {
+      "newsCount": "件のニュース",
+      "sourcesCount": "ソース",
+      "sourcesTotal": "合計 {{count}} ソース",
+      "noContent": "このブランチには現在ニュースコンテンツがありません"
+    },
+    "modal": {
+      "5w1h": {
+        "title": "5W1H関連分析",
+        "close": "閉じる"
+      },
+      "report": {
+        "title": "特集統合分析レポート",
+        "close": "レポートを閉じる",
+        "generating": "レポートを生成中...",
+        "generatingDetail": "特集分析レポートを生成中です。しばらくお待ちください..."
+      },
+      "expert": {
+        "clickToView": "クリックして完全な分析を表示",
+        "close": "閉じる"
+      }
+    },
+    "feedback": {
+      "markUseful": "役に立つとマーク",
+      "markedUseful": "役に立つとマーク済み",
+      "markUseless": "役に立たないとマーク",
+      "markedUseless": "役に立たないとマーク済み"
+    }
+  },
+  "topicChat": {
+    "title": "特集ディスカッション",
+    "subtitle": "AI専門家と「{{topicTitle}}」についてディスカッション",
+    "close": "チャットを閉じる",
+    "welcome": {
+      "title": "特集ディスカッションルームへようこそ",
+      "description": "AI専門家と「{{topicTitle}}」関連の議題についてディスカッションしましょう！"
+    },
+    "input": {
+      "placeholder": "質問や意見を入力してください..."
+    },
+    "error": {
+      "serverError": "申し訳ありませんが、サーバーエラーが発生しました。しばらくしてからもう一度お試しください。"
+    },
+    "prompts": {
+      "default1": "このトピック「{{topicTitle}}」の最新の進展は何ですか？",
+      "default2": "「{{topicTitle}}」の背景を詳しく説明してください。",
+      "default3": "「{{topicTitle}}」について、異なる視点はありますか？"
+    }
+  },
+  "searchResult": {
+    "loading": {
+      "text": "検索中..."
+    },
+    "error": {
+      "title": "⚠️ 検索で問題が発生しました",
+      "emptyQuery": "検索キーワードを入力してください",
+      "noResponse": "検索APIから有効な応答がありませんでした",
+      "general": "検索中にエラーが発生しました",
+      "backToHome": "ホームに戻る"
+    },
+    "header": {
+      "title": "検索結果：「{{query}}」",
+      "keywords": "検索キーワード: "
+    },
+    "noResults": {
+      "title": "😔 関連ニュースが見つかりませんでした",
+      "suggestion": "別のキーワードで検索してみてください"
+    },
+    "moreButton": {
+      "text": "さらに検索結果を表示（{{count}}件）"
+    }
+  },
+  "fiveW1H": {
+    "defaultTitle": "特集分析",
+    "centerDescription": "{{topicTitle}}の核心議題分析",
+    "categoryRelatedContent": "{{category}}に関連する内容",
+    "instructions": "💡 背景をドラッグしてグラフを移動、中心を基準にズーム、または個別のノードをドラッグして位置を調整できます",
+    "reloadButton": "再読み込み",
+    "categories": {
+      "who": {
+        "name": "誰",
+        "description": "関係する人物、組織、利害関係者"
+      },
+      "what": {
+        "name": "何",
+        "description": "発生した出来事の内容と具体的な行動"
+      },
+      "when": {
+        "name": "いつ",
+        "description": "出来事の時系列と重要な節目"
+      },
+      "where": {
+        "name": "どこ",
+        "description": "出来事が発生した場所と範囲"
+      },
+      "why": {
+        "name": "なぜ",
+        "description": "出来事の原因と背景"
+      },
+      "how": {
+        "name": "どのように",
+        "description": "出来事の過程と方法"
+      }
+    }
+  },
+  "chatRoom": {
+    "prompts": {
+      "default1": "このニュースの要点は何ですか？",
+      "default2": "これは私にどのような影響を与えますか？",
+      "default3": "他の関連情報はありますか？"
+    }
+  }
+}

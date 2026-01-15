@@ -1,0 +1,471 @@
+{
+  "header": {
+    "brand": "AIversity",
+  "tagline": "Berita Cerdas, Wawasan Mendalam",
+    "menu": {
+      "home": "Terbaru",
+      "yesterdayFocus": "Fokus",
+      "specialReports": "Khusus",
+      "onlyTaiwan": "Hanya Taiwan",
+      "abroad": "Berita Luar Negeri",
+      "politics": "Politik",
+      "taiwan": "Taiwan",
+      "international": "Internasional",
+      "scienceAndTech": "Teknologi",
+      "life": "Gaya Hidup",
+      "sports": "Olahraga",
+      "entertainment": "Hiburan",
+      "finance": "Keuangan",
+      "health": "Kesehatan"
+    },
+    "countries": {
+      "taiwan": "Taiwan",
+      "usa": "Amerika Serikat",
+      "japan": "Jepang",
+      "indonesia": "Indonesia"
+    },
+    "search": {
+      "placeholder": "Cari berita/kata kunci..."
+    },
+    "language": {
+      "select": "Pilih Bahasa"
+    },
+    "aiWarning": "⚠️ AI mungkin membuat kesalahan,\n harap gunakan dengan hati-hati"
+  },
+  "home": {
+    "latestTopic": "Topik Terbaru",
+    "focusNews": "Berita Fokus",
+    "newsSources": "Sumber Berita",
+    "noSources": "Tidak ada informasi sumber",
+    "latestNews": "Berita Terbaru",
+    "articles": "artikel terkait",
+    "topicNavigation": "Navigasi Topik",
+    "topicpreview": "Pratinjau Topik",
+    "nobranches": "Tidak ada pratinjau topik",
+    "noTopics": "Tidak ada Topik"
+  },
+  "yesterdayFocus": {
+    "title": "Fokus {{country}}",
+    "moreNews": "Berita Lainnya",
+    "relatedSources": "Sumber Terkait",
+    "noContent": "Tidak ada berita fokus tersedia",
+    "loadFailed": "Gagal memuat, silakan coba lagi nanti",
+    "dateButtons": {
+      "sevenDaysAgo": "-7 Hari",
+      "threeDaysAgo": "-3 Hari",
+      "yesterday": "Kemarin",
+      "latest": "Terbaru"
+    },
+    "dateButtonTitles": {
+      "sevenDaysAgo": "7 hari yang lalu",
+      "threeDaysAgo": "3 hari yang lalu",
+      "yesterday": "Kemarin",
+      "latest": "Terbaru"
+    },
+    "timeLabels": {
+      "midnightLabel": "Berita Malam",
+      "midnightPeriod": "18:00-24:00",
+      "morningLabel": "Berita Pagi",
+      "morningPeriod": "00:00-06:00",
+      "noonLabel": "Berita Siang",
+      "noonPeriod": "06:00-12:00",
+      "eveningLabel": "Berita Sore",
+      "eveningPeriod": "12:00-18:00"
+    },
+    "loadMore": "Lihat fokus hari sebelumnya"
+  },
+  "common": {
+    "loading": "Memuat...",
+    "loadMore": "Muat Lebih Banyak Berita",
+    "loadingMore": "Memuat...",
+    "error": "Gagal memuat",
+    "retry": "Coba Lagi",
+    "readMore": "Baca Berita Selengkapnya",
+    "close": "Tutup",
+    "search": "Cari",
+    "noContent": "Tidak ada konten",
+    "searchError": "Terjadi kesalahan saat mencari",
+    "reporter": "Wartawan",
+    "editor": "Editor:",
+    "editorName": "Redaksi Berita AIversity",
+    "backToTop": "Kembali ke atas"
+  },
+  "categorySection": {
+    "news": "Berita",
+    "title": "Berita Kategori",
+    "newsTitle": "Berita {{category}}",
+    "loading": "Memuat...",
+    "loadMore": "Muat Lebih Banyak Berita",
+    "loadingMore": "Memuat...",
+    "error": {
+      "loadFailed": "Tidak dapat memuat data berita",
+      "loadError": "Terjadi kesalahan saat memuat berita"
+    },
+    "empty": {
+      "categoryNotFound": "Berita untuk kategori ini tidak ditemukan",
+      "noNews": "Saat ini tidak ada berita terkait {{category}}"
+    },
+    "categories": {
+      "politics": "Politik",
+      "taiwan": "Taiwan",
+      "scienceAndTech": "Sains & Teknologi",
+      "international": "Internasional",
+      "life": "Gaya Hidup",
+      "sports": "Olahraga",
+      "entertainment": "Hiburan",
+      "finance": "Bisnis & Keuangan",
+      "health": "Kesehatan"
+    }
+  },
+  "abroad": {
+    "title": "Berita Luar Negeri",
+    "selectCountry": "Pilih Negara:",
+    "allCountries": "Semua Negara",
+    "loading": "Memuat...",
+    "loadingMore": "Memuat lebih banyak...",
+    "loadMore": "Muat Lebih Banyak",
+    "error": {
+      "loadFailed": "Tidak dapat memuat berita luar negeri",
+      "loadError": "Terjadi kesalahan saat memuat berita luar negeri",
+      "loadStories": "Tidak dapat memuat data cerita",
+      "loadNews": "Tidak dapat memuat data berita"
+    },
+    "empty": {
+      "categoryNotFound": "Berita luar negeri untuk kategori ini tidak ditemukan",
+      "noNews": "Saat ini tidak ada berita luar negeri",
+      "noCountryNews": "Saat ini tidak ada berita dari {{country}}"
+    },
+    "countries": {
+      "United States of America": "Amerika Serikat",
+      "Japan": "Jepang",
+      "Korea": "Korea",
+      "France": "Prancis",
+      "Germany": "Jerman",
+      "Vietnam": "Vietnam",
+      "Philippines": "Filipina",
+      "Indonesia": "Indonesia",
+      "Spain": "Spanyol",
+      "United Kingdom": "Inggris Raya",
+      "Italy": "Italia",
+      "Canada": "Kanada",
+      "Australia": "Australia",
+      "Thailand": "Thailand",
+      "Malaysia": "Malaysia",
+      "Singapore": "Singapura"
+    }
+  },
+  "floatingChat": {
+    "title": "Asisten Pencarian Cerdas",
+    "subtitle": "Pencarian & Analisis Berita Berbasis AI",
+    "description": "🔍 Masukkan kata kunci, pertanyaan, atau topik apa pun. Saya akan mencari berita terkait, memberikan wawasan analitis, dan merekomendasikan laporan yang relevan.",
+    "aria": {
+      "expand": "Buka Asisten Pencarian Cerdas",
+      "collapse": "Tutup"
+    },
+    "welcome": {
+      "title": "Selamat Datang di Asisten Pencarian Cerdas",
+      "message": "Silakan masukkan topik berita atau pertanyaan yang ingin Anda cari"
+    },
+    "placeholders": {
+      "input": "Masukkan topik berita atau pertanyaan Anda..."
+    },
+    "prompts": {
+      "recentNews": "Apa berita penting terbaru?",
+      "default1": "Bagaimana situasi internasional?",
+      "default2": "Adakah perkembangan baru di industri teknologi?"
+    },
+    "error": {
+      "serverError": "Maaf, terjadi kesalahan server. Silakan coba lagi nanti."
+    },
+    "newsImage": {
+      "alt": "Gambar Berita"
+    }
+  },
+  "newsDetail": {
+    "publishedDate": "Diterbitkan",
+    "updatedDate": "Diperbarui",
+    "loading": {
+      "terms": "Terjadi kesalahan saat memuat definisi istilah",
+      "positions": "Memuat...",
+      "data": "Memuat data...",
+      "generating": "Membuat konten, harap tunggu..."
+    },
+    "chat": {
+      "open": "Buka Obrolan",
+      "close": "Tutup Obrolan"
+    },
+    "factCheck": {
+      "button": "🔍 Cek Fakta"
+    },
+    "author": "Penulis: ",
+    "backToHome": "← Kembali ke Beranda",
+    "positions": {
+      "positive": "Sudut Pandang Pro",
+      "negative": "Sudut Pandang Kontra",
+      "noPositive": "Belum ada data sudut pandang pro",
+      "noNegative": "Belum ada data sudut pandang kontra",
+      "positiveModal": "Posisi Pro",
+      "negativeModal": "Posisi Kontra"
+    },
+    "expertAnalysis": {
+      "title": "Analisis Ahli",
+      "noData": "Belum ada data analisis ahli",
+      "noAnalysis": "Belum ada data analisis",
+      "noContent": "Saat ini tidak ada data posisi pro/kontra atau analisis ahli",
+      "refreshAll": "Perbarui Semua",
+      "changeExpert": "Ganti Ahli",
+      "generating": "Membuat...",
+      "refreshAllTitle": "Regenerasi semua perspektif ahli",
+      "changeExpertTitle": "Ubah perspektif ahli"
+    },
+    "taiwanPerspective": {
+      "title": "Perspektif Taiwan",
+      "placeholder": "Analisis perspektif Taiwan belum dibuat",
+      "generateButton": "Buat Perspektif Taiwan",
+      "generating": "Membuat...",
+      "generateError": "Gagal membuat perspektif Taiwan, silakan coba lagi nanti"
+    },
+    "mediaLiteracy": {
+      "title": "Peringatan Literasi Media",
+      "placeholder": "Peringatan literasi media belum dibuat",
+      "generateButton": "Buat Peringatan Literasi Media",
+      "generating": "Membuat...",
+      "generateError": "Gagal membuat peringatan literasi media, silakan coba lagi nanti"
+    },
+    "related": {
+      "news": "Berita Terkait",
+      "topics": "Topik Terkait",
+      "topicRelation": "Berita ini ada dalam topik ini"
+    },
+    "sources": {
+      "title": "Sumber Data:",
+      "noSources": "(Tidak ada sumber data)",
+      "unknownMedia": "Media tidak dikenal",
+      "showMore": "Tampilkan lebih banyak ({{count}} lagi)",
+      "showLess": "Tampilkan lebih sedikit"
+    }
+  },
+  "term": {
+    "example": "Skenario Penggunaan"
+  },
+  "exportChat": {
+    "experts": {
+      "政治專家": "Pakar Politik",
+      "台灣議題分析師": "Analis Isu Taiwan",
+      "國際專家": "Pakar Internasional",
+      "科技專家": "Pakar Teknologi",
+      "生活達人": "Pakar Gaya Hidup",
+      "體育專家": "Pakar Olahraga",
+      "娛樂專家": "Pakar Hiburan",
+      "財經專家": "Pakar Keuangan",
+      "健康顧問": "Konsultan Kesehatan"
+    },
+    "titles": {
+      "chat": "Asisten Ahli AI",
+      "proof": "Hasil Cek Fakta"
+    },
+    "subtitles": {
+      "chat": "{{count}} pakar online",
+      "proof": "Verifikasi sumber konten berita"
+    },
+    "buttons": {
+      "selectExperts": "Pilih Pakar",
+      "backToChat": "Kembali ke Obrolan",
+      "close": "Tutup Obrolan",
+      "send": "➤"
+    },
+    "welcome": {
+      "chat": {
+        "greeting": "Selamat datang di Asisten Berita. Di sini Anda dapat bertanya kepada beberapa pakar dari berbagai bidang secara bersamaan, menggunakan petunjuk cepat untuk memulai topik pertama Anda.",
+        "title": "Selamat Datang di Ruang Diskusi Pakar AI",
+        "description": "Pilih pakar dan mulailah berdiskusi!"
+      }
+    },
+    "placeholders": {
+      "selectFirst": "Silakan pilih pakar terlebih dahulu...",
+      "enterQuestion": "Masukkan pertanyaan Anda..."
+    },
+    "error": {
+      "serverError": "Maaf, terjadi kesalahan server. Silakan coba lagi nanti."
+    },
+    "verification": {
+      "failed": "Cek fakta gagal",
+      "systemError": "Kesalahan sistem",
+      "errorReason": "Alasan kesalahan:",
+      "cannotConnect": "Tidak dapat terhubung ke layanan verifikasi",
+      "suggestion": "Saran:",
+      "tryLater": "Silakan coba lagi nanti atau hubungi administrator sistem",
+      "checkSource": "Silakan periksa kredibilitas sumber berita atau coba metode verifikasi lainnya."
+    },
+    "tooltips": {
+      "backToChat": "Kembali ke obrolan pakar",
+      "closeChat": "Tutup obrolan"
+    }
+  },
+  "specialReportPage": {
+    "title": "Laporan Khusus",
+    "subtitle": "Membahas isu-isu penting secara mendalam, memberikan analisis berita yang komprehensif dan mendalam.",
+    "loading": "Memuat...",
+    "error": {
+      "loadFailed": "Gagal memuat: {{error}}",
+      "fetchTopicNews": "Tidak dapat mengambil pemetaan berita topik: {{error}}",
+      "fetchTopicDetails": "Tidak dapat mengambil detail topik: {{error}}",
+      "fetchReports": "Gagal mengambil data laporan khusus"
+    },
+    "retry": "Coba Lagi",
+    "empty": {
+      "noReports": "Saat ini tidak ada laporan khusus",
+      "noTopics": "Tidak ada topik"
+    },
+    "meta": {
+      "articles": "artikel",
+      "viewMore": "Lihat Topik →"
+    }
+  },
+  "specialReportDetail": {
+    "loading": "Memuat...",
+    "error": {
+      "notFound": "Laporan khusus tidak ada",
+      "fallback": "Silakan kembali ke daftar laporan khusus",
+      "fetchFailed": "Tidak dapat mengambil informasi topik: {{error}}",
+      "newsCountFailed": "Tidak dapat mengambil jumlah berita",
+      "branchFailed": "Tidak dapat mengambil daftar cabang",
+      "dataFailed": "Gagal mengambil data detail topik"
+    },
+    "backToList": "Kembali ke Laporan Khusus",
+    "chat": {
+      "open": "Buka Obrolan",
+      "close": "Tutup Obrolan"
+    },
+    "header": {
+      "articlesCount": "artikel",
+      "created": "Dibuat",
+      "updated": "Diperbarui",
+      "reportButton": "Laporan Topik",
+      "reportButtonTitle": "Lihat laporan terintegrasi topik",
+      "clickToEnlarge": "Klik untuk memperbesar",
+      "relationMap": "Peta Hubungan",
+      "expertAnalysis": "Analisis Ahli",
+      "noExpertAnalysis": "Tidak ada analisis ahli",
+      "loadingAnalysis": "Memuat analisis ahli...",
+      "expert": "Ahli",
+      "noContent": "Tidak ada konten",
+      "clickToViewFull": "Klik untuk melihat analisis lengkap"
+    },
+    "navigation": {
+      "title": "Navigasi Topik",
+      "noBranches": "Belum ada cabang"
+    },
+    "section": {
+      "newsCount": "berita",
+      "sourcesCount": "sumber",
+      "sourcesTotal": "Total {{count}} sumber",
+      "noContent": "Tidak ada konten berita di cabang ini untuk saat ini"
+    },
+    "modal": {
+      "5w1h": {
+        "title": "Analisis Hubungan 5W1H",
+        "close": "Tutup"
+      },
+      "report": {
+        "title": "Laporan Analisis Terintegrasi Topik",
+        "close": "Tutup Laporan",
+        "generating": "Menghasilkan laporan...",
+        "generatingDetail": "Menghasilkan laporan analisis topik, harap tunggu..."
+      },
+      "expert": {
+        "clickToView": "Klik untuk melihat analisis lengkap",
+        "close": "Tutup"
+      }
+    },
+    "feedback": {
+      "markUseful": "Tandai sebagai berguna",
+      "markedUseful": "Sudah ditandai berguna",
+      "markUseless": "Tandai sebagai tidak berguna",
+      "markedUseless": "Sudah ditandai tidak berguna"
+    }
+  },
+  "topicChat": {
+    "title": "Diskusi Topik",
+    "subtitle": "Diskusikan '{{topicTitle}}' dengan AI ahli",
+    "close": "Tutup Obrolan",
+    "welcome": {
+      "title": "Selamat Datang di Ruang Diskusi Topik",
+      "description": "Diskusikan isu-isu terkait '{{topicTitle}}' dengan AI ahli!"
+    },
+    "input": {
+      "placeholder": "Masukkan pertanyaan atau sudut pandang Anda..."
+    },
+    "error": {
+      "serverError": "Maaf, terjadi kesalahan server. Silakan coba lagi nanti."
+    },
+    "prompts": {
+      "default1": "Apa perkembangan terbaru tentang topik ini: {{topicTitle}}?",
+      "default2": "Jelaskan latar belakang {{topicTitle}} secara mendalam.",
+      "default3": "Apa perspektif berbeda tentang {{topicTitle}}?"
+    }
+  },
+  "searchResult": {
+    "loading": {
+      "text": "Mencari..."
+    },
+    "error": {
+      "title": "⚠️ Terjadi masalah saat mencari",
+      "emptyQuery": "Silakan masukkan kata kunci pencarian",
+      "noResponse": "API pencarian tidak memberikan respons yang valid",
+      "general": "Terjadi kesalahan saat mencari",
+      "backToHome": "Kembali ke Beranda"
+    },
+    "header": {
+      "title": "Hasil Pencarian untuk: '{{query}}'",
+      "keywords": "Kata Kunci Pencarian: "
+    },
+    "noResults": {
+      "title": "😔 Tidak ada berita relevan yang ditemukan",
+      "suggestion": "Coba gunakan kata kunci yang berbeda untuk mencari"
+    },
+    "moreButton": {
+      "text": "Tampilkan lebih banyak hasil pencarian ({{count}} artikel)"
+    }
+  },
+  "fiveW1H": {
+    "defaultTitle": "Analisis Topik",
+    "centerDescription": "Analisis Isu Inti dari {{topicTitle}}",
+    "categoryRelatedContent": "Konten terkait {{category}}",
+    "instructions": "💡 Seret latar belakang untuk memindahkan grafik, zoom terpusat, atau seret node individual untuk menyesuaikan posisi",
+    "reloadButton": "Muat Ulang",
+    "categories": {
+      "who": {
+        "name": "Siapa",
+        "description": "Orang, organisasi, dan pemangku kepentingan yang terlibat"
+      },
+      "what": {
+        "name": "Apa",
+        "description": "Konten peristiwa dan tindakan spesifik"
+      },
+      "when": {
+        "name": "Kapan",
+        "description": "Timeline dan tonggak penting"
+      },
+      "where": {
+        "name": "Di mana",
+        "description": "Lokasi dan ruang lingkup peristiwa"
+      },
+      "why": {
+        "name": "Mengapa",
+        "description": "Alasan dan latar belakang peristiwa"
+      },
+      "how": {
+        "name": "Bagaimana",
+        "description": "Proses dan metode peristiwa"
+      }
+    }
+  },
+  "chatRoom": {
+    "prompts": {
+      "default1": "Apa poin-poin penting dari berita ini?",
+      "default2": "Bagaimana ini mempengaruhi saya?",
+      "default3": "Apakah ada informasi terkait lainnya?"
+    }
+  }
+}
