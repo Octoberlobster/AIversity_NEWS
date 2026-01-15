@@ -22,7 +22,8 @@ def initialize_services():
 
 def fetch_data_from_database(supabase):
     """從資料庫獲取專題和新聞資料"""
-    topic = supabase.table("topic").select("topic_id, topic_title").execute()
+    topic = supabase.table("topic").select("topic_id, topic_title").eq("alive", 1).execute()
+    print(topic.data)
     
     news = []
     batch_size = 1000

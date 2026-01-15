@@ -34,7 +34,15 @@ class TopicComprehensiveReporter:
             所有topic的列表
         """
         try:
-            response = self.supabase.table("topic").select("*").execute()
+            # response = self.supabase.table("topic").select("*").execute()
+            response = (
+                self.supabase
+                .table("topic")
+                .select("*")
+                .eq("alive", 1)
+                # .eq("topic_id", "997b1335-cb3a-4ca4-a37f-3eb69e26bca7")
+                .execute()
+            )
             return response.data
         except Exception as e:
             print(f"取得所有topics時發生錯誤: {e}")
@@ -94,35 +102,47 @@ class TopicComprehensiveReporter:
         
         # 建立系統指令
         system_instruction = """
-        你是一位資深新聞編輯，專長是撰寫專題報導的深度分析。
-        請嚴格遵守：
-        1) 所有回覆必須以 Markdown 輸出（標題、粗體、清單、表格皆可視需要使用）。
-        2) 風格：專業、中立、條理清晰；盡量以可驗證的事實為基礎。
-        3) 僅能使用我提供的資料進行分析與推論；不得臆測或補完未提供的資訊。
-        4) 若資料不足以支持某段分析，請在該處以「**資料不足**」標註，並簡述還需要哪些資訊。
-        5) 章節名稱與組織方式可自行決定，但需涵蓋：背景脈絡、核心議題、多方觀點、影響/趨勢、未來可能走向（名稱可變）。
-        6) 優先輸出可讀性高的結構（標題層級清楚、重點條列、關鍵數字置於醒目位置）。
+        你是一位專業的新聞編輯，負責將多篇相關新聞整合成一篇完整的專題整合分析報告。
+        
+        任務要求：
+        1. 仔細分析所有提供的新聞內容
+        2. 按時間順序梳理事件發展脈絡
+        3. 撰寫一篇流暢的專題整合分析報告，分為四個段落(必須做到每段約150~180字，不用寫字數)
+        4. 保持客觀且平衡的新聞寫作風格
+        5. 以markdown格式輸出
 
-
+        寫作要求：
+        - 使用新聞報導的倒金字塔結構
+        - 語言簡潔明確，避免冗長句子
+        - 客觀中立，不帶主觀色彩
+        - 基於提供的新聞資料撰寫
         """
         
         # 建立用戶提示
         user_prompt = f"""
-        以下是新聞資料，請根據內容撰寫一份專題報導的深度分析報告（Markdown 格式）。
+        請根據以下資訊，撰寫一篇關於「{topic_info['topic_title']}」的專題整合分析報告。
+        重點是：文章必須有深度，但排版要讓讀者容易掃讀、不會覺得冗長。
 
         【Topic 資訊】
-        - ID: {topic_info['topic_id']}
-        - 標題: {topic_info['topic_title']}
+        ID: {topic_info['topic_id']}
+        標題: {topic_info['topic_title']}
+        相關新聞數量: {len(news_data)} 篇
 
-        【相關新聞摘要（JSON）】
+        【新聞摘要】
         {json.dumps(news_summaries, ensure_ascii=False, indent=2)}
 
-        請注意：
-        - 可自由決定章節與結構，但務必讓讀者能快速掌握全貌與爭點。
-        - 儘量整合多篇新聞的脈絡與關聯性，避免逐篇流水帳。
-        - 如需引用數據或時間點，請盡量在文中以括號標示其來自哪一則摘要（例如：#3、#7）。
-        - 若能提煉出「關鍵時間線」或「利害關係人地圖」，可放在文末作為附錄（選用）。
+        輸出格式（Markdown），只需輸出markdown中的內容
+        新聞標題（簡潔有力，15–20字）
+        幫我分成5個段落，每段約150–180字
+        每段前面加上小標題（5–10字）
+        最後一段是可能影響（約100字）
 
+        寫作規則
+        全文 800–1000字。
+        段落之間必須留白，避免文字牆。
+        小標題必須新聞化，並適度用 emoji 或符號提升辨識度。
+        段落開頭要有「鉤子句」，並以粗體標示。
+        文字風格：專業新聞體，避免口語或情緒化。
         """
         
         try:
@@ -131,11 +151,12 @@ class TopicComprehensiveReporter:
                 contents=user_prompt,
                 config={
                     "system_instruction": system_instruction,
-                    "temperature": 0.3,
+                    "response_mime_type": "text/plain",  # 改為純文字
+                    
                 }
             )
-
-            return response.text
+            
+            return response.text  # 直接返回文字內容
         except Exception as e:
             print(f"生成綜合報導時發生錯誤: {e}")
             return None
@@ -150,14 +171,9 @@ class TopicComprehensiveReporter:
             是否成功保存
         """
         try:
-            data_to_save = {
-                "topic_id": topic_id,
-                "report_content": json.dumps(report_data, ensure_ascii=False),
-                "generated_date": datetime.now().isoformat(),
-                "status": "completed"
-            }
-            
-            response = self.supabase.table("comprehensive_reports").insert(data_to_save).execute()
+            self.supabase.table("topic").update({
+                "report": report_data
+            }).eq("topic_id", topic_id).execute()
             return True
         except Exception as e:
             print(f"保存綜合報導時發生錯誤: {e}")
@@ -204,7 +220,7 @@ class TopicComprehensiveReporter:
             return {"success": False, "error": "生成綜合報導失敗"}
         
         # 保存報導
-        # saved = self.save_comprehensive_report(topic_id, report)
+        saved = self.save_comprehensive_report(topic_id, report)
         
         return {
             "success": True,
@@ -284,11 +300,11 @@ if __name__ == "__main__":
     reporter = TopicComprehensiveReporter(supabase, gemini_client)
     
     # 方法1: 處理單個topic（根據關鍵字）
-    result = reporter.process_single_topic(keyword="重啟核三公投")
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    # result = reporter.process_single_topic(keyword="重啟核三公投")
+    # print(json.dumps(result, ensure_ascii=False, indent=2))
     
     # 方法2: 處理所有topics
-    # results = reporter.process_all_topics()
+    results = reporter.process_all_topics()
     # summary = reporter.generate_summary_report(results)
     # print("處理摘要:")
     # print(json.dumps(summary, ensure_ascii=False, indent=2))
