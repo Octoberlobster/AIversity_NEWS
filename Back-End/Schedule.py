@@ -16,47 +16,51 @@ logging.basicConfig(
 
 # 您目前的腳本清單
 scripts = [
-        # "Crawler/craw.py",
+        # 爬取 Google News
+        "Crawler/craw.py",
 
-        # "New_Summary/scripts/quick_run.py",
-        # "Supabase_error_fix/news_notitle.py",
+        # 新聞生成
+        "New_Summary/scripts/quick_run.py",
+        "Supabase_error_fix/news_notitle.py",
 
-        # "Category_images/generate_categories_from_single_news.py",
-        # "Analyze/Position_flag.py",
-        # "Analyze/Who_talk.py",
-        # "Analyze/Suicide_flag.py",
-        # "Attribution/Attribution_gemini.py",
-        # "Category_images/generate_picture_to_supabase/generate_from_supabase.py",
-        # "Analyze/Pros_and_cons.py",
-        # "Supabase_error_fix/who_talk_false.py",
-        # "Analyze/Pro_Analyze.py",
+        # 圖片與分析生成
+        "Category_images/generate_categories_from_single_news.py",
+        "Analyze/Position_flag.py",
+        "Analyze/Who_talk.py",
+        "Supabase_error_fix/who_talk_false.py",
+        "Analyze/Suicide_flag.py",
+        "Attribution/Attribution_gemini.py",
+        "Category_images/generate_picture_to_supabase/generate_from_supabase.py",
+        "Analyze/Pros_and_cons.py",
+        "Analyze/Pro_Analyze.py",
 
-        # "Relative/Relative_News.py",
-        # "Supabase_error_fix/relative_false.py",
-        # "Translate/Translate.py",
-        # "Relative/Relative_Topics.py",
+        # 相關新聞
+        "Relative/Relative_News.py",
+        "Supabase_error_fix/relative_false.py",
+        "Translate/Translate.py",
+        "Relative/Relative_Topics.py",
 
         # 10大新聞
-        # "Toptennews/Toptennews.py"
+        "Toptennews/Toptennews.py"
 
         # 專題相關(每天執行)
-        # "Topic/topic_get_title.py",
-        # "Topic/Classfication.py",
-        # "Topic/complete_news_grouper.py",
-        # 'Topic/topic_group_update.py',
-        # "Topic/topic_summary.py",
-        # "Topic/Pro_Analyze_Topic.py",
-        # "Topic/topic_5w1h_2.py",
-        # "Topic/topic_report.py",
-        # "Topic/translate_topic.py",
+        "Topic/topic_get_title.py",
+        "Topic/Classfication.py",
+        "Topic/complete_news_grouper.py",
+        'Topic/topic_group_update.py',
+        "Topic/topic_summary.py",
+        "Topic/Pro_Analyze_Topic.py",
+        "Topic/topic_5w1h_2.py",
+        "Topic/topic_report.py",
+        "Topic/translate_topic.py",
 
         # 專題相關(每週執行)
-        # "Topic/complete_news_grouper.py",
-        # "Topic/topic_summary.py",
-        # "Topic/Pro_Analyze_Topic.py",
-        # "Topic/topic_5w1h_2.py",
-        # "Topic/topic_report.py",
-        # "Topic/translate_topic.py",
+        "Topic/complete_news_grouper.py",
+        "Topic/topic_summary.py",
+        "Topic/Pro_Analyze_Topic.py",
+        "Topic/topic_5w1h_2.py",
+        "Topic/topic_report.py",
+        "Topic/translate_topic.py",
 ]
 
 def log_stream(stream, script_name, log_queue):
@@ -150,4 +154,4 @@ def run_scripts_parallel(max_workers=None):
     logging.info("所有腳本執行完成")
 
 if __name__ == "__main__":
-    run_scripts_parallel(max_workers=4)
+    run_scripts_parallel(max_workers=1)

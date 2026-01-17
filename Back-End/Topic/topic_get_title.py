@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Optional
 from google.genai import types
 import json
 import uuid
+from datetime import datetime
 
 def craw_cna_topic() -> List[str]:
     """

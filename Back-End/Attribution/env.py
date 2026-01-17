@@ -1,9 +1,10 @@
 from google import genai
 from supabase import create_client, Client
 from dotenv import load_dotenv
+from pathlib import Path
 import os
 
-load_dotenv()
+load_dotenv(Path(__file__).parent.parent / '.env')
 # 設定環境變數
 api_key = os.getenv("GEMINI_API_KEY")
 gemini_client = genai.Client(api_key=api_key)

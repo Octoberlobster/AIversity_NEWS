@@ -810,7 +810,7 @@ class Translate:
             return None
         
         if not response:
-            print(f"未找到story_id '{story_id}' 的pro_analyze資料")
+            print(f"未找到topic_id '{topic_id}' 的pro_analyze資料")
             return None
         
         pro_analyze_data = response[0]

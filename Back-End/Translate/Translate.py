@@ -894,7 +894,7 @@ if __name__ == "__main__":
     #跑所有新聞的翻譯
     all_require = []
     batch_size = 1000
-    start = 6800
+    start = 0
     initial_delay = 1  # seconds
 
     while True:
@@ -905,28 +905,28 @@ if __name__ == "__main__":
                 break
             all_require.extend(temp.data)
             # break
+            
 
             start += batch_size
         except postgrest.exceptions.APIError as e:
-            if attempt == max_retries - 1:  # Last attempt
-                raise  # Re-raise the last error if all retries failed
-            delay = initial_delay * (2 ** attempt)  # Exponential backoff
-            print(f"API Error occurred. Retrying in {delay} seconds... (Attempt {attempt + 1}/{max_retries})")
-            time.sleep(delay)
+            print(f"APIError encountered: {e}. Retrying after {initial_delay} seconds...")
+            time.sleep(initial_delay)
+            initial_delay = min(initial_delay * 2, 60)  # Exponential backoff up to 60 seconds
+            continue
 
     story_id_list = [item.get("story_id", "") for item in all_require]
     for num, story_id in enumerate(story_id_list, start=1):
         print(f"{num}.開始翻譯story_id '{story_id}' 的新聞資料")
 
-        # translate.translate_singleNews(story_id)
-        # translate.translate_relativeNews(story_id)
+        translate.translate_singleNews(story_id)
+        translate.translate_relativeNews(story_id)
 
-        # translate.translate_relativeTopics(story_id)
-        # translate.translate_terms(story_id)
+        translate.translate_relativeTopics(story_id)
+        translate.translate_terms(story_id)
 
         translate.translate_position(story_id)
-        # translate.translate_pro_analyze(story_id)
-        # translate.translate_imagedescription(story_id)
+        translate.translate_pro_analyze(story_id)
+        translate.translate_imagedescription(story_id)
         translate.translate_keyword(story_id)
     
     #跑所有topic的翻譯

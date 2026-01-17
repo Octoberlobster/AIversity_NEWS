@@ -37,19 +37,24 @@ pip install -r requirements.txt
 ### 3. 安裝 React 依賴<br>
 前端部分使用 React，請先安裝 Node.js 和 npm（如果尚未安裝，請先安裝 Node.js 來獲得 npm）。
 ```
-cd frontend
+cd Front-End
 npm install
 ```
 ### 4. 配置環境變數<br>
-根據需要，配置專案的環境變數。例如，API 金鑰、數據庫連線等。這些變數通常可以寫入 .env 檔案。
+根據需要，配置專案的環境變數。
+
+#### Front-End 環境變數
+在 `Front-End` 目錄下創建 `.env` 檔案，並配置所需的 API 金鑰和數據庫連線等變數。
 ```
-API_KEY=your_api_key_here
-DATABASE_URL=your_database_url_here
+# Front-End/.env
+REACT_APP_SUPABASE_URL=
+REACT_APP_SUPABASE_ANON_KEY=
 ```
+
 ### 5. 執行後端服務<br>
 啟動後端服務，使其開始處理資料爬取、分類和摘要生成。
 ```
-cd backend
+cd Front-End/back-end
 python app.py
 ```
 後端服務會啟動並開始監聽指定的端口（通常是 localhost:5000，具體視專案配置而定）。
@@ -57,7 +62,7 @@ python app.py
 ### 6. 執行前端應用  
 啟動前端 React 應用，讓使用者能夠與平台互動。
 ```
-cd frontend
+cd Front-End
 npm start
 ```
 這樣，React 應用將會啟動並可以通過瀏覽器訪問（通常是 localhost:3000）。
